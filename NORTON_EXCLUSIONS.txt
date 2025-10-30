@@ -1,0 +1,43 @@
+=========================================
+NORTON ANTIVIRUS EXCLUSIONS
+=========================================
+
+Kopieer deze paden EXACT en plak in Norton exclusions:
+
+1. Huidige project in OneDrive:
+C:\Users\steve\OneDrive\Desktop\C dev\TailTribe-Final
+
+2. Nieuwe lokatie (buiten OneDrive):
+C:\dev
+
+3. Node.js installatie folder (kan verschillen, check eerst):
+C:\Program Files\nodejs
+
+=========================================
+PROCESSEN OM UIT TE SLUITEN
+=========================================
+
+node.exe
+npm.exe
+npx.exe
+
+=========================================
+INSTRUCTIES
+=========================================
+
+In Norton:
+1. Open Norton 360
+2. Klik op "Settings" / "Instellingen"
+3. Ga naar "Antivirus"
+4. Klik op "Scans and Risks" / "Scans en Risico's"
+5. Scroll naar "Exclusions/Low Risks" / "Uitzonderingen"
+6. Klik op "Configure" / "Configureren"
+7. Onder "Items to Exclude from Scans":
+   - Klik "Add Folder"
+   - Plak de paden hierboven één voor één
+8. Onder "Items to Exclude from Auto-Protect":
+   - Doe hetzelfde
+9. Klik "Apply" / "Toepassen"
+
+=========================================
+

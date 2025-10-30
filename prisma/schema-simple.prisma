@@ -1,0 +1,214 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@map("accounts")
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String    @unique
+  emailVerified DateTime?
+  image         String?
+  role          String    @default("OWNER") // OWNER, CAREGIVER, ADMIN
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  accounts         Account[]
+  sessions         Session[]
+  caregiverProfile CaregiverProfile?
+  messages         Message[]
+  bookingsOwned    Booking[] @relation("OwnerBookings")
+  bookingsAsCarer  Booking[] @relation("CarerBookings")
+  reviews          Review[]
+
+  @@map("users")
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+  @@map("verificationtokens")
+}
+
+model CaregiverProfile {
+  id         String   @id @default(cuid())
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId     String   @unique
+  city       String
+  lat        Float?
+  lng        Float?
+  services   String   // JSON string: ["DOG_WALKING", "PET_SITTING"]
+  hourlyRate Int
+  bio        String?
+  photos     String?  // JSON string: ["url1", "url2"]
+  isApproved Boolean  @default(false)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  listings     Listing[]
+  reviews      Review[]
+  availability Availability?
+  highlights   StoryHighlight[]
+
+  @@index([city])
+  @@index([isApproved])
+  @@map("caregiver_profiles")
+}
+
+model Listing {
+  id          String  @id @default(cuid())
+  caregiver   CaregiverProfile @relation(fields: [caregiverId], references: [id], onDelete: Cascade)
+  caregiverId String
+  title       String
+  description String
+  minRate     Int
+  photos      String? // JSON string
+  active      Boolean @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  bookings    Booking[]
+
+  @@index([active])
+  @@index([caregiverId])
+  @@map("listings")
+}
+
+model Availability {
+  id          String  @id @default(cuid())
+  caregiver   CaregiverProfile @relation(fields: [caregiverId], references: [id], onDelete: Cascade)
+  caregiverId String  @unique
+  weeklyJson  String  // JSON string for weekly schedule
+  exceptions  String? // JSON string for exceptions
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("availability")
+}
+
+model Booking {
+  id          String   @id @default(cuid())
+  owner       User     @relation("OwnerBookings", fields: [ownerId], references: [id])
+  ownerId     String
+  caregiver   User     @relation("CarerBookings", fields: [caregiverId], references: [id])
+  caregiverId String
+  listing     Listing? @relation(fields: [listingId], references: [id])
+  listingId   String?
+  startAt     DateTime
+  endAt       DateTime
+  status      String   @default("PENDING") // PENDING, ACCEPTED, DECLINED, PAID, REFUNDED
+  paymentLink String?
+  amountCents Int
+  currency    String   @default("EUR")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  messages    Message[]
+  reviews     Review[]
+
+  @@index([status])
+  @@index([caregiverId])
+  @@index([ownerId])
+  @@map("bookings")
+}
+
+model Message {
+  id        String   @id @default(cuid())
+  booking   Booking  @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  bookingId String
+  sender    User     @relation(fields: [senderId], references: [id])
+  senderId  String
+  body      String
+  createdAt DateTime @default(now())
+  readAt    DateTime?
+
+  @@index([bookingId])
+  @@index([senderId])
+  @@map("messages")
+}
+
+model Review {
+  id          String   @id @default(cuid())
+  caregiver   CaregiverProfile @relation(fields: [caregiverId], references: [id], onDelete: Cascade)
+  caregiverId String
+  author      User     @relation(fields: [authorId], references: [id])
+  authorId    String
+  booking     Booking? @relation(fields: [bookingId], references: [id])
+  bookingId   String?
+  rating      Int      // 1-5
+  comment     String?
+  createdAt   DateTime @default(now())
+
+  @@index([caregiverId])
+  @@index([authorId])
+  @@index([bookingId])
+  @@map("reviews")
+}
+
+model StoryHighlight {
+  id            String        @id @default(cuid())
+  caregiver     CaregiverProfile @relation(fields: [caregiverId], references: [id], onDelete: Cascade)
+  caregiverId   String
+  platform      String        // YOUTUBE or VIMEO
+  videoUrl      String
+  title         String?
+  transcript    String?
+  published     Boolean       @default(true)
+  createdAt     DateTime      @default(now())
+  expiresAt     DateTime
+  
+  @@index([caregiverId, published])
+  @@index([expiresAt])
+  @@map("story_highlights")
+}
+
+model RateLimit {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  tokens    Int      @default(0)
+  lastRefill DateTime @default(now())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([key])
+  @@index([lastRefill])
+  @@map("rate_limits")
+}
+

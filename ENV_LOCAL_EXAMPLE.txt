@@ -1,0 +1,21 @@
+# Copy this file to .env for local development
+# Windows: rename to .env (leading dot)
+
+# Database (SQLite for local dev)
+DATABASE_URL="file:./prisma/dev.db"
+
+# NextAuth
+NEXTAUTH_SECRET="2d1c1f9f6e4b4a3a9c8f7e6d5c4b3a2a1f0e9d8c7b6a5f4e3d2c1b0a9f8e7d6"
+NEXTAUTH_URL="http://localhost:3000"
+
+# Stripe (TEST keys for dev)
+NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY="pk_test_xxxxxxxxxxxxxxxxxxxxx"
+STRIPE_SECRET_KEY="sk_test_xxxxxxxxxxxxxxxxxxxxx"
+
+# Platform Settings
+PLATFORM_COMMISSION_PERCENTAGE="20"
+
+# Optional
+SENTRY_DSN=""
+POSTHOG_KEY=""
+POSTHOG_HOST=""

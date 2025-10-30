@@ -1,0 +1,430 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@map("accounts")
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  firstName     String?   // NEW: Split name
+  lastName      String?   // NEW: Split name
+  email         String    @unique
+  emailVerified DateTime?
+  password      String?   // For credentials provider
+  image         String?
+  role          String    @default("OWNER") // OWNER, CAREGIVER, ADMIN
+  referredBy    String?   // Referral code used during registration
+  phone         String?   // Phone number for owners
+  city          String?   // City for owners (for matching)
+  postalCode    String?   // NEW: Postal code
+  country       String    @default("BE") // BE, NL - MULTI-COUNTRY SUPPORT
+  lat           Float?    // NEW: Latitude for map (owners)
+  lng           Float?    // NEW: Longitude for map (owners)
+  notificationPreferences String? // NEW: JSON: {email: true, sms: false}
+  preferences   String?   // JSON: preferred services, frequency, timing, location, etc.
+  howHeardAbout String?   // NEW: How they found TailTribe
+  perfectExperience String? // NEW: Open field for what makes perfect experience
+  onboardingCompleted Boolean @default(false) // Track if onboarding is done
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  accounts         Account[]
+  sessions         Session[]
+  caregiverProfile CaregiverProfile?
+  messages         Message[]
+  bookingsOwned    Booking[] @relation("OwnerBookings")
+  bookingsAsCarer  Booking[] @relation("CarerBookings")
+  reviewsGiven     Review[]  @relation("AuthorReviews")
+  reviewsReceived  Review[]  @relation("UserReviews")
+  favorites        Favorite[] @relation("OwnerFavorites")
+  referrals        Referral[] @relation("ReferrerReferrals")
+  pets             Pet[]
+
+  @@index([country])
+  @@index([city, country])
+  @@map("users")
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+  @@map("verificationtokens")
+}
+
+model CaregiverProfile {
+  id                String   @id @default(cuid())
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId            String   @unique
+  city              String
+  country           String   @default("BE") // BE, NL - MULTI-COUNTRY SUPPORT
+  postalCode        String?  // NEW: Postcode
+  lat               Float?
+  lng               Float?
+  actionRadius      Int?     // NEW: Actieradius in km
+  
+  // Profile
+  profilePhoto      String?  // NEW: URL naar profielfoto
+  bio               String?
+  photos            String?  // JSON string: ["url1", "url2"]
+  
+  // Services & Capacity
+  services          String   // JSON string: ["DOG_WALKING", "PET_SITTING"]
+  animalTypes       String?  // NEW: JSON ["DOG", "CAT", "SMALL_ANIMAL", "BIRD", "OTHER"]
+  customAnimalTypes String?  // NEW: Custom animal types when OTHER is selected (e.g. "Alpaca's, Fretten")
+  animalSizes       String?  // NEW: JSON ["XS", "S", "M", "L", "XL"]
+  maxAnimalsAtOnce  Int?     // NEW: Max aantal dieren tegelijk
+  hourlyRate        Int      // Deprecated, use servicePrices
+  servicePrices     String?  // NEW: JSON {"DOG_WALKING": 25, "PET_SITTING": 30, ...}
+  
+  // Availability & Policy
+  availabilityData  String?  // NEW: JSON {"days": ["MA", "DI"], "times": ["OVERDAG", "AVOND"]}
+  cancellationPolicy String? // NEW: FLEXIBLE, STANDARD, STRICT
+  
+  // Badges & Certificates
+  insurance         String?  // NEW: JSON {"provider": "...", "policyNumber": "...", "expiryDate": "...", "fileUrl": "..."}
+  firstAid          Boolean  @default(false) // NEW: Heeft EHBO
+  firstAidCertificate String? // NEW: URL naar EHBO certificaat
+  businessNumber    String?  // NEW: KBO (BE) / KVK (NL) nummer
+  vatNumber         String?  // NEW: BTW nummer (BE/NL)
+  certificates      String?  // JSON: [{"type":"EHBO","fileUrl":"...","verified":true}]
+  
+  // Payout (for manual or Stripe Connect)
+  iban              String?  // NEW: IBAN voor uitbetalingen
+  accountHolder     String?  // NEW: Naam rekeninghouder
+  commissionAgreed  Boolean  @default(false) // NEW: 20% commissie akkoord
+  platformRulesAgreed Boolean @default(false) // NEW: Platformregels akkoord
+  
+  // Admin & Stripe
+  isApproved        Boolean  @default(false)
+  stripeAccountId   String?  // Stripe Connect account ID
+  stripeOnboarded   Boolean  @default(false)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  listings     Listing[]
+  availability Availability?
+  highlights   StoryHighlight[]
+
+  @@index([city])
+  @@index([country])
+  @@index([city, country])
+  @@index([isApproved])
+  @@index([isApproved, country])
+  @@map("caregiver_profiles")
+}
+
+model Listing {
+  id          String  @id @default(cuid())
+  caregiver   CaregiverProfile @relation(fields: [caregiverId], references: [id], onDelete: Cascade)
+  caregiverId String
+  title       String
+  description String
+  minRate     Int
+  photos      String? // JSON string
+  active      Boolean @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  bookings    Booking[]
+
+  @@index([active])
+  @@index([caregiverId])
+  @@map("listings")
+}
+
+model Availability {
+  id          String  @id @default(cuid())
+  caregiver   CaregiverProfile @relation(fields: [caregiverId], references: [id], onDelete: Cascade)
+  caregiverId String  @unique
+  weeklyJson  String  // JSON string for weekly schedule
+  exceptions  String? // JSON string for exceptions
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("availability")
+}
+
+model Booking {
+  id                    String   @id @default(cuid())
+  owner                 User     @relation("OwnerBookings", fields: [ownerId], references: [id])
+  ownerId               String
+  caregiver             User     @relation("CarerBookings", fields: [caregiverId], references: [id])
+  caregiverId           String
+  listing               Listing? @relation(fields: [listingId], references: [id])
+  listingId             String?
+  startAt               DateTime
+  endAt                 DateTime
+  status                String   @default("PENDING") // PENDING, ACCEPTED, DECLINED, PAID, COMPLETED, CANCELLED, REFUNDED
+  paymentLink           String?
+  amountCents           Int
+  platformFeeCents      Int?     // Platform commission in cents
+  caregiverAmountCents  Int?     // Amount caregiver receives
+  currency              String   @default("EUR")
+  stripePaymentIntentId String?  // Stripe Payment Intent ID
+  stripeTransferId      String?  // Stripe Transfer ID to caregiver
+  paidAt                DateTime?
+  completedAt           DateTime?
+  
+  // Pet & Booking Details
+  petName               String?
+  petType               String?
+  customAnimalType      String?  // Custom animal type when petType = OTHER
+  petBreed              String?
+  specialInstructions   String?
+  offLeashAllowed       Boolean? @default(false)
+  
+  // Emergency Contacts (NEW)
+  emergencyContactName  String?
+  emergencyContactPhone String?
+  veterinarianName      String?
+  veterinarianPhone     String?
+  veterinarianAddress   String?
+  
+  // Recurring Booking (NEW)
+  isRecurring           Boolean? @default(false)
+  recurringType         String?  // WEEKLY, BIWEEKLY, MONTHLY
+  recurringParentId     String?  // Links to parent booking if this is a recurrence
+  recurringEndDate      DateTime? // When recurring bookings stop
+  
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+
+  messages          Message[]
+  reviews           Review[]
+  serviceCompletion ServiceCompletion?
+
+  @@index([status])
+  @@index([caregiverId])
+  @@index([ownerId])
+  @@index([stripePaymentIntentId])
+  @@index([isRecurring])
+  @@index([recurringParentId])
+  @@map("bookings")
+}
+
+model Message {
+  id        String   @id @default(cuid())
+  booking   Booking  @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  bookingId String
+  sender    User     @relation(fields: [senderId], references: [id])
+  senderId  String
+  body      String
+  createdAt DateTime @default(now())
+  readAt    DateTime?
+
+  @@index([bookingId])
+  @@index([senderId])
+  @@map("messages")
+}
+
+model Review {
+  id           String   @id @default(cuid())
+  reviewee     User     @relation("UserReviews", fields: [revieweeId], references: [id], onDelete: Cascade)
+  revieweeId   String
+  revieweeRole String   // OWNER or CAREGIVER - who is being reviewed
+  author       User     @relation("AuthorReviews", fields: [authorId], references: [id])
+  authorId     String
+  authorRole   String   // OWNER or CAREGIVER - who is writing the review
+  booking      Booking? @relation(fields: [bookingId], references: [id])
+  bookingId    String?
+  rating       Int      // 1-5
+  comment      String?
+  createdAt    DateTime @default(now())
+
+  @@index([revieweeId])
+  @@index([authorId])
+  @@index([bookingId])
+  @@index([revieweeRole])
+  @@map("reviews")
+}
+
+model StoryHighlight {
+  id            String        @id @default(cuid())
+  caregiver     CaregiverProfile @relation(fields: [caregiverId], references: [id], onDelete: Cascade)
+  caregiverId   String
+  platform      String        // YOUTUBE or VIMEO
+  videoUrl      String
+  title         String?
+  transcript    String?
+  published     Boolean       @default(true)
+  createdAt     DateTime      @default(now())
+  expiresAt     DateTime
+  
+  @@index([caregiverId, published])
+  @@index([expiresAt])
+  @@map("story_highlights")
+}
+
+model RateLimit {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  tokens    Int      @default(0)
+  lastRefill DateTime @default(now())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([key])
+  @@index([lastRefill])
+  @@map("rate_limits")
+}
+
+model Favorite {
+  id          String   @id @default(cuid())
+  owner       User     @relation("OwnerFavorites", fields: [ownerId], references: [id], onDelete: Cascade)
+  ownerId     String
+  caregiverId String
+  createdAt   DateTime @default(now())
+
+  @@unique([ownerId, caregiverId])
+  @@index([ownerId])
+  @@index([caregiverId])
+  @@map("favorites")
+}
+
+model Referral {
+  id           String   @id @default(cuid())
+  referrer     User     @relation("ReferrerReferrals", fields: [referrerId], references: [id], onDelete: Cascade)
+  referrerId   String
+  code         String   @unique
+  rewardAmount Float    @default(10.00) // Amount in EUR
+  status       String   @default("ACTIVE") // ACTIVE, COMPLETED, EXPIRED
+  usedCount    Int      @default(0)
+  totalEarned  Float    @default(0.00) // Total earnings from referrals
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([referrerId])
+  @@index([code])
+  @@index([status])
+  @@map("referrals")
+}
+
+model ServiceCompletion {
+  id              String   @id @default(cuid())
+  booking         Booking  @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  bookingId       String   @unique
+  photos          String?  // JSON array of photo URLs
+  checkInTime     DateTime?
+  checkOutTime    DateTime?
+  checkInLocation String?  // GPS coordinates (lat,lng)
+  checkOutLocation String? // GPS coordinates (lat,lng)
+  notes           String?  // Service notes from caregiver
+  rating          Int?     // Quick self-rating by caregiver (1-5)
+  completedAt     DateTime @default(now())
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([bookingId])
+  @@map("service_completions")
+}
+
+model FlaggedMessage {
+  id                 String   @id @default(cuid())
+  userId             String
+  originalMessage    String
+  blockedReasons     String   // Comma-separated: "phone,email,iban"
+  suspiciousPatterns String?  // Comma-separated patterns found
+  severity           String   @default("MEDIUM") // LOW, MEDIUM, HIGH, CRITICAL
+  reviewed           Boolean  @default(false)
+  reviewedBy         String?  // Admin user ID
+  reviewedAt         DateTime?
+  action             String?  // WARNING_SENT, ACCOUNT_SUSPENDED, IGNORED
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  @@index([userId])
+  @@index([reviewed])
+  @@index([severity])
+  @@index([createdAt])
+  @@map("flagged_messages")
+}
+
+model Pet {
+  id              String   @id @default(cuid())
+  owner           User     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  ownerId         String
+  name            String
+  type            String   // DOG, CAT, RABBIT, etc.
+  customType      String?  // Custom animal type when type = OTHER (bijv. Alpaca, Fret)
+  breed           String?
+  age             Int?     // Age in years
+  weight          Float?   // Weight in kg
+  gender          String?  // MALE, FEMALE
+  spayedNeutered  Boolean? @default(false)
+  medicalInfo     String?  // Medical conditions, allergies, special needs
+  socialWithPets  Boolean? // NEW: Social with other pets
+  socialWithPeople Boolean? // NEW: Social with people
+  character       String?  // NEW: Character description (energiek, rustig, etc)
+  behaviorNotes   String?  // Behavior, temperament
+  photo           String?  // Photo URL
+  
+  // Extra informatie velden
+  color           String?  // Pet color
+  microchipNumber String?  // Microchip number
+  vaccinations    String?  // Vaccination info
+  allergies       String?  // Allergies
+  medications     String?  // Medications
+  veterinarianName String? // Veterinarian name
+  veterinarianPhone String? // Veterinarian phone
+  emergencyContact String? // Emergency contact
+  specialNeeds    String?  // Special needs
+  temperament     String?  // Temperament
+  notes           String?  // Additional notes
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([ownerId])
+  @@map("pets")
+}
+
+model AvailabilitySlot {
+  id            String   @id @default(cuid())
+  caregiverId   String
+  serviceId     String   // REQUIRED: link to offered service
+  date          DateTime // date-only at 00:00 Z, interpret in Europe/Brussels
+  startTimeMin  Int      // minutes from 00:00 local, e.g., 9*60
+  endTimeMin    Int
+  blocked       Boolean  @default(false)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  @@index([caregiverId, serviceId, date])
+  @@map("availability_slots")
+}

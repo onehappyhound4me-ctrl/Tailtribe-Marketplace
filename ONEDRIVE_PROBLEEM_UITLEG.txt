@@ -1,0 +1,64 @@
+==================================================================
+NEXT.JS ONEDRIVE PROBLEEM - UITLEG VOOR CHATGPT
+==================================================================
+
+Ik heb een Next.js 14.2.33 project in een OneDrive folder op Windows 11:
+C:\Users\steve\OneDrive\Desktop\C dev\TailTribe-Final
+
+HET PROBLEEM:
+- De dev server start succesvol ("✓ Ready in 1190ms")
+- Maar bij het openen van http://localhost:3000 hangt het ONEINDIG op "○ Compiling / ..."
+- curl timeout na 15 seconden
+- OneDrive blokkeert file reads met "ERROR 426: The cloud operation was not completed before the time-out period expired"
+
+WAT AL GEPROBEERD IS:
+✅ CHOKIDAR_USEPOLLING=1 en WATCHPACK_POLLING=true in dev script
+✅ Webpack watchOptions met poll: 2000, aggregateTimeout: 600
+✅ distDir: '.next-local'
+✅ cache: false in webpack config
+✅ "Always keep on this device" ingesteld voor de folder
+✅ cross-env is geïnstalleerd
+✅ Alle Node processen gestopt en opnieuw gestart
+✅ node_modules verwijderd en opnieuw geïnstalleerd
+
+Het probleem blijft: OneDrive blokkeert bestanden tijdens compilation, zelfs met polling enabled.
+
+OPLOSSING DIE IK NODIG HEB:
+Geef me een stap-voor-stap PowerShell script om:
+1. Het hele project te kopiëren naar C:\dev\TailTribe-Final (BUITEN OneDrive)
+2. In de nieuwe lokatie: npm install uitvoeren
+3. npm run dev starten
+4. Testen of http://localhost:3000 daadwerkelijk laadt
+
+Het script moet robuust zijn en omgaan met file locks van OneDrive.
+Maak het script COMPLEET en DIRECT UITVOERBAAR zonder aannames.
+
+==================================================================
+OF: DIRECTE POWERSHELL OPLOSSING (kopieer regel voor regel)
+==================================================================
+
+# Stop alle Node processen
+Get-Process -Name node -ErrorAction SilentlyContinue | Stop-Process -Force
+
+# Maak C:\dev folder
+New-Item -ItemType Directory -Path "C:\dev" -Force
+
+# Ga naar de OneDrive folder
+cd "C:\Users\steve\OneDrive\Desktop\C dev\TailTribe-Final"
+
+# Kopieer bestanden (kan 5-10 min duren door OneDrive locks)
+robocopy . "C:\dev\TailTribe-Final" /E /XD node_modules .next .next-local .git /R:0 /W:0
+
+# Ga naar nieuwe lokatie
+cd C:\dev\TailTribe-Final
+
+# Installeer dependencies
+npm install
+
+# Start server
+npm run dev
+
+# Open browser: http://localhost:3000
+
+==================================================================
+

@@ -1,0 +1,27 @@
+/* Calendar day cell - ensure full hit area */
+.tt-day {
+  display: block;
+  width: 100%;
+  height: 100%;
+  position: relative;
+  background: transparent;
+  border: none;
+  text-align: center;
+}
+
+/* Ensure cell content doesn't intercept pointer events */
+.tt-day > * {
+  pointer-events: none;
+}
+
+/* Tooltip portal styling */
+.tooltip-portal {
+  z-index: 9999;
+}
+
+
+
+
+
+
+

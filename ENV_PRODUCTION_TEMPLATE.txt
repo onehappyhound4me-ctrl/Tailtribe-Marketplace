@@ -1,0 +1,37 @@
+# TailTribe Production Environment Template
+# Create .env.production with these values
+
+# DATABASE (PostgreSQL - REQUIRED!)
+DATABASE_URL="postgresql://user:password@host:5432/tailtribe?pgbouncer=true&connection_limit=10"
+DIRECT_URL="postgresql://user:password@host:5432/tailtribe"
+
+# NEXTAUTH
+NEXTAUTH_SECRET="GENERATE_WITH_openssl_rand_base64_32"
+NEXTAUTH_URL="https://www.tailtribe.be"
+
+# GOOGLE OAUTH
+GOOGLE_CLIENT_ID="your-client-id.apps.googleusercontent.com"
+GOOGLE_CLIENT_SECRET="your-client-secret"
+
+# STRIPE PRODUCTION
+STRIPE_SECRET_KEY="sk_live_YOUR_KEY"
+STRIPE_PUBLISHABLE_KEY="pk_live_YOUR_KEY"
+STRIPE_WEBHOOK_SECRET="whsec_YOUR_SECRET"
+
+# RESEND
+RESEND_API_KEY="re_YOUR_KEY"
+
+# SENTRY
+SENTRY_DSN="https://xxx@sentry.io/123456"
+NEXT_PUBLIC_SENTRY_DSN="https://xxx@sentry.io/123456"
+
+# APP
+NEXT_PUBLIC_APP_URL="https://www.tailtribe.be"
+PLATFORM_COMMISSION_PERCENTAGE=20
+NODE_ENV="production"
+CRON_SECRET="GENERATE_SECRET"
+
+
+
+
+
