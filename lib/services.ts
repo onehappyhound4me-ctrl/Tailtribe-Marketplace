@@ -91,7 +91,7 @@ export const services: Service[] = [
     title: 'Verzorging aan huis',
     shortDescription: 'Zorg voor kortere periodes bij je thuis als je weg bent',
     icon: '🏠',
-    imageSrc: '/assets/hondenoppas.png',
+    imageSrc: '/assets/home-visit.png',
     imageAlt: 'Verzorging aan huis illustratie',
     relatedSlugs: ['dierenoppas', 'dierenopvang'],
     metaTitle: 'Verzorging aan huis in België | TailTribe',

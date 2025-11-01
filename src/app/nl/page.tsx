@@ -114,7 +114,7 @@ export default function NetherlandsHomePage() {
               {
                 title: 'Verzorging aan huis',
                 desc: 'Zorg in het comfort van je eigen huis',
-                image: '/assets/hondenoppas.png',
+                image: '/assets/home-visit.png',
                 href: '/diensten/verzorging-aan-huis'
               }
             ].map((service) => (
