@@ -3,49 +3,53 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { useSession } from 'next-auth/react'
-import { useEffect, useRef } from 'react'
-
 export default function HomePage() {
   const { data: session } = useSession()
-  const videoRef = useRef<HTMLVideoElement>(null)
-  
-  useEffect(() => {
-    if (videoRef.current) {
-      videoRef.current.playbackRate = 1.0
-    }
-  }, [])
   
   return (
     <div className="min-h-screen bg-gradient-to-b from-green-50 via-white to-blue-50">
       {/* Hero Section */}
-      <section className="relative overflow-hidden text-white py-20 h-[70vh] flex items-center">
-        {/* Video Background - Full bleed with object-cover for no white bars, taller height reduces perceived zoom */}
-        <div className="absolute inset-0 bg-black">
-          <video
-            ref={videoRef}
-            className="absolute inset-0 w-full h-full object-cover object-[center_80%] filter brightness-100 contrast-50 grayscale-70 hue-rotate-8 sepia-1"
-            playsInline
-            muted
-            autoPlay
-            loop
-            preload="auto"
-            poster="/assets/Tailtribe animals 1.jpeg"
-          >
-            <source src="/assets/hero.mp4" type="video/mp4" />
-          </video>
-          {/* Lichte overlay met zachte blauwe tint */}
-          <div className="absolute inset-0 bg-gradient-to-br from-blue-500/20 via-blue-400/18 to-blue-600/22"></div>
-          {/* Lichtere overlay voor text leesbaarheid */}
-          <div className="absolute inset-0 bg-gradient-to-t from-slate-800/30 via-slate-600/15 to-transparent"></div>
-          {/* Extra overlay voor text contrast */}
-          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-slate-700/20"></div>
-          {/* Lichtere overlay voor linkerkant */}
-          <div className="absolute inset-0 bg-gradient-to-r from-slate-700/25 via-transparent to-transparent"></div>
-          {/* Subtiele vignette */}
-          <div className="absolute inset-0 bg-gradient-radial from-transparent via-transparent to-slate-600/10"></div>
-        </div>
+      <section 
+        className="relative w-full min-h-[100vh] overflow-hidden flex items-center"
+      >
+        {/* Video Background */}
+        <video
+          className="hero-video absolute inset-0 w-full h-full object-cover object-[50%_70%] pointer-events-none"
+          src="/assets/hero.mp4"
+          poster="/assets/tail 1_1751975512369.png"
+          autoPlay
+          muted
+          loop
+          playsInline
+          preload="auto"
+          style={{ 
+            filter: 'brightness(0.9) contrast(1.0) saturate(0.3) hue-rotate(210deg)'
+          }}
+        />
         
-        <div className="container mx-auto px-4 relative z-10">
+        {/* Poster fallback for reduced motion */}
+        <img
+          src="/assets/tail 1_1751975512369.png"
+          alt=""
+          className="hero-poster hidden absolute inset-0 w-full h-full object-cover object-[50%_70%]"
+          loading="eager"
+          style={{}}
+        />
+        
+        {/* Subtle blue tint overlay - lighter */}
+        <div className="absolute inset-0 bg-gradient-to-t from-blue-800/15 via-blue-700/8 to-transparent" />
+        
+        {/* Edge shadow effect */}
+        <div className="absolute inset-0" style={{ 
+          boxShadow: 'inset 0 0 200px rgba(0,0,0,0.4)',
+          WebkitBoxShadow: 'inset 0 0 200px rgba(0,0,0,0.4)'
+        }} />
+        
+        {/* Professional shadow overlay - lighter */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/25 via-black/10 to-black/3" />
+        
+        {/* Content */}
+        <div className="relative z-10 container mx-auto px-4 py-16 md:py-24">
           <div className="max-w-5xl mx-auto text-center">
             <h1 className="text-5xl md:text-7xl font-bold mb-6 leading-tight animate-fade-in text-white drop-shadow-2xl">
               Vind de perfecte <span className="text-green-300 hover:text-white hover:drop-shadow-[0_0_20px_rgba(134,239,172,0.8)] transition-all duration-300 cursor-default">dierenoppasser</span> voor je huisdier
@@ -156,7 +160,7 @@ export default function HomePage() {
               {
                 title: 'Verzorging aan huis',
                 desc: 'Zorg in het comfort van je eigen huis',
-                image: '/assets/home-visit.png',
+                image: '/assets/hondenoppas.png',
                 href: '/diensten/verzorging-aan-huis'
               }
             ].map((service) => (
