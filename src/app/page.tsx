@@ -160,7 +160,7 @@ export default function HomePage() {
               {
                 title: 'Verzorging aan huis',
                 desc: 'Zorg in het comfort van je eigen huis',
-                image: '/assets/verzorging kleinvee.png',
+                image: '/assets/home-visit.png',
                 href: '/diensten/verzorging-aan-huis'
               }
             ].map((service) => (
