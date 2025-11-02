@@ -71,7 +71,6 @@
     "zod": "^3.23.8"
   },
   "devDependencies": {
-    "@next/swc-win32-x64-msvc": "^16.0.0",
     "@prisma/debug": "^6.18.0",
     "@testing-library/jest-dom": "^6.0.0",
     "@testing-library/react": "^14.0.0",
