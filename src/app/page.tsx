@@ -15,7 +15,7 @@ export default function HomePage() {
         {/* Video Background */}
         <video
           className="hero-video absolute inset-0 w-full h-full object-cover object-[50%_70%] pointer-events-none"
-          src="/assets/hero.mp4"
+          src="/hero.mp4"
           poster="/assets/tail 1_1751975512369.png"
           autoPlay
           muted

@@ -93,3 +93,4 @@ export function BadgeDisplay({ certificates, businessNumber, vatNumber }: BadgeD
 
 
 
+
