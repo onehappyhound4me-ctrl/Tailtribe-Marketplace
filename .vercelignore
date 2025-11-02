@@ -1,0 +1,14 @@
+﻿node_modules/
+.next/
+.git/
+TailTribe-Final/
+**/*.mov
+**/*.mp4
+**/*.zip
+**/*.7z
+**/*.rar
+**/*.psd
+**/*.ai
+**/*.raw
+**/*.wav
+**/*.mp3

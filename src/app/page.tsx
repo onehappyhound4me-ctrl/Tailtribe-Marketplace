@@ -160,7 +160,7 @@ export default function HomePage() {
               {
                 title: 'Verzorging aan huis',
                 desc: 'Zorg in het comfort van je eigen huis',
-                image: '/assets/home-visit.png',
+                image: '/assets/verzorging kleinvee.png',
                 href: '/diensten/verzorging-aan-huis'
               }
             ].map((service) => (
@@ -175,7 +175,6 @@ export default function HomePage() {
                     alt={service.title}
                     fill
                     className="object-contain group-hover:scale-105 transition-transform duration-300"
-                    priority={service.image.includes('home-visit')}
                   />
                 </div>
                 <div className="p-6 pt-7">

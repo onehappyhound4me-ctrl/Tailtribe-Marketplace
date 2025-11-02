@@ -22,7 +22,7 @@ const nextConfig = {
     };
     return cfg;
   },
-  distDir: '.next-local',
+  // distDir: '.next-local', // Disabled for production
   experimental: {
     // Disable features that cause file locks
     caseSensitiveRoutes: false,
