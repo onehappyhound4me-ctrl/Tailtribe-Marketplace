@@ -175,6 +175,7 @@ export default function HomePage() {
                     alt={service.title}
                     fill
                     className="object-contain group-hover:scale-105 transition-transform duration-300"
+                    priority={service.image.includes('home-visit')}
                   />
                 </div>
                 <div className="p-6 pt-7">
