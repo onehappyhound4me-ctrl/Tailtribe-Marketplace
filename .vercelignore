@@ -3,7 +3,6 @@
 .git/
 TailTribe-Final/
 **/*.mov
-**/*.mp4
 **/*.zip
 **/*.7z
 **/*.rar
@@ -12,3 +11,5 @@ TailTribe-Final/
 **/*.raw
 **/*.wav
 **/*.mp3
+# Allow hero.mp4 video
+!public/hero.mp4
