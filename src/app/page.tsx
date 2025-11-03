@@ -62,7 +62,13 @@ export default function HomePage() {
               // ignore; user can press the button
             })
           }}
-        />
+          onPlay={() => {
+            const posterEl = document.querySelector<HTMLImageElement>('.hero-poster')
+            if (posterEl) posterEl.classList.add('hidden')
+          }}
+        >
+          <source src="/hero.mp4?v=2" type="video/mp4" />
+        </video>
         
         {/* Poster fallback for reduced motion */}
         <img
