@@ -40,7 +40,7 @@ export default function HomePage() {
         <video
           ref={videoRef}
           className="hero-video absolute inset-0 w-full h-full object-cover object-[50%_70%] pointer-events-none"
-          src="/hero.mp4"
+          src="/hero.mp4?v=2"
           poster="/assets/tail 1_1751975512369.png"
           autoPlay
           muted
