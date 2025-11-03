@@ -114,20 +114,27 @@ export default function CaregiverNewOnboardingPage() {
       return
     }
 
-    // Upload to server
+    // Upload to server with timeout
     try {
       toast.info('Foto wordt geüpload...')
       
       const formData = new FormData()
       formData.append('photo', file)
 
+      // Create abort controller for timeout
+      const controller = new AbortController()
+      const timeoutId = setTimeout(() => controller.abort(), 30000) // 30 second timeout
+
       const res = await fetch('/api/profile/upload-photo', {
         method: 'POST',
-        body: formData
+        body: formData,
+        signal: controller.signal
       })
 
+      clearTimeout(timeoutId)
+
       if (!res.ok) {
-        const data = await res.json()
+        const data = await res.json().catch(() => ({ error: 'Upload mislukt' }))
         throw new Error(data.error || 'Upload mislukt')
       }
 
@@ -136,7 +143,11 @@ export default function CaregiverNewOnboardingPage() {
       toast.success('Profielfoto geüpload!')
     } catch (error: any) {
       console.error('Upload error:', error)
-      toast.error(error.message || 'Fout bij uploaden van foto')
+      if (error.name === 'AbortError') {
+        toast.error('Upload timeout - probeer opnieuw of gebruik een kleinere foto')
+      } else {
+        toast.error(error.message || 'Fout bij uploaden van foto')
+      }
     }
   }
 

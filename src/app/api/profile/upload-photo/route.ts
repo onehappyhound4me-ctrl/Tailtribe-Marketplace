@@ -81,8 +81,17 @@ export async function POST(request: NextRequest) {
 
   } catch (error: any) {
     console.error('Upload error:', error)
+    
+    // Check if it's a filesystem error (common on Vercel)
+    if (error.code === 'EROFS' || error.message?.includes('read-only')) {
+      return NextResponse.json(
+        { error: 'Uploads werken momenteel niet op deze server. Gebruik een externe storage service (Cloudinary/Supabase).' },
+        { status: 503 }
+      )
+    }
+    
     return NextResponse.json(
-      { error: 'Er is een fout opgetreden bij uploaden' },
+      { error: error.message || 'Er is een fout opgetreden bij uploaden' },
       { status: 500 }
     )
   }

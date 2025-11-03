@@ -36,20 +36,27 @@ export function PhotoUpload({ currentImage, onUploadComplete }: PhotoUploadProps
     }
     reader.readAsDataURL(file)
 
-    // Upload
+    // Upload with timeout
     setUploading(true)
     try {
       const formData = new FormData()
       formData.append('photo', file)
 
+      // Create abort controller for timeout
+      const controller = new AbortController()
+      const timeoutId = setTimeout(() => controller.abort(), 30000) // 30 second timeout
+
       const res = await fetch('/api/profile/upload-photo', {
         method: 'POST',
-        body: formData
+        body: formData,
+        signal: controller.signal
       })
 
+      clearTimeout(timeoutId)
+
       if (!res.ok) {
-        const data = await res.json()
-        throw new Error(data.error)
+        const data = await res.json().catch(() => ({ error: 'Upload mislukt' }))
+        throw new Error(data.error || 'Upload mislukt')
       }
 
       const data = await res.json()
@@ -59,7 +66,11 @@ export function PhotoUpload({ currentImage, onUploadComplete }: PhotoUploadProps
         onUploadComplete(data.url)
       }
     } catch (error: any) {
-      toast.error(error.message || 'Fout bij uploaden')
+      if (error.name === 'AbortError') {
+        toast.error('Upload timeout - probeer opnieuw of gebruik een kleinere foto')
+      } else {
+        toast.error(error.message || 'Fout bij uploaden')
+      }
       setPreview(currentImage || null)
     } finally {
       setUploading(false)
