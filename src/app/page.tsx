@@ -39,7 +39,7 @@ export default function HomePage() {
         {/* Video Background */}
         <video
           ref={videoRef}
-          className="hero-video absolute inset-0 w-full h-full object-cover object-[50%_70%] pointer-events-none"
+          className="hero-video absolute inset-0 w-full h-full object-cover object-[50%_70%]"
           src="/hero.mp4?v=2"
           poster="/assets/tail 1_1751975512369.png"
           autoPlay
@@ -51,6 +51,17 @@ export default function HomePage() {
             filter: 'brightness(0.9) contrast(1.0) saturate(0.3) hue-rotate(210deg)'
           }}
           controls
+          onLoadedData={() => {
+            const v = videoRef.current
+            if (!v) return
+            v.muted = true
+            v.play().then(() => {
+              const posterEl = document.querySelector<HTMLImageElement>('.hero-poster')
+              if (posterEl) posterEl.classList.add('hidden')
+            }).catch(() => {
+              // ignore; user can press the button
+            })
+          }}
         />
         
         {/* Poster fallback for reduced motion */}
@@ -82,7 +93,10 @@ export default function HomePage() {
                 const v = videoRef.current
                 if (v) {
                   v.muted = true
-                  v.play().catch(() => {})
+                  v.play().then(() => {
+                    const posterEl = document.querySelector<HTMLImageElement>('.hero-poster')
+                    if (posterEl) posterEl.classList.add('hidden')
+                  }).catch(() => {})
                 }
               }}
               className="bg-white/80 backdrop-blur text-gray-900 px-4 py-2 rounded-full shadow hover:bg-white transition hidden md:inline-flex"
