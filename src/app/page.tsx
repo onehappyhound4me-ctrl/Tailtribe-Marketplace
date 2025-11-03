@@ -40,7 +40,6 @@ export default function HomePage() {
         <video
           ref={videoRef}
           className="hero-video absolute inset-0 w-full h-full object-cover object-[50%_70%]"
-          src="/hero.mp4?v=3"
           poster="/assets/tail 1_1751975512369.png"
           autoPlay
           muted
@@ -67,7 +66,8 @@ export default function HomePage() {
             if (posterEl) posterEl.classList.add('hidden')
           }}
         >
-          <source src="/hero.mp4?v=2" type="video/mp4" />
+          <source src="/hero.webm?v=4" type="video/webm" />
+          <source src="/hero.mp4?v=4" type="video/mp4" />
         </video>
         
         {/* Poster fallback for reduced motion */}
