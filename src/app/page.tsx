@@ -80,16 +80,16 @@ export default function HomePage() {
         />
         
         {/* Subtle blue tint overlay - lighter */}
-        <div className="absolute inset-0 bg-gradient-to-t from-blue-800/15 via-blue-700/8 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-blue-800/15 via-blue-700/8 to-transparent pointer-events-none" />
         
         {/* Edge shadow effect */}
-        <div className="absolute inset-0" style={{ 
+        <div className="absolute inset-0 pointer-events-none" style={{ 
           boxShadow: 'inset 0 0 200px rgba(0,0,0,0.4)',
           WebkitBoxShadow: 'inset 0 0 200px rgba(0,0,0,0.4)'
         }} />
         
         {/* Professional shadow overlay - lighter */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/25 via-black/10 to-black/3" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/25 via-black/10 to-black/3 pointer-events-none" />
         
         {/* Content */}
         <div className="relative z-10 container mx-auto px-4 py-16 md:py-24">
