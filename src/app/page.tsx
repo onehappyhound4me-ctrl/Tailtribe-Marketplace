@@ -50,6 +50,7 @@ export default function HomePage() {
           style={{ 
             filter: 'brightness(0.9) contrast(1.0) saturate(0.3) hue-rotate(210deg)'
           }}
+          controls
         />
         
         {/* Poster fallback for reduced motion */}
@@ -75,6 +76,20 @@ export default function HomePage() {
         
         {/* Content */}
         <div className="relative z-10 container mx-auto px-4 py-16 md:py-24">
+          <div className="absolute left-1/2 -translate-x-1/2 -top-10 md:top-6 z-20">
+            <button
+              onClick={() => {
+                const v = videoRef.current
+                if (v) {
+                  v.muted = true
+                  v.play().catch(() => {})
+                }
+              }}
+              className="bg-white/80 backdrop-blur text-gray-900 px-4 py-2 rounded-full shadow hover:bg-white transition hidden md:inline-flex"
+            >
+              Speel video
+            </button>
+          </div>
           <div className="max-w-5xl mx-auto text-center">
             <h1 className="text-5xl md:text-7xl font-bold mb-6 leading-tight animate-fade-in text-white drop-shadow-2xl">
               Vind de perfecte <span className="text-green-300 hover:text-white hover:drop-shadow-[0_0_20px_rgba(134,239,172,0.8)] transition-all duration-300 cursor-default">dierenoppasser</span> voor je huisdier
