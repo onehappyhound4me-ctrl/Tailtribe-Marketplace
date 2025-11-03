@@ -1,9 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 import { auth } from '@/lib/auth'
-import { writeFile, mkdir } from 'fs/promises'
-import { join } from 'path'
-import { nanoid } from 'nanoid'
+import { v2 as cloudinary } from 'cloudinary'
+
+// Configure Cloudinary
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+})
 
 export async function POST(request: NextRequest) {
   try {
@@ -13,6 +18,14 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         { error: 'Je moet ingelogd zijn' },
         { status: 401 }
+      )
+    }
+
+    // Check if Cloudinary is configured
+    if (!process.env.CLOUDINARY_CLOUD_NAME || !process.env.CLOUDINARY_API_KEY || !process.env.CLOUDINARY_API_SECRET) {
+      return NextResponse.json(
+        { error: 'Cloudinary is niet geconfigureerd. Voeg CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY en CLOUDINARY_API_SECRET toe aan environment variables.' },
+        { status: 503 }
       )
     }
 
@@ -42,19 +55,27 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Generate unique filename
+    // Convert file to buffer
     const bytes = await file.arrayBuffer()
     const buffer = Buffer.from(bytes)
-    const ext = file.type.split('/')[1]
-    const filename = `${nanoid()}.${ext}`
     
-    // Save to public/uploads
-    const uploadsDir = join(process.cwd(), 'public', 'uploads')
-    await mkdir(uploadsDir, { recursive: true })
-    const filepath = join(uploadsDir, filename)
-    await writeFile(filepath, buffer)
+    // Upload to Cloudinary
+    const uploadResult = await new Promise((resolve, reject) => {
+      cloudinary.uploader.upload_stream(
+        {
+          folder: 'tailtribe/profile-photos',
+          public_id: `${session.user.id}_${Date.now()}`,
+          overwrite: true,
+          resource_type: 'image',
+        },
+        (error, result) => {
+          if (error) reject(error)
+          else resolve(result)
+        }
+      ).end(buffer)
+    }) as any
 
-    const imageUrl = `/uploads/${filename}`
+    const imageUrl = uploadResult.secure_url
 
     // Update user image
     await db.user.update({
@@ -81,14 +102,6 @@ export async function POST(request: NextRequest) {
 
   } catch (error: any) {
     console.error('Upload error:', error)
-    
-    // Check if it's a filesystem error (common on Vercel)
-    if (error.code === 'EROFS' || error.message?.includes('read-only')) {
-      return NextResponse.json(
-        { error: 'Uploads werken momenteel niet op deze server. Gebruik een externe storage service (Cloudinary/Supabase).' },
-        { status: 503 }
-      )
-    }
     
     return NextResponse.json(
       { error: error.message || 'Er is een fout opgetreden bij uploaden' },

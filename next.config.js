@@ -1,7 +1,14 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
-    domains: ['localhost', 'uploadthing.com', 'images.unsplash.com'],
+    domains: ['localhost', 'uploadthing.com', 'images.unsplash.com', 'res.cloudinary.com'],
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'res.cloudinary.com',
+        pathname: '/**',
+      },
+    ],
     unoptimized: true, // Disable image optimization for development
   },
   webpack: (cfg, { isServer }) => {
