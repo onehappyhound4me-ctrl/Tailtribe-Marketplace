@@ -3,8 +3,32 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { useSession } from 'next-auth/react'
+import { useEffect, useRef } from 'react'
 export default function HomePage() {
   const { data: session } = useSession()
+  const videoRef = useRef<HTMLVideoElement | null>(null)
+
+  useEffect(() => {
+    const videoEl = videoRef.current
+    if (!videoEl) return
+
+    // Ensure muted for mobile autoplay and attempt playback
+    videoEl.muted = true
+    const tryPlay = async () => {
+      try {
+        await videoEl.play()
+      } catch {
+        // If autoplay is blocked, reveal poster image as fallback
+        const posterEl = document.querySelector<HTMLImageElement>('.hero-poster')
+        if (posterEl) {
+          posterEl.classList.remove('hidden')
+        }
+      }
+    }
+
+    // Kick off playback on mount
+    void tryPlay()
+  }, [])
   
   return (
     <div className="min-h-screen bg-gradient-to-b from-green-50 via-white to-blue-50">
@@ -14,6 +38,7 @@ export default function HomePage() {
       >
         {/* Video Background */}
         <video
+          ref={videoRef}
           className="hero-video absolute inset-0 w-full h-full object-cover object-[50%_70%] pointer-events-none"
           src="/hero.mp4"
           poster="/assets/tail 1_1751975512369.png"
