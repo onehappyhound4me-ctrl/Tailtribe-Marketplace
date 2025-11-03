@@ -64,8 +64,8 @@ export default function HomePage() {
             if (posterEl) posterEl.classList.add('hidden')
           }}
         >
-          <source src="/hero.webm?v=5" type="video/webm" />
-          <source src="/hero.mp4?v=5" type="video/mp4" />
+          <source src="/hero.webm?v=6" type="video/webm" />
+          <source src="/hero.mp4?v=6" type="video/mp4" />
         </video>
         
         {/* Poster fallback for reduced motion */}
