@@ -53,13 +53,29 @@ export default function CaregiverVideosPage() {
       <div className="container mx-auto px-6 py-10 max-w-3xl">
 
         <div className="rounded-xl border border-white/40 bg-white/70 backdrop-blur p-6 shadow-xl">
+          {/* Instructies */}
+          <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-4">
+            <h4 className="font-semibold text-green-900 mb-2 text-sm">📹 Hoe voeg je een video toe?</h4>
+            <ol className="text-xs text-green-800 space-y-1 list-decimal list-inside">
+              <li>Film een korte video (30-60 sec) met je telefoon</li>
+              <li>Upload naar YouTube (gratis, geen kanaal nodig!) of Vimeo</li>
+              <li>Kopieer de link en plak hieronder</li>
+            </ol>
+            <p className="text-xs text-green-700 mt-2 font-medium">
+              💡 Tip: Maak video "Publiek" of "Onlisted" op YouTube (niet "Privé")
+            </p>
+          </div>
+
           <p className="text-sm text-gray-600 mb-4">
-            Voeg YouTube of Vimeo links toe. Video’s verlopen automatisch 14 dagen na toevoegen en verschijnen op je profiel. Tip: vul de transcript in voor betere SEO.
+            Voeg YouTube of Vimeo links toe. Video's verlopen automatisch 14 dagen na toevoegen en verschijnen op je profiel. Tip: vul de transcript in voor betere SEO.
           </p>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Video URL (YouTube/Vimeo)</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Video URL (YouTube/Vimeo) *</label>
               <input value={url} onChange={(e)=>setUrl(e.target.value)} type="url" required placeholder="https://www.youtube.com/watch?v=..." className="w-full p-3 border border-gray-300 rounded-lg bg-white" />
+              <p className="text-xs text-gray-500 mt-1">
+                ✅ Waarom YouTube/Vimeo? Volledig gratis, snelle laadtijden, en beter voor SEO!
+              </p>
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">Titel</label>
