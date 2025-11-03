@@ -30,6 +30,7 @@ export default function OwnerOnboardingPage() {
   const [loading, setLoading] = useState(false)
   const [existingPets, setExistingPets] = useState<any[]>([])
   const [checkingPets, setCheckingPets] = useState(true)
+  const [savedPetIds, setSavedPetIds] = useState<Set<number>>(new Set()) // Track which pet indices have been saved
   
   // Step 1: Basisgegevens
   const [basicData, setBasicData] = useState({
@@ -275,6 +276,18 @@ export default function OwnerOnboardingPage() {
     setCustomNumPets('')
     setNumPets(num)
     
+    // Reset savedPetIds if number of pets decreased
+    // Keep savedPetIds only for indices that still exist
+    setSavedPetIds(prev => {
+      const newSet = new Set<number>()
+      prev.forEach(id => {
+        if (id < num) {
+          newSet.add(id)
+        }
+      })
+      return newSet
+    })
+    
     // KEEP EXISTING DATA and add empty forms for new pets
     const newPets = Array(num).fill(null).map((_, i) => {
       // If we already have data for this pet, KEEP IT
@@ -305,6 +318,17 @@ export default function OwnerOnboardingPage() {
     const num = parseInt(value)
     if (num >= 6 && num <= 20) {
       setNumPets(num)
+      
+      // Reset savedPetIds if number of pets changed
+      setSavedPetIds(prev => {
+        const newSet = new Set<number>()
+        prev.forEach(id => {
+          if (id < num) {
+            newSet.add(id)
+          }
+        })
+        return newSet
+      })
       
       // KEEP EXISTING DATA and add empty forms for new pets
       const newPets = Array(num).fill(null).map((_, i) => {
@@ -387,6 +411,18 @@ export default function OwnerOnboardingPage() {
       return
     }
 
+    // Check if this pet has already been saved
+    if (savedPetIds.has(currentPetIndex)) {
+      // Pet already saved, just navigate forward
+      if (currentPetIndex < numPets - 1) {
+        const nextPetIndex = currentPetIndex + 1
+        setCurrentPetIndex(nextPetIndex)
+      } else {
+        setCurrentStep(3)
+      }
+      return
+    }
+
     setLoading(true)
     try {
       // Save current pet
@@ -404,6 +440,9 @@ export default function OwnerOnboardingPage() {
         const data = await res.json()
         throw new Error(data.error || 'Huisdier toevoegen mislukt')
       }
+      
+      // Mark this pet index as saved
+      setSavedPetIds(prev => new Set([...prev, currentPetIndex]))
       
       // Reload existing pets list
       const petsRes = await fetch('/api/pets/list')
@@ -424,7 +463,7 @@ export default function OwnerOnboardingPage() {
     } catch (error: any) {
       toast.error(error.message || 'Er ging iets mis')
     } finally {
-        setLoading(false)
+      setLoading(false)
     }
   }
 
@@ -476,6 +515,14 @@ export default function OwnerOnboardingPage() {
       return
     }
 
+    // Check if this pet has already been saved
+    if (savedPetIds.has(currentPetIndex)) {
+      // Pet already saved, just go to next step
+      toast.success(`Alle ${numPets} huisdieren succesvol toegevoegd!`)
+      setCurrentStep(3)
+      return
+    }
+
     setLoading(true)
     try {
       // Save current pet
@@ -493,6 +540,9 @@ export default function OwnerOnboardingPage() {
         const data = await res.json()
         throw new Error(data.error || 'Huisdier toevoegen mislukt')
       }
+      
+      // Mark this pet index as saved
+      setSavedPetIds(prev => new Set([...prev, currentPetIndex]))
       
       // Reload existing pets list
       const petsRes = await fetch('/api/pets/list')
