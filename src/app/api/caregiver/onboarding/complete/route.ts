@@ -29,11 +29,7 @@ export async function POST(request: NextRequest) {
     console.log('🔍 Payout data:', payout)
 
     // Validate required profile fields
-    if (!profile.profilePhoto) {
-      console.error('❌ Missing profile photo:', profile.profilePhoto)
-      return NextResponse.json({ error: 'Profielfoto is verplicht' }, { status: 400 })
-    }
-
+    // Profile photo is optional - can be added later
     if (!profile.firstName || !profile.lastName) {
       console.error('❌ Missing name fields')
       return NextResponse.json({ error: 'Voornaam en achternaam zijn verplicht' }, { status: 400 })
@@ -56,8 +52,8 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'IBAN en rekeninghouder zijn verplicht' }, { status: 400 })
     }
 
-    // Use the profile photo URL directly (no upload needed)
-    const profilePhotoUrl = profile.profilePhoto
+    // Use the profile photo URL directly (optional - can be null)
+    const profilePhotoUrl = profile.profilePhoto || null
 
     // Check if user already has a caregiver profile
     const existingProfile = await db.caregiverProfile.findUnique({

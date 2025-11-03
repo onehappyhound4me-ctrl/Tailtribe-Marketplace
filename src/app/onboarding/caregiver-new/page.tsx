@@ -356,13 +356,8 @@ export default function CaregiverNewOnboardingPage() {
       return
     }
 
-    // Validate profile photo (only if we're past step 1)
-    if (currentStep > 1) {
-      if (!profileData.profilePhoto || profileData.profilePhoto.trim().length === 0) {
-        toast.error('Profielfoto is verplicht')
-        return
-      }
-
+    // Validate profile photo URL if provided (optional)
+    if (profileData.profilePhoto && profileData.profilePhoto.trim().length > 0) {
       // Basic URL validation for profile photo
       try {
         new URL(profileData.profilePhoto)
