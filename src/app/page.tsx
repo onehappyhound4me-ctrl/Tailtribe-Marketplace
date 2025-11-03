@@ -46,9 +46,7 @@ export default function HomePage() {
           loop
           playsInline
           preload="auto"
-          style={{ 
-            filter: 'brightness(0.9) contrast(1.0) saturate(0.3) hue-rotate(210deg)'
-          }}
+          style={{}}
           controls
           onLoadedData={() => {
             const v = videoRef.current
@@ -79,17 +77,14 @@ export default function HomePage() {
           style={{}}
         />
         
-        {/* Subtle blue tint overlay - lighter */}
-        <div className="absolute inset-0 bg-gradient-to-t from-blue-800/15 via-blue-700/8 to-transparent pointer-events-none" />
+        {/* Subtle blue tint overlay - removed for truer colors */}
+        <div className="hidden" />
         
-        {/* Edge shadow effect */}
-        <div className="absolute inset-0 pointer-events-none" style={{ 
-          boxShadow: 'inset 0 0 200px rgba(0,0,0,0.4)',
-          WebkitBoxShadow: 'inset 0 0 200px rgba(0,0,0,0.4)'
-        }} />
+        {/* Edge shadow effect removed */}
+        <div className="hidden" />
         
-        {/* Professional shadow overlay - lighter */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/25 via-black/10 to-black/3 pointer-events-none" />
+        {/* Professional shadow overlay removed */}
+        <div className="hidden" />
         
         {/* Content */}
         <div className="relative z-10 container mx-auto px-4 py-16 md:py-24">
