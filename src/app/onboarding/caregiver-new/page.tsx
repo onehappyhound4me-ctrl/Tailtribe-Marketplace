@@ -740,20 +740,19 @@ export default function CaregiverNewOnboardingPage() {
 
               {/* Profielfoto */}
               <div className="bg-white rounded-xl p-6 border border-gray-200">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">Profielfoto</h3>
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">Profielfoto (optioneel)</h3>
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Upload een profielfoto (liefst met een dier) *
+                    Upload een profielfoto (liefst met een dier)
                   </label>
                   <input
                     type="file"
                     accept="image/*"
                     onChange={handlePhotoUpload}
                     className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
-                    required
                   />
                   <p className="text-xs text-gray-500 mt-1">
-                    Upload een foto van jezelf (liefst met een dier). Maximaal 5MB. JPG, PNG of WebP.
+                    Upload een foto van jezelf (liefst met een dier). Maximaal 5MB. JPG, PNG of WebP. Je kunt dit later ook toevoegen.
                   </p>
                   {profileData.profilePhoto && (
                     <div className="mt-3">
