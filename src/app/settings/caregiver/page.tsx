@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
+import imageCompression from 'browser-image-compression'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { toast } from 'sonner'
@@ -318,13 +319,28 @@ export default function CaregiverSettingsPage() {
                       const timeoutId = setTimeout(() => controller.abort(), 30000) // 30 sec timeout
                       
                       try {
+                        // 1) Client-side compressie
+                        const compressed = await imageCompression(file, {
+                          maxSizeMB: 0.4,
+                          maxWidthOrHeight: 1024,
+                          useWebWorker: true,
+                          initialQuality: 0.8
+                        })
+
                         const fd = new FormData()
-                        fd.append('photo', file)
-                        const res = await fetch('/api/profile/upload-photo', { 
+                        fd.append('photo', compressed)
+
+                        const doUpload = async () => fetch('/api/profile/upload-photo', { 
                           method: 'POST', 
                           body: fd,
                           signal: controller.signal
                         })
+                        
+                        let res = await doUpload()
+                        if (!res.ok) {
+                          await new Promise(r => setTimeout(r, 600))
+                          res = await doUpload()
+                        }
                         clearTimeout(timeoutId)
                         
                         if (!res.ok) {

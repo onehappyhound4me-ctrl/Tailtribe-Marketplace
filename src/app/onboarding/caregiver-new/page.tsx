@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { useSession } from 'next-auth/react'
 import { Button } from '@/components/ui/button'
 import { toast } from 'sonner'
+import imageCompression from 'browser-image-compression'
 import { PLATFORM_CONFIG } from '@/lib/constants'
 import { validatePostcode, validateIBAN, validateName, validateBio, validateActionRadius, validateCity, validatePrice } from '@/lib/validation'
 import { validatePostcodeWithCity } from '@/lib/postcode-validator'
@@ -114,22 +115,37 @@ export default function CaregiverNewOnboardingPage() {
       return
     }
 
-    // Upload to server with timeout
+    // Upload to server with compression + timeout + retry
     try {
       toast.info('Foto wordt geüpload...')
       
+      // 1) Client-side compressie
+      const compressed = await imageCompression(file, {
+        maxSizeMB: 0.4,
+        maxWidthOrHeight: 1024,
+        useWebWorker: true,
+        initialQuality: 0.8
+      })
+      
       const formData = new FormData()
-      formData.append('photo', file)
+      formData.append('photo', compressed)
 
       // Create abort controller for timeout
       const controller = new AbortController()
       const timeoutId = setTimeout(() => controller.abort(), 30000) // 30 second timeout
 
-      const res = await fetch('/api/profile/upload-photo', {
+      const doUpload = async () => fetch('/api/profile/upload-photo', {
         method: 'POST',
         body: formData,
         signal: controller.signal
       })
+      
+      let res = await doUpload()
+      if (!res.ok) {
+        // Eén retry bij netwerk/503
+        await new Promise(r => setTimeout(r, 600))
+        res = await doUpload()
+      }
 
       clearTimeout(timeoutId)
 
