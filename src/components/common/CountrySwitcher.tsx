@@ -130,15 +130,14 @@ export function CountrySwitcher() {
                   e.stopPropagation()
                   handleSwitchCountry(country.code as 'BE' | 'NL')
                 }}
-                className={`w-full flex items-center gap-3 px-5 py-4 text-gray-900 hover:text-emerald-700 hover:bg-emerald-50 transition-all duration-200 ${
+                className={`w-full flex items-center justify-between px-5 py-4 text-gray-900 hover:text-emerald-700 hover:bg-emerald-50 transition-all duration-200 ${
                   country.code === 'BE' ? 'border-b border-gray-100' : ''
                 } ${
                   currentCountry === country.code ? 'bg-emerald-50 text-emerald-700 font-bold' : 'bg-white font-semibold'
                 }`}
                 style={{ minHeight: '56px' }}
               >
-                <span className="text-2xl leading-none flex-shrink-0">{country.flag}</span>
-                <span className="text-base font-bold flex-1 text-left tracking-wider">{country.code}</span>
+                <span className="text-base font-bold tracking-wider">{country.code}</span>
                 {currentCountry === country.code && (
                   <svg className="w-5 h-5 text-emerald-700 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
@@ -160,8 +159,8 @@ export function CountrySwitcher() {
           }}
           className="flex items-center gap-2.5 px-4 py-2.5 bg-white text-gray-800 hover:text-emerald-600 hover:border-emerald-300 rounded-lg font-semibold transition-all duration-200 border border-gray-300 shadow-sm hover:shadow-md"
         >
-          <span className="flex items-center gap-1.5 text-sm font-bold tracking-wider">
-            BE / NL
+          <span className="text-sm font-bold tracking-wider">
+            {currentCountry}
           </span>
           <svg 
             className={`w-4 h-4 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} 
