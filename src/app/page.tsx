@@ -170,14 +170,16 @@ export default function HomePage() {
       </section>
 
       {/* Services Grid */}
-      <section className="py-16 px-4">
-        <div className="container mx-auto">
-          <h2 className="text-4xl font-bold text-center mb-4 text-gray-800">
-            Ontdek onze diensten
-          </h2>
-          <p className="text-center text-gray-600 mb-12 text-lg max-w-2xl mx-auto">
-            Van wandelen tot oppassen - vind de perfecte service voor jouw huisdier
-          </p>
+      <section className="py-16 px-4 sm:px-6 lg:px-8">
+        <div className="container mx-auto max-w-7xl">
+          <div className="max-w-3xl mx-auto text-center mb-12">
+            <h2 className="text-4xl md:text-5xl font-bold mb-4 text-gray-800">
+              Ontdek onze diensten
+            </h2>
+            <p className="text-lg md:text-xl text-gray-600 max-w-2xl mx-auto">
+              Van wandelen tot oppassen - vind de perfecte service voor jouw huisdier
+            </p>
+          </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
             {/* Service Cards */}
@@ -257,16 +259,18 @@ export default function HomePage() {
       </section>
 
       {/* How it Works */}
-      <section className="py-16 px-4 bg-gradient-to-br from-blue-50 to-green-50">
+      <section className="py-16 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-blue-50 to-green-50">
         <div className="container mx-auto max-w-6xl">
-          <h2 className="text-4xl font-bold text-center mb-4 text-gray-800">
-            Hoe werkt het?
-          </h2>
-          <p className="text-center text-gray-600 mb-12 text-lg">
-            In 3 eenvoudige stappen naar de perfecte dierenoppas
-          </p>
+          <div className="max-w-3xl mx-auto text-center mb-12">
+            <h2 className="text-4xl md:text-5xl font-bold mb-4 text-gray-800">
+              Hoe werkt het?
+            </h2>
+            <p className="text-lg md:text-xl text-gray-600 max-w-2xl mx-auto">
+              In 3 eenvoudige stappen naar de perfecte dierenoppas
+            </p>
+          </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
             {[
               {
                 step: '1',
@@ -299,18 +303,18 @@ export default function HomePage() {
       {/* Visual Gallery Section removed on request */}
 
       {/* Benefits for Caregivers */}
-      <section className="py-16 px-4 bg-gradient-to-br from-blue-50 to-purple-50">
+      <section className="py-16 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-blue-50 to-purple-50">
         <div className="container mx-auto max-w-6xl">
-          <div className="text-center mb-12">
-            <h2 className="text-4xl font-bold mb-4 text-gray-800">
+          <div className="max-w-3xl mx-auto text-center mb-12">
+            <h2 className="text-4xl md:text-5xl font-bold mb-4 text-gray-800">
               Word professioneel dierenverzorger
             </h2>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+            <p className="text-lg md:text-xl text-gray-600 max-w-2xl mx-auto">
               Ontwikkel je carrière in dierenverzorging met volledige controle over je planning en tarieven
             </p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-8">
+          <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
             {[
               {
                 title: 'Flexibele verdiensten',
@@ -370,19 +374,19 @@ export default function HomePage() {
       </section>
 
       {/* Final CTA Section */}
-      <section className="py-20 px-4 bg-gradient-to-br from-green-600 via-green-700 to-blue-800 text-white relative overflow-hidden">
+      <section className="py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-green-600 via-green-700 to-blue-800 text-white relative overflow-hidden">
         <div className="absolute inset-0 opacity-10">
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_30%,rgba(255,255,255,0.2),transparent)]"></div>
         </div>
         
-        <div className="container mx-auto max-w-4xl text-center relative z-10">
+        <div className="container mx-auto max-w-4xl px-4 text-center relative z-10">
           <h2 className="text-4xl md:text-5xl font-bold mb-6 leading-tight">
             Klaar voor de beste dierenoppas?
           </h2>
-          <p className="text-xl mb-4 text-green-50">
+          <p className="text-xl md:text-2xl mb-4 text-green-50 max-w-2xl mx-auto">
             Het platform dat eigenaren en dierenoppassers verbindt
           </p>
-          <p className="text-lg mb-10 text-green-100">
+          <p className="text-lg md:text-xl mb-10 text-green-100 max-w-xl mx-auto">
             Start vandaag nog met het vinden van de perfecte match
           </p>
           
