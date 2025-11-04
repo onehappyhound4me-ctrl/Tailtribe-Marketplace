@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { toast } from 'sonner'
@@ -31,6 +31,7 @@ export default function CaregiverSettingsPage() {
   const router = useRouter()
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
+  const fileInputRef = useRef<HTMLInputElement | null>(null)
   
   const [formData, setFormData] = useState({
     city: '',
@@ -275,6 +276,17 @@ export default function CaregiverSettingsPage() {
                     >
                       Verwijder foto
                     </Button>
+                    <Button
+                      type="button"
+                      onClick={() => {
+                        // Eerst verwijderen, dan nieuwe kiezen
+                        setFormData(prev => ({ ...prev, profilePhoto: '' }))
+                        // Kleine delay om state te laten toepassen, dan open file chooser
+                        setTimeout(() => fileInputRef.current?.click(), 50)
+                      }}
+                    >
+                      Nieuwe foto kiezen
+                    </Button>
                   </div>
                 ) : (
                   <div className="w-32 h-32 md:w-40 md:h-40 rounded-lg bg-gray-200 flex items-center justify-center">
@@ -288,6 +300,7 @@ export default function CaregiverSettingsPage() {
                   <input
                     type="file"
                     accept="image/*"
+                    ref={fileInputRef}
                     onChange={async (e) => {
                       const file = e.target.files?.[0]
                       if (!file) return
