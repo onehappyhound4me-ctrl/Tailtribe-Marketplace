@@ -237,7 +237,8 @@ export function ModernMap({ caregivers, country = 'BE', onCaregiverSelect }: Mod
 
     ensureLeafletLoaded().then(() => {
       const win = window as any
-      if (!mapRef.current || !win.L) return
+      const mapRefElement = mapRef.current
+      if (!mapRefElement || !win.L) return
       
       // Double check no map exists
       if (mapInstanceRef.current) {
@@ -257,7 +258,7 @@ export function ModernMap({ caregivers, country = 'BE', onCaregiverSelect }: Mod
       console.log(`🗺️ Caregivers to map:`, caregivers.length)
       
       // Create map with country-specific focus
-      map = L.map(mapRef.current, {
+      map = L.map(mapRefElement, {
         center: center,
         zoom: 8,
         maxBounds: countryBounds,
@@ -399,10 +400,12 @@ export function ModernMap({ caregivers, country = 'BE', onCaregiverSelect }: Mod
     return () => {
       try {
         console.log('🧹 Cleanup effect running...')
-        if (map) {
-          map.off()
-          map.remove()
+        const cleanupMap = mapInstanceRef.current
+        if (cleanupMap) {
+          cleanupMap.off()
+          cleanupMap.remove()
         }
+        // Note: mapRefElement is captured in closure, safe to use
         if (mapRefElement) {
           mapRefElement.innerHTML = ''
           const anyRef = mapRefElement as any
