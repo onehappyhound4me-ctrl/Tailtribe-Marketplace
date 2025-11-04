@@ -116,35 +116,47 @@ export function CountrySwitcher() {
       
       {/* Dropdown - rendered in portal outside header */}
       <div 
-        className="fixed bg-white rounded-xl shadow-2xl border-2 border-gray-200 z-[99999] min-w-[140px] overflow-hidden"
+        className="fixed bg-white rounded-xl shadow-2xl border-2 border-gray-200 z-[99999] min-w-[120px] overflow-hidden"
         style={{
           top: `${dropdownPosition.top}px`,
           right: `${dropdownPosition.right}px`,
           position: 'fixed'
         }}
       >
-            {countries.map((country) => (
-              <button
-                key={country.code}
-                onClick={(e) => {
-                  e.stopPropagation()
-                  handleSwitchCountry(country.code as 'BE' | 'NL')
-                }}
-                className={`w-full flex items-center justify-between px-5 py-4 text-gray-900 hover:text-emerald-700 hover:bg-emerald-50 transition-all duration-200 ${
-                  country.code === 'BE' ? 'border-b border-gray-100' : ''
-                } ${
-                  currentCountry === country.code ? 'bg-emerald-50 text-emerald-700 font-bold' : 'bg-white font-semibold'
-                }`}
-                style={{ minHeight: '56px' }}
-              >
-                <span className="text-base font-bold tracking-wider">{country.code}</span>
-                {currentCountry === country.code && (
-                  <svg className="w-5 h-5 text-emerald-700 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                  </svg>
-                )}
-              </button>
-            ))}
+        <button
+          onClick={(e) => {
+            e.stopPropagation()
+            handleSwitchCountry('BE')
+          }}
+          className={`w-full flex items-center justify-between px-5 py-4 text-gray-900 hover:text-emerald-700 hover:bg-emerald-50 transition-all duration-200 border-b border-gray-100 ${
+            currentCountry === 'BE' ? 'bg-emerald-50 text-emerald-700 font-bold' : 'bg-white font-semibold'
+          }`}
+          style={{ minHeight: '56px' }}
+        >
+          <span className="text-base font-bold tracking-wider">BE</span>
+          {currentCountry === 'BE' && (
+            <svg className="w-5 h-5 text-emerald-700 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+              <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+            </svg>
+          )}
+        </button>
+        <button
+          onClick={(e) => {
+            e.stopPropagation()
+            handleSwitchCountry('NL')
+          }}
+          className={`w-full flex items-center justify-between px-5 py-4 text-gray-900 hover:text-emerald-700 hover:bg-emerald-50 transition-all duration-200 ${
+            currentCountry === 'NL' ? 'bg-emerald-50 text-emerald-700 font-bold' : 'bg-white font-semibold'
+          }`}
+          style={{ minHeight: '56px' }}
+        >
+          <span className="text-base font-bold tracking-wider">NL</span>
+          {currentCountry === 'NL' && (
+            <svg className="w-5 h-5 text-emerald-700 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+              <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+            </svg>
+          )}
+        </button>
       </div>
     </>
   ) : null
