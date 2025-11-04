@@ -280,25 +280,41 @@ export default function CaregiverSettingsPage() {
                       const file = e.target.files?.[0]
                       if (!file) return
                       if (!file.type.startsWith('image/')) {
-                        alert('Alleen afbeeldingen zijn toegestaan')
+                        toast.error('Alleen afbeeldingen zijn toegestaan')
                         return
                       }
                       if (file.size > 5 * 1024 * 1024) {
-                        alert('Afbeelding mag maximaal 5MB zijn')
+                        toast.error('Afbeelding mag maximaal 5MB zijn')
                         return
                       }
+                      
+                      toast.info('Foto wordt geüpload...')
+                      const controller = new AbortController()
+                      const timeoutId = setTimeout(() => controller.abort(), 30000) // 30 sec timeout
+                      
                       try {
                         const fd = new FormData()
                         fd.append('photo', file)
-                        const res = await fetch('/api/profile/upload-photo', { method: 'POST', body: fd })
+                        const res = await fetch('/api/profile/upload-photo', { 
+                          method: 'POST', 
+                          body: fd,
+                          signal: controller.signal
+                        })
+                        clearTimeout(timeoutId)
+                        
                         if (!res.ok) {
                           const data = await res.json().catch(() => ({ error: 'Upload mislukt' }))
                           throw new Error(data.error || 'Upload mislukt')
                         }
                         const data = await res.json()
-                        setFormData({ ...formData, profilePhoto: data.url })
+                        setFormData(prev => ({ ...prev, profilePhoto: data.url }))
+                        toast.success('Foto succesvol geüpload!')
                       } catch (err: any) {
-                        alert(err.message || 'Fout bij uploaden')
+                        if (err.name === 'AbortError') {
+                          toast.error('Upload timeout - probeer een kleinere foto')
+                        } else {
+                          toast.error(err.message || 'Fout bij uploaden')
+                        }
                       }
                     }}
                     className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-emerald-500"
