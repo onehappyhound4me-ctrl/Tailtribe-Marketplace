@@ -326,29 +326,61 @@ export default function CaregiverSettingsPage() {
                           useWebWorker: true,
                           initialQuality: 0.8
                         })
-
-                        const fd = new FormData()
-                        fd.append('photo', compressed)
-
-                        const doUpload = async () => fetch('/api/profile/upload-photo', { 
-                          method: 'POST', 
-                          body: fd,
-                          signal: controller.signal
-                        })
                         
-                        let res = await doUpload()
-                        if (!res.ok) {
-                          await new Promise(r => setTimeout(r, 600))
-                          res = await doUpload()
+                        // 2) Directe Cloudinary upload (unsigned) indien public env vars aanwezig
+                        const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME
+                        const uploadPreset = process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET
+
+                        let imageUrl: string | null = null
+
+                        if (cloudName && uploadPreset) {
+                          const fd = new FormData()
+                          fd.append('file', compressed)
+                          fd.append('upload_preset', uploadPreset)
+                          fd.append('folder', 'tailtribe/profile-photos')
+
+                          const doDirect = async () => fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, {
+                            method: 'POST',
+                            body: fd,
+                            signal: controller.signal
+                          })
+
+                          let res = await doDirect()
+                          if (!res.ok) {
+                            await new Promise(r => setTimeout(r, 600))
+                            res = await doDirect()
+                          }
+                          clearTimeout(timeoutId)
+                          if (!res.ok) {
+                            const data = await res.json().catch(() => ({ error: 'Upload mislukt' }))
+                            throw new Error(data.error || 'Upload mislukt')
+                          }
+                          const data = await res.json()
+                          imageUrl = data.secure_url as string
+                        } else {
+                          // Fallback naar eigen API route
+                          const fd = new FormData()
+                          fd.append('photo', compressed)
+                          const doUpload = async () => fetch('/api/profile/upload-photo', { 
+                            method: 'POST', 
+                            body: fd,
+                            signal: controller.signal
+                          })
+                          let res = await doUpload()
+                          if (!res.ok) {
+                            await new Promise(r => setTimeout(r, 600))
+                            res = await doUpload()
+                          }
+                          clearTimeout(timeoutId)
+                          if (!res.ok) {
+                            const data = await res.json().catch(() => ({ error: 'Upload mislukt' }))
+                            throw new Error(data.error || 'Upload mislukt')
+                          }
+                          const data = await res.json()
+                          imageUrl = data.url as string
                         }
-                        clearTimeout(timeoutId)
-                        
-                        if (!res.ok) {
-                          const data = await res.json().catch(() => ({ error: 'Upload mislukt' }))
-                          throw new Error(data.error || 'Upload mislukt')
-                        }
-                        const data = await res.json()
-                        setFormData(prev => ({ ...prev, profilePhoto: data.url }))
+
+                        setFormData(prev => ({ ...prev, profilePhoto: imageUrl || '' }))
                         toast.success('Foto succesvol geüpload!')
                         // Reset file input to allow re-uploading the same file name later
                         try { (e.target as HTMLInputElement).value = '' } catch {}

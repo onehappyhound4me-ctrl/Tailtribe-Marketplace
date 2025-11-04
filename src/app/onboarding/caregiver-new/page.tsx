@@ -127,35 +127,65 @@ export default function CaregiverNewOnboardingPage() {
         initialQuality: 0.8
       })
       
-      const formData = new FormData()
-      formData.append('photo', compressed)
+      // Directe Cloudinary upload (unsigned) indien public env vars aanwezig
+      const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME
+      const uploadPreset = process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET
 
-      // Create abort controller for timeout
       const controller = new AbortController()
-      const timeoutId = setTimeout(() => controller.abort(), 30000) // 30 second timeout
+      const timeoutId = setTimeout(() => controller.abort(), 30000)
 
-      const doUpload = async () => fetch('/api/profile/upload-photo', {
-        method: 'POST',
-        body: formData,
-        signal: controller.signal
-      })
-      
-      let res = await doUpload()
-      if (!res.ok) {
-        // Eén retry bij netwerk/503
-        await new Promise(r => setTimeout(r, 600))
-        res = await doUpload()
+      let imageUrl: string | null = null
+
+      if (cloudName && uploadPreset) {
+        const fd = new FormData()
+        fd.append('file', compressed)
+        fd.append('upload_preset', uploadPreset)
+        fd.append('folder', 'tailtribe/profile-photos')
+
+        const doDirect = async () => fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, {
+          method: 'POST',
+          body: fd,
+          signal: controller.signal
+        })
+
+        let res = await doDirect()
+        if (!res.ok) {
+          await new Promise(r => setTimeout(r, 600))
+          res = await doDirect()
+        }
+
+        clearTimeout(timeoutId)
+
+        if (!res.ok) {
+          const data = await res.json().catch(() => ({ error: 'Upload mislukt' }))
+          throw new Error(data.error || 'Upload mislukt')
+        }
+        const data = await res.json()
+        imageUrl = data.secure_url as string
+      } else {
+        // Fallback: via eigen API
+        const fd = new FormData()
+        fd.append('photo', compressed)
+        const doUpload = async () => fetch('/api/profile/upload-photo', {
+          method: 'POST',
+          body: fd,
+          signal: controller.signal
+        })
+        let res = await doUpload()
+        if (!res.ok) {
+          await new Promise(r => setTimeout(r, 600))
+          res = await doUpload()
+        }
+        clearTimeout(timeoutId)
+        if (!res.ok) {
+          const data = await res.json().catch(() => ({ error: 'Upload mislukt' }))
+          throw new Error(data.error || 'Upload mislukt')
+        }
+        const data = await res.json()
+        imageUrl = data.url as string
       }
 
-      clearTimeout(timeoutId)
-
-      if (!res.ok) {
-        const data = await res.json().catch(() => ({ error: 'Upload mislukt' }))
-        throw new Error(data.error || 'Upload mislukt')
-      }
-
-      const data = await res.json()
-      setProfileData(prev => ({ ...prev, profilePhoto: data.url }))
+      setProfileData(prev => ({ ...prev, profilePhoto: imageUrl || '' }))
       toast.success('Profielfoto geüpload!')
     } catch (error: any) {
       console.error('Upload error:', error)
