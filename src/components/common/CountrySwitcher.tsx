@@ -1,13 +1,16 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useRouter, usePathname } from 'next/navigation'
+import { createPortal } from 'react-dom'
 
 export function CountrySwitcher() {
   const router = useRouter()
   const pathname = usePathname()
   const [isOpen, setIsOpen] = useState(false)
   const [mounted, setMounted] = useState(false)
+  const buttonRef = useRef<HTMLButtonElement>(null)
+  const [dropdownPosition, setDropdownPosition] = useState({ top: 0, right: 0 })
   
   // Initialize from pathname only (server-safe)
   const [currentCountry, setCurrentCountry] = useState<'BE' | 'NL'>(() => {
@@ -26,6 +29,17 @@ export function CountrySwitcher() {
       setCurrentCountry(country)
     }
   }, [pathname])
+
+  // Update dropdown position when opened
+  useEffect(() => {
+    if (isOpen && buttonRef.current && typeof window !== 'undefined') {
+      const rect = buttonRef.current.getBoundingClientRect()
+      setDropdownPosition({
+        top: rect.bottom + window.scrollY + 8,
+        right: window.innerWidth - rect.right + window.scrollX
+      })
+    }
+  }, [isOpen])
 
   const handleSwitchCountry = (country: 'BE' | 'NL') => {
     // Save to localStorage
@@ -90,63 +104,76 @@ export function CountrySwitcher() {
     )
   }
 
-  return (
-    <div className="relative">
-      <button
-        onClick={() => {
-          setIsOpen(!isOpen)
-          console.log('Dropdown toggled, isOpen:', !isOpen, 'Countries:', countries.map(c => c.name))
+  // Dropdown content to be rendered in portal
+  const dropdownContent = isOpen && typeof window !== 'undefined' ? (
+    <>
+      {/* Overlay */}
+      <div 
+        className="fixed inset-0 z-[99998]" 
+        onClick={() => setIsOpen(false)}
+        style={{ backgroundColor: 'transparent' }}
+      />
+      
+      {/* Dropdown - rendered in portal outside header */}
+      <div 
+        className="fixed bg-white rounded-xl shadow-2xl border-2 border-gray-300 z-[99999] min-w-[220px]"
+        style={{
+          top: `${dropdownPosition.top}px`,
+          right: `${dropdownPosition.right}px`,
+          position: 'fixed'
         }}
-        className="flex items-center gap-2 px-3 py-2 bg-white text-gray-700 hover:text-green-600 hover:border-green-300 rounded-lg font-medium transition-all duration-200 border border-gray-300 shadow-sm hover:shadow-md"
       >
-        <span className="text-xl leading-none">{current.flag}</span>
-        <svg 
-          className={`w-4 h-4 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} 
-          fill="none" 
-          stroke="currentColor" 
-          viewBox="0 0 24 24"
-        >
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-        </svg>
-      </button>
+        {countries.map((country) => (
+          <button
+            key={country.code}
+            onClick={(e) => {
+              e.stopPropagation()
+              handleSwitchCountry(country.code as 'BE' | 'NL')
+            }}
+            className={`w-full flex items-center gap-3 px-5 py-4 text-gray-900 hover:text-green-700 hover:bg-green-50 transition-colors duration-150 ${
+              country.code === 'BE' ? 'border-b border-gray-200' : ''
+            } ${
+              currentCountry === country.code ? 'bg-green-50 text-green-700 font-bold' : 'bg-white font-semibold'
+            }`}
+            style={{ minHeight: '56px' }}
+          >
+            <span className="text-2xl leading-none flex-shrink-0">{country.flag}</span>
+            <span className="text-base font-semibold flex-1 text-left">{country.name}</span>
+            {currentCountry === country.code && (
+              <svg className="w-5 h-5 text-green-700 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+              </svg>
+            )}
+          </button>
+        ))}
+      </div>
+    </>
+  ) : null
 
-      {isOpen && (
-        <>
-          {/* Overlay to close dropdown */}
-          <div 
-            className="fixed inset-0 z-[9998]" 
-            onClick={() => setIsOpen(false)}
-          />
-          
-          {/* Dropdown Menu */}
-          <div className="absolute top-full right-0 mt-2 bg-white rounded-xl shadow-2xl border-2 border-gray-300 z-[9999] min-w-[220px] overflow-visible">
-            {countries.map((country) => (
-              <button
-                key={country.code}
-                onClick={(e) => {
-                  e.stopPropagation()
-                  console.log('Country clicked:', country.name)
-                  handleSwitchCountry(country.code as 'BE' | 'NL')
-                }}
-                className={`w-full flex items-center gap-3 px-5 py-4 text-gray-900 hover:text-green-700 hover:bg-green-50 transition-colors duration-150 ${
-                  country.code === 'BE' ? 'border-b border-gray-200' : ''
-                } ${
-                  currentCountry === country.code ? 'bg-green-50 text-green-700 font-bold' : 'bg-white font-semibold'
-                }`}
-                style={{ minHeight: '56px' }}
-              >
-                <span className="text-2xl leading-none flex-shrink-0">{country.flag}</span>
-                <span className="text-base font-semibold flex-1 text-left">{country.name}</span>
-                {currentCountry === country.code && (
-                  <svg className="w-5 h-5 text-green-700 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                  </svg>
-                )}
-              </button>
-            ))}
-          </div>
-        </>
-      )}
-    </div>
+  return (
+    <>
+      <div className="relative">
+        <button
+          ref={buttonRef}
+          onClick={() => {
+            setIsOpen(!isOpen)
+          }}
+          className="flex items-center gap-2 px-3 py-2 bg-white text-gray-700 hover:text-green-600 hover:border-green-300 rounded-lg font-medium transition-all duration-200 border border-gray-300 shadow-sm hover:shadow-md"
+        >
+          <span className="text-xl leading-none">{current.flag}</span>
+          <svg 
+            className={`w-4 h-4 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} 
+            fill="none" 
+            stroke="currentColor" 
+            viewBox="0 0 24 24"
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+          </svg>
+        </button>
+      </div>
+      
+      {/* Render dropdown in portal to body, outside header */}
+      {typeof window !== 'undefined' && dropdownContent && createPortal(dropdownContent, document.body)}
+    </>
   )
 }
