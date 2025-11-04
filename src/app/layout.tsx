@@ -21,6 +21,11 @@ export const metadata: Metadata = {
   authors: [{ name: 'TailTribe' }],
   creator: 'TailTribe',
   publisher: 'TailTribe',
+  icons: {
+    icon: '/assets/tailtribe-logo.png',
+    shortcut: '/assets/tailtribe-logo.png',
+    apple: '/assets/tailtribe-logo.png',
+  },
   robots: {
     index: true,
     follow: true,
