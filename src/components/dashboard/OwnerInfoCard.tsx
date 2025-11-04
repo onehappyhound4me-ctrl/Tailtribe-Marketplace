@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -34,13 +34,7 @@ export function OwnerInfoCard({ bookingId }: Props) {
   const [ownerInfo, setOwnerInfo] = useState<OwnerInfo | null>(null)
   const [loading, setLoading] = useState(true)
 
-  useEffect(() => {
-    if (bookingId) {
-      fetchOwnerInfo()
-    }
-  }, [bookingId])
-
-  const fetchOwnerInfo = async () => {
+  const fetchOwnerInfo = useCallback(async () => {
     try {
       const res = await fetch(`/api/bookings/${bookingId}`)
       if (res.ok) {
@@ -54,7 +48,13 @@ export function OwnerInfoCard({ bookingId }: Props) {
     } finally {
       setLoading(false)
     }
-  }
+  }, [bookingId])
+
+  useEffect(() => {
+    if (bookingId) {
+      fetchOwnerInfo()
+    }
+  }, [bookingId, fetchOwnerInfo])
 
   if (loading) {
     return (

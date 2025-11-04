@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import dynamic from 'next/dynamic'
 
 // Dynamically import map to avoid SSR issues
@@ -20,11 +20,7 @@ export function NearbyCaregiverMap({ userCity, userCountry, userLat, userLng }: 
   const [caregivers, setCaregivers] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
 
-  useEffect(() => {
-    loadNearbyCaregivers()
-  }, [userCity, userCountry])
-
-  const loadNearbyCaregivers = async () => {
+  const loadNearbyCaregivers = useCallback(async () => {
     try {
       const params = new URLSearchParams({
         city: userCity,
@@ -42,7 +38,11 @@ export function NearbyCaregiverMap({ userCity, userCountry, userLat, userLng }: 
     } finally {
       setLoading(false)
     }
-  }
+  }, [userCity, userCountry])
+
+  useEffect(() => {
+    loadNearbyCaregivers()
+  }, [loadNearbyCaregivers])
 
   if (loading) {
     return (

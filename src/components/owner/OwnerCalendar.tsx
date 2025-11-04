@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { Button } from '@/components/ui/button'
 import { serviceLabels } from '@/lib/types'
 import { Badge } from '@/components/ui/badge'
@@ -17,13 +17,7 @@ export function OwnerCalendar({ ownerId }: Props) {
   const [loading, setLoading] = useState(false)
   const [selectedDate, setSelectedDate] = useState<Date | null>(null)
 
-  useEffect(() => {
-    if (ownerId) {
-      fetchCalendarData()
-    }
-  }, [ownerId, currentMonth])
-
-  const fetchCalendarData = async () => {
+  const fetchCalendarData = useCallback(async () => {
     setLoading(true)
     try {
       const firstDay = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), 1)
@@ -51,7 +45,13 @@ export function OwnerCalendar({ ownerId }: Props) {
     } finally {
       setLoading(false)
     }
-  }
+  }, [currentMonth])
+
+  useEffect(() => {
+    if (ownerId) {
+      fetchCalendarData()
+    }
+  }, [ownerId, fetchCalendarData])
 
   const getDaysInMonth = () => {
     const year = currentMonth.getFullYear()

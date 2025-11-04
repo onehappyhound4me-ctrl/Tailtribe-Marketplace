@@ -403,9 +403,9 @@ export function ModernMap({ caregivers, country = 'BE', onCaregiverSelect }: Mod
           map.off()
           map.remove()
         }
-        if (mapRef.current) {
-          mapRef.current.innerHTML = ''
-          const anyRef = mapRef.current as any
+        if (mapRefElement) {
+          mapRefElement.innerHTML = ''
+          const anyRef = mapRefElement as any
           delete anyRef._leaflet_id
         }
         mapInstanceRef.current = null
@@ -415,7 +415,7 @@ export function ModernMap({ caregivers, country = 'BE', onCaregiverSelect }: Mod
         console.warn('Cleanup error:', e)
       }
     }
-  }, [caregivers, country])
+  }, [caregivers, country, onCaregiverSelect])
 
   // Update radius visuals and marker dimming when userLocation/radius/toggle changes
   useEffect(() => {

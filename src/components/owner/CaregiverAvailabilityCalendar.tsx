@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { Button } from '@/components/ui/button'
 import { TimeSlot, DayData } from '@/lib/calendar/types'
 import { toast } from 'sonner'
@@ -19,13 +19,7 @@ export function CaregiverAvailabilityCalendar({ caregiverId, readOnly = true, on
   const [selectedDay, setSelectedDay] = useState<DayData | null>(null)
   const [showDayModal, setShowDayModal] = useState(false)
 
-  useEffect(() => {
-    if (caregiverId) {
-      fetchCalendarData()
-    }
-  }, [caregiverId, currentMonth])
-
-  const fetchCalendarData = async () => {
+  const fetchCalendarData = useCallback(async () => {
     setLoading(true)
     try {
       const firstDay = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), 1)
@@ -44,7 +38,13 @@ export function CaregiverAvailabilityCalendar({ caregiverId, readOnly = true, on
     } finally {
       setLoading(false)
     }
-  }
+  }, [caregiverId, currentMonth])
+
+  useEffect(() => {
+    if (caregiverId) {
+      fetchCalendarData()
+    }
+  }, [caregiverId, fetchCalendarData])
 
   const getDaysInMonth = () => {
     const year = currentMonth.getFullYear()
