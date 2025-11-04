@@ -259,11 +259,23 @@ export default function CaregiverSettingsPage() {
               <label className="block text-sm font-medium mb-2">Profielfoto</label>
               <div className="flex items-center gap-4">
                 {formData.profilePhoto ? (
-                  <img 
-                    src={formData.profilePhoto} 
-                    alt="Profiel" 
-                    className="w-32 h-32 md:w-40 md:h-40 rounded-lg object-cover border-2 border-gray-200"
-                  />
+                  <div className="flex items-center gap-3">
+                    <img 
+                      src={formData.profilePhoto} 
+                      alt="Profiel" 
+                      className="w-32 h-32 md:w-40 md:h-40 rounded-lg object-cover border-2 border-gray-200"
+                    />
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => {
+                        setFormData(prev => ({ ...prev, profilePhoto: '' }))
+                        toast.info('Foto verwijderd uit het formulier. Klik op Opslaan om te bevestigen.')
+                      }}
+                    >
+                      Verwijder foto
+                    </Button>
+                  </div>
                 ) : (
                   <div className="w-32 h-32 md:w-40 md:h-40 rounded-lg bg-gray-200 flex items-center justify-center">
                     <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -309,6 +321,8 @@ export default function CaregiverSettingsPage() {
                         const data = await res.json()
                         setFormData(prev => ({ ...prev, profilePhoto: data.url }))
                         toast.success('Foto succesvol geüpload!')
+                        // Reset file input to allow re-uploading the same file name later
+                        try { (e.target as HTMLInputElement).value = '' } catch {}
                       } catch (err: any) {
                         if (err.name === 'AbortError') {
                           toast.error('Upload timeout - probeer een kleinere foto')
