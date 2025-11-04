@@ -107,16 +107,20 @@ export function CountrySwitcher() {
     <>
       {/* Overlay */}
       <div 
-        className="fixed inset-0 z-[9998] bg-black/20" 
+        className="fixed inset-0 z-[99998] bg-transparent" 
         onClick={() => setIsOpen(false)}
+        style={{ pointerEvents: 'auto' }}
       />
       
       {/* Dropdown - positioned absolutely relative to viewport */}
       <div 
-        className="fixed bg-white rounded-xl shadow-2xl border-2 border-gray-200 z-[9999] min-w-[200px] py-2"
+        className="fixed bg-white rounded-xl shadow-2xl border-2 border-gray-200 z-[99999] min-w-[200px] py-2"
         style={{
           top: `${dropdownPosition.top}px`,
-          right: `${dropdownPosition.right}px`
+          right: `${dropdownPosition.right}px`,
+          position: 'fixed',
+          pointerEvents: 'auto',
+          isolation: 'isolate'
         }}
       >
         {countries.map((country) => (
