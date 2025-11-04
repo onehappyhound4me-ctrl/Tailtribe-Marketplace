@@ -160,8 +160,13 @@ export function CountrySwitcher() {
           }}
           className="flex items-center gap-2.5 px-4 py-2.5 bg-white text-gray-800 hover:text-emerald-600 hover:border-emerald-300 rounded-lg font-semibold transition-all duration-200 border border-gray-300 shadow-sm hover:shadow-md"
         >
-          <span className="text-2xl leading-none">{current.flag}</span>
-          <span className="text-sm font-bold tracking-wider">{currentCountry}</span>
+          <span className="flex items-center gap-2">
+            <span className="text-xl leading-none">{countries.find(c => c.code === 'BE')?.flag}</span>
+            <span className="text-sm font-bold tracking-wider">BE</span>
+            <span className="text-gray-300 mx-1">/</span>
+            <span className="text-xl leading-none">{countries.find(c => c.code === 'NL')?.flag}</span>
+            <span className="text-sm font-bold tracking-wider">NL</span>
+          </span>
           <svg 
             className={`w-4 h-4 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} 
             fill="none" 
