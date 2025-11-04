@@ -10,7 +10,7 @@ export function CountrySwitcher() {
   const [isOpen, setIsOpen] = useState(false)
   const [mounted, setMounted] = useState(false)
   const buttonRef = useRef<HTMLButtonElement>(null)
-  const [dropdownPosition, setDropdownPosition] = useState({ top: 0, right: 0 })
+  const [dropdownPosition, setDropdownPosition] = useState({ top: 0, left: 0 })
   
   // Initialize from pathname only (server-safe)
   const [currentCountry, setCurrentCountry] = useState<'BE' | 'NL'>(() => {
@@ -34,9 +34,14 @@ export function CountrySwitcher() {
   useEffect(() => {
     if (isOpen && buttonRef.current && typeof window !== 'undefined') {
       const rect = buttonRef.current.getBoundingClientRect()
+      const scrollX = window.scrollX || window.pageXOffset || 0
+      const scrollY = window.scrollY || window.pageYOffset || 0
+      
+      // Calculate position: align right edge of dropdown with right edge of button
+      const dropdownWidth = 120 // min-w-[120px]
       setDropdownPosition({
-        top: rect.bottom + window.scrollY + 8,
-        right: window.innerWidth - rect.right + window.scrollX
+        top: rect.bottom + scrollY + 8,
+        left: rect.right + scrollX - dropdownWidth
       })
     }
   }, [isOpen])
@@ -119,7 +124,7 @@ export function CountrySwitcher() {
         className="fixed bg-white rounded-xl shadow-2xl border-2 border-gray-200 z-[99999] min-w-[120px] overflow-hidden"
         style={{
           top: `${dropdownPosition.top}px`,
-          right: `${dropdownPosition.right}px`,
+          left: `${dropdownPosition.left}px`,
           position: 'fixed'
         }}
       >
