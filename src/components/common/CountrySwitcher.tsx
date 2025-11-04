@@ -91,10 +91,10 @@ export function CountrySwitcher() {
   const current = countries.find(c => c.code === currentCountry) || countries[0]
 
   return (
-    <div className="relative group">
+    <div className="relative group z-50">
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-2 px-3 py-2 bg-white text-gray-700 hover:text-green-600 hover:border-green-300 rounded-lg font-medium transition-all duration-200 border border-gray-300 shadow-sm hover:shadow-md"
+        className="flex items-center gap-2 px-3 py-2 bg-white text-gray-700 hover:text-green-600 hover:border-green-300 rounded-lg font-medium transition-all duration-200 border border-gray-300 shadow-sm hover:shadow-md relative z-50"
       >
         <span className="text-xl leading-none">{current.flag}</span>
         <svg 
@@ -111,24 +111,24 @@ export function CountrySwitcher() {
         <>
           {/* Overlay */}
           <div 
-            className="fixed inset-0 z-40" 
+            className="fixed inset-0 z-[45]" 
             onClick={() => setIsOpen(false)}
           />
           
           {/* Dropdown */}
-          <div className="absolute top-full mt-2 right-0 bg-white rounded-xl shadow-xl border border-gray-200 overflow-hidden z-50 min-w-[180px] py-1">
+          <div className="absolute top-full mt-2 right-0 bg-white rounded-xl shadow-2xl border-2 border-gray-200 overflow-visible z-[60] min-w-[200px] py-2">
             {countries.map((country) => (
               <button
                 key={country.code}
                 onClick={() => handleSwitchCountry(country.code as 'BE' | 'NL')}
-                className={`w-full flex items-center gap-3 px-4 py-3 text-gray-700 hover:text-green-600 hover:bg-green-50 transition-colors duration-150 ${
-                  currentCountry === country.code ? 'bg-green-50 text-green-600' : ''
+                className={`w-full flex items-center gap-3 px-4 py-3 text-gray-900 hover:text-green-700 hover:bg-green-50 transition-colors duration-150 relative z-[61] ${
+                  currentCountry === country.code ? 'bg-green-50 text-green-700 font-bold' : 'bg-white font-semibold'
                 }`}
               >
-                <span className="text-xl leading-none">{country.flag}</span>
-                <span className="text-sm font-semibold flex-1 text-left">{country.name}</span>
+                <span className="text-xl leading-none flex-shrink-0">{country.flag}</span>
+                <span className="text-base font-semibold flex-1 text-left whitespace-nowrap">{country.name}</span>
                 {currentCountry === country.code && (
-                  <svg className="w-5 h-5 text-green-600 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                  <svg className="w-5 h-5 text-green-700 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                   </svg>
                 )}
