@@ -235,9 +235,9 @@ export function ModernMap({ caregivers, country = 'BE', onCaregiverSelect }: Mod
       delete anyRef._leaflet_id
     }
 
+    const mapRefElement = mapRef.current
     ensureLeafletLoaded().then(() => {
       const win = window as any
-      const mapRefElement = mapRef.current
       if (!mapRefElement || !win.L) return
       
       // Double check no map exists
