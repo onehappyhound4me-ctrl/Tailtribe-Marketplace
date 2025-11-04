@@ -271,15 +271,47 @@ export default function CaregiverSettingsPage() {
                     </svg>
                   </div>
                 )}
-                <div className="flex-1">
+                <div className="flex-1 space-y-2">
+                  {/* Direct upload */}
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={async (e) => {
+                      const file = e.target.files?.[0]
+                      if (!file) return
+                      if (!file.type.startsWith('image/')) {
+                        alert('Alleen afbeeldingen zijn toegestaan')
+                        return
+                      }
+                      if (file.size > 5 * 1024 * 1024) {
+                        alert('Afbeelding mag maximaal 5MB zijn')
+                        return
+                      }
+                      try {
+                        const fd = new FormData()
+                        fd.append('photo', file)
+                        const res = await fetch('/api/profile/upload-photo', { method: 'POST', body: fd })
+                        if (!res.ok) {
+                          const data = await res.json().catch(() => ({ error: 'Upload mislukt' }))
+                          throw new Error(data.error || 'Upload mislukt')
+                        }
+                        const data = await res.json()
+                        setFormData({ ...formData, profilePhoto: data.url })
+                      } catch (err: any) {
+                        alert(err.message || 'Fout bij uploaden')
+                      }
+                    }}
+                    className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-emerald-500"
+                  />
+                  {/* URL fallback */}
                   <input
                     type="text"
                     value={formData.profilePhoto}
                     onChange={(e) => setFormData({ ...formData, profilePhoto: e.target.value })}
                     className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-emerald-500"
-                    placeholder="Foto URL (bijv: /uploads/foto.jpg)"
+                    placeholder="Of plak een foto-URL"
                   />
-                  <p className="text-xs text-gray-500 mt-1">Plak hier de URL van je profielfoto</p>
+                  <p className="text-xs text-gray-500">Je kunt een bestand kiezen of een URL plakken.</p>
                 </div>
               </div>
             </div>
