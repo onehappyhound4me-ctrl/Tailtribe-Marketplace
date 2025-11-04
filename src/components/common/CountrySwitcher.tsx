@@ -39,9 +39,22 @@ export function CountrySwitcher() {
       
       // Calculate position: align right edge of dropdown with right edge of button
       const dropdownWidth = 120 // min-w-[120px]
+      let left = rect.right + scrollX - dropdownWidth
+      
+      // Ensure dropdown doesn't go off-screen on the left
+      if (left < scrollX) {
+        left = rect.left + scrollX
+      }
+      
+      // Ensure dropdown doesn't go off-screen on the right
+      const maxLeft = scrollX + window.innerWidth - dropdownWidth
+      if (left > maxLeft) {
+        left = maxLeft
+      }
+      
       setDropdownPosition({
         top: rect.bottom + scrollY + 8,
-        left: rect.right + scrollX - dropdownWidth
+        left: left
       })
     }
   }, [isOpen])
