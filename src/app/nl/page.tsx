@@ -1,6 +1,5 @@
 'use client'
 
-import { Metadata } from 'next'
 import Link from 'next/link'
 import Image from 'next/image'
 import { useSession } from 'next-auth/react'
@@ -173,7 +172,7 @@ export default function NetherlandsHomePage() {
 
       {/* Services Grid */}
       <section className="py-16 px-4">
-        <div className="container mx-auto">
+        <div className="container mx-auto max-w-7xl">
           <h2 className="text-4xl font-bold text-center mb-4 text-gray-800">
             Ontdek onze diensten
           </h2>
@@ -260,15 +259,15 @@ export default function NetherlandsHomePage() {
 
       {/* How it Works */}
       <section className="py-16 px-4 bg-gradient-to-br from-blue-50 to-green-50">
-        <div className="container mx-auto max-w-6xl">
+        <div className="container mx-auto max-w-6xl px-4">
           <h2 className="text-4xl font-bold text-center mb-4 text-gray-800">
             Hoe werkt het?
           </h2>
-          <p className="text-center text-gray-600 mb-12 text-lg">
+          <p className="text-center text-gray-600 mb-12 text-lg max-w-2xl mx-auto">
             In 3 eenvoudige stappen naar de perfecte dierenoppas
           </p>
           
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
             {[
               {
                 step: '1',
@@ -291,7 +290,7 @@ export default function NetherlandsHomePage() {
                   {item.step}
                 </div>
                 <h3 className="text-xl font-bold mb-2 text-gray-800">{item.title}</h3>
-                <p className="text-gray-600">{item.desc}</p>
+                <p className="text-gray-600 leading-relaxed">{item.desc}</p>
               </div>
             ))}
           </div>
@@ -302,7 +301,7 @@ export default function NetherlandsHomePage() {
 
       {/* Benefits for Caregivers */}
       <section className="py-16 px-4 bg-gradient-to-br from-blue-50 to-purple-50">
-        <div className="container mx-auto max-w-6xl">
+        <div className="container mx-auto max-w-6xl px-4">
           <div className="text-center mb-12">
             <h2 className="text-4xl font-bold mb-4 text-gray-800">
               Word professioneel dierenverzorger
@@ -312,7 +311,7 @@ export default function NetherlandsHomePage() {
             </p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-8">
+          <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
             {[
               {
                 title: 'Flexibele verdiensten',
@@ -346,7 +345,7 @@ export default function NetherlandsHomePage() {
                   )}
                 </div>
                 <h3 className="text-2xl font-bold mb-3 text-gray-800">{benefit.title}</h3>
-                <p className="text-gray-600">{benefit.desc}</p>
+                <p className="text-gray-600 leading-relaxed">{benefit.desc}</p>
               </div>
             ))}
           </div>
@@ -377,18 +376,18 @@ export default function NetherlandsHomePage() {
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_30%,rgba(255,255,255,0.2),transparent)]"></div>
         </div>
         
-        <div className="container mx-auto max-w-4xl text-center relative z-10">
+        <div className="container mx-auto max-w-4xl px-4 text-center relative z-10">
           <h2 className="text-4xl md:text-5xl font-bold mb-6 leading-tight">
             Klaar voor de beste dierenoppas?
           </h2>
-          <p className="text-xl mb-4 text-green-50">
+          <p className="text-xl mb-4 text-green-50 max-w-2xl mx-auto">
             Het platform dat eigenaren en dierenoppassers verbindt
           </p>
-          <p className="text-lg mb-10 text-green-100">
+          <p className="text-lg mb-10 text-green-100 max-w-xl mx-auto">
             Start vandaag nog met het vinden van de perfecte match
           </p>
           
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
             {session ? (
               <Link 
                 href={session.user.role === 'CAREGIVER' ? '/dashboard/caregiver' : '/dashboard/owner'}
@@ -433,7 +432,7 @@ export default function NetherlandsHomePage() {
             )}
           </div>
 
-          <div className="mt-10 flex items-center justify-center gap-8 text-sm text-green-100">
+          <div className="mt-10 flex flex-wrap items-center justify-center gap-6 md:gap-8 text-sm text-green-100">
             <div className="flex items-center gap-2">
               <svg className="w-5 h-5 text-green-300" fill="currentColor" viewBox="0 0 20 20">
                 <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
