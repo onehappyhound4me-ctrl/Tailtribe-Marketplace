@@ -71,13 +71,13 @@ export default function RootLayout({
               <body className={`h-full antialiased font-sans`}>
         <Providers>
           <div className="min-h-full flex flex-col">
-            <header className="bg-gradient-to-r from-blue-50/95 via-teal-50/85 to-emerald-100/80 backdrop-blur-lg shadow-md border-b border-emerald-200/50 sticky top-0 z-50 relative overflow-hidden">
+            <header className="bg-gradient-to-r from-blue-50/95 via-teal-50/85 to-emerald-100/80 backdrop-blur-lg shadow-md border-b border-emerald-200/50 sticky top-0 z-50 relative overflow-x-visible overflow-y-hidden">
               {/* Subtle radial tints, no visible boxes */}
               <div className="absolute inset-0 bg-[radial-gradient(circle_at_12%_55%,rgba(255,255,255,0.34),transparent_62%)]"></div>
               <div className="absolute inset-0 bg-[radial-gradient(circle_at_28%_52%,rgba(59,130,246,0.12),transparent_65%)]"></div>
               <div className="absolute inset-0 bg-[radial-gradient(circle_at_78%_50%,rgba(16,185,129,0.08),transparent_60%)]"></div>
               
-              <nav className="container mx-auto px-6 lg:px-8 relative z-10">
+              <nav className="container mx-auto px-6 lg:px-8 relative z-10 overflow-visible">
                 <div className="flex items-center justify-between h-24 py-5">
                   <SmartLogoLink />
                   
