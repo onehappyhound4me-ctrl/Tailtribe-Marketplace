@@ -18,14 +18,19 @@ export function PhotoUpload({ currentImage, onUploadComplete }: PhotoUploadProps
     const file = e.target.files?.[0]
     if (!file) return
 
-    // Validate file
+    // Validatie: bestandstype
     if (!file.type.startsWith('image/')) {
       toast.error('Alleen afbeeldingen zijn toegestaan')
+      try { (e.target as HTMLInputElement).value = '' } catch {}
       return
     }
 
-    if (file.size > 5 * 1024 * 1024) {
-      toast.error('Afbeelding mag maximaal 5MB zijn')
+    // Validatie: bestandsgrootte
+    const maxSize = 5 * 1024 * 1024 // 5MB
+    if (file.size > maxSize) {
+      const fileSizeMB = (file.size / (1024 * 1024)).toFixed(2)
+      toast.error(`Foto is te groot (${fileSizeMB}MB). Maximum is 5MB. Probeer een kleinere foto of comprimeer deze eerst.`)
+      try { (e.target as HTMLInputElement).value = '' } catch {}
       return
     }
 

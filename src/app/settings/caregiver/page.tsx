@@ -256,48 +256,44 @@ export default function CaregiverSettingsPage() {
           <div className="space-y-6">
             <h2 className="text-xl font-bold text-gray-900 mb-6">Profiel & Locatie</h2>
               
-            {/* Profile Photo */}
-            <div>
-              <label className="block text-sm font-medium mb-2">Profielfoto</label>
-              <div className="flex items-center gap-4">
-                {formData.profilePhoto ? (
-                  <div className="flex items-center gap-3">
-                    <img 
-                      src={formData.profilePhoto} 
-                      alt="Profiel" 
-                      className="w-32 h-32 md:w-40 md:h-40 rounded-lg object-cover border-2 border-gray-200"
-                    />
-                    <Button
-                      type="button"
-                      variant="outline"
-                      onClick={() => {
-                        setFormData(prev => ({ ...prev, profilePhoto: '' }))
-                        toast.info('Foto verwijderd uit het formulier. Klik op Opslaan om te bevestigen.')
-                      }}
-                    >
-                      Verwijder foto
-                    </Button>
-                    <Button
-                      type="button"
-                      onClick={() => {
-                        // Eerst verwijderen, dan nieuwe kiezen
-                        setFormData(prev => ({ ...prev, profilePhoto: '' }))
-                        // Kleine delay om state te laten toepassen, dan open file chooser
-                        setTimeout(() => fileInputRef.current?.click(), 50)
-                      }}
-                    >
-                      Nieuwe foto kiezen
-                    </Button>
-                  </div>
-                ) : (
-                  <div className="w-32 h-32 md:w-40 md:h-40 rounded-lg bg-gray-200 flex items-center justify-center">
-                    <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                    </svg>
-                  </div>
-                )}
-                <div className="flex-1 space-y-2">
-                  {/* Direct upload */}
+            {/* Profile Photo - UPDATED 2025-11-04 - "Nieuwe foto kiezen" VERWIJDERD */}
+            <div className="space-y-4">
+              <label className="block text-sm font-medium text-gray-700">📸 Profielfoto</label>
+              
+              <div className="flex items-start gap-6">
+                {/* Photo Preview */}
+                <div className="flex-shrink-0">
+                  {formData.profilePhoto ? (
+                    <div className="relative group">
+                      <img 
+                        src={formData.profilePhoto} 
+                        alt="Profiel" 
+                        className="w-32 h-32 rounded-lg object-cover border-2 border-gray-200 shadow-sm"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setFormData(prev => ({ ...prev, profilePhoto: '' }))
+                          toast.info('Foto verwijderd uit het formulier. Klik op Opslaan om te bevestigen.')
+                        }}
+                        className="absolute -top-2 -right-2 bg-red-500 hover:bg-red-600 text-white rounded-full w-7 h-7 flex items-center justify-center text-base font-bold shadow-lg transition-all opacity-0 group-hover:opacity-100"
+                        title="Verwijder foto"
+                      >
+                        ×
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="w-32 h-32 rounded-lg bg-gray-50 border-2 border-dashed border-gray-300 flex items-center justify-center">
+                      <svg className="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                      </svg>
+                    </div>
+                  )}
+                </div>
+
+                {/* Upload Controls */}
+                <div className="flex-1 space-y-3">
+                  {/* Hidden file input */}
                   <input
                     type="file"
                     accept="image/*"
@@ -305,19 +301,26 @@ export default function CaregiverSettingsPage() {
                     onChange={async (e) => {
                       const file = e.target.files?.[0]
                       if (!file) return
+                      
+                      // Validatie: bestandstype
                       if (!file.type.startsWith('image/')) {
                         toast.error('Alleen afbeeldingen zijn toegestaan')
+                        try { (e.target as HTMLInputElement).value = '' } catch {}
                         return
                       }
-                      if (file.size > 5 * 1024 * 1024) {
-                        toast.error('Afbeelding mag maximaal 5MB zijn')
+                      
+                      // Validatie: bestandsgrootte
+                      const maxSize = 5 * 1024 * 1024 // 5MB
+                      if (file.size > maxSize) {
+                        const fileSizeMB = (file.size / (1024 * 1024)).toFixed(2)
+                        toast.error(`Foto is te groot (${fileSizeMB}MB). Maximum is 5MB. Probeer een kleinere foto of comprimeer deze eerst.`)
+                        try { (e.target as HTMLInputElement).value = '' } catch {}
                         return
                       }
                       
                       toast.info('Foto wordt geüpload...')
                       const controller = new AbortController()
                       const timeoutId = setTimeout(() => controller.abort(), 30000) // 30 sec timeout
-                      
                       try {
                         // 1) Client-side compressie
                         const compressed = await imageCompression(file, {
@@ -333,36 +336,11 @@ export default function CaregiverSettingsPage() {
 
                         let imageUrl: string | null = null
 
-                        if (cloudName && uploadPreset) {
-                          const fd = new FormData()
-                          fd.append('file', compressed)
-                          fd.append('upload_preset', uploadPreset)
-                          fd.append('folder', 'tailtribe/profile-photos')
-
-                          const doDirect = async () => fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, {
-                            method: 'POST',
-                            body: fd,
-                            signal: controller.signal
-                          })
-
-                          let res = await doDirect()
-                          if (!res.ok) {
-                            await new Promise(r => setTimeout(r, 600))
-                            res = await doDirect()
-                          }
-                          clearTimeout(timeoutId)
-                          if (!res.ok) {
-                            const data = await res.json().catch(() => ({ error: 'Upload mislukt' }))
-                            throw new Error(data.error || 'Upload mislukt')
-                          }
-                          const data = await res.json()
-                          imageUrl = data.secure_url as string
-                        } else {
-                          // Fallback naar eigen API route
+                        const uploadViaServer = async () => {
                           const fd = new FormData()
                           fd.append('photo', compressed)
-                          const doUpload = async () => fetch('/api/profile/upload-photo', { 
-                            method: 'POST', 
+                          const doUpload = async () => fetch('/api/profile/upload-photo', {
+                            method: 'POST',
                             body: fd,
                             signal: controller.signal
                           })
@@ -371,13 +349,46 @@ export default function CaregiverSettingsPage() {
                             await new Promise(r => setTimeout(r, 600))
                             res = await doUpload()
                           }
-                          clearTimeout(timeoutId)
                           if (!res.ok) {
                             const data = await res.json().catch(() => ({ error: 'Upload mislukt' }))
                             throw new Error(data.error || 'Upload mislukt')
                           }
                           const data = await res.json()
-                          imageUrl = data.url as string
+                          return data.url as string
+                        }
+
+                        if (cloudName && uploadPreset) {
+                          try {
+                            const fd = new FormData()
+                            fd.append('file', compressed)
+                            fd.append('upload_preset', uploadPreset)
+                            fd.append('folder', 'tailtribe/profile-photos')
+
+                            const doDirect = async () => fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, {
+                              method: 'POST',
+                              body: fd,
+                              signal: controller.signal
+                            })
+
+                            let res = await doDirect()
+                            if (!res.ok) {
+                              await new Promise(r => setTimeout(r, 600))
+                              res = await doDirect()
+                            }
+                            if (!res.ok) {
+                              // Direct faalt: automatisch fallback naar server
+                              imageUrl = await uploadViaServer()
+                            } else {
+                              const data = await res.json()
+                              imageUrl = data.secure_url as string
+                            }
+                          } catch {
+                            // Netwerk/CORS fout: fallback naar server
+                            imageUrl = await uploadViaServer()
+                          }
+                        } else {
+                          // Geen public env: gebruik server route
+                          imageUrl = await uploadViaServer()
                         }
 
                         setFormData(prev => ({ ...prev, profilePhoto: imageUrl || '' }))
@@ -390,20 +401,70 @@ export default function CaregiverSettingsPage() {
                         } else {
                           toast.error(err.message || 'Fout bij uploaden')
                         }
+                      } finally {
+                        clearTimeout(timeoutId)
+                        try { (e.target as HTMLInputElement).value = '' } catch {}
                       }
                     }}
-                    className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-emerald-500"
+                    className="hidden"
                   />
-                  <p className="text-xs text-gray-500">Max 5MB. Ondersteund: JPG, PNG, WebP.</p>
-                  {/* URL fallback */}
-                  <input
-                    type="text"
-                    value={formData.profilePhoto}
-                    onChange={(e) => setFormData({ ...formData, profilePhoto: e.target.value })}
-                    className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-emerald-500"
-                    placeholder="Of plak een foto-URL"
-                  />
-                  <p className="text-xs text-gray-500">Je kunt een bestand kiezen of een URL plakken.</p>
+                  
+                  {/* Upload Button - VERWIJDERD: "Nieuwe foto kiezen" */}
+                  <div className="flex items-center gap-3 flex-wrap">
+                    <button
+                      type="button"
+                      onClick={() => fileInputRef.current?.click()}
+                      className="inline-flex items-center gap-2 px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-medium transition-all shadow-sm hover:shadow-md"
+                    >
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                      </svg>
+                      {formData.profilePhoto ? '🔄 Foto Wijzigen' : '⬆️ Foto Uploaden'}
+                    </button>
+                    
+                    {formData.profilePhoto && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setFormData(prev => ({ ...prev, profilePhoto: '' }))
+                          toast.info('Foto verwijderd uit het formulier. Klik op Opslaan om te bevestigen.')
+                        }}
+                        className="inline-flex items-center gap-2 px-5 py-2.5 bg-white border-2 border-red-300 rounded-lg hover:border-red-500 hover:bg-red-50 text-red-700 hover:text-red-800 font-medium transition-all shadow-sm hover:shadow"
+                      >
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
+                        Verwijderen
+                      </button>
+                    )}
+                  </div>
+                  
+                  <p className="text-xs text-gray-500 leading-relaxed">
+                    Maximaal 5MB. Ondersteunde formaten: JPG, PNG, WebP
+                  </p>
+                  
+                  {/* URL fallback - optioneel */}
+                  <details className="border-t border-gray-200 pt-3">
+                    <summary className="text-xs text-gray-600 cursor-pointer hover:text-emerald-600 transition-colors select-none">
+                      Of gebruik een foto-URL
+                    </summary>
+                    <div className="mt-3">
+                      <input
+                        type="text"
+                        value={formData.profilePhoto}
+                        onChange={(e) => {
+                          const v = e.target.value
+                          if (v.startsWith('data:')) {
+                            toast.error('Plak geen base64 data-URL. Gebruik Bestand kiezen om te uploaden.')
+                            return
+                          }
+                          setFormData({ ...formData, profilePhoto: v })
+                        }}
+                        className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+                        placeholder="https://voorbeeld.com/foto.jpg"
+                      />
+                    </div>
+                  </details>
                 </div>
               </div>
             </div>

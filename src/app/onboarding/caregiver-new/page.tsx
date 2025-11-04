@@ -104,18 +104,26 @@ export default function CaregiverNewOnboardingPage() {
     const file = e.target.files?.[0]
     if (!file) return
 
-    // Validate file
+    // Validatie: bestandstype
     if (!file.type.startsWith('image/')) {
       toast.error('Alleen afbeeldingen zijn toegestaan')
+      try { (e.target as HTMLInputElement).value = '' } catch {}
       return
     }
 
-    if (file.size > 5 * 1024 * 1024) {
-      toast.error('Afbeelding mag maximaal 5MB zijn')
+    // Validatie: bestandsgrootte
+    const maxSize = 5 * 1024 * 1024 // 5MB
+    if (file.size > maxSize) {
+      const fileSizeMB = (file.size / (1024 * 1024)).toFixed(2)
+      toast.error(`Foto is te groot (${fileSizeMB}MB). Maximum is 5MB. Probeer een kleinere foto of comprimeer deze eerst.`)
+      try { (e.target as HTMLInputElement).value = '' } catch {}
       return
     }
 
     // Upload to server with compression + timeout + retry
+    const controller = new AbortController()
+    const timeoutId = setTimeout(() => controller.abort(), 30000)
+    
     try {
       toast.info('Foto wordt geüpload...')
       
@@ -131,39 +139,9 @@ export default function CaregiverNewOnboardingPage() {
       const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME
       const uploadPreset = process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET
 
-      const controller = new AbortController()
-      const timeoutId = setTimeout(() => controller.abort(), 30000)
-
       let imageUrl: string | null = null
 
-      if (cloudName && uploadPreset) {
-        const fd = new FormData()
-        fd.append('file', compressed)
-        fd.append('upload_preset', uploadPreset)
-        fd.append('folder', 'tailtribe/profile-photos')
-
-        const doDirect = async () => fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, {
-          method: 'POST',
-          body: fd,
-          signal: controller.signal
-        })
-
-        let res = await doDirect()
-        if (!res.ok) {
-          await new Promise(r => setTimeout(r, 600))
-          res = await doDirect()
-        }
-
-        clearTimeout(timeoutId)
-
-        if (!res.ok) {
-          const data = await res.json().catch(() => ({ error: 'Upload mislukt' }))
-          throw new Error(data.error || 'Upload mislukt')
-        }
-        const data = await res.json()
-        imageUrl = data.secure_url as string
-      } else {
-        // Fallback: via eigen API
+      const uploadViaServer = async () => {
         const fd = new FormData()
         fd.append('photo', compressed)
         const doUpload = async () => fetch('/api/profile/upload-photo', {
@@ -176,17 +154,52 @@ export default function CaregiverNewOnboardingPage() {
           await new Promise(r => setTimeout(r, 600))
           res = await doUpload()
         }
-        clearTimeout(timeoutId)
         if (!res.ok) {
           const data = await res.json().catch(() => ({ error: 'Upload mislukt' }))
           throw new Error(data.error || 'Upload mislukt')
         }
         const data = await res.json()
-        imageUrl = data.url as string
+        return data.url as string
+      }
+
+      if (cloudName && uploadPreset) {
+        try {
+          const fd = new FormData()
+          fd.append('file', compressed)
+          fd.append('upload_preset', uploadPreset)
+          fd.append('folder', 'tailtribe/profile-photos')
+
+          const doDirect = async () => fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, {
+            method: 'POST',
+            body: fd,
+            signal: controller.signal
+          })
+
+          let res = await doDirect()
+          if (!res.ok) {
+            await new Promise(r => setTimeout(r, 600))
+            res = await doDirect()
+          }
+          if (!res.ok) {
+            // Direct faalt -> fallback naar server
+            imageUrl = await uploadViaServer()
+          } else {
+            const data = await res.json()
+            imageUrl = data.secure_url as string
+          }
+        } catch {
+          // Netwerk/CORS fout -> fallback
+          imageUrl = await uploadViaServer()
+        }
+      } else {
+        // Geen public env: gebruik server route
+        imageUrl = await uploadViaServer()
       }
 
       setProfileData(prev => ({ ...prev, profilePhoto: imageUrl || '' }))
       toast.success('Profielfoto geüpload!')
+      // Reset file input to allow re-uploading the same file name later
+      try { (e.target as HTMLInputElement).value = '' } catch {}
     } catch (error: any) {
       console.error('Upload error:', error)
       if (error.name === 'AbortError') {
@@ -194,6 +207,12 @@ export default function CaregiverNewOnboardingPage() {
       } else {
         toast.error(error.message || 'Fout bij uploaden van foto')
       }
+      // Reset file input on error
+      try { (e.target as HTMLInputElement).value = '' } catch {}
+    } finally {
+      clearTimeout(timeoutId)
+      // Reset file input
+      try { (e.target as HTMLInputElement).value = '' } catch {}
     }
   }
 
