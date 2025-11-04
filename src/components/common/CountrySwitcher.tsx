@@ -100,8 +100,10 @@ export function CountrySwitcher() {
         top: rect.bottom + window.scrollY + 8,
         right: window.innerWidth - rect.right + window.scrollX
       })
+      // Debug: log that dropdown should show both countries
+      console.log('CountrySwitcher dropdown opened, countries:', countries.map(c => c.name))
     }
-  }, [isOpen])
+  }, [isOpen, countries])
 
   const dropdownContent = isOpen && typeof window !== 'undefined' ? (
     <>
@@ -114,24 +116,30 @@ export function CountrySwitcher() {
       
       {/* Dropdown - positioned absolutely relative to viewport */}
       <div 
-        className="fixed bg-white rounded-xl shadow-2xl border-2 border-gray-200 z-[99999] min-w-[200px] py-2"
+        className="fixed bg-white rounded-xl shadow-2xl border-2 border-gray-300 z-[99999] min-w-[220px] py-1"
         style={{
           top: `${dropdownPosition.top}px`,
           right: `${dropdownPosition.right}px`,
           position: 'fixed',
           pointerEvents: 'auto',
-          isolation: 'isolate'
+          isolation: 'isolate',
+          maxHeight: 'none',
+          overflow: 'visible'
         }}
       >
         {countries.map((country) => (
           <button
             key={country.code}
-            onClick={() => handleSwitchCountry(country.code as 'BE' | 'NL')}
-            className={`w-full flex items-center gap-3 px-4 py-3 text-gray-900 hover:text-green-700 hover:bg-green-50 transition-colors duration-150 ${
+            onClick={(e) => {
+              e.stopPropagation()
+              handleSwitchCountry(country.code as 'BE' | 'NL')
+            }}
+            className={`w-full flex items-center gap-3 px-5 py-3.5 text-gray-900 hover:text-green-700 hover:bg-green-50 transition-colors duration-150 border-b border-gray-100 last:border-b-0 ${
               currentCountry === country.code ? 'bg-green-50 text-green-700 font-bold' : 'bg-white font-semibold'
             }`}
+            style={{ minHeight: '52px' }}
           >
-            <span className="text-xl leading-none flex-shrink-0">{country.flag}</span>
+            <span className="text-2xl leading-none flex-shrink-0">{country.flag}</span>
             <span className="text-base font-semibold flex-1 text-left whitespace-nowrap">{country.name}</span>
             {currentCountry === country.code && (
               <svg className="w-5 h-5 text-green-700 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
