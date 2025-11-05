@@ -66,9 +66,7 @@ export default function ConversationPage({ params }: { params: { id: string } })
       }
     } catch (error) {
       console.error('Error fetching messages:', error)
-      if (loading) {
-        toast.error('Kon berichten niet laden')
-      }
+      toast.error('Kon berichten niet laden')
     } finally {
       setLoading(false)
     }

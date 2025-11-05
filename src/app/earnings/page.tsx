@@ -39,7 +39,7 @@ export default function EarningsPage() {
       if (res.ok) {
         const data = await res.json()
         setEarnings(data.earnings || [])
-        setStats(data.stats || stats)
+        setStats(prev => data.stats || prev)
       }
     } catch (error) {
       console.error('Error fetching earnings:', error)
