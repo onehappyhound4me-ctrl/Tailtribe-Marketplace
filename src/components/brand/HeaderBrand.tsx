@@ -10,6 +10,8 @@ export function HeaderBrand() {
           alt="TailTribe Logo" 
           width={700}
           height={700}
+          priority
+          sizes="(max-width: 768px) 220px, 350px"
           className="w-[350px] h-auto object-contain scale-110 relative z-10 transition-transform duration-300 group-hover:scale-[1.12]"
           style={{ 
             filter: 'drop-shadow(0 6px 12px rgba(0,0,0,0.15)) brightness(1.15) contrast(1.15) saturate(1.1)'
