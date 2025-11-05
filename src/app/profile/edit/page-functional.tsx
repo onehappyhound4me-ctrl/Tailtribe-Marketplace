@@ -41,7 +41,7 @@ export default function ProfileEditPage() {
         name: session.user.name || ''
       }))
     }
-  }, [session, status])
+  }, [session, status, router])
 
   const toggleService = (service: string) => {
     setFormData(prev => ({

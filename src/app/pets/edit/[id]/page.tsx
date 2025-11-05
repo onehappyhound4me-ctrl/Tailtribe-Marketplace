@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
@@ -50,13 +50,9 @@ export default function EditPetPage({ params }: Props) {
     notes: ''
   })
 
-  useEffect(() => {
-    fetchPet()
-  }, [])
-
-  const fetchPet = async () => {
+  const fetchPet = useCallback(async () => {
     try {
-      const response = await fetch(`/api/pets/${params.id}`)
+      const response = await fetch(`/api/pets/${params.id}`, { cache: 'no-store' })
       if (!response.ok) {
         throw new Error('Kon huisdier niet laden')
       }
@@ -96,7 +92,11 @@ export default function EditPetPage({ params }: Props) {
     } finally {
       setLoading(false)
     }
-  }
+  }, [params.id])
+
+  useEffect(() => {
+    fetchPet()
+  }, [fetchPet])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { useSession } from 'next-auth/react'
 import { Button } from '@/components/ui/button'
@@ -82,10 +82,10 @@ export default function OwnerOnboardingPage() {
   })
 
   // Function to load existing data from database
-  const loadExistingData = async () => {
+  const loadExistingData = useCallback(async () => {
     try {
       // Load user profile data
-      const profileRes = await fetch('/api/profile/owner')
+      const profileRes = await fetch('/api/profile/owner', { cache: 'no-store' })
       if (profileRes.ok) {
         const profileData = await profileRes.json()
         
@@ -110,7 +110,7 @@ export default function OwnerOnboardingPage() {
       }
       
       // Load existing pets (just for showing count badge)
-      const petsRes = await fetch('/api/pets/list')
+      const petsRes = await fetch('/api/pets/list', { cache: 'no-store' })
       if (petsRes.ok) {
         const petsData = await petsRes.json()
         setExistingPets(petsData.pets || [])
@@ -119,12 +119,12 @@ export default function OwnerOnboardingPage() {
     } catch (error) {
       console.error('Error loading existing data:', error)
     }
-  }
+  }, [])
 
   // Function to determine current step based on existing data
-  const determineCurrentStep = async () => {
+  const determineCurrentStep = useCallback(async () => {
     try {
-      const profileRes = await fetch('/api/profile/owner')
+      const profileRes = await fetch('/api/profile/owner', { cache: 'no-store' })
       if (profileRes.ok) {
         const profileData = await profileRes.json()
         
@@ -137,7 +137,7 @@ export default function OwnerOnboardingPage() {
         // Check what data exists to determine step
         if (profileData.city && profileData.postalCode) {
           // Basic data exists, check pets
-          const petsRes = await fetch('/api/pets/list')
+          const petsRes = await fetch('/api/pets/list', { cache: 'no-store' })
           if (petsRes.ok) {
             const petsData = await petsRes.json()
             if (petsData.pets && petsData.pets.length > 0) {
@@ -172,7 +172,7 @@ export default function OwnerOnboardingPage() {
       console.error('Error determining step:', error)
       setCurrentStep(1)
     }
-  }
+  }, [router])
 
   // Load existing data on mount
   useEffect(() => {
@@ -182,7 +182,7 @@ export default function OwnerOnboardingPage() {
       setCheckingPets(false)
     }
     init()
-  }, [])
+  }, [loadExistingData, determineCurrentStep])
 
   // Step 1: Save basic data
   const handleStep1 = async () => {

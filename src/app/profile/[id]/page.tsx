@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useSession } from 'next-auth/react'
 import Link from 'next/link'
 import { toast } from 'sonner'
@@ -34,14 +34,10 @@ export default function UserProfilePage({ params }: { params: { id: string } }) 
   const [profile, setProfile] = useState<UserProfile | null>(null)
   const [loading, setLoading] = useState(true)
 
-  useEffect(() => {
-    fetchProfile()
-  }, [params.id])
-
-  const fetchProfile = async () => {
+  const fetchProfile = useCallback(async () => {
     try {
       console.log('Fetching profile for user ID:', params.id)
-      const response = await fetch(`/api/users/${params.id}`)
+      const response = await fetch(`/api/users/${params.id}`, { cache: 'no-store' })
       console.log('Profile API response status:', response.status)
       if (response.ok) {
         const data = await response.json()
@@ -58,7 +54,11 @@ export default function UserProfilePage({ params }: { params: { id: string } }) 
     } finally {
       setLoading(false)
     }
-  }
+  }, [params.id])
+
+  useEffect(() => {
+    fetchProfile()
+  }, [params.id, fetchProfile])
 
   if (loading) {
     return (

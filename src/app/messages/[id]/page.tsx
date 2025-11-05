@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { useSession } from 'next-auth/react'
 import Link from 'next/link'
@@ -34,15 +34,9 @@ export default function ConversationPage({ params }: { params: { id: string } })
   
   const bookingId = params.id
 
-  useEffect(() => {
-    fetchMessages()
-    const interval = setInterval(fetchMessages, 5000) // Poll every 5 seconds
-    return () => clearInterval(interval)
-  }, [bookingId])
-
-  const fetchMessages = async () => {
+  const fetchMessages = useCallback(async () => {
     try {
-      const response = await fetch(`/api/messages?bookingId=${bookingId}`)
+      const response = await fetch(`/api/messages?bookingId=${bookingId}`, { cache: 'no-store' })
       if (!response.ok) {
         throw new Error('Kon berichten niet laden')
       }
@@ -78,7 +72,13 @@ export default function ConversationPage({ params }: { params: { id: string } })
     } finally {
       setLoading(false)
     }
-  }
+  }, [bookingId, session?.user])
+
+  useEffect(() => {
+    fetchMessages()
+    const interval = setInterval(fetchMessages, 5000)
+    return () => clearInterval(interval)
+  }, [bookingId, fetchMessages])
 
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault()
