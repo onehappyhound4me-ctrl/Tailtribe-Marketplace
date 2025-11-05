@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 
@@ -43,11 +43,7 @@ export function OwnerPreferencesCard({ ownerId, bookingId }: Props) {
   const [ownerInfo, setOwnerInfo] = useState<OwnerInfo | null>(null)
   const [loading, setLoading] = useState(true)
 
-  useEffect(() => {
-    loadOwnerInfo()
-  }, [ownerId, bookingId])
-
-  const loadOwnerInfo = async () => {
+  const loadOwnerInfo = useCallback(async () => {
     try {
       const endpoint = bookingId 
         ? `/api/bookings/${bookingId}` 
@@ -73,7 +69,11 @@ export function OwnerPreferencesCard({ ownerId, bookingId }: Props) {
     } finally {
       setLoading(false)
     }
-  }
+  }, [bookingId, ownerId])
+
+  useEffect(() => {
+    loadOwnerInfo()
+  }, [loadOwnerInfo])
 
   if (loading) {
     return (

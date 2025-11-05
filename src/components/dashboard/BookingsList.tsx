@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { toast } from 'sonner'
@@ -31,11 +31,7 @@ export function BookingsList({ asCaregiver = false }: { asCaregiver?: boolean })
     }
   }, [pathname])
 
-  useEffect(() => {
-    fetchBookings()
-  }, [])
-
-  const fetchBookings = async () => {
+  const fetchBookings = useCallback(async () => {
     try {
       const res = await fetch(`/api/bookings/create?asCaregiver=${asCaregiver}`)
       const data = await res.json()
@@ -45,7 +41,11 @@ export function BookingsList({ asCaregiver = false }: { asCaregiver?: boolean })
     } finally {
       setLoading(false)
     }
-  }
+  }, [asCaregiver])
+
+  useEffect(() => {
+    fetchBookings()
+  }, [fetchBookings])
 
   const handleStatusUpdate = async (bookingId: string, status: 'ACCEPTED' | 'DECLINED') => {
     try {

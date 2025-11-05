@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useState, useEffect, useRef, useCallback } from 'react'
 import { Button } from '@/components/ui/button'
 import { TimeSlot, DayData } from '@/lib/calendar/types'
 import { toast } from 'sonner'
@@ -31,18 +31,7 @@ export function AvailabilityCalendar({ caregiverId, serviceId }: Props) {
   const [selectedDay, setSelectedDay] = useState<DayData | null>(null)
   const [showDayModal, setShowDayModal] = useState(false)
 
-  useEffect(() => {
-    if (caregiverId) {
-      fetchCalendarData()
-    }
-    // Cleanup on unmount or month change
-    return () => {
-      if (hoverTimeoutRef.current) clearTimeout(hoverTimeoutRef.current)
-      if (closeTimeoutRef.current) clearTimeout(closeTimeoutRef.current)
-    }
-  }, [caregiverId, currentMonth, serviceId])
-
-  const fetchCalendarData = async () => {
+  const fetchCalendarData = useCallback(async () => {
     setLoading(true)
     try {
       const firstDay = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), 1)
@@ -61,7 +50,18 @@ export function AvailabilityCalendar({ caregiverId, serviceId }: Props) {
     } finally {
       setLoading(false)
     }
-  }
+  }, [caregiverId, currentMonth, serviceId])
+
+  useEffect(() => {
+    if (caregiverId) {
+      fetchCalendarData()
+    }
+    // Cleanup on unmount or month change
+    return () => {
+      if (hoverTimeoutRef.current) clearTimeout(hoverTimeoutRef.current)
+      if (closeTimeoutRef.current) clearTimeout(closeTimeoutRef.current)
+    }
+  }, [caregiverId, fetchCalendarData])
 
   // Already handled by getMonthGrid
 
