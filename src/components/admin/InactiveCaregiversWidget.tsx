@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import Link from 'next/link'
 
 interface InactiveCaregiver {
@@ -21,19 +21,9 @@ export function InactiveCaregiversWidget() {
   const [threshold, setThreshold] = useState(30)
   const [showDetails, setShowDetails] = useState(false)
 
-  useEffect(() => {
-    fetchStats()
-  }, [])
-
-  useEffect(() => {
-    if (showDetails) {
-      fetchCaregivers()
-    }
-  }, [threshold, showDetails])
-
-  const fetchStats = async () => {
+  const fetchStats = useCallback(async () => {
     try {
-      const res = await fetch('/api/admin/inactive-caregivers?stats=true')
+      const res = await fetch('/api/admin/inactive-caregivers?stats=true', { cache: 'no-store' })
       if (res.ok) {
         const data = await res.json()
         setStats(data)
@@ -43,12 +33,16 @@ export function InactiveCaregiversWidget() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [])
 
-  const fetchCaregivers = async () => {
+  useEffect(() => {
+    fetchStats()
+  }, [fetchStats])
+
+  const fetchCaregivers = useCallback(async () => {
     try {
       setLoading(true)
-      const res = await fetch(`/api/admin/inactive-caregivers?threshold=${threshold}`)
+      const res = await fetch(`/api/admin/inactive-caregivers?threshold=${threshold}`, { cache: 'no-store' })
       if (res.ok) {
         const data = await res.json()
         setCaregivers(data.caregivers || [])
@@ -58,7 +52,13 @@ export function InactiveCaregiversWidget() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [threshold])
+
+  useEffect(() => {
+    if (showDetails) {
+      fetchCaregivers()
+    }
+  }, [threshold, showDetails, fetchCaregivers])
 
   const getStatusColor = (status: string) => {
     switch (status) {

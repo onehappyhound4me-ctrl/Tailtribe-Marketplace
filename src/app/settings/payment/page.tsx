@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { useSession } from 'next-auth/react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
@@ -16,6 +16,20 @@ export default function PaymentSettingsPage() {
   const [stripeStatus, setStripeStatus] = useState<any>(null)
   const [checkingStatus, setCheckingStatus] = useState(true)
 
+  const checkStripeStatus = useCallback(async () => {
+    try {
+      const res = await fetch('/api/stripe/connect-onboard', { cache: 'no-store' })
+      if (res.ok) {
+        const data = await res.json()
+        setStripeStatus(data)
+      }
+    } catch (error) {
+      console.error('Error checking Stripe status')
+    } finally {
+      setCheckingStatus(false)
+    }
+  }, [])
+
   useEffect(() => {
     if (status === 'unauthenticated') {
       router.push('/auth/signin')
@@ -27,27 +41,12 @@ export default function PaymentSettingsPage() {
       return
     }
 
-    // Check for success callback
     if (searchParams?.get('success') === 'true') {
       toast.success('Stripe account succesvol gekoppeld!')
     }
 
     checkStripeStatus()
-  }, [session, status])
-
-  const checkStripeStatus = async () => {
-    try {
-      const res = await fetch('/api/stripe/connect-onboard')
-      if (res.ok) {
-        const data = await res.json()
-        setStripeStatus(data)
-      }
-    } catch (error) {
-      console.error('Error checking Stripe status')
-    } finally {
-      setCheckingStatus(false)
-    }
-  }
+  }, [session, status, router, searchParams, checkStripeStatus])
 
   const handleConnect = async () => {
     setLoading(true)

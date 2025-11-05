@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { SmartSearchLink } from '@/components/common/SmartSearchLink'
@@ -16,13 +16,9 @@ export default function ReviewPage({ params }: { params: { id: string } }) {
   const [saving, setSaving] = useState(false)
   const [booking, setBooking] = useState<any>(null)
 
-  useEffect(() => {
-    fetchBooking()
-  }, [])
-
-  const fetchBooking = async () => {
+  const fetchBooking = useCallback(async () => {
     try {
-      const response = await fetch(`/api/bookings/${params.id}`)
+      const response = await fetch(`/api/bookings/${params.id}`, { cache: 'no-store' })
       if (!response.ok) {
         throw new Error('Kon boeking niet laden')
       }
@@ -34,7 +30,11 @@ export default function ReviewPage({ params }: { params: { id: string } }) {
     } finally {
       setLoading(false)
     }
-  }
+  }, [params.id])
+
+  useEffect(() => {
+    fetchBooking()
+  }, [fetchBooking])
 
   const handleSubmit = async () => {
     if (rating > 0 && review.trim()) {

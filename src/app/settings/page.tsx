@@ -2,7 +2,7 @@
 
 import { useSearchParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { toast } from 'sonner'
 import { signOut, useSession } from 'next-auth/react'
 import { DashboardLink } from '@/components/common/DashboardLink'
@@ -46,15 +46,11 @@ export default function SettingsPage() {
   const [deleteConfirmText, setDeleteConfirmText] = useState('')
   
   // Load profile data
-  useEffect(() => {
-    loadProfile()
-  }, [])
-  
-  const loadProfile = async () => {
+  const loadProfile = useCallback(async () => {
     try {
       // Load based on role
       if (role === 'caregiver') {
-        const res = await fetch('/api/profile/caregiver')
+        const res = await fetch('/api/profile/caregiver', { cache: 'no-store' })
         if (res.ok) {
           const { profile } = await res.json()
           if (profile) {
@@ -69,7 +65,7 @@ export default function SettingsPage() {
           }
         }
       } else {
-        const res = await fetch('/api/profile/owner')
+        const res = await fetch('/api/profile/owner', { cache: 'no-store' })
         if (res.ok) {
           const data = await res.json()
           setProfileData({
@@ -94,7 +90,11 @@ export default function SettingsPage() {
     } finally {
       setProfileLoading(false)
     }
-  }
+  }, [role])
+
+  useEffect(() => {
+    loadProfile()
+  }, [loadProfile])
   
   const handleProfileUpdate = async () => {
     if (!profileData.firstName || !profileData.lastName) {

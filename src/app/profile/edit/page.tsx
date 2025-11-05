@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
@@ -32,26 +32,9 @@ export default function ProfileEditPage() {
     services: [] as string[]
   })
 
-  useEffect(() => {
-    if (status === 'unauthenticated') {
-      router.push('/auth/signin')
-    }
-    if (session) {
-      setFormData(prev => ({
-        ...prev,
-        name: session.user.name || ''
-      }))
-      
-      // Load caregiver profile data
-      if (session.user.role === 'CAREGIVER') {
-        loadCaregiverProfile()
-      }
-    }
-  }, [session, status])
-
-  const loadCaregiverProfile = async () => {
+  const loadCaregiverProfile = useCallback(async () => {
     try {
-      const res = await fetch('/api/profile/caregiver')
+      const res = await fetch('/api/profile/caregiver', { cache: 'no-store' })
       if (res.ok) {
         const data = await res.json()
         if (data.profile) {
@@ -77,7 +60,22 @@ export default function ProfileEditPage() {
     } catch (error) {
       console.error('Error loading profile:', error)
     }
-  }
+  }, [])
+
+  useEffect(() => {
+    if (status === 'unauthenticated') {
+      router.push('/auth/signin')
+    }
+    if (session) {
+      setFormData(prev => ({
+        ...prev,
+        name: session.user.name || ''
+      }))
+      if (session.user.role === 'CAREGIVER') {
+        loadCaregiverProfile()
+      }
+    }
+  }, [session, status, router, loadCaregiverProfile])
 
   const toggleService = (service: string) => {
     setFormData(prev => ({
