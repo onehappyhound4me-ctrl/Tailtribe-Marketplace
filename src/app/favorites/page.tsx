@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { useSession } from 'next-auth/react'
 import Link from 'next/link'
@@ -14,17 +14,9 @@ export default function FavoritesPage() {
   const [favorites, setFavorites] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
 
-  useEffect(() => {
-    if (session?.user?.role !== 'OWNER') {
-      router.push('/dashboard')
-      return
-    }
-    fetchFavorites()
-  }, [session])
-
-  const fetchFavorites = async () => {
+  const fetchFavorites = useCallback(async () => {
     try {
-      const res = await fetch('/api/favorites')
+      const res = await fetch('/api/favorites', { cache: 'no-store' })
       if (res.ok) {
         const data = await res.json()
         setFavorites(data.favorites || [])
@@ -34,7 +26,15 @@ export default function FavoritesPage() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [])
+
+  useEffect(() => {
+    if (session?.user?.role !== 'OWNER') {
+      router.push('/dashboard')
+      return
+    }
+    fetchFavorites()
+  }, [session, router, fetchFavorites])
 
   const removeFavorite = async (caregiverId: string) => {
     try {

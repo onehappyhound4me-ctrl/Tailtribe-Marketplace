@@ -1,7 +1,7 @@
 'use client'
 
 import { useParams } from 'next/navigation'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import Link from 'next/link'
 import { CaregiverAvailabilityCalendar } from '@/components/owner/CaregiverAvailabilityCalendar'
 
@@ -10,15 +10,9 @@ export default function CaregiverAvailabilityPage() {
   const [caregiverData, setCaregiverData] = useState<any>(null)
   const [loading, setLoading] = useState(true)
 
-  useEffect(() => {
-    if (params.id) {
-      fetchCaregiverData()
-    }
-  }, [params.id])
-
-  const fetchCaregiverData = async () => {
+  const fetchCaregiverData = useCallback(async () => {
     try {
-      const res = await fetch(`/api/caregiver/${params.id}`)
+      const res = await fetch(`/api/caregiver/${params.id}`, { cache: 'no-store' })
       if (res.ok) {
         const data = await res.json()
         setCaregiverData(data)
@@ -28,7 +22,13 @@ export default function CaregiverAvailabilityPage() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [params.id])
+
+  useEffect(() => {
+    if (params.id) {
+      fetchCaregiverData()
+    }
+  }, [params.id, fetchCaregiverData])
 
   const handleSlotSelect = (date: string, start: string, end: string) => {
     // Navigate to booking page with prefilled data

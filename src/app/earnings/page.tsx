@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { useSession } from 'next-auth/react'
 import Link from 'next/link'
@@ -33,17 +33,9 @@ export default function EarningsPage() {
     thisMonth: 0
   })
 
-  useEffect(() => {
-    if (session?.user?.role !== 'CAREGIVER') {
-      router.push('/dashboard')
-      return
-    }
-    fetchEarnings()
-  }, [session])
-
-  const fetchEarnings = async () => {
+  const fetchEarnings = useCallback(async () => {
     try {
-      const res = await fetch('/api/earnings')
+      const res = await fetch('/api/earnings', { cache: 'no-store' })
       if (res.ok) {
         const data = await res.json()
         setEarnings(data.earnings || [])
@@ -54,7 +46,15 @@ export default function EarningsPage() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [])
+
+  useEffect(() => {
+    if (session?.user?.role !== 'CAREGIVER') {
+      router.push('/dashboard')
+      return
+    }
+    fetchEarnings()
+  }, [session, router, fetchEarnings])
 
   if (session?.user?.role !== 'CAREGIVER') {
     return null

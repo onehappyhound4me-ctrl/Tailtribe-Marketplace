@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
@@ -35,21 +35,11 @@ export default function AdminDashboard() {
   const [users, setUsers] = useState<User[]>([])
   const [loading, setLoading] = useState(true)
 
-  useEffect(() => {
-    if (status === 'unauthenticated' || (session && session.user.role !== 'ADMIN')) {
-      router.push('/')
-      return
-    }
-    if (session?.user?.role === 'ADMIN') {
-      fetchData()
-    }
-  }, [session, status])
-
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     try {
       const [statsRes, usersRes] = await Promise.all([
-        fetch('/api/admin/stats'),
-        fetch('/api/admin/users')
+        fetch('/api/admin/stats', { cache: 'no-store' }),
+        fetch('/api/admin/users', { cache: 'no-store' })
       ])
 
       if (statsRes.ok) {
@@ -66,7 +56,17 @@ export default function AdminDashboard() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [])
+
+  useEffect(() => {
+    if (status === 'unauthenticated' || (session && session.user.role !== 'ADMIN')) {
+      router.push('/')
+      return
+    }
+    if (session?.user?.role === 'ADMIN') {
+      fetchData()
+    }
+  }, [session, status, router, fetchData])
 
   const approveCaregiver = async (userId: string) => {
     try {

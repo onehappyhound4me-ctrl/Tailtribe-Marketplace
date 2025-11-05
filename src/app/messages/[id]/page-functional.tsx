@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
@@ -24,20 +24,9 @@ export default function MessagesPage({ params }: { params: { id: string } }) {
   const [loading, setLoading] = useState(true)
   const [sending, setSending] = useState(false)
 
-  useEffect(() => {
-    if (!session) {
-      router.push('/auth/signin')
-      return
-    }
-    fetchMessages()
-    // Poll for new messages every 5 seconds
-    const interval = setInterval(fetchMessages, 5000)
-    return () => clearInterval(interval)
-  }, [session])
-
-  const fetchMessages = async () => {
+  const fetchMessages = useCallback(async () => {
     try {
-      const res = await fetch(`/api/messages?bookingId=${params.id}`)
+      const res = await fetch(`/api/messages?bookingId=${params.id}`, { cache: 'no-store' })
       if (res.ok) {
         const data = await res.json()
         setMessages(data.messages || [])
@@ -47,7 +36,18 @@ export default function MessagesPage({ params }: { params: { id: string } }) {
     } finally {
       setLoading(false)
     }
-  }
+  }, [params.id])
+
+  useEffect(() => {
+    if (!session) {
+      router.push('/auth/signin')
+      return
+    }
+    fetchMessages()
+    // Poll for new messages every 5 seconds
+    const interval = setInterval(fetchMessages, 5000)
+    return () => clearInterval(interval)
+  }, [session, router, fetchMessages])
 
   const handleSend = async (e: React.FormEvent) => {
     e.preventDefault()
