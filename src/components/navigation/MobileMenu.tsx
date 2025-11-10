@@ -58,25 +58,26 @@ export function MobileMenu() {
 
       {/* Mobile Menu Overlay */}
       {isOpen && (
-        <div className="fixed inset-0 z-50 bg-black/50" onClick={closeMenu}>
+        <div className="fixed inset-0 z-50 bg-black/60" onClick={closeMenu}>
           <div
-            className="fixed right-0 top-0 h-full w-80 max-w-[90vw] bg-white shadow-xl transform transition-transform duration-300 overflow-y-auto"
+            className="absolute inset-y-0 right-0 w-full max-w-sm bg-white shadow-xl transform transition-transform duration-200 md:duration-300 md:translate-x-0 overflow-y-auto"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="p-6">
+            <div className="px-6 pt-6 pb-12 sm:px-7">
               {/* Close Button */}
-              <div className="flex justify-end mb-8">
+              <div className="flex justify-between items-center mb-6">
+                <span className="text-lg font-semibold text-gray-900">Menu</span>
                 <button
                   onClick={closeMenu}
                   className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
-                  aria-label="Close menu"
+                  aria-label="Sluit menu"
                 >
-                  <span className="block w-6 h-6 text-gray-600 text-xl">×</span>
+                  <span className="block w-6 h-6 text-gray-600 text-xl leading-none">×</span>
                 </button>
               </div>
 
               {/* Navigation Links */}
-              <nav className="space-y-6">
+              <nav className="space-y-6 pb-10">
                 <Link
                   href="/"
                   onClick={closeMenu}
