@@ -60,11 +60,10 @@ export function MobileMenu() {
       {/* Mobile Menu Overlay */}
       {isOpen && (
         <div className="fixed inset-0 z-50">
-          <button
-            className="absolute inset-0 bg-black/60 cursor-default"
+          <div
+            className="absolute inset-0 bg-black/60 cursor-pointer"
             onClick={closeMenu}
             aria-hidden="true"
-            tabIndex={-1}
           />
           <aside
             role="dialog"
