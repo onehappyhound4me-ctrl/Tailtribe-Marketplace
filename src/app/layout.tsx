@@ -102,7 +102,7 @@ export default function RootLayout({
       <body className={`h-full antialiased font-sans overflow-x-hidden`}>
         <Providers>
           <div className="min-h-full flex flex-col">
-            <header className="bg-gradient-to-r from-blue-50/95 via-teal-50/85 to-emerald-100/80 backdrop-blur-lg shadow-md border-b border-emerald-200/50 sticky top-0 z-40 relative overflow-visible">
+            <header className="bg-gradient-to-r from-blue-50/95 via-teal-50/85 to-emerald-100/80 backdrop-blur-lg shadow-md border-b border-emerald-200/50 sticky top-0 z-[999] relative overflow-visible">
               {/* Subtle radial tints, no visible boxes */}
               <div className="absolute inset-0 bg-[radial-gradient(circle_at_12%_55%,rgba(255,255,255,0.34),transparent_62%)]"></div>
               <div className="absolute inset-0 bg-[radial-gradient(circle_at_28%_52%,rgba(59,130,246,0.12),transparent_65%)]"></div>

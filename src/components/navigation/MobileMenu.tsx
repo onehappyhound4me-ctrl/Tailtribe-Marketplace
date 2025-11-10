@@ -80,107 +80,105 @@ export function MobileMenu() {
                 <span className="block w-6 h-6 text-gray-600 text-xl leading-none">×</span>
               </button>
             </div>
-            <nav className="flex-1 overflow-y-auto px-6 py-6 flex flex-col gap-6 text-left">
+            <nav className="flex-1 overflow-y-auto px-6 py-6 space-y-6 text-left">
               <div className="space-y-3">
-                <div className="py-4 space-y-3">
+                <Link
+                  href="/"
+                  onClick={closeMenu}
+                  className="flex items-center gap-3 text-lg font-semibold text-gray-900 hover:text-green-600 transition-colors"
+                >
+                  <span className="text-xl">🏠</span>
+                  <span>Home</span>
+                </Link>
+                {(!session || session.user.role === 'OWNER') && (
                   <Link
-                    href="/"
+                    href={searchHref}
                     onClick={closeMenu}
                     className="flex items-center gap-3 text-lg font-semibold text-gray-900 hover:text-green-600 transition-colors"
                   >
-                    <span className="text-xl">🏠</span>
-                    <span>Home</span>
+                    <span className="text-xl">🔍</span>
+                    <span>Zoek dierenverzorgers</span>
                   </Link>
-                  {(!session || session.user.role === 'OWNER') && (
-                    <Link
-                      href={searchHref}
-                      onClick={closeMenu}
-                      className="flex items-center gap-3 text-lg font-semibold text-gray-900 hover:text-green-600 transition-colors"
-                    >
-                      <span className="text-xl">🔍</span>
-                      <span>Zoek dierenverzorgers</span>
-                    </Link>
-                  )}
+                )}
+                <Link
+                  href="/about"
+                  onClick={closeMenu}
+                  className="flex items-center gap-3 text-lg font-semibold text-gray-900 hover:text-green-600 transition-colors"
+                >
+                  <span className="text-xl">ℹ️</span>
+                  <span>Over ons</span>
+                </Link>
+                {session && pathname?.startsWith('/dashboard') && (
                   <Link
-                    href="/about"
+                    href={session.user.role === 'CAREGIVER' ? '/dashboard/caregiver' : '/dashboard/owner'}
                     onClick={closeMenu}
                     className="flex items-center gap-3 text-lg font-semibold text-gray-900 hover:text-green-600 transition-colors"
                   >
-                    <span className="text-xl">ℹ️</span>
-                    <span>Over ons</span>
+                    <span className="text-xl">📊</span>
+                    <span>Dashboard</span>
                   </Link>
-                  {session && pathname?.startsWith('/dashboard') && (
-                    <Link
-                      href={session.user.role === 'CAREGIVER' ? '/dashboard/caregiver' : '/dashboard/owner'}
-                      onClick={closeMenu}
-                      className="flex items-center gap-3 text-lg font-semibold text-gray-900 hover:text-green-600 transition-colors"
-                    >
-                      <span className="text-xl">📊</span>
-                      <span>Dashboard</span>
-                    </Link>
-                  )}
-                </div>
+                )}
+              </div>
 
               <div className="border-t border-gray-200 pt-6 space-y-4">
-                  <h3 className="text-sm uppercase font-semibold tracking-wide text-gray-500">Account</h3>
-                  {status === 'loading' ? null : session ? (
-                    <Link href="/auth/signout" onClick={closeMenu} className="block">
-                      <Button variant="outline" className="w-full border-red-200 text-red-700 hover:bg-red-50">
-                        Uitloggen
+                <h3 className="text-sm uppercase font-semibold tracking-wide text-gray-500">Account</h3>
+                {status === 'loading' ? null : session ? (
+                  <Link href="/auth/signout" onClick={closeMenu} className="block">
+                    <Button variant="outline" className="w-full border-red-200 text-red-700 hover:bg-red-50">
+                      Uitloggen
+                    </Button>
+                  </Link>
+                ) : (
+                  <>
+                    <Link href="/auth/signin" onClick={closeMenu} className="block">
+                      <Button variant="outline" className="w-full border-green-200 text-green-700 hover:bg-green-50">
+                        Inloggen
                       </Button>
                     </Link>
-                  ) : (
-                    <>
-                      <Link href="/auth/signin" onClick={closeMenu} className="block">
-                        <Button variant="outline" className="w-full border-green-200 text-green-700 hover:bg-green-50">
-                          Inloggen
-                        </Button>
-                      </Link>
-                      <Link href="/auth/register" onClick={closeMenu} className="block">
-                        <Button className="w-full bg-green-600 hover:bg-green-700 text-white">
-                          Word dierenoppasser
-                        </Button>
-                      </Link>
-                    </>
-                  )}
-                </div>
+                    <Link href="/auth/register" onClick={closeMenu} className="block">
+                      <Button className="w-full bg-green-600 hover:bg-green-700 text-white">
+                        Word dierenoppasser
+                      </Button>
+                    </Link>
+                  </>
+                )}
+              </div>
 
               <div className="border-t border-gray-200 pt-6 space-y-4">
-                  <h3 className="text-sm uppercase font-semibold tracking-wide text-gray-500">Populaire services</h3>
-                  <div className="space-y-3">
-                    <Link
-                      href={`${searchHref}?service=DOG_WALKING`}
-                      onClick={closeMenu}
-                      className="flex items-center gap-3 text-gray-700 hover:text-green-600 transition-colors"
-                    >
-                      <span className="text-xl">🚶</span>
-                      <span>Hondenuitlaat</span>
-                    </Link>
-                    <Link
-                      href={`${searchHref}?service=PET_SITTING`}
-                      onClick={closeMenu}
-                      className="flex items-center gap-3 text-gray-700 hover:text-green-600 transition-colors"
-                    >
-                      <span className="text-xl">🏠</span>
-                      <span>Dierenoppas</span>
-                    </Link>
-                    <Link
-                      href={`${searchHref}?service=DOG_TRAINING`}
-                      onClick={closeMenu}
-                      className="flex items-center gap-3 text-gray-700 hover:text-green-600 transition-colors"
-                    >
-                      <span className="text-xl">🎓</span>
-                      <span>Hondentraining</span>
-                    </Link>
-                  </div>
+                <h3 className="text-sm uppercase font-semibold tracking-wide text-gray-500">Populaire services</h3>
+                <div className="space-y-3">
+                  <Link
+                    href={`${searchHref}?service=DOG_WALKING`}
+                    onClick={closeMenu}
+                    className="flex items-center gap-3 text-gray-700 hover:text-green-600 transition-colors"
+                  >
+                    <span className="text-xl">🚶</span>
+                    <span>Hondenuitlaat</span>
+                  </Link>
+                  <Link
+                    href={`${searchHref}?service=PET_SITTING`}
+                    onClick={closeMenu}
+                    className="flex items-center gap-3 text-gray-700 hover:text-green-600 transition-colors"
+                  >
+                    <span className="text-xl">🏠</span>
+                    <span>Dierenoppas</span>
+                  </Link>
+                  <Link
+                    href={`${searchHref}?service=DOG_TRAINING`}
+                    onClick={closeMenu}
+                    className="flex items-center gap-3 text-gray-700 hover:text-green-600 transition-colors"
+                  >
+                    <span className="text-xl">🎓</span>
+                    <span>Hondentraining</span>
+                  </Link>
                 </div>
+              </div>
 
               <div className="border-t border-gray-200 pt-6 space-y-3 pb-10">
-                  <h3 className="text-sm uppercase font-semibold tracking-wide text-gray-500">Contact</h3>
-                  <p className="text-sm text-gray-600">📧 info@tailtribe.be</p>
-                  <p className="text-sm text-gray-600">📞 +32 2 123 45 67</p>
-                  <p className="text-sm text-gray-600">🕒 Ma–Vr: 9:00-18:00</p>
-                </div>
+                <h3 className="text-sm uppercase font-semibold tracking-wide text-gray-500">Contact</h3>
+                <p className="text-sm text-gray-600">📧 info@tailtribe.be</p>
+                <p className="text-sm text-gray-600">📞 +32 2 123 45 67</p>
+                <p className="text-sm text-gray-600">🕒 Ma–Vr: 9:00-18:00</p>
               </div>
             </nav>
           </aside>
