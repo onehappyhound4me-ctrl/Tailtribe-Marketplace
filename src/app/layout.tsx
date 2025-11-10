@@ -143,7 +143,7 @@ export default function RootLayout({
                         width={180}
                         height={90}
                         className="object-contain object-left filter brightness-110 contrast-110 drop-shadow"
-                        style={{ clipPath: 'inset(0 6% 0 0)' }}
+                        style={{ clipPath: 'inset(0 10% 10% 0)' }}
                       />
                     </div>
                     {/* Removed descriptive text under logo as requested */}
