@@ -34,12 +34,12 @@ export default function HomePage() {
     <div className="min-h-screen bg-gradient-to-b from-green-50 via-white to-blue-50">
       {/* Hero Section */}
       <section 
-        className="relative w-full min-h-[100vh] overflow-hidden flex items-center"
+        className="relative w-full min-h-[85vh] md:min-h-[100vh] overflow-hidden flex items-center"
       >
         {/* Video Background */}
         <video
           ref={videoRef}
-          className="hero-video absolute inset-0 w-full h-full object-cover object-[50%_70%]"
+          className="hero-video hidden md:block absolute inset-0 w-full h-full object-cover object-[50%_70%]"
           poster="/assets/tail 1_1751975512369.png"
           autoPlay
           muted
@@ -72,7 +72,7 @@ export default function HomePage() {
         <img
           src="/assets/tail 1_1751975512369.png"
           alt=""
-          className="hero-poster hidden absolute inset-0 w-full h-full object-cover object-[50%_70%]"
+          className="hero-poster absolute inset-0 w-full h-full object-cover object-[50%_70%] md:hidden"
           loading="eager"
           style={{}}
         />
@@ -87,8 +87,8 @@ export default function HomePage() {
         <div className="hidden" />
         
         {/* Content */}
-        <div className="relative z-10 container mx-auto px-4 py-16 md:py-24">
-          <div className="absolute left-1/2 -translate-x-1/2 -top-10 md:top-6 z-20">
+        <div className="relative z-10 container mx-auto px-4 sm:px-6 py-16 md:py-24">
+          <div className="hidden md:block absolute left-1/2 -translate-x-1/2 -top-10 md:top-6 z-20">
             <button
               onClick={() => {
                 const v = videoRef.current
@@ -106,13 +106,13 @@ export default function HomePage() {
             </button>
           </div>
           <div className="max-w-5xl mx-auto text-center">
-            <h1 className="text-5xl md:text-7xl font-bold mb-6 leading-tight animate-fade-in text-white drop-shadow-2xl">
+            <h1 className="text-4xl sm:text-5xl md:text-7xl font-bold mb-6 leading-tight animate-fade-in text-white drop-shadow-2xl">
               Vind de perfecte <span className="text-green-300 hover:text-white hover:drop-shadow-[0_0_20px_rgba(134,239,172,0.8)] transition-all duration-300 cursor-default">dierenoppasser</span> voor je huisdier
             </h1>
-            <p className="text-xl md:text-2xl mb-4 text-gray-100 max-w-3xl mx-auto drop-shadow-xl">
+            <p className="text-lg sm:text-xl md:text-2xl mb-4 text-gray-100 max-w-3xl mx-auto drop-shadow-xl">
               Hondenuitlaat, dierenoppas en dierenverzorging bij jou in de buurt
             </p>
-            <p className="text-lg mb-8 text-gray-200 max-w-2xl mx-auto drop-shadow-lg">
+            <p className="text-base sm:text-lg mb-8 text-gray-200 max-w-2xl mx-auto drop-shadow-lg">
               ✓ Lokale professionals  ✓ Voor en door dierenverzorgers  ✓ Direct contact
             </p>
             
@@ -120,7 +120,7 @@ export default function HomePage() {
               {session ? (
                 <Link 
                   href={session.user.role === 'CAREGIVER' ? '/dashboard/caregiver' : '/dashboard/owner'}
-                  className="group relative bg-white text-green-700 px-10 py-5 rounded-full font-bold text-lg hover:bg-green-50 transition-all duration-300 shadow-2xl hover:shadow-[0_20px_60px_-15px_rgba(255,255,255,0.5)] transform hover:-translate-y-1 hover:scale-105 overflow-hidden"
+                  className="group relative bg-white text-green-700 px-8 sm:px-10 py-4 sm:py-5 rounded-full font-bold text-lg hover:bg-green-50 transition-all duration-300 shadow-2xl hover:shadow-[0_20px_60px_-15px_rgba(255,255,255,0.5)] transform hover:-translate-y-1 hover:scale-105 overflow-hidden"
                 >
                   <span className="relative z-10 flex items-center gap-2">
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -136,7 +136,7 @@ export default function HomePage() {
               ) : (
               <Link 
                 href="/search" 
-                className="group relative bg-white text-green-700 px-10 py-5 rounded-full font-bold text-lg hover:bg-green-50 transition-all duration-300 shadow-2xl hover:shadow-[0_20px_60px_-15px_rgba(255,255,255,0.5)] transform hover:-translate-y-1 hover:scale-105 overflow-hidden"
+                className="group relative bg-white text-green-700 px-8 sm:px-10 py-4 sm:py-5 rounded-full font-bold text-lg hover:bg-green-50 transition-all duration-300 shadow-2xl hover:shadow-[0_20px_60px_-15px_rgba(255,255,255,0.5)] transform hover:-translate-y-1 hover:scale-105 overflow-hidden"
               >
                 <span className="relative z-10 flex items-center gap-2">
                   Vind jouw dierenoppas
@@ -150,7 +150,7 @@ export default function HomePage() {
               
               <Link 
                 href="/auth/register" 
-                className="group relative bg-gradient-to-r from-green-500 to-blue-500 text-white px-10 py-5 rounded-full font-bold text-lg transition-all duration-300 shadow-xl hover:shadow-2xl transform hover:-translate-y-1 hover:scale-105 border-2 border-white/30 hover:border-white/50 overflow-hidden"
+                className="group relative bg-gradient-to-r from-green-500 to-blue-500 text-white px-8 sm:px-10 py-4 sm:py-5 rounded-full font-bold text-lg transition-all duration-300 shadow-xl hover:shadow-2xl transform hover:-translate-y-1 hover:scale-105 border-2 border-white/30 hover:border-white/50 overflow-hidden"
               >
                 <span className="relative z-10 flex items-center gap-2">
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

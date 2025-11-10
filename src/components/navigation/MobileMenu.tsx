@@ -47,7 +47,8 @@ export function MobileMenu() {
       <button
         onClick={toggleMenu}
         className="p-2 rounded-lg hover:bg-green-50 transition-colors"
-        aria-label="Toggle menu"
+        aria-label="Open navigatie"
+        aria-expanded={isOpen}
       >
         <div className="w-6 h-6 flex flex-col justify-center items-center">
           <span className={`block h-0.5 w-6 bg-gray-600 transition-all duration-300 ${isOpen ? 'rotate-45 translate-y-1' : ''}`} />
@@ -58,10 +59,12 @@ export function MobileMenu() {
 
       {/* Mobile Menu Overlay */}
       {isOpen && (
-        <div className="fixed inset-0 z-50 bg-black/60" onClick={closeMenu}>
-          <div
-            className="absolute inset-y-0 right-0 w-full max-w-sm bg-white shadow-xl transform transition-transform duration-200 md:duration-300 md:translate-x-0 overflow-y-auto"
-            onClick={(e) => e.stopPropagation()}
+        <div className="fixed inset-0 z-50">
+          <div className="absolute inset-0 bg-black/60" onClick={closeMenu} aria-hidden="true" />
+          <aside
+            role="dialog"
+            aria-modal="true"
+            className="relative ml-auto h-full w-full max-w-sm bg-white shadow-xl transform transition-transform duration-200 md:duration-300 overflow-y-auto"
           >
             <div className="px-6 pt-6 pb-12 sm:px-7">
               {/* Close Button */}
@@ -194,7 +197,7 @@ export function MobileMenu() {
                 </div>
               </nav>
             </div>
-          </div>
+          </aside>
         </div>
       )}
     </div>

@@ -108,11 +108,11 @@ export default function RootLayout({
               <div className="absolute inset-0 bg-[radial-gradient(circle_at_28%_52%,rgba(59,130,246,0.12),transparent_65%)]"></div>
               <div className="absolute inset-0 bg-[radial-gradient(circle_at_78%_50%,rgba(16,185,129,0.08),transparent_60%)]"></div>
               
-              <nav className="container mx-auto px-6 lg:px-8 relative z-10 overflow-visible">
-                <div className="flex items-center justify-between h-24 py-5">
+              <nav className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10 overflow-visible">
+                <div className="flex items-center justify-between h-20 md:h-24 py-4">
                   <SmartLogoLink />
                   
-                  <div className="flex items-center gap-8">
+                    <div className="flex items-center gap-4 md:gap-8">
                     {/* Desktop Navigation */}
                     <HeaderNav />
                     
