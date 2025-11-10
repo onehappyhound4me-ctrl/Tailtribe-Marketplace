@@ -69,6 +69,7 @@ export function MobileMenu() {
             role="dialog"
             aria-modal="true"
             className="ml-auto h-full w-full max-w-[320px] bg-white shadow-2xl flex flex-col overflow-hidden"
+            onClick={(event) => event.stopPropagation()}
           >
             <div className="px-6 pt-4 pb-6 flex items-center justify-between border-b border-gray-200">
               <span className="text-2xl font-semibold text-gray-900">Menu</span>
