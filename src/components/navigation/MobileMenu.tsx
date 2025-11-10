@@ -51,25 +51,29 @@ export function MobileMenu() {
         aria-expanded={isOpen}
       >
         <div className="w-6 h-6 flex flex-col justify-center items-center">
-          <span className={`block h-0.5 w-6 bg-gray-700 transition-all duration-300 ${isOpen ? 'rotate-45 translate-y-1' : ''}`} />
-          <span className={`block h-0.5 w-6 bg-gray-700 transition-all duration-300 mt-1 ${isOpen ? 'opacity-0' : ''}`} />
-          <span className={`block h-0.5 w-6 bg-gray-700 transition-all duration-300 mt-1 ${isOpen ? '-rotate-45 -translate-y-1' : ''}`} />
+          <span className={`block h-0.5 w-6 bg-gray-800 transition-all duration-300 ${isOpen ? 'rotate-45 translate-y-1' : ''}`} />
+          <span className={`block h-0.5 w-6 bg-gray-800 transition-all duration-300 mt-1 ${isOpen ? 'opacity-0' : ''}`} />
+          <span className={`block h-0.5 w-6 bg-gray-800 transition-all duration-300 mt-1 ${isOpen ? '-rotate-45 -translate-y-1' : ''}`} />
         </div>
       </button>
 
       {/* Mobile Menu Overlay */}
       {isOpen && (
         <div className="fixed inset-0 z-50">
-          <div className="absolute inset-0 bg-black/60" onClick={closeMenu} aria-hidden="true" />
+          <button
+            className="absolute inset-0 bg-black/60 cursor-default"
+            onClick={closeMenu}
+            aria-hidden="true"
+            tabIndex={-1}
+          />
           <aside
             role="dialog"
             aria-modal="true"
             className="relative ml-auto h-full w-full max-w-sm bg-white shadow-xl transform transition-transform duration-200 md:duration-300 translate-x-0 overflow-y-auto"
           >
-            <div className="px-6 pt-6 pb-12 sm:px-7">
-              {/* Close Button */}
-              <div className="flex justify-between items-center mb-6">
-                <span className="text-lg font-semibold text-gray-900">Menu</span>
+            <div className="px-6 pt-4 pb-12 sm:px-7 flex flex-col gap-6">
+              <div className="flex items-center justify-between">
+                <span className="text-2xl font-semibold text-gray-900">Menu</span>
                 <button
                   onClick={closeMenu}
                   className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
@@ -79,73 +83,62 @@ export function MobileMenu() {
                 </button>
               </div>
 
-              {/* Navigation Links */}
-              <nav className="flex flex-col gap-5 pb-10 text-left">
-                <Link
-                  href="/"
-                  onClick={closeMenu}
-                  className="block text-lg font-semibold text-gray-900 hover:text-green-600 transition-colors"
-                >
-                  🏠 Home
-                </Link>
-                {/* Only show "Zoek dierenverzorgers" for owners or logged out users */}
-                {(!session || session.user.role === 'OWNER') && (
+              <nav className="flex flex-col divide-y divide-gray-200">
+                <div className="py-4 space-y-3">
                   <Link
-                    href={searchHref}
+                    href="/"
                     onClick={closeMenu}
-                    className="block text-lg font-semibold text-gray-900 hover:text-green-600 transition-colors"
+                    className="flex items-center gap-3 text-lg font-semibold text-gray-900 hover:text-green-600 transition-colors"
                   >
-                    🔍 Zoek dierenverzorgers
+                    <span className="text-xl">🏠</span>
+                    <span>Home</span>
                   </Link>
-                )}
-                <Link
-                  href="/about"
-                  onClick={closeMenu}
-                  className="block text-lg font-semibold text-gray-900 hover:text-green-600 transition-colors"
-                >
-                  ℹ️ Over ons
-                </Link>
-                {/* Only show Dashboard if already on dashboard page */}
-                {session && pathname?.startsWith('/dashboard') && (
-                  <Link
-                    href={session.user.role === 'CAREGIVER' ? '/dashboard/caregiver' : '/dashboard/owner'}
-                    onClick={closeMenu}
-                    className="block text-lg font-semibold text-gray-900 hover:text-green-600 transition-colors"
-                  >
-                    📊 Dashboard
-                  </Link>
-                )}
-                
-                <div className="border-t border-gray-200 pt-6">
-                  {status === 'loading' ? (
-                    // Don't show anything while loading to prevent flash
-                    null
-                  ) : session ? (
+                  {(!session || session.user.role === 'OWNER') && (
                     <Link
-                      href="/auth/signout"
+                      href={searchHref}
                       onClick={closeMenu}
-                      className="block w-full"
+                      className="flex items-center gap-3 text-lg font-semibold text-gray-900 hover:text-green-600 transition-colors"
                     >
+                      <span className="text-xl">🔍</span>
+                      <span>Zoek dierenverzorgers</span>
+                    </Link>
+                  )}
+                  <Link
+                    href="/about"
+                    onClick={closeMenu}
+                    className="flex items-center gap-3 text-lg font-semibold text-gray-900 hover:text-green-600 transition-colors"
+                  >
+                    <span className="text-xl">ℹ️</span>
+                    <span>Over ons</span>
+                  </Link>
+                  {session && pathname?.startsWith('/dashboard') && (
+                    <Link
+                      href={session.user.role === 'CAREGIVER' ? '/dashboard/caregiver' : '/dashboard/owner'}
+                      onClick={closeMenu}
+                      className="flex items-center gap-3 text-lg font-semibold text-gray-900 hover:text-green-600 transition-colors"
+                    >
+                      <span className="text-xl">📊</span>
+                      <span>Dashboard</span>
+                    </Link>
+                  )}
+                </div>
+
+                <div className="py-4 space-y-4">
+                  <h3 className="text-sm uppercase font-semibold tracking-wide text-gray-500">Account</h3>
+                  {status === 'loading' ? null : session ? (
+                    <Link href="/auth/signout" onClick={closeMenu} className="block">
                       <Button variant="outline" className="w-full border-red-200 text-red-700 hover:bg-red-50">
                         Uitloggen
                       </Button>
                     </Link>
                   ) : (
                     <>
-                      <Link
-                        href="/auth/signin"
-                        onClick={closeMenu}
-                        className="block w-full"
-                      >
-                        <Button variant="outline" className="w-full mb-3 border-green-200 text-green-700 hover:bg-green-50">
+                      <Link href="/auth/signin" onClick={closeMenu} className="block">
+                        <Button variant="outline" className="w-full border-green-200 text-green-700 hover:bg-green-50">
                           Inloggen
                         </Button>
                       </Link>
-                      <Link
-                        href="/auth/register"
-                        onClick={closeMenu}
-                        className="block w-full"
-                      >
+                      <Link href="/auth/register" onClick={closeMenu} className="block">
                         <Button className="w-full bg-green-600 hover:bg-green-700 text-white">
                           Word dierenoppasser
                         </Button>
@@ -154,46 +147,41 @@ export function MobileMenu() {
                   )}
                 </div>
 
-                {/* Quick Actions */}
-                <div className="border-t border-gray-200 pt-6">
-                  <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-4">
-                    Populaire services
-                  </h3>
+                <div className="py-4 space-y-4">
+                  <h3 className="text-sm uppercase font-semibold tracking-wide text-gray-500">Populaire services</h3>
                   <div className="space-y-3">
                     <Link
                       href={`${searchHref}?service=DOG_WALKING`}
                       onClick={closeMenu}
-                      className="block text-gray-700 hover:text-green-600 transition-colors"
+                      className="flex items-center gap-3 text-gray-700 hover:text-green-600 transition-colors"
                     >
-                      🚶 Hondenuitlaat
+                      <span className="text-xl">🚶</span>
+                      <span>Hondenuitlaat</span>
                     </Link>
                     <Link
                       href={`${searchHref}?service=PET_SITTING`}
                       onClick={closeMenu}
-                      className="block text-gray-700 hover:text-green-600 transition-colors"
+                      className="flex items-center gap-3 text-gray-700 hover:text-green-600 transition-colors"
                     >
-                      🏠 Dierenoppas
+                      <span className="text-xl">🏠</span>
+                      <span>Dierenoppas</span>
                     </Link>
                     <Link
-                      href={`${searchHref}?service=TRAINING`}
+                      href={`${searchHref}?service=DOG_TRAINING`}
                       onClick={closeMenu}
-                      className="block text-gray-700 hover:text-green-600 transition-colors"
+                      className="flex items-center gap-3 text-gray-700 hover:text-green-600 transition-colors"
                     >
-                      🎓 Training
+                      <span className="text-xl">🎓</span>
+                      <span>Hondentraining</span>
                     </Link>
                   </div>
                 </div>
 
-                {/* Contact Info */}
-                <div className="border-t border-gray-200 pt-6">
-                  <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-4">
-                    Contact
-                  </h3>
-                  <div className="space-y-2 text-sm text-gray-600">
-                    <div>📧 info@tailtribe.be</div>
-                    <div>📞 +32 2 123 45 67</div>
-                    <div>🕒 Ma-Vr: 9:00-18:00</div>
-                  </div>
+                <div className="py-4 space-y-3">
+                  <h3 className="text-sm uppercase font-semibold tracking-wide text-gray-500">Contact</h3>
+                  <p className="text-sm text-gray-600">📧 info@tailtribe.be</p>
+                  <p className="text-sm text-gray-600">📞 +32 2 123 45 67</p>
+                  <p className="text-sm text-gray-600">🕒 Ma–Vr: 9:00-18:00</p>
                 </div>
               </nav>
             </div>
