@@ -59,30 +59,29 @@ export function MobileMenu() {
 
       {/* Mobile Menu Overlay */}
       {isOpen && (
-        <div className="fixed inset-0 z-50">
+        <div className="fixed inset-0 z-50 flex">
           <div
-            className="absolute inset-0 bg-black/60 cursor-pointer"
+            className="flex-1 bg-black/60"
             onClick={closeMenu}
             aria-hidden="true"
           />
           <aside
             role="dialog"
             aria-modal="true"
-            className="relative ml-auto h-full w-full max-w-sm bg-white shadow-xl transform transition-transform duration-200 md:duration-300 translate-x-0 overflow-y-auto"
+            className="ml-auto h-full w-full max-w-[320px] bg-white shadow-2xl flex flex-col overflow-hidden"
           >
-            <div className="px-6 pt-4 pb-12 sm:px-7 flex flex-col gap-6">
-              <div className="flex items-center justify-between">
-                <span className="text-2xl font-semibold text-gray-900">Menu</span>
-                <button
-                  onClick={closeMenu}
-                  className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
-                  aria-label="Sluit menu"
-                >
-                  <span className="block w-6 h-6 text-gray-600 text-xl leading-none">×</span>
-                </button>
-              </div>
-
-              <nav className="flex flex-col divide-y divide-gray-200">
+            <div className="px-6 pt-4 pb-6 flex items-center justify-between border-b border-gray-200">
+              <span className="text-2xl font-semibold text-gray-900">Menu</span>
+              <button
+                onClick={closeMenu}
+                className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
+                aria-label="Sluit menu"
+              >
+                <span className="block w-6 h-6 text-gray-600 text-xl leading-none">×</span>
+              </button>
+            </div>
+            <nav className="flex-1 overflow-y-auto px-6 py-6 flex flex-col gap-6 text-left">
+              <div className="space-y-3">
                 <div className="py-4 space-y-3">
                   <Link
                     href="/"
@@ -122,7 +121,7 @@ export function MobileMenu() {
                   )}
                 </div>
 
-                <div className="py-4 space-y-4">
+              <div className="border-t border-gray-200 pt-6 space-y-4">
                   <h3 className="text-sm uppercase font-semibold tracking-wide text-gray-500">Account</h3>
                   {status === 'loading' ? null : session ? (
                     <Link href="/auth/signout" onClick={closeMenu} className="block">
@@ -146,7 +145,7 @@ export function MobileMenu() {
                   )}
                 </div>
 
-                <div className="py-4 space-y-4">
+              <div className="border-t border-gray-200 pt-6 space-y-4">
                   <h3 className="text-sm uppercase font-semibold tracking-wide text-gray-500">Populaire services</h3>
                   <div className="space-y-3">
                     <Link
@@ -176,14 +175,14 @@ export function MobileMenu() {
                   </div>
                 </div>
 
-                <div className="py-4 space-y-3">
+              <div className="border-t border-gray-200 pt-6 space-y-3 pb-10">
                   <h3 className="text-sm uppercase font-semibold tracking-wide text-gray-500">Contact</h3>
                   <p className="text-sm text-gray-600">📧 info@tailtribe.be</p>
                   <p className="text-sm text-gray-600">📞 +32 2 123 45 67</p>
                   <p className="text-sm text-gray-600">🕒 Ma–Vr: 9:00-18:00</p>
                 </div>
-              </nav>
-            </div>
+              </div>
+            </nav>
           </aside>
         </div>
       )}
