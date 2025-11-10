@@ -13,14 +13,44 @@ import { FooterCountrySwitcher } from '@/components/common/FooterCountrySwitcher
 import { DynamicFooterLinks } from '@/components/navigation/DynamicFooter'
 import './globals.css'
 
+const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://tailtribe.be'
+
+
+export const viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
+}
 
 export const metadata: Metadata = {
-  title: 'Dierenoppas België - Betrouwbare Dierenoppassers',
-  description: 'Vind betrouwbare dierenoppassers in België. Van hondenuitlaat tot dierenoppas aan huis, verbind met lokale professionals voor de beste zorg.',
-  keywords: 'dierenoppas, dierenoppasser, hondenoppas, kattenoppas, hondenuitlaat, dierenopvang, huisdieren, België, Vlaanderen, Wallonië, Brussel, hondentraining, oppas aan huis',
+  metadataBase: new URL(appUrl),
+  title: {
+    default: 'TailTribe – Dierenoppas België & Nederland',
+    template: '%s | TailTribe',
+  },
+  description: 'TailTribe verbindt diereneigenaars met professionele dierenoppassers in België en Nederland voor hondenuitlaat, dierenopvang en verzorging aan huis.',
+  keywords: [
+    'dierenoppas',
+    'dierenoppasser',
+    'hondenoppas',
+    'kattenoppas',
+    'hondenuitlaat',
+    'dierenopvang',
+    'dierenverzorging',
+    'België',
+    'Nederland',
+    'TailTribe',
+  ],
   authors: [{ name: 'TailTribe' }],
   creator: 'TailTribe',
   publisher: 'TailTribe',
+  alternates: {
+    canonical: '/',
+    languages: {
+      'nl-BE': '/',
+      'nl-NL': '/nl',
+    },
+  },
   icons: {
     icon: '/assets/tailtribe-logo.png',
     shortcut: '/assets/tailtribe-logo.png',
@@ -40,23 +70,24 @@ export const metadata: Metadata = {
   openGraph: {
     type: 'website',
     locale: 'nl_BE',
-    url: 'https://tailtribe.be',
+    alternateLocale: ['nl_NL'],
+    url: '/',
     siteName: 'TailTribe',
-    title: 'TailTribe - Betrouwbare dierenoppassers in België',
-    description: 'Vind vertrouwde dierenoppassers in België. Van hondenuitlaat tot dierenoppas, verbind met lokale professionals.',
+    title: 'TailTribe – Dierenoppas België & Nederland',
+    description: 'Vind vertrouwde dierenoppassers voor wandelingen, opvang en verzorging in België en Nederland.',
     images: [
       {
         url: '/assets/tailtribe-logo.png',
         width: 1200,
         height: 630,
-        alt: 'TailTribe - Dierenoppassers België',
+        alt: 'TailTribe – Dierenoppassers België & Nederland',
       },
     ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'TailTribe - Betrouwbare dierenoppassers in België',
-    description: 'Vind vertrouwde dierenoppassers in België. Van hondenuitlaat tot dierenoppas.',
+    title: 'TailTribe – Dierenoppas België & Nederland',
+    description: 'Verbind met lokale dierenoppassers voor hondenuitlaat, opvang en verzorging.',
     images: ['/assets/tailtribe-logo.png'],
   },
 }
@@ -68,7 +99,7 @@ export default function RootLayout({
 }) {
   return (
             <html lang="nl" className="h-full">
-              <body className={`h-full antialiased font-sans`}>
+      <body className={`h-full antialiased font-sans overflow-x-hidden`}>
         <Providers>
           <div className="min-h-full flex flex-col">
             <header className="bg-gradient-to-r from-blue-50/95 via-teal-50/85 to-emerald-100/80 backdrop-blur-lg shadow-md border-b border-emerald-200/50 sticky top-0 z-40 relative overflow-x-visible overflow-y-hidden">
