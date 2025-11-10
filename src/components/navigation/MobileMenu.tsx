@@ -59,19 +59,19 @@ export function MobileMenu() {
 
       {/* Mobile Menu Overlay */}
       {isOpen && (
-        <div className="fixed inset-0 z-50 flex">
+        <div className="fixed inset-0 z-[9999]">
           <div
-            className="flex-1 bg-black/60"
+            className="absolute inset-0 bg-black/60"
             onClick={closeMenu}
             aria-hidden="true"
           />
           <aside
             role="dialog"
             aria-modal="true"
-            className="ml-auto h-full w-full max-w-[320px] bg-white shadow-2xl flex flex-col overflow-hidden"
+            className="absolute inset-0 bg-white flex flex-col"
             onClick={(event) => event.stopPropagation()}
           >
-            <div className="px-6 pt-4 pb-6 flex items-center justify-between border-b border-gray-200">
+            <div className="px-6 pt-5 pb-4 flex items-center justify-between border-b border-gray-200">
               <span className="text-2xl font-semibold text-gray-900">Menu</span>
               <button
                 onClick={closeMenu}
