@@ -51,9 +51,9 @@ export function MobileMenu() {
         aria-expanded={isOpen}
       >
         <div className="w-6 h-6 flex flex-col justify-center items-center">
-          <span className={`block h-0.5 w-6 bg-gray-600 transition-all duration-300 ${isOpen ? 'rotate-45 translate-y-1' : ''}`} />
-          <span className={`block h-0.5 w-6 bg-gray-600 transition-all duration-300 mt-1 ${isOpen ? 'opacity-0' : ''}`} />
-          <span className={`block h-0.5 w-6 bg-gray-600 transition-all duration-300 mt-1 ${isOpen ? '-rotate-45 -translate-y-1' : ''}`} />
+          <span className={`block h-0.5 w-6 bg-gray-700 transition-all duration-300 ${isOpen ? 'rotate-45 translate-y-1' : ''}`} />
+          <span className={`block h-0.5 w-6 bg-gray-700 transition-all duration-300 mt-1 ${isOpen ? 'opacity-0' : ''}`} />
+          <span className={`block h-0.5 w-6 bg-gray-700 transition-all duration-300 mt-1 ${isOpen ? '-rotate-45 -translate-y-1' : ''}`} />
         </div>
       </button>
 
@@ -64,7 +64,7 @@ export function MobileMenu() {
           <aside
             role="dialog"
             aria-modal="true"
-            className="relative ml-auto h-full w-full max-w-sm bg-white shadow-xl transform transition-transform duration-200 md:duration-300 overflow-y-auto"
+            className="relative ml-auto h-full w-full max-w-sm bg-white shadow-xl transform transition-transform duration-200 md:duration-300 translate-x-0 overflow-y-auto"
           >
             <div className="px-6 pt-6 pb-12 sm:px-7">
               {/* Close Button */}
@@ -80,11 +80,11 @@ export function MobileMenu() {
               </div>
 
               {/* Navigation Links */}
-              <nav className="space-y-6 pb-10">
+              <nav className="flex flex-col gap-5 pb-10 text-left">
                 <Link
                   href="/"
                   onClick={closeMenu}
-                  className="block text-lg font-medium text-gray-900 hover:text-green-600 transition-colors py-2"
+                  className="block text-lg font-semibold text-gray-900 hover:text-green-600 transition-colors"
                 >
                   🏠 Home
                 </Link>
@@ -93,7 +93,7 @@ export function MobileMenu() {
                   <Link
                     href={searchHref}
                     onClick={closeMenu}
-                    className="block text-lg font-medium text-gray-900 hover:text-green-600 transition-colors py-2"
+                    className="block text-lg font-semibold text-gray-900 hover:text-green-600 transition-colors"
                   >
                     🔍 Zoek dierenverzorgers
                   </Link>
@@ -101,7 +101,7 @@ export function MobileMenu() {
                 <Link
                   href="/about"
                   onClick={closeMenu}
-                  className="block text-lg font-medium text-gray-900 hover:text-green-600 transition-colors py-2"
+                  className="block text-lg font-semibold text-gray-900 hover:text-green-600 transition-colors"
                 >
                   ℹ️ Over ons
                 </Link>
@@ -110,7 +110,7 @@ export function MobileMenu() {
                   <Link
                     href={session.user.role === 'CAREGIVER' ? '/dashboard/caregiver' : '/dashboard/owner'}
                     onClick={closeMenu}
-                    className="block text-lg font-medium text-gray-900 hover:text-green-600 transition-colors py-2"
+                    className="block text-lg font-semibold text-gray-900 hover:text-green-600 transition-colors"
                   >
                     📊 Dashboard
                   </Link>

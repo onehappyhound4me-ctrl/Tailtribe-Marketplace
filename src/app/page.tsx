@@ -34,12 +34,12 @@ export default function HomePage() {
     <div className="min-h-screen bg-gradient-to-b from-green-50 via-white to-blue-50">
       {/* Hero Section */}
       <section 
-        className="relative w-full min-h-[85vh] md:min-h-[100vh] overflow-hidden flex items-center"
+        className="relative w-full min-h-[85vh] md:min-h-[95vh] overflow-hidden flex items-center"
       >
         {/* Video Background */}
         <video
           ref={videoRef}
-          className="hero-video hidden md:block absolute inset-0 w-full h-full object-cover object-[50%_70%]"
+          className="hero-video absolute inset-0 w-full h-full object-cover object-[50%_70%]"
           poster="/assets/tail 1_1751975512369.png"
           autoPlay
           muted
@@ -72,7 +72,7 @@ export default function HomePage() {
         <img
           src="/assets/tail 1_1751975512369.png"
           alt=""
-          className="hero-poster absolute inset-0 w-full h-full object-cover object-[50%_70%] md:hidden"
+          className="hero-poster hidden absolute inset-0 w-full h-full object-cover object-[50%_70%]"
           loading="eager"
           style={{}}
         />
@@ -88,7 +88,7 @@ export default function HomePage() {
         
         {/* Content */}
         <div className="relative z-10 container mx-auto px-4 sm:px-6 py-16 md:py-24">
-          <div className="hidden md:block absolute left-1/2 -translate-x-1/2 -top-10 md:top-6 z-20">
+          <div className="absolute left-1/2 -translate-x-1/2 -top-10 md:top-6 z-20">
             <button
               onClick={() => {
                 const v = videoRef.current
@@ -100,7 +100,7 @@ export default function HomePage() {
                   }).catch(() => {})
                 }
               }}
-              className="bg-white/80 backdrop-blur text-gray-900 px-4 py-2 rounded-full shadow hover:bg-white transition hidden md:inline-flex"
+              className="hidden md:inline-flex bg-white/80 backdrop-blur text-gray-900 px-4 py-2 rounded-full shadow hover:bg-white transition"
             >
               Speel video
             </button>
