@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { useRouter, usePathname } from 'next/navigation'
 import { createPortal } from 'react-dom'
-import { switchCountryPath } from '@/lib/utils'
+import { switchCountryDomain } from '@/lib/utils'
 
 export function CountrySwitcher() {
   const router = useRouter()
@@ -13,17 +13,41 @@ export function CountrySwitcher() {
   const buttonRef = useRef<HTMLButtonElement>(null)
   const [dropdownPosition, setDropdownPosition] = useState({ top: 0, left: 0 })
   
-  // Initialize from pathname only (server-safe)
-  const [currentCountry, setCurrentCountry] = useState<'BE' | 'NL'>(() => {
+  // Initialize from hostname or pathname
+  const getInitialCountry = (): 'BE' | 'NL' => {
+    if (typeof window !== 'undefined') {
+      const hostname = window.location.hostname
+      if (hostname.includes('tailtribe.nl') || hostname === 'tailtribe.nl') return 'NL'
+      if (hostname.includes('tailtribe.be') || hostname === 'tailtribe.be') return 'BE'
+    }
     return pathname?.startsWith('/nl') ? 'NL' : 'BE'
-  })
+  }
+  
+  const [currentCountry, setCurrentCountry] = useState<'BE' | 'NL'>(getInitialCountry)
 
   useEffect(() => {
     setMounted(true)
     
-    // Sync with localStorage and URL
+    // Sync with hostname, localStorage and URL
+    const getCountryFromHostname = (): 'BE' | 'NL' => {
+      if (typeof window !== 'undefined') {
+        const hostname = window.location.hostname
+        if (hostname.includes('tailtribe.nl') || hostname === 'tailtribe.nl') return 'NL'
+        if (hostname.includes('tailtribe.be') || hostname === 'tailtribe.be') return 'BE'
+      }
+      return pathname?.startsWith('/nl') ? 'NL' : 'BE'
+    }
+    
+    const countryFromHostname = getCountryFromHostname()
     const saved = localStorage.getItem('userCountry') as 'BE' | 'NL' | null
-    if (saved) {
+    
+    // Prioritize hostname over localStorage
+    if (countryFromHostname) {
+      setCurrentCountry(countryFromHostname)
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('userCountry', countryFromHostname)
+      }
+    } else if (saved) {
       setCurrentCountry(saved)
     } else {
       const country = pathname?.startsWith('/nl') ? 'NL' : 'BE'
@@ -71,14 +95,14 @@ export function CountrySwitcher() {
       window.dispatchEvent(new CustomEvent('countryChanged', { detail: country }))
     }
     
-    // Use utility function to get correct path
-    const targetPath = switchCountryPath(pathname || '/', country)
+    // Use utility function to get correct domain and path
+    const targetUrl = switchCountryDomain(pathname || '/', country)
     
-    // Use window.location for hard navigation to ensure country switch works
+    // Use window.location for hard navigation to switch domains
     if (typeof window !== 'undefined') {
-      window.location.href = targetPath
+      window.location.href = targetUrl
     } else {
-      router.push(targetPath)
+      router.push(targetUrl)
       router.refresh()
     }
   }

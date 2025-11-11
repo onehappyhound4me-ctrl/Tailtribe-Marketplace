@@ -27,6 +27,22 @@ function rateLimit(ip: string, limit: number = 100, windowMs: number = 60000) {
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
+  const hostname = request.headers.get('host') || ''
+  
+  // Domain-based country routing
+  const isNLDomain = hostname.includes('tailtribe.nl')
+  const isBEDomain = hostname.includes('tailtribe.be')
+  
+  // If on NL domain and path starts with /nl, remove the prefix
+  if (isNLDomain && pathname.startsWith('/nl')) {
+    const newPath = pathname.replace(/^\/nl/, '') || '/'
+    const url = request.nextUrl.clone()
+    url.pathname = newPath
+    return NextResponse.redirect(url)
+  }
+  
+  // If on BE domain and accessing root, ensure it's BE (no /nl prefix needed)
+  // This is handled by the app structure already
 
   // Rate limiting for API routes
   if (pathname.startsWith('/api/')) {
@@ -111,13 +127,13 @@ export async function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    '/api/:path*',
-    '/dashboard/:path*',
-    '/profile/:path*',
-    '/booking/:path*',
-    '/messages/:path*',
-    '/settings/:path*',
-    '/reviews/:path*',
-    '/admin/:path*',
+    /*
+     * Match all request paths except for the ones starting with:
+     * - api (API routes)
+     * - _next/static (static files)
+     * - _next/image (image optimization files)
+     * - favicon.ico (favicon file)
+     */
+    '/((?!api|_next/static|_next/image|favicon.ico).*)',
   ],
 }

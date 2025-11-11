@@ -6,7 +6,7 @@ import { useSession } from 'next-auth/react';
 import { usePathname, useRouter } from 'next/navigation';
 import Link from "next/link";
 import { useNav } from "@/components/navigation/NavContext";
-import { switchCountryPath } from "@/lib/utils";
+import { switchCountryDomain } from "@/lib/utils";
 
 export function MobileMenu() {
   const { isMobileMenuOpen, closeMobileMenu } = useNav();
@@ -17,15 +17,40 @@ export function MobileMenu() {
   const [searchHref, setSearchHref] = useState(() => {
     return pathname?.startsWith('/nl') ? '/nl/search' : '/search'
   });
-  const [currentCountry, setCurrentCountry] = useState<'BE' | 'NL'>(() => {
+  const getInitialCountry = (): 'BE' | 'NL' => {
+    if (typeof window !== 'undefined') {
+      const hostname = window.location.hostname
+      if (hostname.includes('tailtribe.nl') || hostname === 'tailtribe.nl') return 'NL'
+      if (hostname.includes('tailtribe.be') || hostname === 'tailtribe.be') return 'BE'
+    }
     return pathname?.startsWith('/nl') ? 'NL' : 'BE'
-  });
+  }
+  
+  const [currentCountry, setCurrentCountry] = useState<'BE' | 'NL'>(getInitialCountry);
 
   useEffect(() => {
     setMounted(true);
 
+    const getCountryFromHostname = (): 'BE' | 'NL' => {
+      if (typeof window !== 'undefined') {
+        const hostname = window.location.hostname
+        if (hostname.includes('tailtribe.nl') || hostname === 'tailtribe.nl') return 'NL'
+        if (hostname.includes('tailtribe.be') || hostname === 'tailtribe.be') return 'BE'
+      }
+      return pathname?.startsWith('/nl') ? 'NL' : 'BE'
+    }
+    
+    const countryFromHostname = getCountryFromHostname()
     const saved = typeof window !== 'undefined' ? localStorage.getItem('userCountry') as 'BE' | 'NL' | null : null
-    if (saved) {
+    
+    // Prioritize hostname over localStorage
+    if (countryFromHostname) {
+      setCurrentCountry(countryFromHostname)
+      setSearchHref(countryFromHostname === 'NL' ? '/nl/search' : '/search')
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('userCountry', countryFromHostname)
+      }
+    } else if (saved) {
       setCurrentCountry(saved)
       setSearchHref(saved === 'NL' ? '/nl/search' : '/search')
     } else {
@@ -54,14 +79,14 @@ export function MobileMenu() {
     setCurrentCountry(country)
     closeMobileMenu()
     
-    // Use utility function to get correct path
-    const targetPath = switchCountryPath(pathname || '/', country)
+    // Use utility function to get correct domain and path
+    const targetUrl = switchCountryDomain(pathname || '/', country)
     
-    // Use window.location for hard navigation to ensure country switch works
+    // Use window.location for hard navigation to switch domains
     if (typeof window !== 'undefined') {
-      window.location.href = targetPath
+      window.location.href = targetUrl
     } else {
-      router.push(targetPath)
+      router.push(targetUrl)
       router.refresh()
     }
   };

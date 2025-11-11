@@ -1,7 +1,7 @@
 'use client'
 
 import { useRouter, usePathname } from 'next/navigation'
-import { switchCountryPath } from '@/lib/utils'
+import { switchCountryDomain } from '@/lib/utils'
 
 export function FooterCountrySwitcher() {
   const router = useRouter()
@@ -18,19 +18,28 @@ export function FooterCountrySwitcher() {
       window.dispatchEvent(new CustomEvent('countryChanged', { detail: country }))
     }
     
-    // Use utility function to get correct path
-    const targetPath = switchCountryPath(pathname || '/', country)
+    // Use utility function to get correct domain and path
+    const targetUrl = switchCountryDomain(pathname || '/', country)
     
-    // Use window.location for hard navigation to ensure country switch works
+    // Use window.location for hard navigation to switch domains
     if (typeof window !== 'undefined') {
-      window.location.href = targetPath
+      window.location.href = targetUrl
     } else {
-      router.push(targetPath)
+      router.push(targetUrl)
       router.refresh()
     }
   }
 
-  const currentCountry = pathname?.startsWith('/nl') ? 'NL' : 'BE'
+  const getCurrentCountry = () => {
+    if (typeof window !== 'undefined') {
+      const hostname = window.location.hostname
+      if (hostname.includes('tailtribe.nl') || hostname === 'tailtribe.nl') return 'NL'
+      if (hostname.includes('tailtribe.be') || hostname === 'tailtribe.be') return 'BE'
+    }
+    return pathname?.startsWith('/nl') ? 'NL' : 'BE'
+  }
+  
+  const currentCountry = getCurrentCountry()
 
   return (
     <div className="flex items-center justify-center gap-4 mb-3">
