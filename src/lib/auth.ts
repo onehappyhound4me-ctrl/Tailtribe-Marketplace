@@ -1,7 +1,7 @@
 import { NextAuthOptions, getServerSession } from "next-auth"
 import { PrismaAdapter } from "@auth/prisma-adapter"
 // import EmailProvider from "next-auth/providers/email" // Disabled - causes build errors with nodemailer
-// import GoogleProvider from "next-auth/providers/google" // Temporarily disabled
+import GoogleProvider from "next-auth/providers/google"
 import CredentialsProvider from "next-auth/providers/credentials"
 import { db } from "./db"
 import { Role } from "./types"
@@ -53,11 +53,10 @@ export const authOptions: NextAuthOptions = {
         }
       }
     }),
-    // GoogleProvider - Temporarily disabled (will enable when site goes live)
-    // GoogleProvider({
-    //   clientId: process.env.GOOGLE_CLIENT_ID || "",
-    //   clientSecret: process.env.GOOGLE_CLIENT_SECRET || "",
-    // }),
+    GoogleProvider({
+      clientId: process.env.GOOGLE_CLIENT_ID || "",
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET || "",
+    }),
     // EmailProvider disabled - causes build errors with nodemailer fs dependency
     // EmailProvider({
     //   server: "smtp://localhost:587",
