@@ -179,7 +179,7 @@ export default function SearchPage({ searchParams }: Props) {
           )}
 
           {/* Enhanced Search Filters */}
-          <div className="mb-4">
+          <div className="mb-6 md:mb-8">
             <Suspense fallback={<div>Filters laden...</div>}>
               <SearchFilters />
             </Suspense>
@@ -187,7 +187,7 @@ export default function SearchPage({ searchParams }: Props) {
 
           {/* Results */}
           {caregivers.length > 0 ? (
-            <div className="space-y-8">
+            <div className="space-y-10 md:space-y-12">
               {/* Modern Map Section - Only show if we have caregivers with valid coordinates */}
               {(() => {
                 const withCoords = caregivers.filter((c: any) => c.lat && c.lng)
@@ -198,7 +198,7 @@ export default function SearchPage({ searchParams }: Props) {
                 })
                 return withCoords.length > 0 ? (
                   <div className="card-tt p-6">
-                    <h2 className="font-heading text-2xl font-semibold text-foreground mb-4">
+                    <h2 className="font-heading text-2xl md:text-3xl font-semibold text-foreground mb-6">
                       Verzorgers op de kaart ({withCoords.length})
                     </h2>
                     <ModernMap 
@@ -211,12 +211,12 @@ export default function SearchPage({ searchParams }: Props) {
               })()}
 
               {/* Caregiver Cards Section */}
-              <div id="caregiver-cards" className="space-y-6">
-                <div className="flex items-center justify-between">
-                  <h2 className="font-heading text-2xl font-semibold text-foreground">
+              <div id="caregiver-cards" className="space-y-8">
+                <div className="flex items-center justify-between mb-6">
+                  <h2 className="font-heading text-2xl md:text-3xl font-semibold text-foreground">
                     Alle verzorgers
                   </h2>
-                  <div className="text-sm text-muted-foreground">
+                  <div className="text-sm md:text-base text-muted-foreground">
                     {caregivers.length} verzorgers gevonden
                   </div>
                 </div>

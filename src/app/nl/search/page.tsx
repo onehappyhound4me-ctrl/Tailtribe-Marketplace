@@ -81,13 +81,13 @@ export default function NetherlandsSearchPage() {
     <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-teal-50 to-blue-50 pt-16">
       {/* Header */}
       <header className="bg-white shadow-sm border-b">
-        <div className="container mx-auto px-8 py-6">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-8">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-2xl font-bold text-gray-800">
+              <h1 className="text-2xl md:text-3xl font-bold text-gray-800 mb-2">
                 Dierenoppassers in Nederland
               </h1>
-              <p className="text-gray-600">{caregivers.length} dierenoppassers gevonden</p>
+              <p className="text-gray-600 text-sm md:text-base">{caregivers.length} dierenoppassers gevonden</p>
             </div>
             {status === 'loading' ? (
               <div className="w-36 h-11 bg-gradient-to-r from-gray-200 to-gray-300 rounded-lg animate-pulse"></div>
@@ -110,11 +110,11 @@ export default function NetherlandsSearchPage() {
         </div>
       </header>
       
-      <div className="container mx-auto px-4 py-12">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
         <div className="max-w-7xl mx-auto">
 
           {/* NL-Specific Search Filters */}
-          <div className="mb-4">
+          <div className="mb-6 md:mb-8">
             <Card className="gradient-card professional-shadow border border-green-100/50">
               <CardContent className="p-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -194,11 +194,11 @@ export default function NetherlandsSearchPage() {
 
           {/* Results */}
           {caregivers.length > 0 ? (
-            <div className="space-y-8">
+            <div className="space-y-10 md:space-y-12">
               {/* Modern Map Section - Only show if we have caregivers with valid coordinates */}
               {caregivers.some((c: any) => c.lat && c.lng) ? (
                 <div className="card-tt p-6">
-                  <h2 className="font-heading text-2xl font-semibold text-foreground mb-4">
+                  <h2 className="font-heading text-2xl md:text-3xl font-semibold text-foreground mb-6">
                     Dierenoppassers op de kaart
                   </h2>
                   <ModernMap 
@@ -210,12 +210,12 @@ export default function NetherlandsSearchPage() {
               ) : null}
 
               {/* Caregiver Cards Section */}
-              <div id="caregiver-cards" className="space-y-6">
-                <div className="flex items-center justify-between">
-                  <h2 className="font-heading text-2xl font-semibold text-foreground">
+              <div id="caregiver-cards" className="space-y-8">
+                <div className="flex items-center justify-between mb-6">
+                  <h2 className="font-heading text-2xl md:text-3xl font-semibold text-foreground">
                     Alle dierenoppassers
                   </h2>
-                  <div className="text-sm text-muted-foreground">
+                  <div className="text-sm md:text-base text-muted-foreground">
                     {caregivers.length} dierenoppassers gevonden
                   </div>
                 </div>
