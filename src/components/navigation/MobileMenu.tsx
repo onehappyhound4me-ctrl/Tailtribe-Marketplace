@@ -6,6 +6,8 @@ import { usePathname } from 'next/navigation'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 
+// Trigger redeploy to refresh cached mobile menu assets
+
 export function MobileMenu() {
   const [isOpen, setIsOpen] = useState(false)
   const { data: session, status } = useSession()
