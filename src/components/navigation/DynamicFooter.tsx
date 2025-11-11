@@ -44,16 +44,16 @@ export function DynamicFooterLinks() {
     return (
       <>
         <div>
-          <h4 className="font-semibold text-white mb-3 text-base">Populaire steden</h4>
-          <ul className="space-y-2 text-sm">
+          <h4 className="font-semibold text-white mb-2 md:mb-3 text-sm md:text-base">Populaire steden</h4>
+          <ul className="space-y-1.5 md:space-y-2 text-sm">
             <li className="h-5 bg-slate-700/50 rounded animate-pulse w-32"></li>
             <li className="h-5 bg-slate-700/50 rounded animate-pulse w-36"></li>
             <li className="h-5 bg-slate-700/50 rounded animate-pulse w-28"></li>
           </ul>
         </div>
         <div>
-          <h4 className="font-semibold text-white mb-3 text-base">Diensten</h4>
-          <ul className="space-y-2 text-sm">
+          <h4 className="font-semibold text-white mb-2 md:mb-3 text-sm md:text-base">Diensten</h4>
+          <ul className="space-y-1.5 md:space-y-2 text-sm">
             <li className="h-5 bg-slate-700/50 rounded animate-pulse w-32"></li>
             <li className="h-5 bg-slate-700/50 rounded animate-pulse w-36"></li>
           </ul>
@@ -68,8 +68,8 @@ export function DynamicFooterLinks() {
     return (
       <>
         <div>
-          <h4 className="font-semibold text-white mb-3 text-base">Populaire steden</h4>
-          <ul className="space-y-2 text-sm">
+          <h4 className="font-semibold text-white mb-2 md:mb-3 text-sm md:text-base">Populaire steden</h4>
+          <ul className="space-y-1.5 md:space-y-2 text-sm">
             <li><Link href="/nl/search?city=Amsterdam" prefetch={false} className="text-slate-300 hover:text-white transition-colors">Amsterdam</Link></li>
             <li><Link href="/nl/search?city=Rotterdam" prefetch={false} className="text-slate-300 hover:text-white transition-colors">Rotterdam</Link></li>
             <li><Link href="/nl/search?city=Utrecht" prefetch={false} className="text-slate-300 hover:text-white transition-colors">Utrecht</Link></li>
@@ -79,8 +79,8 @@ export function DynamicFooterLinks() {
         </div>
         
         <div>
-          <h4 className="font-semibold text-white mb-3 text-base">Diensten</h4>
-          <ul className="space-y-2 text-sm">
+          <h4 className="font-semibold text-white mb-2 md:mb-3 text-sm md:text-base">Diensten</h4>
+          <ul className="space-y-1.5 md:space-y-2 text-sm">
             <li><Link href="/nl/diensten" prefetch={false} className="text-emerald-300 hover:text-white font-medium transition-colors">Alle diensten →</Link></li>
           </ul>
         </div>
@@ -91,8 +91,8 @@ export function DynamicFooterLinks() {
   return (
     <>
       <div>
-        <h4 className="font-semibold text-white mb-3 text-base">Populaire steden</h4>
-        <ul className="space-y-2 text-sm">
+        <h4 className="font-semibold text-white mb-2 md:mb-3 text-sm md:text-base">Populaire steden</h4>
+        <ul className="space-y-1.5 md:space-y-2 text-sm">
           <li><Link href="/search?city=Antwerpen" prefetch={false} className="text-slate-300 hover:text-white transition-colors">Antwerpen</Link></li>
           <li><Link href="/search?city=Gent" prefetch={false} className="text-slate-300 hover:text-white transition-colors">Gent</Link></li>
           <li><Link href="/search?city=Brussel-Stad" prefetch={false} className="text-slate-300 hover:text-white transition-colors">Brussel</Link></li>
@@ -102,8 +102,8 @@ export function DynamicFooterLinks() {
       </div>
       
       <div>
-        <h4 className="font-semibold text-white mb-3 text-base">Diensten</h4>
-        <ul className="space-y-2 text-sm">
+        <h4 className="font-semibold text-white mb-2 md:mb-3 text-sm md:text-base">Diensten</h4>
+        <ul className="space-y-1.5 md:space-y-2 text-sm">
           <li><Link href="/diensten" prefetch={false} className="text-emerald-300 hover:text-white font-medium transition-colors">Alle diensten →</Link></li>
         </ul>
       </div>

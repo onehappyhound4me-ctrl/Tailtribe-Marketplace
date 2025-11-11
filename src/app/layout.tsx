@@ -110,15 +110,15 @@ export default function RootLayout({
               </main>
               
               <footer className="bg-gradient-to-br from-slate-800 via-slate-900 to-gray-900 text-slate-100 border-t border-slate-700">
-                <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
-                  <div className="grid grid-cols-1 md:grid-cols-4 gap-8 md:gap-6">
+                <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-4 md:py-6">
+                  <div className="grid grid-cols-1 md:grid-cols-4 gap-4 md:gap-6">
                     {/* Logo Column */}
-                    <div className="flex items-start">
+                    <div className="flex items-start justify-start md:justify-start">
                       <Image 
                         src="/assets/tailtribe-logo.png" 
                         alt="TailTribe Logo" 
-                        width={140}
-                        height={70}
+                        width={120}
+                        height={60}
                         className="object-contain object-left filter brightness-110 contrast-110 drop-shadow"
                         style={{ clipPath: 'inset(0 10% 10% 0)' }}
                       />
@@ -129,8 +129,8 @@ export default function RootLayout({
                     
                     {/* Support Column */}
                     <div>
-                      <h4 className="font-semibold text-white mb-3 text-base">Ondersteuning</h4>
-                      <ul className="space-y-2 text-sm">
+                      <h4 className="font-semibold text-white mb-2 md:mb-3 text-sm md:text-base">Ondersteuning</h4>
+                      <ul className="space-y-1.5 md:space-y-2 text-sm">
                         <li><Link href="/help" prefetch={false} className="text-slate-300 hover:text-white transition-colors">FAQ</Link></li>
                         <li><Link href="/contact" prefetch={false} className="text-slate-300 hover:text-white transition-colors">Contact</Link></li>
                       </ul>
@@ -138,7 +138,7 @@ export default function RootLayout({
                   </div>
                   
                   {/* Bottom Section */}
-                  <div className="border-t border-slate-700 mt-8 pt-6 pb-4">
+                  <div className="border-t border-slate-700 mt-4 md:mt-6 pt-4 md:pt-6 pb-3 md:pb-4">
                     <div className="flex flex-wrap items-center justify-center gap-3 mb-4 text-sm text-slate-300">
                       <Link href="/terms" prefetch={false} className="hover:text-white transition-colors">Algemene Voorwaarden</Link>
                       <span className="opacity-40">|</span>
