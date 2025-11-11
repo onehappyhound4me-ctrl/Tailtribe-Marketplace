@@ -81,16 +81,7 @@ export function DynamicFooterLinks() {
         <div>
           <h4 className="font-semibold text-white mb-3 text-base">Diensten</h4>
           <ul className="space-y-2 text-sm">
-            <li><Link href="/nl/diensten" prefetch={false} className="text-slate-300 hover:text-white transition-colors">Alle diensten</Link></li>
-            <li><Link href="/nl/diensten/hondenuitlaat" prefetch={false} className="text-slate-300 hover:text-white transition-colors">Hondenuitlaat</Link></li>
-            <li><Link href="/nl/diensten/groepsuitlaat" prefetch={false} className="text-slate-300 hover:text-white transition-colors">Groepsuitlaat</Link></li>
-            <li><Link href="/nl/diensten/hondentraining" prefetch={false} className="text-slate-300 hover:text-white transition-colors">Hondentraining</Link></li>
-            <li><Link href="/nl/diensten/dierenoppas" prefetch={false} className="text-slate-300 hover:text-white transition-colors">Dierenoppas</Link></li>
-            <li><Link href="/nl/diensten/dierenopvang" prefetch={false} className="text-slate-300 hover:text-white transition-colors">Dierenopvang</Link></li>
-            <li><Link href="/nl/diensten/verzorging-aan-huis" prefetch={false} className="text-slate-300 hover:text-white transition-colors">Verzorging aan huis</Link></li>
-            <li><Link href="/nl/diensten/begeleiding-events" prefetch={false} className="text-slate-300 hover:text-white transition-colors">Begeleiding events</Link></li>
-            <li><Link href="/nl/diensten/transport-huisdieren" prefetch={false} className="text-slate-300 hover:text-white transition-colors">Transport huisdieren</Link></li>
-            <li><Link href="/nl/diensten/verzorging-kleinvee" prefetch={false} className="text-slate-300 hover:text-white transition-colors">Verzorging kleinvee</Link></li>
+            <li><Link href="/nl/diensten" prefetch={false} className="text-emerald-300 hover:text-white font-medium transition-colors">Alle diensten →</Link></li>
           </ul>
         </div>
       </>
@@ -113,16 +104,7 @@ export function DynamicFooterLinks() {
       <div>
         <h4 className="font-semibold text-white mb-3 text-base">Diensten</h4>
         <ul className="space-y-2 text-sm">
-          <li><Link href="/diensten" prefetch={false} className="text-slate-300 hover:text-white transition-colors">Alle diensten</Link></li>
-          <li><Link href="/diensten/hondenuitlaat" prefetch={false} className="text-slate-300 hover:text-white transition-colors">Hondenuitlaat</Link></li>
-          <li><Link href="/diensten/groepsuitlaat" prefetch={false} className="text-slate-300 hover:text-white transition-colors">Groepsuitlaat</Link></li>
-          <li><Link href="/diensten/hondentraining" prefetch={false} className="text-slate-300 hover:text-white transition-colors">Hondentraining</Link></li>
-          <li><Link href="/diensten/dierenoppas" prefetch={false} className="text-slate-300 hover:text-white transition-colors">Dierenoppas</Link></li>
-          <li><Link href="/diensten/dierenopvang" prefetch={false} className="text-slate-300 hover:text-white transition-colors">Dierenopvang</Link></li>
-          <li><Link href="/diensten/verzorging-aan-huis" prefetch={false} className="text-slate-300 hover:text-white transition-colors">Verzorging aan huis</Link></li>
-          <li><Link href="/diensten/begeleiding-events" prefetch={false} className="text-slate-300 hover:text-white transition-colors">Begeleiding events</Link></li>
-          <li><Link href="/diensten/transport-huisdieren" prefetch={false} className="text-slate-300 hover:text-white transition-colors">Transport huisdieren</Link></li>
-          <li><Link href="/diensten/verzorging-kleinvee" prefetch={false} className="text-slate-300 hover:text-white transition-colors">Verzorging kleinvee</Link></li>
+          <li><Link href="/diensten" prefetch={false} className="text-emerald-300 hover:text-white font-medium transition-colors">Alle diensten →</Link></li>
         </ul>
       </div>
     </>
