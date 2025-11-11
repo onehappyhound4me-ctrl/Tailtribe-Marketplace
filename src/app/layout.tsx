@@ -12,6 +12,7 @@ import { CountrySwitcher } from '@/components/common/CountrySwitcher'
 import { FooterCountrySwitcher } from '@/components/common/FooterCountrySwitcher'
 import { DynamicFooterLinks } from '@/components/navigation/DynamicFooter'
 import './globals.css'
+// cache-bust: 2025-11-11
 
 const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://tailtribe.be'
 
