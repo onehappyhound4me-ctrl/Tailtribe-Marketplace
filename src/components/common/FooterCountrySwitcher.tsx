@@ -1,14 +1,14 @@
 'use client'
 
 import { useRouter, usePathname } from 'next/navigation'
-import Link from 'next/link'
 
 export function FooterCountrySwitcher() {
   const router = useRouter()
   const pathname = usePathname()
 
-  const handleSwitch = (country: 'BE' | 'NL', e: React.MouseEvent<HTMLAnchorElement>) => {
+  const handleSwitch = (country: 'BE' | 'NL', e: React.MouseEvent<HTMLElement>) => {
     e.preventDefault()
+    e.stopPropagation()
     
     // Save to localStorage
     if (typeof window !== 'undefined') {
@@ -39,27 +39,38 @@ export function FooterCountrySwitcher() {
     }
     
     router.push(targetPath)
+    router.refresh()
   }
+
+  const currentCountry = pathname?.startsWith('/nl') ? 'NL' : 'BE'
 
   return (
     <div className="flex items-center justify-center gap-4 mb-3">
-      <Link 
-        href="/be" 
+      <button
+        type="button"
         onClick={(e) => handleSwitch('BE', e)}
-        className="flex items-center gap-2 hover:text-white transition-colors"
+        className={`flex items-center gap-2 transition-colors cursor-pointer ${
+          currentCountry === 'BE' 
+            ? 'text-white font-semibold' 
+            : 'text-slate-300 hover:text-white'
+        }`}
       >
         <span>🇧🇪</span>
         <span>België</span>
-      </Link>
+      </button>
       <span className="opacity-40">•</span>
-      <Link 
-        href="/nl"
+      <button
+        type="button"
         onClick={(e) => handleSwitch('NL', e)}
-        className="flex items-center gap-2 hover:text-white transition-colors"
+        className={`flex items-center gap-2 transition-colors cursor-pointer ${
+          currentCountry === 'NL' 
+            ? 'text-white font-semibold' 
+            : 'text-slate-300 hover:text-white'
+        }`}
       >
         <span>🇳🇱</span>
         <span>Nederland</span>
-      </Link>
+      </button>
     </div>
   )
 }

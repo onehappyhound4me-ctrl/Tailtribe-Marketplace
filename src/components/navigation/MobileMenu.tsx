@@ -16,25 +16,63 @@ export function MobileMenu() {
   const [searchHref, setSearchHref] = useState(() => {
     return pathname?.startsWith('/nl') ? '/nl/search' : '/search'
   });
+  const [currentCountry, setCurrentCountry] = useState<'BE' | 'NL'>(() => {
+    return pathname?.startsWith('/nl') ? 'NL' : 'BE'
+  });
 
   useEffect(() => {
     setMounted(true);
 
-    const saved = typeof window !== 'undefined' ? localStorage.getItem('userCountry') : null
-    if (saved === 'NL') {
-      setSearchHref('/nl/search')
+    const saved = typeof window !== 'undefined' ? localStorage.getItem('userCountry') as 'BE' | 'NL' | null : null
+    if (saved) {
+      setCurrentCountry(saved)
+      setSearchHref(saved === 'NL' ? '/nl/search' : '/search')
     } else {
       const country = pathname?.startsWith('/nl') ? 'NL' : 'BE'
+      setCurrentCountry(country)
       setSearchHref(country === 'NL' ? '/nl/search' : '/search')
     }
 
     const handleCountryChange = (event: any) => {
-      setSearchHref(event.detail === 'NL' ? '/nl/search' : '/search')
+      const country = event.detail as 'BE' | 'NL'
+      setCurrentCountry(country)
+      setSearchHref(country === 'NL' ? '/nl/search' : '/search')
     }
 
     window.addEventListener('countryChanged', handleCountryChange)
     return () => window.removeEventListener('countryChanged', handleCountryChange)
   }, [pathname]);
+
+  const handleSwitchCountry = (country: 'BE' | 'NL') => {
+    // Save to localStorage
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('userCountry', country)
+      window.dispatchEvent(new CustomEvent('countryChanged', { detail: country }))
+    }
+    
+    setCurrentCountry(country)
+    closeMobileMenu()
+    
+    // Smart redirect: maintain the current page type
+    let targetPath = '/'
+    
+    if (pathname?.includes('/search')) {
+      targetPath = country === 'NL' ? '/nl/search' : '/search'
+      if (typeof window !== 'undefined') {
+        const searchParams = new URLSearchParams(window.location.search)
+        if (searchParams.toString()) {
+          targetPath += '?' + searchParams.toString()
+        }
+      }
+    } else if (pathname?.startsWith('/nl')) {
+      targetPath = country === 'BE' ? '/' : '/nl'
+    } else {
+      targetPath = country === 'NL' ? '/nl' : '/'
+    }
+    
+    router.push(targetPath)
+    router.refresh()
+  };
 
   useEffect(() => {
     if (!mounted) return;
@@ -207,6 +245,43 @@ export function MobileMenu() {
             </div>
           </>
         )}
+
+        {/* Country Switcher */}
+        <div className="pt-6 border-t border-white/10 mt-6">
+          <div className="text-sm text-slate-400 mb-3">Land</div>
+          <div className="flex gap-2">
+            <button
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                handleSwitchCountry('BE');
+              }}
+              className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-lg border transition-colors cursor-pointer ${
+                currentCountry === 'BE'
+                  ? 'bg-emerald-500 border-emerald-400 text-slate-950 font-semibold'
+                  : 'bg-white/10 border-white/20 text-white hover:bg-white/20'
+              }`}
+            >
+              <span className="text-xl">🇧🇪</span>
+              <span>België</span>
+            </button>
+            <button
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                handleSwitchCountry('NL');
+              }}
+              className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-lg border transition-colors cursor-pointer ${
+                currentCountry === 'NL'
+                  ? 'bg-emerald-500 border-emerald-400 text-slate-950 font-semibold'
+                  : 'bg-white/10 border-white/20 text-white hover:bg-white/20'
+              }`}
+            >
+              <span className="text-xl">🇳🇱</span>
+              <span>Nederland</span>
+            </button>
+          </div>
+        </div>
       </nav>
     </div>
   );
