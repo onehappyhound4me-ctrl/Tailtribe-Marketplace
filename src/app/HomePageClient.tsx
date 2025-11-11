@@ -14,7 +14,22 @@ export default function HomePageClient() {
   const [currentCountry, setCurrentCountry] = useState<'BE' | 'NL'>('BE')
   
   useEffect(() => {
-    const country = getCurrentCountry(pathname)
+    // Detect country from hostname first, then pathname
+    let country: 'BE' | 'NL' = 'BE'
+    if (typeof window !== 'undefined') {
+      const hostname = window.location.hostname
+      if (hostname.includes('tailtribe.nl') || hostname === 'tailtribe.nl') {
+        country = 'NL'
+      } else if (hostname.includes('tailtribe.be') || hostname === 'tailtribe.be') {
+        country = 'BE'
+      } else {
+        // Fallback to pathname detection
+        country = getCurrentCountry(pathname)
+      }
+    } else {
+      country = getCurrentCountry(pathname)
+    }
+    
     setCurrentCountry(country)
     
     const handleCountryChange = (e: any) => {

@@ -110,9 +110,22 @@ export function getCurrentCountry(pathname?: string | null | undefined): 'BE' | 
  * Adds country prefix to a path if needed
  * @param path - The path to add prefix to (e.g., '/search', '/diensten')
  * @param country - The target country ('BE' or 'NL')
- * @returns The path with country prefix if NL, otherwise original path
+ * @returns The path with country prefix if NL and on BE domain, otherwise original path
  */
 export function addCountryPrefix(path: string, country: 'BE' | 'NL'): string {
+  // If on NL domain, never add /nl prefix
+  if (typeof window !== 'undefined') {
+    const hostname = window.location.hostname
+    if (hostname.includes('tailtribe.nl') || hostname === 'tailtribe.nl') {
+      // On NL domain, remove /nl prefix if present
+      if (path.startsWith('/nl')) {
+        return path.replace(/^\/nl/, '') || '/'
+      }
+      return path
+    }
+  }
+  
+  // On BE domain or server-side
   if (country === 'NL' && !path.startsWith('/nl')) {
     return path === '/' ? '/nl' : `/nl${path}`
   }
