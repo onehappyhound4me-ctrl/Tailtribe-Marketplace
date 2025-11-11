@@ -5,11 +5,13 @@ export function GET() {
   
   const robots = `User-agent: *
 Allow: /
+Allow: /nl
 
 # SEO-optimized pages
 Allow: /be/
 Allow: /caregivers/
 Allow: /search
+Allow: /nl/search
 
 # Block private areas
 Disallow: /dashboard/
@@ -22,6 +24,7 @@ Disallow: /messages/
 # Allow specific auth pages for SEO
 Allow: /auth/signin
 
+Host: ${baseUrl.replace('https://', '')}
 Sitemap: ${baseUrl}/sitemap.xml`
 
   return new NextResponse(robots, {

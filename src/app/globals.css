@@ -578,6 +578,30 @@
   color: white;
 }
 
+html,
+body {
+  height: 100%;
+}
+
+/* iOS Safari fix voor mobiele overlay - simplified */
+/* The mobile menu now uses flexbox layout, so we just ensure full viewport coverage */
+
+/* Layer 2: Hard fallback - Hide hero root container when mobile menu is open */
+/* This guarantees the hero video can never show through the menu on iOS Safari */
+html.mobile-menu-open .hero-root {
+  display: none !important;
+}
+
+/* Fallback for browsers that don't support display: none on sections */
+html.mobile-menu-open .hero-video,
+html.mobile-menu-open video.hero-video,
+html.mobile-menu-open .hero-poster {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
 @media (max-width: 768px) {
   .nav-links {
     display: none;

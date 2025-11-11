@@ -2,107 +2,120 @@ import { MetadataRoute } from 'next'
 import { services, Service } from '../../lib/services'
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = 'https://tailtribe.be'
-  
-  // Static pages
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://tailtribe.be'
+  const lastModified = new Date()
+
   const staticPages = [
     {
-      url: baseUrl,
-      lastModified: new Date(),
+      url: `${appUrl}/`,
+      lastModified,
       changeFrequency: 'weekly' as const,
       priority: 1,
     },
     {
-      url: `${baseUrl}/diensten`,
-      lastModified: new Date(),
+      url: `${appUrl}/nl`,
+      lastModified,
+      changeFrequency: 'weekly' as const,
+      priority: 0.95,
+    },
+    {
+      url: `${appUrl}/diensten`,
+      lastModified,
       changeFrequency: 'monthly' as const,
       priority: 0.9,
     },
     {
-      url: `${baseUrl}/search`,
-      lastModified: new Date(),
+      url: `${appUrl}/search`,
+      lastModified,
+      changeFrequency: 'daily' as const,
+      priority: 0.85,
+    },
+    {
+      url: `${appUrl}/nl/search`,
+      lastModified,
       changeFrequency: 'daily' as const,
       priority: 0.8,
     },
     {
-      url: `${baseUrl}/help`,
-      lastModified: new Date(),
+      url: `${appUrl}/help`,
+      lastModified,
       changeFrequency: 'monthly' as const,
       priority: 0.7,
     },
     {
-      url: `${baseUrl}/contact`,
-      lastModified: new Date(),
+      url: `${appUrl}/contact`,
+      lastModified,
       changeFrequency: 'monthly' as const,
       priority: 0.7,
     },
     {
-      url: `${baseUrl}/about`,
-      lastModified: new Date(),
+      url: `${appUrl}/about`,
+      lastModified,
       changeFrequency: 'monthly' as const,
       priority: 0.6,
     },
     {
-      url: `${baseUrl}/terms`,
-      lastModified: new Date(),
+      url: `${appUrl}/terms`,
+      lastModified,
       changeFrequency: 'yearly' as const,
       priority: 0.3,
     },
     {
-      url: `${baseUrl}/privacy`,
-      lastModified: new Date(),
+      url: `${appUrl}/privacy`,
+      lastModified,
       changeFrequency: 'yearly' as const,
       priority: 0.3,
     },
     {
-      url: `${baseUrl}/cookies`,
-      lastModified: new Date(),
+      url: `${appUrl}/cookies`,
+      lastModified,
       changeFrequency: 'yearly' as const,
       priority: 0.3,
     },
   ]
 
-  // Service pages
   const servicePages = services.map((service: Service) => ({
-    url: `${baseUrl}/diensten/${service.slug}`,
-    lastModified: new Date(),
+    url: `${appUrl}/diensten/${service.slug}`,
+    lastModified,
     changeFrequency: 'monthly' as const,
     priority: 0.8,
   }))
 
-  // Location pages
-  const locationPages = [
+  const belgianLocations = [
+    'antwerpen',
+    'oost-vlaanderen',
+    'vlaams-brabant',
+    'brussel',
+  ].map((slug) => ({
+    url: `${appUrl}/be/${slug}`,
+    lastModified,
+    changeFrequency: 'monthly' as const,
+    priority: 0.6,
+  }))
+
+  const dutchLocations = [
+    'gelderland',
+    'noord-brabant',
+    'noord-holland',
+    'utrecht',
+    'zuid-holland',
+  ].map((slug) => ({
+    url: `${appUrl}/nl/${slug}`,
+    lastModified,
+    changeFrequency: 'monthly' as const,
+    priority: 0.55,
+  }))
+
+  return [
+    ...staticPages,
+    ...servicePages,
     {
-      url: `${baseUrl}/be`,
-      lastModified: new Date(),
+      url: `${appUrl}/be`,
+      lastModified,
       changeFrequency: 'monthly' as const,
       priority: 0.7,
     },
-    {
-      url: `${baseUrl}/be/antwerpen`,
-      lastModified: new Date(),
-      changeFrequency: 'monthly' as const,
-      priority: 0.6,
-    },
-    {
-      url: `${baseUrl}/be/oost-vlaanderen`,
-      lastModified: new Date(),
-      changeFrequency: 'monthly' as const,
-      priority: 0.6,
-    },
-    {
-      url: `${baseUrl}/be/vlaams-brabant`,
-      lastModified: new Date(),
-      changeFrequency: 'monthly' as const,
-      priority: 0.6,
-    },
-    {
-      url: `${baseUrl}/be/brussel`,
-      lastModified: new Date(),
-      changeFrequency: 'monthly' as const,
-      priority: 0.6,
-    },
+    ...belgianLocations,
+    ...dutchLocations,
   ]
-
-  return [...staticPages, ...servicePages, ...locationPages]
 }
