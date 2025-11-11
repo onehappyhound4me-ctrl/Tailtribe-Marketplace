@@ -128,11 +128,11 @@ export default function SearchPage({ searchParams }: Props) {
     <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-teal-50 to-blue-50 pt-16">
       {/* Header */}
       <header className="bg-white shadow-sm border-b">
-        <div className="container mx-auto px-8 py-6">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-8">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-2xl font-bold text-gray-800">Zoek Dierenoppassers</h1>
-              <p className="text-gray-600">{caregivers.length} dierenoppassers gevonden</p>
+              <h1 className="text-2xl md:text-3xl font-bold text-gray-800 mb-2">Zoek Dierenoppassers</h1>
+              <p className="text-gray-600 text-sm md:text-base">{caregivers.length} dierenoppassers gevonden</p>
             </div>
             {status === 'loading' ? (
               <div className="w-36 h-11 bg-gradient-to-r from-gray-200 to-gray-300 rounded-lg animate-pulse"></div>
@@ -155,12 +155,12 @@ export default function SearchPage({ searchParams }: Props) {
         </div>
       </header>
       
-      <div className="container mx-auto px-4 py-12">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
         <div className="max-w-7xl mx-auto">
 
           {/* Pre-selected Info Banner */}
           {preSelectedCaregiver && preSelectedDate && (
-            <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+            <div className="mb-8 p-4 bg-blue-50 border border-blue-200 rounded-lg">
               <div className="flex items-center gap-3">
                 <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
                   <svg className="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
