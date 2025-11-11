@@ -3,11 +3,27 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { useSession } from 'next-auth/react'
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
+import { usePathname } from 'next/navigation'
+import { getCurrentCountry, addCountryPrefix } from '@/lib/utils'
 
 export default function HomePageClient() {
   const { data: session } = useSession()
   const videoRef = useRef<HTMLVideoElement | null>(null)
+  const pathname = usePathname()
+  const [currentCountry, setCurrentCountry] = useState<'BE' | 'NL'>('BE')
+  
+  useEffect(() => {
+    const country = getCurrentCountry(pathname)
+    setCurrentCountry(country)
+    
+    const handleCountryChange = (e: any) => {
+      setCurrentCountry(e.detail)
+    }
+    
+    window.addEventListener('countryChanged', handleCountryChange)
+    return () => window.removeEventListener('countryChanged', handleCountryChange)
+  }, [pathname])
 
   useEffect(() => {
     const videoEl = videoRef.current
@@ -136,7 +152,7 @@ export default function HomePageClient() {
                 </Link>
               ) : (
               <Link 
-                href="/search" 
+                href={addCountryPrefix('/search', currentCountry)} 
                 className="group relative bg-white text-green-700 px-8 sm:px-10 py-4 sm:py-5 rounded-full font-bold text-lg hover:bg-green-50 transition-all duration-300 shadow-2xl hover:shadow-[0_20px_60px_-15px_rgba(255,255,255,0.5)] transform hover:-translate-y-1 hover:scale-105 overflow-hidden"
               >
                 <span className="relative z-10 flex items-center gap-2">
@@ -224,7 +240,7 @@ export default function HomePageClient() {
             ].map((service) => (
               <Link 
                 key={service.href}
-                href={service.href}
+                href={addCountryPrefix(service.href, currentCountry)}
                 className="group bg-white rounded-2xl shadow-md hover:shadow-2xl transition-all duration-300 overflow-hidden border border-gray-100 hover:border-green-200 transform hover:-translate-y-1"
               >
                 <div className="relative h-40 w-full overflow-hidden bg-gradient-to-br from-green-50 to-blue-50 flex items-center justify-center p-4">
@@ -247,7 +263,7 @@ export default function HomePageClient() {
 
           <div className="text-center mt-12">
             <Link 
-              href="/diensten"
+              href={addCountryPrefix('/diensten', currentCountry)}
               className="inline-flex items-center text-green-700 font-semibold text-lg hover:text-green-800 transition-colors"
             >
               Bekijk alle diensten
@@ -410,7 +426,7 @@ export default function HomePageClient() {
             ) : (
               <>
                 <Link 
-                  href="/search"
+                  href={addCountryPrefix('/search', currentCountry)}
                   className="group relative bg-white text-green-700 px-10 py-5 rounded-full font-bold text-lg transition-all duration-300 shadow-2xl hover:shadow-[0_20px_60px_-15px_rgba(255,255,255,0.6)] transform hover:-translate-y-1 hover:scale-105 overflow-hidden"
                 >
                   <span className="relative z-10 flex items-center gap-2 justify-center">

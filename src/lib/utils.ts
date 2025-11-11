@@ -37,3 +37,28 @@ export function switchCountryPath(currentPathname: string | null | undefined, ta
   
   return targetCountry === 'NL' ? '/nl' : '/'
 }
+
+/**
+ * Gets the current country from pathname
+ * @param pathname - The current pathname
+ * @returns 'BE' or 'NL'
+ */
+export function getCurrentCountry(pathname: string | null | undefined): 'BE' | 'NL' {
+  return pathname?.startsWith('/nl') ? 'NL' : 'BE'
+}
+
+/**
+ * Adds country prefix to a path if needed
+ * @param path - The path to add prefix to (e.g., '/search', '/diensten')
+ * @param country - The target country ('BE' or 'NL')
+ * @returns The path with country prefix if NL, otherwise original path
+ */
+export function addCountryPrefix(path: string, country: 'BE' | 'NL'): string {
+  if (country === 'NL' && !path.startsWith('/nl')) {
+    return path === '/' ? '/nl' : `/nl${path}`
+  }
+  if (country === 'BE' && path.startsWith('/nl')) {
+    return path.replace(/^\/nl/, '') || '/'
+  }
+  return path
+}
