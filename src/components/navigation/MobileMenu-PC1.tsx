@@ -160,7 +160,7 @@ export function MobileMenu() {
                     Contact
                   </h3>
                   <div className="space-y-2 text-sm text-gray-600">
-                    <div>📧 info@tailtribe.be</div>
+                    <div>📧 steven@tailtribe.be</div>
                     <div>📞 +32 2 123 45 67</div>
                     <div>🕒 Ma-Vr: 9:00-18:00</div>
                   </div>

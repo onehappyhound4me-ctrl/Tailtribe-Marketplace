@@ -8,7 +8,7 @@ export const PLATFORM_CONFIG = {
   PAYOUT_FREQUENCY: 'weekly', // weekly, biweekly, monthly
   
   // Platform info
-  SUPPORT_EMAIL: 'info@tailtribe.be',
+  SUPPORT_EMAIL: 'steven@tailtribe.be',
   PLATFORM_NAME: 'TailTribe',
   
   // Countries

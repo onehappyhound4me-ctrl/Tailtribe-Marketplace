@@ -3,7 +3,7 @@ import { db } from './db'
 
 const resend = new Resend(process.env.RESEND_API_KEY)
 const FROM_EMAIL = 'TailTribe <noreply@tailtribe.be>'
-const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'info@tailtribe.be'
+const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'steven@tailtribe.be'
 
 export async function sendBookingRequestEmail(data: {
   caregiverEmail: string

@@ -46,7 +46,7 @@ export default async function InvoicePage({ params }: Props) {
             <div>
               <div className="font-semibold">TailTribe</div>
               <div className="text-sm text-gray-600">BE0123.456.789</div>
-              <div className="text-sm text-gray-600">contact@tailtribe.be</div>
+              <div className="text-sm text-gray-600">steven@tailtribe.be</div>
             </div>
             <div className="text-right">
               <div className="text-sm text-gray-600">Factuurnummer</div>
