@@ -145,10 +145,7 @@ export function MobileMenu() {
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_80%,rgba(20,184,166,0.1),transparent_50%)]" />
       
       {/* Header */}
-      <div className="shrink-0 flex items-center justify-between px-6 py-5 border-b border-emerald-500/20 bg-gradient-to-r from-emerald-900/50 to-teal-900/50 backdrop-blur-sm relative z-10">
-        <span className="text-lg font-bold tracking-wide text-emerald-100">
-          Navigatie
-        </span>
+      <div className="shrink-0 flex items-center justify-end px-6 py-5 border-b border-emerald-500/20 bg-gradient-to-r from-emerald-900/50 to-teal-900/50 backdrop-blur-sm relative z-10">
         <button
           type="button"
           onClick={(e) => {
