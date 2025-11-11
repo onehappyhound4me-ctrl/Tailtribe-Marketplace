@@ -56,6 +56,13 @@ export const authOptions: NextAuthOptions = {
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID || "",
       clientSecret: process.env.GOOGLE_CLIENT_SECRET || "",
+      authorization: {
+        params: {
+          redirect_uri: process.env.NEXTAUTH_URL 
+            ? `${process.env.NEXTAUTH_URL}/api/auth/callback/google`
+            : undefined
+        }
+      }
     }),
     // EmailProvider disabled - causes build errors with nodemailer fs dependency
     // EmailProvider({
