@@ -36,7 +36,7 @@ export function SmartLogoLink() {
   }, [pathname])
   
   return (
-    <Link href={homeHref} className="flex items-center hover:opacity-95 transition-all duration-300 select-none transform hover:scale-105">
+    <Link href={homeHref} className="flex items-center hover:opacity-95 transition-all duration-300 select-none transform hover:scale-105 no-underline">
       <HeaderBrand />
     </Link>
   )
