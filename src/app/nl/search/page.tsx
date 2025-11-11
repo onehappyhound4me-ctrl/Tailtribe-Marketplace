@@ -78,13 +78,13 @@ export default function NetherlandsSearchPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-teal-50 to-blue-50 pt-16">
+    <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-teal-50 to-blue-50">
       {/* Header */}
-      <header className="bg-white shadow-sm border-b">
+      <header className="bg-white shadow-md border-b border-gray-200">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-8">
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div>
-              <h1 className="text-2xl md:text-3xl font-bold text-gray-800 mb-2">
+              <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-gray-900 mb-2">
                 Dierenoppassers in Nederland
               </h1>
               <p className="text-gray-600 text-sm md:text-base">{caregivers.length} dierenoppassers gevonden</p>
@@ -115,11 +115,11 @@ export default function NetherlandsSearchPage() {
 
           {/* NL-Specific Search Filters */}
           <div className="mb-6 md:mb-8">
-            <Card className="gradient-card professional-shadow border border-green-100/50">
-              <CardContent className="p-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <Card className="bg-white rounded-xl shadow-md border border-gray-200 hover:shadow-lg transition-shadow">
+              <CardContent className="p-6 md:p-8">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 mb-6">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-sm font-semibold text-gray-800 mb-3">
                       Stad in Nederland
                     </label>
                     <select
@@ -130,7 +130,7 @@ export default function NetherlandsSearchPage() {
                         if (liveService) params.set('service', liveService)
                         router.push(`/nl/search?${params.toString()}`)
                       }}
-                      className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 bg-white"
+                      className="w-full p-3.5 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 bg-white text-gray-900 font-medium transition-all hover:border-gray-300"
                     >
                       <option value="">Alle steden</option>
                       <option value="Amsterdam">Amsterdam</option>
@@ -149,7 +149,7 @@ export default function NetherlandsSearchPage() {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-sm font-semibold text-gray-800 mb-3">
                       Service
                     </label>
                     <select
@@ -160,7 +160,7 @@ export default function NetherlandsSearchPage() {
                         if (e.target.value) params.set('service', e.target.value)
                         router.push(`/nl/search?${params.toString()}`)
                       }}
-                      className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 bg-white"
+                      className="w-full p-3.5 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 bg-white text-gray-900 font-medium transition-all hover:border-gray-300"
                     >
                       <option value="">Alle services</option>
                       <option value="DOG_WALKING">Hondenuitlaat</option>
@@ -178,11 +178,11 @@ export default function NetherlandsSearchPage() {
 
                 {/* Clear Filters */}
                 {(liveCity || liveService) && (
-                  <div className="mt-4 flex justify-end">
+                  <div className="flex justify-end">
                     <Button
                       variant="outline"
                       onClick={() => router.push('/nl/search')}
-                      className="text-gray-600 border-gray-300 hover:bg-gray-50"
+                      className="text-gray-700 border-gray-300 hover:bg-gray-50 hover:border-gray-400 font-medium px-4 py-2"
                     >
                       Wis filters
                     </Button>
@@ -197,8 +197,8 @@ export default function NetherlandsSearchPage() {
             <div className="space-y-10 md:space-y-12">
               {/* Modern Map Section - Only show if we have caregivers with valid coordinates */}
               {caregivers.some((c: any) => c.lat && c.lng) ? (
-                <div className="card-tt p-6">
-                  <h2 className="font-heading text-2xl md:text-3xl font-semibold text-foreground mb-6">
+                <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-6 md:p-8">
+                  <h2 className="font-heading text-2xl md:text-3xl font-bold text-gray-900 mb-6">
                     Dierenoppassers op de kaart
                   </h2>
                   <ModernMap 
@@ -211,11 +211,11 @@ export default function NetherlandsSearchPage() {
 
               {/* Caregiver Cards Section */}
               <div id="caregiver-cards" className="space-y-8">
-                <div className="flex items-center justify-between mb-6">
-                  <h2 className="font-heading text-2xl md:text-3xl font-semibold text-foreground">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
+                  <h2 className="font-heading text-2xl md:text-3xl font-bold text-gray-900">
                     Alle dierenoppassers
                   </h2>
-                  <div className="text-sm md:text-base text-muted-foreground">
+                  <div className="text-sm md:text-base text-gray-600 font-medium">
                     {caregivers.length} dierenoppassers gevonden
                   </div>
                 </div>
@@ -233,16 +233,16 @@ export default function NetherlandsSearchPage() {
               </div>
             </div>
           ) : (
-            <Card className="card-tt">
-              <CardContent className="text-center py-12">
-                <div className="text-6xl mb-4">🔍</div>
-                <h3 className="font-heading text-xl font-semibold text-foreground mb-2">
+            <Card className="bg-white rounded-xl shadow-lg border border-gray-200">
+              <CardContent className="text-center py-12 md:py-16">
+                <div className="text-6xl mb-6">🔍</div>
+                <h3 className="font-heading text-xl md:text-2xl font-bold text-gray-900 mb-3">
                   Geen dierenoppassers gevonden in Nederland
                 </h3>
-                <p className="text-muted-foreground mb-6">
+                <p className="text-gray-600 mb-8 max-w-md mx-auto">
                   Probeer een andere stad of service te selecteren.
                 </p>
-                <Button variant="outline" asChild>
+                <Button variant="outline" asChild className="px-6 py-3">
                   <Link href="/nl/search">
                     Wis filters
                   </Link>

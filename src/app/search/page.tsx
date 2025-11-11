@@ -125,19 +125,19 @@ export default function SearchPage({ searchParams }: Props) {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-teal-50 to-blue-50 pt-16">
+    <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-teal-50 to-blue-50">
       {/* Header */}
-      <header className="bg-white shadow-sm border-b">
+      <header className="bg-white shadow-md border-b border-gray-200">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-8">
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div>
-              <h1 className="text-2xl md:text-3xl font-bold text-gray-800 mb-2">Zoek Dierenoppassers</h1>
+              <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-gray-900 mb-2">Zoek Dierenoppassers</h1>
               <p className="text-gray-600 text-sm md:text-base">{caregivers.length} dierenoppassers gevonden</p>
             </div>
             {status === 'loading' ? (
               <div className="w-36 h-11 bg-gradient-to-r from-gray-200 to-gray-300 rounded-lg animate-pulse"></div>
             ) : session ? (
-              <Link href={session?.user?.role === 'CAREGIVER' ? '/dashboard/caregiver' : '/dashboard/owner'} className="inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-emerald-500 to-teal-600 text-white hover:from-emerald-600 hover:to-teal-700 active:scale-95 transition-all duration-200 rounded-lg font-semibold shadow-md hover:shadow-lg self-start">
+              <Link href={session?.user?.role === 'CAREGIVER' ? '/dashboard/caregiver' : '/dashboard/owner'} className="inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-emerald-500 to-teal-600 text-white hover:from-emerald-600 hover:to-teal-700 active:scale-95 transition-all duration-200 rounded-lg font-semibold shadow-md hover:shadow-lg">
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
                 </svg>
@@ -160,16 +160,16 @@ export default function SearchPage({ searchParams }: Props) {
 
           {/* Pre-selected Info Banner */}
           {preSelectedCaregiver && preSelectedDate && (
-            <div className="mb-8 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+            <div className="mb-8 p-4 md:p-5 bg-blue-50 border-l-4 border-blue-500 rounded-lg shadow-sm">
               <div className="flex items-center gap-3">
-                <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
                   <svg className="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
                 </div>
                 <div>
-                  <h3 className="font-semibold text-blue-900">Pre-selectie vanuit agenda</h3>
-                  <p className="text-sm text-blue-700">
+                  <h3 className="font-semibold text-blue-900 text-sm md:text-base">Pre-selectie vanuit agenda</h3>
+                  <p className="text-sm text-blue-700 mt-1">
                     Verzorger en datum zijn geselecteerd vanuit je agenda. 
                     {preSelectedDate && ` Geselecteerde datum: ${new Date(preSelectedDate).toLocaleDateString('nl-NL')}`}
                   </p>
@@ -197,8 +197,8 @@ export default function SearchPage({ searchParams }: Props) {
                   firstCaregiver: caregivers[0] ? { name: caregivers[0].name, lat: caregivers[0].lat, lng: caregivers[0].lng } : null
                 })
                 return withCoords.length > 0 ? (
-                  <div className="card-tt p-6">
-                    <h2 className="font-heading text-2xl md:text-3xl font-semibold text-foreground mb-6">
+                  <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-6 md:p-8">
+                    <h2 className="font-heading text-2xl md:text-3xl font-bold text-gray-900 mb-6">
                       Verzorgers op de kaart ({withCoords.length})
                     </h2>
                     <ModernMap 
@@ -212,11 +212,11 @@ export default function SearchPage({ searchParams }: Props) {
 
               {/* Caregiver Cards Section */}
               <div id="caregiver-cards" className="space-y-8">
-                <div className="flex items-center justify-between mb-6">
-                  <h2 className="font-heading text-2xl md:text-3xl font-semibold text-foreground">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
+                  <h2 className="font-heading text-2xl md:text-3xl font-bold text-gray-900">
                     Alle verzorgers
                   </h2>
-                  <div className="text-sm md:text-base text-muted-foreground">
+                  <div className="text-sm md:text-base text-gray-600 font-medium">
                     {caregivers.length} verzorgers gevonden
                   </div>
                 </div>
@@ -241,16 +241,16 @@ export default function SearchPage({ searchParams }: Props) {
               </div>
             </div>
           ) : (
-            <Card className="card-tt">
-              <CardContent className="text-center py-12">
-                <div className="text-6xl mb-4">🔍</div>
-                <h3 className="font-heading text-xl font-semibold text-foreground mb-2">
+            <Card className="bg-white rounded-xl shadow-lg border border-gray-200">
+              <CardContent className="text-center py-12 md:py-16">
+                <div className="text-6xl mb-6">🔍</div>
+                <h3 className="font-heading text-xl md:text-2xl font-bold text-gray-900 mb-3">
                   Geen verzorgers gevonden
                 </h3>
-                <p className="text-muted-foreground mb-6">
+                <p className="text-gray-600 mb-8 max-w-md mx-auto">
                   Probeer een andere stad of service te selecteren.
                 </p>
-                <Button variant="outline" asChild>
+                <Button variant="outline" asChild className="px-6 py-3">
                   <Link href="/search">
                     Wis filters
                   </Link>
