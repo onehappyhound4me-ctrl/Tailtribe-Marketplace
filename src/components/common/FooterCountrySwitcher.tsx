@@ -21,8 +21,13 @@ export function FooterCountrySwitcher() {
     // Use utility function to get correct path
     const targetPath = switchCountryPath(pathname || '/', country)
     
-    router.push(targetPath)
-    router.refresh()
+    // Use window.location for hard navigation to ensure country switch works
+    if (typeof window !== 'undefined') {
+      window.location.href = targetPath
+    } else {
+      router.push(targetPath)
+      router.refresh()
+    }
   }
 
   const currentCountry = pathname?.startsWith('/nl') ? 'NL' : 'BE'
