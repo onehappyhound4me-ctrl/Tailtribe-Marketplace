@@ -70,11 +70,11 @@ export function MobileMenu() {
           <aside
             role="dialog"
             aria-modal="true"
-            data-overlay-version="v4"
-            className="relative z-10 h-full w-full bg-white flex flex-col"
+            data-overlay-version="v5"
+            className="absolute inset-0 bg-white overflow-y-auto"
             onClick={(event) => event.stopPropagation()}
           >
-            <div className="px-6 pt-5 pb-4 flex items-center justify-between border-b border-gray-200">
+            <div className="sticky top-0 z-10 px-6 pt-5 pb-4 flex items-center justify-between border-b border-gray-200 bg-white">
               <span className="text-2xl font-semibold text-gray-900">Menu</span>
               <button
                 onClick={closeMenu}
@@ -84,7 +84,7 @@ export function MobileMenu() {
                 <span className="block w-6 h-6 text-gray-600 text-xl leading-none">×</span>
               </button>
             </div>
-            <nav className="flex-1 overflow-y-auto px-6 py-6 space-y-6 text-left">
+            <nav className="px-6 py-6 space-y-6 text-left">
               <div className="space-y-3">
                 <Link
                   href="/"
