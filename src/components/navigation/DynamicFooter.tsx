@@ -81,16 +81,16 @@ export function DynamicFooterLinks() {
         <div>
           <h4 className="font-semibold text-white mb-1">Diensten</h4>
           <ul className="space-y-0.5 text-sm">
-            <li><Link href="/diensten" prefetch={false} className="text-slate-300 hover:text-white" onClick={() => typeof window !== 'undefined' && localStorage.setItem('userCountry', 'NL')}>Alle diensten</Link></li>
-            <li><Link href="/diensten/hondenuitlaat" prefetch={false} className="text-slate-300 hover:text-white" onClick={() => typeof window !== 'undefined' && localStorage.setItem('userCountry', 'NL')}>Hondenuitlaat</Link></li>
-            <li><Link href="/diensten/groepsuitlaat" prefetch={false} className="text-slate-300 hover:text-white" onClick={() => typeof window !== 'undefined' && localStorage.setItem('userCountry', 'NL')}>Groepsuitlaat</Link></li>
-            <li><Link href="/diensten/hondentraining" prefetch={false} className="text-slate-300 hover:text-white" onClick={() => typeof window !== 'undefined' && localStorage.setItem('userCountry', 'NL')}>Hondentraining</Link></li>
-            <li><Link href="/diensten/dierenoppas" prefetch={false} className="text-slate-300 hover:text-white" onClick={() => typeof window !== 'undefined' && localStorage.setItem('userCountry', 'NL')}>Dierenoppas</Link></li>
-            <li><Link href="/diensten/dierenopvang" prefetch={false} className="text-slate-300 hover:text-white" onClick={() => typeof window !== 'undefined' && localStorage.setItem('userCountry', 'NL')}>Dierenopvang</Link></li>
-            <li><Link href="/diensten/verzorging-aan-huis" prefetch={false} className="text-slate-300 hover:text-white" onClick={() => typeof window !== 'undefined' && localStorage.setItem('userCountry', 'NL')}>Verzorging aan huis</Link></li>
-            <li><Link href="/diensten/begeleiding-events" prefetch={false} className="text-slate-300 hover:text-white" onClick={() => typeof window !== 'undefined' && localStorage.setItem('userCountry', 'NL')}>Begeleiding events</Link></li>
-            <li><Link href="/diensten/transport-huisdieren" prefetch={false} className="text-slate-300 hover:text-white" onClick={() => typeof window !== 'undefined' && localStorage.setItem('userCountry', 'NL')}>Transport huisdieren</Link></li>
-            <li><Link href="/diensten/verzorging-kleinvee" prefetch={false} className="text-slate-300 hover:text-white" onClick={() => typeof window !== 'undefined' && localStorage.setItem('userCountry', 'NL')}>Verzorging kleinvee</Link></li>
+            <li><Link href="/nl/diensten" prefetch={false} className="text-slate-300 hover:text-white">Alle diensten</Link></li>
+            <li><Link href="/nl/diensten/hondenuitlaat" prefetch={false} className="text-slate-300 hover:text-white">Hondenuitlaat</Link></li>
+            <li><Link href="/nl/diensten/groepsuitlaat" prefetch={false} className="text-slate-300 hover:text-white">Groepsuitlaat</Link></li>
+            <li><Link href="/nl/diensten/hondentraining" prefetch={false} className="text-slate-300 hover:text-white">Hondentraining</Link></li>
+            <li><Link href="/nl/diensten/dierenoppas" prefetch={false} className="text-slate-300 hover:text-white">Dierenoppas</Link></li>
+            <li><Link href="/nl/diensten/dierenopvang" prefetch={false} className="text-slate-300 hover:text-white">Dierenopvang</Link></li>
+            <li><Link href="/nl/diensten/verzorging-aan-huis" prefetch={false} className="text-slate-300 hover:text-white">Verzorging aan huis</Link></li>
+            <li><Link href="/nl/diensten/begeleiding-events" prefetch={false} className="text-slate-300 hover:text-white">Begeleiding events</Link></li>
+            <li><Link href="/nl/diensten/transport-huisdieren" prefetch={false} className="text-slate-300 hover:text-white">Transport huisdieren</Link></li>
+            <li><Link href="/nl/diensten/verzorging-kleinvee" prefetch={false} className="text-slate-300 hover:text-white">Verzorging kleinvee</Link></li>
           </ul>
         </div>
       </>
@@ -113,16 +113,16 @@ export function DynamicFooterLinks() {
       <div>
         <h4 className="font-semibold text-white mb-1">Diensten</h4>
         <ul className="space-y-0.5 text-sm">
-          <li><Link href="/diensten" prefetch={false} className="text-slate-300 hover:text-white" onClick={() => typeof window !== 'undefined' && localStorage.setItem('userCountry', 'BE')}>Alle diensten</Link></li>
-          <li><Link href="/diensten/hondenuitlaat" prefetch={false} className="text-slate-300 hover:text-white" onClick={() => typeof window !== 'undefined' && localStorage.setItem('userCountry', 'BE')}>Hondenuitlaat</Link></li>
-          <li><Link href="/diensten/groepsuitlaat" prefetch={false} className="text-slate-300 hover:text-white" onClick={() => typeof window !== 'undefined' && localStorage.setItem('userCountry', 'BE')}>Groepsuitlaat</Link></li>
-          <li><Link href="/diensten/hondentraining" prefetch={false} className="text-slate-300 hover:text-white" onClick={() => typeof window !== 'undefined' && localStorage.setItem('userCountry', 'BE')}>Hondentraining</Link></li>
-          <li><Link href="/diensten/dierenoppas" prefetch={false} className="text-slate-300 hover:text-white" onClick={() => typeof window !== 'undefined' && localStorage.setItem('userCountry', 'BE')}>Dierenoppas</Link></li>
-          <li><Link href="/diensten/dierenopvang" prefetch={false} className="text-slate-300 hover:text-white" onClick={() => typeof window !== 'undefined' && localStorage.setItem('userCountry', 'BE')}>Dierenopvang</Link></li>
-          <li><Link href="/diensten/verzorging-aan-huis" prefetch={false} className="text-slate-300 hover:text-white" onClick={() => typeof window !== 'undefined' && localStorage.setItem('userCountry', 'BE')}>Verzorging aan huis</Link></li>
-          <li><Link href="/diensten/begeleiding-events" prefetch={false} className="text-slate-300 hover:text-white" onClick={() => typeof window !== 'undefined' && localStorage.setItem('userCountry', 'BE')}>Begeleiding events</Link></li>
-          <li><Link href="/diensten/transport-huisdieren" prefetch={false} className="text-slate-300 hover:text-white" onClick={() => typeof window !== 'undefined' && localStorage.setItem('userCountry', 'BE')}>Transport huisdieren</Link></li>
-          <li><Link href="/diensten/verzorging-kleinvee" prefetch={false} className="text-slate-300 hover:text-white" onClick={() => typeof window !== 'undefined' && localStorage.setItem('userCountry', 'BE')}>Verzorging kleinvee</Link></li>
+          <li><Link href="/diensten" prefetch={false} className="text-slate-300 hover:text-white">Alle diensten</Link></li>
+          <li><Link href="/diensten/hondenuitlaat" prefetch={false} className="text-slate-300 hover:text-white">Hondenuitlaat</Link></li>
+          <li><Link href="/diensten/groepsuitlaat" prefetch={false} className="text-slate-300 hover:text-white">Groepsuitlaat</Link></li>
+          <li><Link href="/diensten/hondentraining" prefetch={false} className="text-slate-300 hover:text-white">Hondentraining</Link></li>
+          <li><Link href="/diensten/dierenoppas" prefetch={false} className="text-slate-300 hover:text-white">Dierenoppas</Link></li>
+          <li><Link href="/diensten/dierenopvang" prefetch={false} className="text-slate-300 hover:text-white">Dierenopvang</Link></li>
+          <li><Link href="/diensten/verzorging-aan-huis" prefetch={false} className="text-slate-300 hover:text-white">Verzorging aan huis</Link></li>
+          <li><Link href="/diensten/begeleiding-events" prefetch={false} className="text-slate-300 hover:text-white">Begeleiding events</Link></li>
+          <li><Link href="/diensten/transport-huisdieren" prefetch={false} className="text-slate-300 hover:text-white">Transport huisdieren</Link></li>
+          <li><Link href="/diensten/verzorging-kleinvee" prefetch={false} className="text-slate-300 hover:text-white">Verzorging kleinvee</Link></li>
         </ul>
       </div>
     </>

@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { useRouter, usePathname } from 'next/navigation'
 import { createPortal } from 'react-dom'
+import { switchCountryPath } from '@/lib/utils'
 
 export function CountrySwitcher() {
   const router = useRouter()
@@ -70,26 +71,8 @@ export function CountrySwitcher() {
       window.dispatchEvent(new CustomEvent('countryChanged', { detail: country }))
     }
     
-    // Smart redirect: maintain the current page type
-    let targetPath = '/'
-    
-    if (pathname?.includes('/search')) {
-      // If on search page, go to search page of other country
-      targetPath = country === 'NL' ? '/nl/search' : '/search'
-      // Preserve query params
-      if (typeof window !== 'undefined') {
-        const searchParams = new URLSearchParams(window.location.search)
-        if (searchParams.toString()) {
-          targetPath += '?' + searchParams.toString()
-        }
-      }
-    } else if (pathname?.startsWith('/nl')) {
-      // If on NL site, switch to BE
-      targetPath = country === 'BE' ? '/' : '/nl'
-    } else {
-      // If on BE site, switch to NL
-      targetPath = country === 'NL' ? '/nl' : '/'
-    }
+    // Use utility function to get correct path
+    const targetPath = switchCountryPath(pathname || '/', country)
     
     router.push(targetPath)
     router.refresh()

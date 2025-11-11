@@ -38,7 +38,7 @@ export function HeaderNav() {
 
   return (
     <div className="hidden md:flex items-center gap-3">
-      <Link href="/about" prefetch={false} className="px-5 py-2.5 text-base font-semibold text-gray-700 hover:text-emerald-400 transition-colors duration-200 relative group">
+      <Link href={pathname?.startsWith('/nl') ? '/nl/about' : '/about'} prefetch={false} className="px-5 py-2.5 text-base font-semibold text-gray-700 hover:text-emerald-400 transition-colors duration-200 relative group">
         <span className="relative z-10 flex items-center gap-2">
           <svg className="w-4 h-4 group-hover:rotate-12 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />

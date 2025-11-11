@@ -6,6 +6,7 @@ import { useSession } from 'next-auth/react';
 import { usePathname, useRouter } from 'next/navigation';
 import Link from "next/link";
 import { useNav } from "@/components/navigation/NavContext";
+import { switchCountryPath } from "@/lib/utils";
 
 export function MobileMenu() {
   const { isMobileMenuOpen, closeMobileMenu } = useNav();
@@ -53,22 +54,8 @@ export function MobileMenu() {
     setCurrentCountry(country)
     closeMobileMenu()
     
-    // Smart redirect: maintain the current page type
-    let targetPath = '/'
-    
-    if (pathname?.includes('/search')) {
-      targetPath = country === 'NL' ? '/nl/search' : '/search'
-      if (typeof window !== 'undefined') {
-        const searchParams = new URLSearchParams(window.location.search)
-        if (searchParams.toString()) {
-          targetPath += '?' + searchParams.toString()
-        }
-      }
-    } else if (pathname?.startsWith('/nl')) {
-      targetPath = country === 'BE' ? '/' : '/nl'
-    } else {
-      targetPath = country === 'NL' ? '/nl' : '/'
-    }
+    // Use utility function to get correct path
+    const targetPath = switchCountryPath(pathname || '/', country)
     
     router.push(targetPath)
     router.refresh()
@@ -146,12 +133,12 @@ export function MobileMenu() {
         style={{ pointerEvents: 'auto' }}
       >
         <Link 
-          href="/about" 
+          href={pathname?.startsWith('/nl') ? '/nl/about' : '/about'} 
           onClick={(e) => {
             e.preventDefault();
             e.stopPropagation();
             closeMobileMenu();
-            router.push('/about');
+            router.push(pathname?.startsWith('/nl') ? '/nl/about' : '/about');
           }} 
           className="block py-2 hover:text-green-400 transition-colors cursor-pointer"
         >
@@ -174,12 +161,12 @@ export function MobileMenu() {
         )}
 
         <Link 
-          href="/diensten" 
+          href={pathname?.startsWith('/nl') ? '/nl/diensten' : '/diensten'} 
           onClick={(e) => {
             e.preventDefault();
             e.stopPropagation();
             closeMobileMenu();
-            router.push('/diensten');
+            router.push(pathname?.startsWith('/nl') ? '/nl/diensten' : '/diensten');
           }} 
           className="block py-2 hover:text-green-400 transition-colors cursor-pointer"
         >
