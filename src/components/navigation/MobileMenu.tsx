@@ -70,6 +70,7 @@ export function MobileMenu() {
           <aside
             role="dialog"
             aria-modal="true"
+            data-overlay-version="v3"
             className="absolute inset-0 bg-white flex flex-col"
             onClick={(event) => event.stopPropagation()}
           >
