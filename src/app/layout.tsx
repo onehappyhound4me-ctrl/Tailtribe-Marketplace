@@ -110,44 +110,48 @@ export default function RootLayout({
               </main>
               
               <footer className="bg-gradient-to-br from-slate-800 via-slate-900 to-gray-900 text-slate-100 border-t border-slate-700">
-                <div className="container mx-auto px-4 py-4">
-                  <div className="grid grid-cols-1 md:grid-cols-4 gap-1 pt-4 pb-4">
-                    <div>
-                      <div className="mt-0 flex items-center mb-0 overflow-hidden">
-                        <Image 
-                          src="/assets/tailtribe-logo.png" 
-                          alt="Logo" 
-                          width={180}
-                          height={90}
-                          className="object-contain object-left filter brightness-110 contrast-110 drop-shadow"
-                          style={{ clipPath: 'inset(0 10% 10% 0)' }}
-                        />
-                      </div>
+                <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+                  <div className="grid grid-cols-1 md:grid-cols-4 gap-8 md:gap-6">
+                    {/* Logo Column */}
+                    <div className="flex items-start">
+                      <Image 
+                        src="/assets/tailtribe-logo.png" 
+                        alt="TailTribe Logo" 
+                        width={140}
+                        height={70}
+                        className="object-contain object-left filter brightness-110 contrast-110 drop-shadow"
+                        style={{ clipPath: 'inset(0 10% 10% 0)' }}
+                      />
                     </div>
                     
+                    {/* Dynamic Links */}
                     <DynamicFooterLinks />
                     
+                    {/* Support Column */}
                     <div>
-                      <h4 className="font-semibold text-white mb-1">Ondersteuning</h4>
-                      <ul className="space-y-0.5 text-sm">
-                        <li><Link href="/help" prefetch={false} className="text-slate-300 hover:text-white">FAQ</Link></li>
-                        <li><Link href="/contact" prefetch={false} className="text-slate-300 hover:text-white">Contact</Link></li>
+                      <h4 className="font-semibold text-white mb-3 text-base">Ondersteuning</h4>
+                      <ul className="space-y-2 text-sm">
+                        <li><Link href="/help" prefetch={false} className="text-slate-300 hover:text-white transition-colors">FAQ</Link></li>
+                        <li><Link href="/contact" prefetch={false} className="text-slate-300 hover:text-white transition-colors">Contact</Link></li>
                       </ul>
                     </div>
                   </div>
                   
-                  <div className="border-t border-slate-700 mt-4 pt-4 pb-4 text-sm text-slate-300">
-                    <div className="flex flex-wrap items-center justify-center gap-3 mb-3">
-                      <Link href="/terms" prefetch={false} className="hover:text-white">Algemene Voorwaarden</Link>
+                  {/* Bottom Section */}
+                  <div className="border-t border-slate-700 mt-8 pt-6 pb-4">
+                    <div className="flex flex-wrap items-center justify-center gap-3 mb-4 text-sm text-slate-300">
+                      <Link href="/terms" prefetch={false} className="hover:text-white transition-colors">Algemene Voorwaarden</Link>
                       <span className="opacity-40">|</span>
-                      <Link href="/privacy" prefetch={false} className="hover:text-white">Privacybeleid</Link>
+                      <Link href="/privacy" prefetch={false} className="hover:text-white transition-colors">Privacybeleid</Link>
                       <span className="opacity-40">|</span>
-                      <Link href="/cookies" prefetch={false} className="hover:text-white">Cookiebeleid</Link>
+                      <Link href="/cookies" prefetch={false} className="hover:text-white transition-colors">Cookiebeleid</Link>
                     </div>
                     
-                    <FooterCountrySwitcher />
+                    <div className="mb-4">
+                      <FooterCountrySwitcher />
+                    </div>
                     
-                    <p className="text-center">&copy; 2024 TailTribe. Alle rechten voorbehouden.</p>
+                    <p className="text-center text-sm text-slate-400">&copy; 2024 TailTribe. Alle rechten voorbehouden.</p>
                   </div>
                 </div>
               </footer>

@@ -44,16 +44,16 @@ export function DynamicFooterLinks() {
     return (
       <>
         <div>
-          <h4 className="font-semibold text-white mb-1">Populaire steden</h4>
-          <ul className="space-y-0.5 text-sm">
+          <h4 className="font-semibold text-white mb-3 text-base">Populaire steden</h4>
+          <ul className="space-y-2 text-sm">
             <li className="h-5 bg-slate-700/50 rounded animate-pulse w-32"></li>
             <li className="h-5 bg-slate-700/50 rounded animate-pulse w-36"></li>
             <li className="h-5 bg-slate-700/50 rounded animate-pulse w-28"></li>
           </ul>
         </div>
         <div>
-          <h4 className="font-semibold text-white mb-1">Diensten</h4>
-          <ul className="space-y-0.5 text-sm">
+          <h4 className="font-semibold text-white mb-3 text-base">Diensten</h4>
+          <ul className="space-y-2 text-sm">
             <li className="h-5 bg-slate-700/50 rounded animate-pulse w-32"></li>
             <li className="h-5 bg-slate-700/50 rounded animate-pulse w-36"></li>
           </ul>
@@ -68,29 +68,29 @@ export function DynamicFooterLinks() {
     return (
       <>
         <div>
-          <h4 className="font-semibold text-white mb-1">Populaire steden</h4>
-          <ul className="space-y-0.5 text-sm">
-            <li><Link href="/nl/search?city=Amsterdam" prefetch={false} className="text-slate-300 hover:text-white">Amsterdam</Link></li>
-            <li><Link href="/nl/search?city=Rotterdam" prefetch={false} className="text-slate-300 hover:text-white">Rotterdam</Link></li>
-            <li><Link href="/nl/search?city=Utrecht" prefetch={false} className="text-slate-300 hover:text-white">Utrecht</Link></li>
-            <li><Link href="/nl/search?city=Den+Haag" prefetch={false} className="text-slate-300 hover:text-white">Den Haag</Link></li>
-            <li><Link href="/nl/search" prefetch={false} className="text-slate-200 hover:text-white font-medium">Alle steden →</Link></li>
+          <h4 className="font-semibold text-white mb-3 text-base">Populaire steden</h4>
+          <ul className="space-y-2 text-sm">
+            <li><Link href="/nl/search?city=Amsterdam" prefetch={false} className="text-slate-300 hover:text-white transition-colors">Amsterdam</Link></li>
+            <li><Link href="/nl/search?city=Rotterdam" prefetch={false} className="text-slate-300 hover:text-white transition-colors">Rotterdam</Link></li>
+            <li><Link href="/nl/search?city=Utrecht" prefetch={false} className="text-slate-300 hover:text-white transition-colors">Utrecht</Link></li>
+            <li><Link href="/nl/search?city=Den+Haag" prefetch={false} className="text-slate-300 hover:text-white transition-colors">Den Haag</Link></li>
+            <li><Link href="/nl/search" prefetch={false} className="text-emerald-300 hover:text-white font-medium transition-colors">Alle steden →</Link></li>
           </ul>
         </div>
         
         <div>
-          <h4 className="font-semibold text-white mb-1">Diensten</h4>
-          <ul className="space-y-0.5 text-sm">
-            <li><Link href="/nl/diensten" prefetch={false} className="text-slate-300 hover:text-white">Alle diensten</Link></li>
-            <li><Link href="/nl/diensten/hondenuitlaat" prefetch={false} className="text-slate-300 hover:text-white">Hondenuitlaat</Link></li>
-            <li><Link href="/nl/diensten/groepsuitlaat" prefetch={false} className="text-slate-300 hover:text-white">Groepsuitlaat</Link></li>
-            <li><Link href="/nl/diensten/hondentraining" prefetch={false} className="text-slate-300 hover:text-white">Hondentraining</Link></li>
-            <li><Link href="/nl/diensten/dierenoppas" prefetch={false} className="text-slate-300 hover:text-white">Dierenoppas</Link></li>
-            <li><Link href="/nl/diensten/dierenopvang" prefetch={false} className="text-slate-300 hover:text-white">Dierenopvang</Link></li>
-            <li><Link href="/nl/diensten/verzorging-aan-huis" prefetch={false} className="text-slate-300 hover:text-white">Verzorging aan huis</Link></li>
-            <li><Link href="/nl/diensten/begeleiding-events" prefetch={false} className="text-slate-300 hover:text-white">Begeleiding events</Link></li>
-            <li><Link href="/nl/diensten/transport-huisdieren" prefetch={false} className="text-slate-300 hover:text-white">Transport huisdieren</Link></li>
-            <li><Link href="/nl/diensten/verzorging-kleinvee" prefetch={false} className="text-slate-300 hover:text-white">Verzorging kleinvee</Link></li>
+          <h4 className="font-semibold text-white mb-3 text-base">Diensten</h4>
+          <ul className="space-y-2 text-sm">
+            <li><Link href="/nl/diensten" prefetch={false} className="text-slate-300 hover:text-white transition-colors">Alle diensten</Link></li>
+            <li><Link href="/nl/diensten/hondenuitlaat" prefetch={false} className="text-slate-300 hover:text-white transition-colors">Hondenuitlaat</Link></li>
+            <li><Link href="/nl/diensten/groepsuitlaat" prefetch={false} className="text-slate-300 hover:text-white transition-colors">Groepsuitlaat</Link></li>
+            <li><Link href="/nl/diensten/hondentraining" prefetch={false} className="text-slate-300 hover:text-white transition-colors">Hondentraining</Link></li>
+            <li><Link href="/nl/diensten/dierenoppas" prefetch={false} className="text-slate-300 hover:text-white transition-colors">Dierenoppas</Link></li>
+            <li><Link href="/nl/diensten/dierenopvang" prefetch={false} className="text-slate-300 hover:text-white transition-colors">Dierenopvang</Link></li>
+            <li><Link href="/nl/diensten/verzorging-aan-huis" prefetch={false} className="text-slate-300 hover:text-white transition-colors">Verzorging aan huis</Link></li>
+            <li><Link href="/nl/diensten/begeleiding-events" prefetch={false} className="text-slate-300 hover:text-white transition-colors">Begeleiding events</Link></li>
+            <li><Link href="/nl/diensten/transport-huisdieren" prefetch={false} className="text-slate-300 hover:text-white transition-colors">Transport huisdieren</Link></li>
+            <li><Link href="/nl/diensten/verzorging-kleinvee" prefetch={false} className="text-slate-300 hover:text-white transition-colors">Verzorging kleinvee</Link></li>
           </ul>
         </div>
       </>
@@ -100,29 +100,29 @@ export function DynamicFooterLinks() {
   return (
     <>
       <div>
-        <h4 className="font-semibold text-white mb-1">Populaire steden</h4>
-        <ul className="space-y-0.5 text-sm">
-          <li><Link href="/search?city=Antwerpen" prefetch={false} className="text-slate-300 hover:text-white">Antwerpen</Link></li>
-          <li><Link href="/search?city=Gent" prefetch={false} className="text-slate-300 hover:text-white">Gent</Link></li>
-          <li><Link href="/search?city=Brussel-Stad" prefetch={false} className="text-slate-300 hover:text-white">Brussel</Link></li>
-          <li><Link href="/search?city=Leuven" prefetch={false} className="text-slate-300 hover:text-white">Leuven</Link></li>
-          <li><Link href="/search" prefetch={false} className="text-slate-200 hover:text-white font-medium">Alle steden →</Link></li>
+        <h4 className="font-semibold text-white mb-3 text-base">Populaire steden</h4>
+        <ul className="space-y-2 text-sm">
+          <li><Link href="/search?city=Antwerpen" prefetch={false} className="text-slate-300 hover:text-white transition-colors">Antwerpen</Link></li>
+          <li><Link href="/search?city=Gent" prefetch={false} className="text-slate-300 hover:text-white transition-colors">Gent</Link></li>
+          <li><Link href="/search?city=Brussel-Stad" prefetch={false} className="text-slate-300 hover:text-white transition-colors">Brussel</Link></li>
+          <li><Link href="/search?city=Leuven" prefetch={false} className="text-slate-300 hover:text-white transition-colors">Leuven</Link></li>
+          <li><Link href="/search" prefetch={false} className="text-emerald-300 hover:text-white font-medium transition-colors">Alle steden →</Link></li>
         </ul>
       </div>
       
       <div>
-        <h4 className="font-semibold text-white mb-1">Diensten</h4>
-        <ul className="space-y-0.5 text-sm">
-          <li><Link href="/diensten" prefetch={false} className="text-slate-300 hover:text-white">Alle diensten</Link></li>
-          <li><Link href="/diensten/hondenuitlaat" prefetch={false} className="text-slate-300 hover:text-white">Hondenuitlaat</Link></li>
-          <li><Link href="/diensten/groepsuitlaat" prefetch={false} className="text-slate-300 hover:text-white">Groepsuitlaat</Link></li>
-          <li><Link href="/diensten/hondentraining" prefetch={false} className="text-slate-300 hover:text-white">Hondentraining</Link></li>
-          <li><Link href="/diensten/dierenoppas" prefetch={false} className="text-slate-300 hover:text-white">Dierenoppas</Link></li>
-          <li><Link href="/diensten/dierenopvang" prefetch={false} className="text-slate-300 hover:text-white">Dierenopvang</Link></li>
-          <li><Link href="/diensten/verzorging-aan-huis" prefetch={false} className="text-slate-300 hover:text-white">Verzorging aan huis</Link></li>
-          <li><Link href="/diensten/begeleiding-events" prefetch={false} className="text-slate-300 hover:text-white">Begeleiding events</Link></li>
-          <li><Link href="/diensten/transport-huisdieren" prefetch={false} className="text-slate-300 hover:text-white">Transport huisdieren</Link></li>
-          <li><Link href="/diensten/verzorging-kleinvee" prefetch={false} className="text-slate-300 hover:text-white">Verzorging kleinvee</Link></li>
+        <h4 className="font-semibold text-white mb-3 text-base">Diensten</h4>
+        <ul className="space-y-2 text-sm">
+          <li><Link href="/diensten" prefetch={false} className="text-slate-300 hover:text-white transition-colors">Alle diensten</Link></li>
+          <li><Link href="/diensten/hondenuitlaat" prefetch={false} className="text-slate-300 hover:text-white transition-colors">Hondenuitlaat</Link></li>
+          <li><Link href="/diensten/groepsuitlaat" prefetch={false} className="text-slate-300 hover:text-white transition-colors">Groepsuitlaat</Link></li>
+          <li><Link href="/diensten/hondentraining" prefetch={false} className="text-slate-300 hover:text-white transition-colors">Hondentraining</Link></li>
+          <li><Link href="/diensten/dierenoppas" prefetch={false} className="text-slate-300 hover:text-white transition-colors">Dierenoppas</Link></li>
+          <li><Link href="/diensten/dierenopvang" prefetch={false} className="text-slate-300 hover:text-white transition-colors">Dierenopvang</Link></li>
+          <li><Link href="/diensten/verzorging-aan-huis" prefetch={false} className="text-slate-300 hover:text-white transition-colors">Verzorging aan huis</Link></li>
+          <li><Link href="/diensten/begeleiding-events" prefetch={false} className="text-slate-300 hover:text-white transition-colors">Begeleiding events</Link></li>
+          <li><Link href="/diensten/transport-huisdieren" prefetch={false} className="text-slate-300 hover:text-white transition-colors">Transport huisdieren</Link></li>
+          <li><Link href="/diensten/verzorging-kleinvee" prefetch={false} className="text-slate-300 hover:text-white transition-colors">Verzorging kleinvee</Link></li>
         </ul>
       </div>
     </>
