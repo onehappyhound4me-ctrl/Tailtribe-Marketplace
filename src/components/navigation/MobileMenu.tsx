@@ -70,8 +70,8 @@ export function MobileMenu() {
           <aside
             role="dialog"
             aria-modal="true"
-            data-overlay-version="v3"
-            className="absolute inset-0 bg-white flex flex-col"
+            data-overlay-version="v4"
+            className="relative z-10 h-full w-full bg-white flex flex-col"
             onClick={(event) => event.stopPropagation()}
           >
             <div className="px-6 pt-5 pb-4 flex items-center justify-between border-b border-gray-200">
