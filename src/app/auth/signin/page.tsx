@@ -20,11 +20,14 @@ export default function SignInPage() {
   const handleGoogleSignIn = async () => {
     setLoading(true)
     try {
-      await signIn('google', {
+      console.log('[SIGNIN] Starting Google sign in, callbackUrl:', callbackUrl)
+      const result = await signIn('google', {
         callbackUrl: callbackUrl,
         redirect: true,
       })
+      console.log('[SIGNIN] Google sign in result:', result)
     } catch (error) {
+      console.error('[SIGNIN] Google sign in error:', error)
       toast.error('Er ging iets mis bij Google login')
       setLoading(false)
     }

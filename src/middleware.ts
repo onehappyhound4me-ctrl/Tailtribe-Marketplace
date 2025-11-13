@@ -1,33 +1,72 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 import { getToken } from 'next-auth/jwt'
+import { checkRateLimit, getRateLimitKey, RATE_LIMITS } from '@/lib/rate-limit'
 
-// Rate limiting using in-memory store (for production use Redis)
+// Fallback in-memory rate limiting (used if database fails)
 const rateLimitMap = new Map<string, { count: number; resetTime: number }>()
 
-function rateLimit(ip: string, limit: number = 100, windowMs: number = 60000) {
-  const now = Date.now()
-  const record = rateLimitMap.get(ip)
-
-  if (!record || now > record.resetTime) {
-    rateLimitMap.set(ip, {
-      count: 1,
-      resetTime: now + windowMs
+async function rateLimit(ip: string, pathname: string, limit: number = 100, windowMs: number = 60000) {
+  // Try database-backed rate limiting first
+  try {
+    const key = getRateLimitKey(ip, pathname)
+    const result = await checkRateLimit({
+      identifier: key,
+      limit,
+      windowMs
     })
-    return true
-  }
+    
+    if (!result.allowed) {
+      return {
+        allowed: false,
+        resetTime: result.resetTime
+      }
+    }
+    
+    return {
+      allowed: true,
+      resetTime: result.resetTime
+    }
+  } catch (error) {
+    // Fallback to in-memory if database fails
+    console.error('Database rate limit failed, using in-memory fallback:', error)
+    
+    const now = Date.now()
+    const record = rateLimitMap.get(ip)
 
-  if (record.count >= limit) {
-    return false
-  }
+    if (!record || now > record.resetTime) {
+      rateLimitMap.set(ip, {
+        count: 1,
+        resetTime: now + windowMs
+      })
+      return { allowed: true, resetTime: new Date(now + windowMs) }
+    }
 
-  record.count++
-  return true
+    if (record.count >= limit) {
+      return { allowed: false, resetTime: new Date(record.resetTime) }
+    }
+
+    record.count++
+    return { allowed: true, resetTime: new Date(record.resetTime) }
+  }
 }
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
   const hostname = request.headers.get('host') || ''
+  
+  // Normalize www vs non-www - redirect www to non-www for consistency
+  // MUST be done FIRST, before any other checks
+  const normalizedHost = hostname.replace(/^www\./, '')
+  const expectedHost = process.env.NEXTAUTH_URL?.replace(/^https?:\/\/(www\.)?/, '').replace(/\/$/, '') || 'tailtribe.be'
+  
+  // Redirect www to non-www (but preserve the path and query params)
+  if (hostname.includes('www.') && normalizedHost === expectedHost) {
+    const url = request.nextUrl.clone()
+    url.host = normalizedHost
+    console.log('[MIDDLEWARE] Redirecting www to non-www:', { from: hostname, to: normalizedHost, pathname })
+    return NextResponse.redirect(url, 301) // Permanent redirect
+  }
   
   // Domain-based country routing
   const isNLDomain = hostname.includes('tailtribe.nl')
@@ -44,18 +83,55 @@ export async function middleware(request: NextRequest) {
   // If on BE domain and accessing root, ensure it's BE (no /nl prefix needed)
   // This is handled by the app structure already
 
+  // Skip auth check for NextAuth routes (must be before rate limiting)
+  if (pathname.startsWith('/api/auth/')) {
+    const response = NextResponse.next()
+    // Add security headers
+    response.headers.set('X-DNS-Prefetch-Control', 'on')
+    response.headers.set('Strict-Transport-Security', 'max-age=31536000; includeSubDomains')
+    response.headers.set('X-Content-Type-Options', 'nosniff')
+    response.headers.set('X-Frame-Options', 'SAMEORIGIN')
+    response.headers.set('X-XSS-Protection', '1; mode=block')
+    response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin')
+    return response
+  }
+
   // Rate limiting for API routes
   if (pathname.startsWith('/api/')) {
-    const ip = request.ip || request.headers.get('x-forwarded-for') || 'unknown'
+    const ip = request.ip || request.headers.get('x-forwarded-for')?.split(',')[0] || 'unknown'
     
-    // More strict limits for auth routes (increased for development)
-    const limit = pathname.startsWith('/api/auth/') ? 100 : 1000
+    // Determine rate limit based on route
+    let rateLimitConfig = RATE_LIMITS.API
+    if (pathname.startsWith('/api/auth/')) {
+      rateLimitConfig = RATE_LIMITS.AUTH
+    } else if (pathname.startsWith('/api/caregivers/search')) {
+      rateLimitConfig = RATE_LIMITS.SEARCH
+    } else if (pathname.startsWith('/api/bookings/create')) {
+      rateLimitConfig = RATE_LIMITS.BOOKING
+    } else if (pathname.startsWith('/api/stripe/')) {
+      rateLimitConfig = RATE_LIMITS.PAYMENT
+    }
     
-    if (!rateLimit(ip, limit)) {
-      return NextResponse.json(
-        { error: 'Too many requests. Please try again later.' },
+    const rateLimitResult = await rateLimit(
+      ip,
+      pathname,
+      rateLimitConfig.limit,
+      rateLimitConfig.windowMs
+    )
+    
+    if (!rateLimitResult.allowed) {
+      const response = NextResponse.json(
+        { 
+          error: 'Te veel verzoeken. Probeer het later opnieuw.',
+          retryAfter: Math.ceil((rateLimitResult.resetTime.getTime() - Date.now()) / 1000)
+        },
         { status: 429 }
       )
+      response.headers.set('Retry-After', Math.ceil((rateLimitResult.resetTime.getTime() - Date.now()) / 1000).toString())
+      response.headers.set('X-RateLimit-Limit', rateLimitConfig.limit.toString())
+      response.headers.set('X-RateLimit-Remaining', '0')
+      response.headers.set('X-RateLimit-Reset', Math.ceil(rateLimitResult.resetTime.getTime() / 1000).toString())
+      return response
     }
   }
 
@@ -77,7 +153,16 @@ export async function middleware(request: NextRequest) {
       secret: process.env.NEXTAUTH_SECRET
     })
 
-    if (!token) {
+    console.log('[MIDDLEWARE] Protected route check:', { 
+      pathname, 
+      hasToken: !!token, 
+      tokenRole: token?.role,
+      tokenSub: token?.sub,
+      hostname
+    })
+
+    if (!token || !token.sub) {
+      console.log('[MIDDLEWARE] No token or token.sub, redirecting to signin')
       const url = request.nextUrl.clone()
       url.pathname = '/auth/signin'
       url.searchParams.set('callbackUrl', pathname)
@@ -87,11 +172,12 @@ export async function middleware(request: NextRequest) {
     // Redirect /dashboard to role-specific dashboard
     if (pathname === '/dashboard') {
       const url = request.nextUrl.clone()
-      if (token.role === 'CAREGIVER') {
+      const role = token.role || 'OWNER' // Default to OWNER if no role
+      if (role === 'CAREGIVER') {
         url.pathname = '/dashboard/caregiver'
-      } else if (token.role === 'OWNER') {
+      } else if (role === 'OWNER') {
         url.pathname = '/dashboard/owner'
-      } else if (token.role === 'ADMIN') {
+      } else if (role === 'ADMIN') {
         url.pathname = '/admin'
       } else {
         url.pathname = '/dashboard/owner' // fallback
@@ -104,10 +190,8 @@ export async function middleware(request: NextRequest) {
       return NextResponse.redirect(new URL('/', request.url))
     }
   }
-
-  // Add security headers
-  const response = NextResponse.next()
   
+  // Add security headers to response
   response.headers.set('X-DNS-Prefetch-Control', 'on')
   response.headers.set('Strict-Transport-Security', 'max-age=31536000; includeSubDomains')
   response.headers.set('X-Content-Type-Options', 'nosniff')

@@ -13,8 +13,26 @@ const sendVerificationRequest = async ({ identifier: email, url }: any) => {
   // In development, just log the magic link to console
 }
 
+// Normalize NEXTAUTH_URL to handle www vs non-www
+const getBaseUrl = () => {
+  const url = process.env.NEXTAUTH_URL || process.env.NEXT_PUBLIC_APP_URL || 'https://tailtribe.be'
+  // Remove trailing slash and normalize to non-www
+  const normalized = url.replace(/\/$/, '').replace(/^https?:\/\/(www\.)?/, 'https://')
+  console.log('[AUTH] getBaseUrl:', { original: url, normalized, NEXTAUTH_URL: process.env.NEXTAUTH_URL })
+  return normalized
+}
+
+// Get normalized redirect URI for Google OAuth
+const getGoogleRedirectUri = () => {
+  const baseUrl = getBaseUrl()
+  const redirectUri = `${baseUrl}/api/auth/callback/google`
+  console.log('[AUTH] Google redirect URI:', { baseUrl, redirectUri, NEXTAUTH_URL: process.env.NEXTAUTH_URL })
+  return redirectUri
+}
+
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(db) as any,
+  debug: process.env.NODE_ENV === 'development',
   providers: [
     CredentialsProvider({
       name: "credentials",
@@ -58,11 +76,15 @@ export const authOptions: NextAuthOptions = {
       clientSecret: process.env.GOOGLE_CLIENT_SECRET || "",
       authorization: {
         params: {
-          redirect_uri: process.env.NEXTAUTH_URL 
-            ? `${process.env.NEXTAUTH_URL}/api/auth/callback/google`
-            : undefined
+          prompt: "consent",
+          access_type: "offline",
+          response_type: "code"
         }
-      }
+      },
+      // Explicitly set redirect URI to match Google Cloud Console (normalized, no www)
+      ...(process.env.NEXTAUTH_URL && {
+        redirectUri: getGoogleRedirectUri()
+      })
     }),
     // EmailProvider disabled - causes build errors with nodemailer fs dependency
     // EmailProvider({
@@ -79,44 +101,145 @@ export const authOptions: NextAuthOptions = {
   },
   session: {
     strategy: "jwt",
+    maxAge: 30 * 24 * 60 * 60, // 30 days
+  },
+  cookies: {
+    sessionToken: {
+      name: `next-auth.session-token`,
+      options: {
+        httpOnly: true,
+        sameSite: 'lax',
+        path: '/',
+        secure: process.env.NEXTAUTH_URL?.startsWith('https://') ?? true,
+        // Don't set domain - let browser handle it automatically
+        // This prevents cookie issues with www vs non-www
+      },
+    },
   },
   callbacks: {
-    async jwt({ token, user, trigger }) {
+    async jwt({ token, user, account, trigger }) {
+      // Initial sign in
       if (user) {
-        token.role = user.role
+        // For Google OAuth, fetch user from database first
+        if (account?.provider === 'google' && user.email) {
+          const dbUser = await db.user.findUnique({
+            where: { email: user.email },
+            select: { id: true, role: true, email: true }
+          })
+          
+          console.log('[AUTH] JWT - Google OAuth initial:', { email: user.email, dbUser: dbUser?.id, role: dbUser?.role })
+          
+          if (dbUser) {
+            token.role = (dbUser.role as Role) || 'OWNER'
+            token.id = dbUser.id
+            token.sub = dbUser.id
+            token.email = dbUser.email
+            console.log('[AUTH] JWT - Google OAuth token set:', { userId: dbUser.id, role: token.role, sub: token.sub })
+          } else {
+            // Fallback if user not found (shouldn't happen due to signIn callback)
+            token.role = 'OWNER'
+            token.id = user.id
+            token.sub = user.id
+            console.log('[AUTH] JWT - Google OAuth fallback:', { userId: user.id, role: token.role })
+          }
+        } else {
+          // For credentials provider
+          const dbUser = await db.user.findUnique({
+            where: { id: user.id },
+            select: { id: true, role: true, email: true }
+          })
+          
+          if (dbUser) {
+            token.role = (dbUser.role as Role) || 'OWNER'
+            token.id = dbUser.id
+            token.sub = dbUser.id
+            console.log('[AUTH] JWT - Credentials sign in:', { userId: dbUser.id, email: dbUser.email, role: token.role })
+          } else {
+            token.role = (user.role as Role) || 'OWNER'
+            token.id = user.id
+            token.sub = user.id
+            console.log('[AUTH] JWT - Credentials fallback:', { userId: user.id, role: token.role })
+          }
+        }
       }
       
       // If session update triggered, refetch user role
-      if (trigger === 'update') {
+      if (trigger === 'update' && token.sub) {
         const dbUser = await db.user.findUnique({
           where: { id: token.sub },
           select: { role: true }
         })
         if (dbUser) {
-          token.role = dbUser.role as Role
+          token.role = (dbUser.role as Role) || 'OWNER'
+          console.log('[AUTH] JWT - session update:', { userId: token.sub, role: token.role })
         }
       }
       
       return token
     },
     async session({ session, token }) {
-      if (token) {
-        session.user.id = token.sub!
-        session.user.role = token.role as Role
+      if (token && token.sub) {
+        session.user.id = token.sub
+        session.user.role = (token.role as Role) || 'OWNER'
+        console.log('[AUTH] Session callback:', { 
+          userId: session.user.id, 
+          email: session.user.email, 
+          role: session.user.role,
+          tokenRole: token.role,
+          tokenSub: token.sub
+        })
+      } else {
+        console.error('[AUTH] Session callback - no token or token.sub!', { hasToken: !!token, tokenSub: token?.sub })
       }
       return session
     },
-    async signIn({ user, account, profile, email, credentials }) {
-      // Allow all sign-ins
+    async signIn({ user, account, profile }) {
+      // For Google OAuth, ensure user exists in database
+      if (account?.provider === 'google' && user.email) {
+        try {
+          const existingUser = await db.user.findUnique({
+            where: { email: user.email }
+          })
+          
+          console.log('[AUTH] Google signIn - existingUser:', existingUser?.id, existingUser?.role)
+          
+          // If user doesn't exist or has no role, set default role
+          if (!existingUser || !existingUser.role) {
+            const updatedUser = await db.user.upsert({
+              where: { email: user.email },
+              update: {
+                role: existingUser?.role || 'OWNER'
+              },
+              create: {
+                email: user.email,
+                name: user.name || profile?.name || null,
+                image: user.image || profile?.picture || null,
+                role: 'OWNER', // Default role for new Google users
+                emailVerified: new Date()
+              }
+            })
+            console.log('[AUTH] Google signIn - user upserted:', updatedUser.id, updatedUser.role)
+          }
+        } catch (error) {
+          console.error('[AUTH] Error in signIn callback:', error)
+          // Don't block sign-in, but log error
+        }
+      }
+      
       return true
     },
     async redirect({ url, baseUrl }) {
-      // After Google sign-in, check if user needs role selection
-      if (url.startsWith(baseUrl)) {
-        return url
-      }
-      // If external URL, return to base
-      return baseUrl
+      const normalizedBaseUrl = getBaseUrl()
+      console.log('[AUTH] Redirect callback:', { url, baseUrl, normalizedBaseUrl, NEXTAUTH_URL: process.env.NEXTAUTH_URL })
+      
+      // Normalize baseUrl to match NEXTAUTH_URL (handle www vs non-www)
+      const useBaseUrl = normalizedBaseUrl || baseUrl.replace(/^https?:\/\/(www\.)?/, 'https://')
+      
+      // Always redirect to dashboard after successful login
+      // This ensures consistent behavior regardless of callback URL
+      const dashboardUrl = `${useBaseUrl}/dashboard`
+      console.log('[AUTH] Redirect to dashboard:', dashboardUrl)
+      return dashboardUrl
     },
   },
   events: {
