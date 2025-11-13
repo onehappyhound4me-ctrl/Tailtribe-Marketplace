@@ -24,9 +24,9 @@ const getBaseUrl = () => {
 
 // Get normalized redirect URI for Google OAuth
 const getGoogleRedirectUri = () => {
-  const baseUrl = getBaseUrl()
-  const redirectUri = `${baseUrl}/api/auth/callback/google`
-  console.log('[AUTH] Google redirect URI:', { baseUrl, redirectUri, NEXTAUTH_URL: process.env.NEXTAUTH_URL })
+  // Force exact URL to match Google Cloud Console
+  const redirectUri = 'https://tailtribe.be/api/auth/callback/google'
+  console.log('[AUTH] Google redirect URI:', { redirectUri, NEXTAUTH_URL: process.env.NEXTAUTH_URL })
   return redirectUri
 }
 
@@ -81,10 +81,8 @@ export const authOptions: NextAuthOptions = {
           response_type: "code"
         }
       },
-      // Explicitly set redirect URI to match Google Cloud Console (normalized, no www)
-      ...(process.env.NEXTAUTH_URL && {
-        redirectUri: getGoogleRedirectUri()
-      })
+      // Explicitly set redirect URI to match Google Cloud Console (exact match required)
+      redirectUri: getGoogleRedirectUri()
     }),
     // EmailProvider disabled - causes build errors with nodemailer fs dependency
     // EmailProvider({
