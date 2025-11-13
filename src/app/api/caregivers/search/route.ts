@@ -46,42 +46,8 @@ export async function GET(request: NextRequest) {
       if (maxRate) where.hourlyRate.lte = maxRate
     }
 
-    // Add user filters to exclude test users (case-insensitive)
-    // Filter out: test, example.com, demo, fake, temp emails
-    where.user = {
-      AND: [
-        {
-          OR: [
-            { email: { not: { contains: 'test', mode: 'insensitive' } } },
-            { email: null }
-          ]
-        },
-        {
-          OR: [
-            { email: { not: { contains: 'example.com', mode: 'insensitive' } } },
-            { email: null }
-          ]
-        },
-        {
-          OR: [
-            { email: { not: { contains: 'demo', mode: 'insensitive' } } },
-            { email: null }
-          ]
-        },
-        {
-          OR: [
-            { name: { not: { contains: 'test', mode: 'insensitive' } } },
-            { name: null }
-          ]
-        },
-        {
-          OR: [
-            { name: { not: { contains: 'demo', mode: 'insensitive' } } },
-            { name: null }
-          ]
-        },
-      ],
-    }
+    // Note: User filtering will be done client-side after fetching
+    // Prisma nested filters can be complex, so we filter after query
 
     // Get caregivers with user data - Filter out test users
     const caregivers = await db.caregiverProfile.findMany({
