@@ -89,14 +89,38 @@ export async function GET(request: NextRequest) {
       take: 50 // Limit results
     })
 
-    // Additional client-side filtering to be extra safe
-    // Filter out test patterns: test, example.com, demo, fake, temp
+    // Client-side filtering to exclude test users
+    // Filter out test patterns: test, example.com, demo, fake, temp, sample, jan.vermeersch, sarah.janssens
     const filteredCaregivers = caregivers.filter(caregiver => {
       const email = caregiver.user.email?.toLowerCase() || ''
       const name = caregiver.user.name?.toLowerCase() || ''
-      const testPatterns = ['test', 'example.com', 'demo', 'fake', 'temp', 'sample']
-      return !testPatterns.some(pattern => email.includes(pattern) || name.includes(pattern))
+      
+      // Test patterns to exclude
+      const testPatterns = [
+        'test',
+        'example.com',
+        'demo',
+        'fake',
+        'temp',
+        'sample',
+        'jan.vermeersch',
+        'sarah.janssens',
+        'password123', // Common test password
+      ]
+      
+      // Check if email or name contains any test pattern
+      const isTestUser = testPatterns.some(pattern => 
+        email.includes(pattern) || name.includes(pattern)
+      )
+      
+      // Also check for common test email domains
+      const testDomains = ['@test.', '@example.', '@demo.', '@fake.']
+      const hasTestDomain = testDomains.some(domain => email.includes(domain))
+      
+      return !isTestUser && !hasTestDomain
     })
+    
+    console.log(`🔍 Filtered ${caregivers.length} → ${filteredCaregivers.length} caregivers (removed ${caregivers.length - filteredCaregivers.length} test users)`)
 
     // Calculate average rating and distance for each caregiver
     const results = filteredCaregivers.map(caregiver => {
