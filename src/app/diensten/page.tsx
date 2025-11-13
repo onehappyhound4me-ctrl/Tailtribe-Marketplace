@@ -23,14 +23,14 @@ export const metadata: Metadata = {
 export default function DienstenPage() {
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Hero Section - Only visible on desktop (md and up) */}
-      <section className="hidden md:block bg-gradient-to-br from-emerald-600 to-teal-700 text-white py-16">
+      {/* Hero Section - Visible on all devices */}
+      <section className="bg-gradient-to-br from-emerald-600 to-teal-700 text-white py-12 md:py-16">
         <div className="container mx-auto px-4">
           <div className="text-center max-w-4xl mx-auto">
-            <h1 className="text-4xl md:text-5xl font-bold mb-6">
+            <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4 md:mb-6">
               Onze diensten
             </h1>
-            <p className="text-xl md:text-2xl text-emerald-100 leading-relaxed">
+            <p className="text-lg md:text-xl lg:text-2xl text-emerald-100 leading-relaxed">
               Professionele dierenoppas voor elke behoefte. Kies de dienst die het beste bij jouw situatie past.
             </p>
           </div>
