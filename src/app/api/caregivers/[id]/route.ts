@@ -18,8 +18,7 @@ export async function GET(
             email: true,
             image: true,
           }
-        },
-        availability: true,
+        }
       }
     })
 

@@ -101,7 +101,7 @@ export async function middleware(request: NextRequest) {
     const ip = request.ip || request.headers.get('x-forwarded-for')?.split(',')[0] || 'unknown'
     
     // Determine rate limit based on route
-    let rateLimitConfig = RATE_LIMITS.API
+    let rateLimitConfig: { limit: number; windowMs: number } = RATE_LIMITS.API
     if (pathname.startsWith('/api/auth/')) {
       rateLimitConfig = RATE_LIMITS.AUTH
     } else if (pathname.startsWith('/api/caregivers/search')) {

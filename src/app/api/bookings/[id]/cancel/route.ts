@@ -33,9 +33,7 @@ export async function POST(
       where: { id: params.id },
       include: {
         caregiver: {
-          include: {
-            user: { select: { name: true, email: true } }
-          }
+          select: { name: true, email: true }
         },
         owner: {
           select: { name: true, email: true }
