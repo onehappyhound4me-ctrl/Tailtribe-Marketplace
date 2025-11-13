@@ -3,7 +3,6 @@ import { db } from './db'
 
 const resend = new Resend(process.env.RESEND_API_KEY)
 const FROM_EMAIL = 'TailTribe <noreply@tailtribe.be>'
-const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'steven@tailtribe.be'
 
 export async function sendBookingRequestEmail(data: {
   caregiverEmail: string
@@ -12,11 +11,6 @@ export async function sendBookingRequestEmail(data: {
   serviceName: string
   date: string
   bookingId: string
-  petName?: string
-  petType?: string
-  petCharacter?: string
-  specialInstructions?: string
-  ownerPreferences?: any
 }) {
   try {
     await resend.emails.send({
@@ -32,22 +26,7 @@ export async function sendBookingRequestEmail(data: {
           <div style="background: #f3f4f6; padding: 20px; border-radius: 8px; margin: 20px 0;">
             <p><strong>Service:</strong> ${data.serviceName}</p>
             <p><strong>Datum:</strong> ${data.date}</p>
-            ${data.petName ? `<p><strong>Huisdier:</strong> ${data.petName} (${data.petType})</p>` : ''}
-            ${data.petCharacter ? `<p><strong>Karakter:</strong> ${data.petCharacter}</p>` : ''}
-            ${data.specialInstructions ? `<p><strong>Speciale instructies:</strong> ${data.specialInstructions}</p>` : ''}
           </div>
-          
-          ${data.ownerPreferences ? `
-          <div style="background: #e0f2fe; padding: 15px; border-radius: 8px; margin: 20px 0;">
-            <h3 style="color: #0277bd; margin-top: 0;">Wat is belangrijk voor ${data.ownerName}:</h3>
-            ${data.ownerPreferences.importantQualities ? `
-              <p><strong>Belangrijke kwaliteiten:</strong> ${data.ownerPreferences.importantQualities.join(', ')}</p>
-            ` : ''}
-            ${data.ownerPreferences.perfectExperience ? `
-              <p><strong>Perfecte ervaring:</strong> ${data.ownerPreferences.perfectExperience}</p>
-            ` : ''}
-          </div>
-          ` : ''}
           
           <p>Log in op je dashboard om deze boeking te accepteren of te weigeren.</p>
           
@@ -387,7 +366,7 @@ export async function notifyOwnersAboutNewCaregiver(data: {
 }
 
 /**
- * Notify admin about new caregiver profile pending approval
+ * Notify admin about new caregiver profile submission
  */
 export async function notifyAdminNewCaregiverProfile(data: {
   caregiverName: string
@@ -397,68 +376,38 @@ export async function notifyAdminNewCaregiverProfile(data: {
   profileId: string
 }) {
   try {
-    const serviceLabels: Record<string, string> = {
-      'DOG_WALKING': 'Hondenuitlaat',
-      'GROUP_DOG_WALKING': 'Groepsuitlaat',
-      'DOG_TRAINING': 'Hondentraining',
-      'PET_SITTING': 'Dierenoppas',
-      'PET_BOARDING': 'Dierenopvang',
-      'HOME_CARE': 'Verzorging aan huis',
-      'PET_TRANSPORT': 'Transport',
-      'SMALL_ANIMAL_CARE': 'Kleinvee verzorging',
-      'EVENT_COMPANION': 'Event begeleiding'
-    }
-
-    const serviceNames = data.services.map(s => serviceLabels[s] || s).join(', ')
-
+    // Get admin email from environment or use default
+    const adminEmail = process.env.ADMIN_EMAIL || 'admin@tailtribe.be'
+    
     await resend.emails.send({
       from: FROM_EMAIL,
-      to: ADMIN_EMAIL,
-      subject: `🆕 Nieuw Verzorger Profiel - ${data.caregiverName} (${data.city})`,
+      to: adminEmail,
+      subject: `Nieuw verzorger profiel ter goedkeuring: ${data.caregiverName}`,
       html: `
         <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
-          <div style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); padding: 20px; text-align: center; border-radius: 10px 10px 0 0;">
-            <h2 style="color: white; margin: 0;">🆕 Nieuw Verzorger Profiel Wacht op Goedkeuring</h2>
+          <h2 style="color: #10b981;">Nieuw Verzorger Profiel</h2>
+          <p>Er is een nieuw verzorger profiel aangemaakt dat goedkeuring nodig heeft.</p>
+          
+          <div style="background: #f3f4f6; padding: 20px; border-radius: 8px; margin: 20px 0;">
+            <p><strong>Naam:</strong> ${data.caregiverName}</p>
+            <p><strong>Email:</strong> ${data.caregiverEmail}</p>
+            <p><strong>Stad:</strong> ${data.city}</p>
+            <p><strong>Diensten:</strong> ${data.services.join(', ')}</p>
+            <p><strong>Profiel ID:</strong> ${data.profileId}</p>
           </div>
           
-          <div style="background: white; padding: 30px; border-radius: 0 0 10px 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
-            <div style="background: #fef3c7; padding: 15px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #f59e0b;">
-              <p style="margin: 0; color: #92400e; font-weight: bold;">⚠️ Actie vereist - Beoordeel profiel</p>
-            </div>
-
-            <div style="margin-bottom: 20px; padding: 15px; background: #f3f4f6; border-radius: 8px;">
-              <p style="margin: 0 0 10px 0; color: #374151;"><strong>Naam:</strong> ${data.caregiverName}</p>
-              <p style="margin: 0 0 10px 0; color: #374151;"><strong>Email:</strong> ${data.caregiverEmail}</p>
-              <p style="margin: 0 0 10px 0; color: #374151;"><strong>Locatie:</strong> ${data.city}</p>
-              <p style="margin: 0; color: #374151;"><strong>Diensten:</strong> ${serviceNames}</p>
-            </div>
-            
-            <div style="margin-top: 20px;">
-              <p style="color: #374151;">Een nieuwe verzorger heeft zich geregistreerd en wacht op goedkeuring.</p>
-              <p style="color: #374151;"><strong>Controleer:</strong></p>
-              <ul style="color: #374151; line-height: 1.8;">
-                <li>Profiel completeness</li>
-                <li>Bio & foto's</li>
-                <li>Certificaten (indien geüpload)</li>
-                <li>IBAN & gegevens</li>
-              </ul>
-            </div>
-            
-            <a href="${process.env.NEXT_PUBLIC_APP_URL}/admin/caregivers/${data.profileId}" 
-               style="display: inline-block; background: #f59e0b; color: white; padding: 14px 28px; text-decoration: none; border-radius: 6px; margin-top: 20px; font-weight: bold;">
-              Bekijk & Goedkeuren
-            </a>
-            
-            <p style="margin-top: 30px; color: #6b7280; font-size: 14px;">
-              Met vriendelijke groet,<br>
-              TailTribe Systeem
-            </p>
-          </div>
+          <a href="${process.env.NEXT_PUBLIC_APP_URL}/admin" 
+             style="display: inline-block; background: #10b981; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; margin-top: 10px;">
+            Bekijk in Admin Dashboard
+          </a>
+          
+          <p style="margin-top: 30px; color: #6b7280; font-size: 14px;">
+            Met vriendelijke groet,<br>
+            Het TailTribe Team
+          </p>
         </div>
       `
     })
-
-    console.log('✅ Admin notificatie verstuurd naar:', ADMIN_EMAIL)
   } catch (error) {
     console.error('Error sending admin notification:', error)
   }
