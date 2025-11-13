@@ -249,16 +249,7 @@ export default function SearchPage({ searchParams }: Props) {
                 })
                 // Always show map, even if empty (so users can see the map functionality)
                 return (
-                  <div 
-                    className="card-tt p-4 md:p-6"
-                    onClick={(e) => {
-                      // Only stop if clicking on the card itself, not the map
-                      const target = e.target as HTMLElement
-                      if (target.closest('.map-container')) {
-                        e.stopPropagation()
-                      }
-                    }}
-                  >
+                  <div className="card-tt p-4 md:p-6">
                     <h2 className="font-heading text-xl md:text-2xl font-semibold text-foreground mb-3 md:mb-4">
                       {withCoords.length > 0 
                         ? `Verzorgers op de kaart (${withCoords.length})`

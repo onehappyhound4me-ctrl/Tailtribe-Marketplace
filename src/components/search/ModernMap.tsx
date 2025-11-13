@@ -95,21 +95,11 @@ export function ModernMap({ caregivers, country = 'BE', onCaregiverSelect }: Mod
   const userMarkerRef = useRef<any>(null)
   const markersRef = useRef<any[]>([])
   const radiusCircleRef = useRef<any>(null)
-  const containerRef = useRef<HTMLDivElement>(null)
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null)
   const [radius, setRadius] = useState(10)
   const [showRadius, setShowRadius] = useState(true)
-  const [mapError, setMapError] = useState<string | null>(null)
   const [mapReady, setMapReady] = useState(false)
   
-  // Debug logging
-  console.log('🗺️ ModernMap received:', {
-    caregiverCount: caregivers?.length || 0,
-    country,
-    caregivers: caregivers?.map(c => ({ name: c.user?.name, lat: c.lat, lng: c.lng })),
-    hasCoordinates: caregivers?.some(c => c.lat && c.lng)
-  })
-
   // Helper: center on provided location and render marker/circle
   const centerOnLocation = (coords: { lat: number; lng: number }, opts: { fit?: boolean } = {}) => {
     const L = leafletRef.current
@@ -126,7 +116,7 @@ export function ModernMap({ caregivers, country = 'BE', onCaregiverSelect }: Mod
       radiusCircleRef.current = null
     }
 
-    // Avoid exact overlap with caregiver marker: if too close, nudge user marker slightly
+    // Avoid exact overlap with caregiver marker
     const tooCloseToCaregiver = (() => {
       const haversineKm = (a: {lat:number;lng:number}, b:{lat:number;lng:number}) => {
         const toRad = (x:number) => (x * Math.PI) / 180
@@ -138,33 +128,22 @@ export function ModernMap({ caregivers, country = 'BE', onCaregiverSelect }: Mod
         const h = Math.sin(dLat/2)**2 + Math.cos(lat1)*Math.cos(lat2)*Math.sin(dLon/2)**2
         return 2 * R * Math.asin(Math.sqrt(h))
       }
-      const nearest = markersRef.current.some((m) => {
+      return markersRef.current.some((m) => {
         const p = m.getLatLng()
-        return haversineKm(coords, { lat: p.lat, lng: p.lng }) < 0.2 // < 200m
+        return haversineKm(coords, { lat: p.lat, lng: p.lng }) < 0.2
       })
-      return nearest
     })()
 
     const adjusted = { ...coords }
     if (tooCloseToCaregiver) {
-      // Nudge ~500m north-east, keep within country bounds
-      const mapInstance = mapInstanceRef.current
-      if (mapInstance) {
-        const currentBounds = mapInstance.options.maxBounds
-        if (currentBounds) {
-          adjusted.lat = Math.min(adjusted.lat + 0.0045, currentBounds.getNorth())
-          adjusted.lng = Math.min(adjusted.lng + 0.0065, currentBounds.getEast())
-        } else {
-          adjusted.lat += 0.0045
-          adjusted.lng += 0.0065
-        }
-      }
+      adjusted.lat += 0.0045
+      adjusted.lng += 0.0065
     }
 
     userMarkerRef.current = L.marker([adjusted.lat, adjusted.lng], {
       icon: L.divIcon({
         className: 'user-marker',
-        html: `<div class=\"w-3.5 h-3.5 rounded-full bg-blue-600 border-2 border-white shadow-md\"></div>`,
+        html: `<div style="width: 14px; height: 14px; border-radius: 9999px; background: #2563eb; border: 2px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.3);"></div>`,
         iconSize: [14, 14],
         iconAnchor: [7, 7]
       }),
@@ -187,37 +166,18 @@ export function ModernMap({ caregivers, country = 'BE', onCaregiverSelect }: Mod
       if (opts.fit) {
         map.setView([adjusted.lat, adjusted.lng], Math.max(map.getZoom(), 9))
       } else {
-        // pan without changing zoom
         map.panTo([adjusted.lat, adjusted.lng])
       }
     }
-
-    // If still too close visually, nudge the viewport slightly so markers don't overlap under the circle center
-    try {
-      const near = markersRef.current.some((m) => {
-        const p = m.getLatLng()
-        const dx = Math.abs(p.lng - adjusted.lng)
-        const dy = Math.abs(p.lat - adjusted.lat)
-        return dx < 0.002 && dy < 0.002
-      })
-      if (near) {
-        setTimeout(() => {
-          map.panBy([0, 60], { animate: true })
-        }, 0)
-      }
-    } catch {}
   }
 
   useEffect(() => {
     let map: any
     let markers: any[] = []
-    let userMarker: any = null
-    let radiusCircle: any = null
 
-    // FORCE CLEANUP FIRST if map already exists
+    // Cleanup existing map
     if (mapInstanceRef.current) {
       try {
-        console.log('🧹 Cleaning up existing map...')
         mapInstanceRef.current.off()
         mapInstanceRef.current.remove()
         mapInstanceRef.current = null
@@ -229,7 +189,7 @@ export function ModernMap({ caregivers, country = 'BE', onCaregiverSelect }: Mod
       }
     }
 
-    // Clear the map container HTML
+    // Clear map container
     if (mapRef.current) {
       mapRef.current.innerHTML = ''
       const anyRef = mapRef.current as any
@@ -237,52 +197,24 @@ export function ModernMap({ caregivers, country = 'BE', onCaregiverSelect }: Mod
     }
 
     const mapRefElement = mapRef.current
-    const containerElement = containerRef.current
-    
-    if (!mapRefElement || !containerElement) return
+    if (!mapRefElement) return
 
     ensureLeafletLoaded().then(() => {
       const win = window as any
       if (!mapRefElement || !win.L) return
       
-      // Double check no map exists
       if (mapInstanceRef.current) {
-        console.log('⚠️ Map still exists, skipping init')
         return
       }
       
       const L = win.L
       leafletRef.current = L
       
-      // Determine bounds and center based on country
       const bounds = country === 'NL' ? NETHERLANDS_BOUNDS : BELGIUM_BOUNDS
-      const center = country === 'NL' ? [52.3676, 4.9041] : [50.8503, 4.3517] // Amsterdam or Brussels
+      const center = country === 'NL' ? [52.3676, 4.9041] : [50.8503, 4.3517]
       const countryBounds = L.latLngBounds(bounds[0], bounds[1])
       
-      console.log(`🗺️ Initializing map for: ${country}, center:`, center)
-      console.log(`🗺️ Caregivers to map:`, caregivers.length)
-      
-      // CRITICAL: Prevent ALL events from bubbling up to parent
-      // This must be done BEFORE creating the map
-      const stopAllEvents = (e: Event) => {
-        e.stopPropagation()
-        e.stopImmediatePropagation()
-        // Don't prevent default for map interactions, only stop bubbling
-      }
-      
-      // Add event listeners to container BEFORE map creation
-      containerElement.addEventListener('click', stopAllEvents, true)
-      containerElement.addEventListener('dblclick', stopAllEvents, true)
-      containerElement.addEventListener('wheel', stopAllEvents, true)
-      containerElement.addEventListener('touchstart', stopAllEvents, true)
-      containerElement.addEventListener('touchmove', stopAllEvents, true)
-      containerElement.addEventListener('touchend', stopAllEvents, true)
-      containerElement.addEventListener('mousedown', stopAllEvents, true)
-      containerElement.addEventListener('mouseup', stopAllEvents, true)
-      containerElement.addEventListener('mousemove', stopAllEvents, true)
-      containerElement.addEventListener('contextmenu', stopAllEvents, true)
-      
-      // Create map with country-specific focus
+      // Create map - NO event blocking here, let Leaflet handle everything
       map = L.map(mapRefElement, {
         center: center,
         zoom: 8,
@@ -297,42 +229,8 @@ export function ModernMap({ caregivers, country = 'BE', onCaregiverSelect }: Mod
         keyboard: true,
         dragging: true,
         touchZoom: true,
-        // CRITICAL: Prevent map from interfering with page scroll
         worldCopyJump: false,
       })
-      
-      // CRITICAL: Stop ALL map events from propagating
-      const stopMapEvents = (e: any) => {
-        if (e.originalEvent) {
-          e.originalEvent.stopPropagation()
-          e.originalEvent.stopImmediatePropagation()
-        }
-      }
-      
-      // Listen to ALL map events and stop propagation
-      map.on('zoomstart', stopMapEvents)
-      map.on('zoom', stopMapEvents)
-      map.on('zoomend', stopMapEvents)
-      map.on('movestart', stopMapEvents)
-      map.on('move', stopMapEvents)
-      map.on('moveend', stopMapEvents)
-      map.on('dragstart', stopMapEvents)
-      map.on('drag', stopMapEvents)
-      map.on('dragend', stopMapEvents)
-      map.on('click', stopMapEvents)
-      map.on('dblclick', stopMapEvents)
-      map.on('mousedown', stopMapEvents)
-      map.on('mouseup', stopMapEvents)
-      map.on('mousemove', stopMapEvents)
-      map.on('contextmenu', stopMapEvents)
-      
-      // Also prevent events on the map container element itself
-      mapRefElement.addEventListener('click', stopAllEvents, true)
-      mapRefElement.addEventListener('dblclick', stopAllEvents, true)
-      mapRefElement.addEventListener('wheel', stopAllEvents, true)
-      mapRefElement.addEventListener('touchstart', stopAllEvents, true)
-      mapRefElement.addEventListener('touchmove', stopAllEvents, true)
-      mapRefElement.addEventListener('touchend', stopAllEvents, true)
       
       mapInstanceRef.current = map
 
@@ -345,22 +243,17 @@ export function ModernMap({ caregivers, country = 'BE', onCaregiverSelect }: Mod
       // Add scale control
       L.control.scale({ imperial: false }).addTo(map)
       
-      // Mark map as ready
       setMapReady(true)
-      console.log('✅ Map initialized successfully')
 
       // Create caregiver markers
-      let firstMarkerLatLng: any = null
       caregivers.forEach((c) => {
         const city = (c.city || '').trim()
         let coords: [number, number] | undefined
-        // Prefer precise coordinates from backend if available
         if (typeof c.lat === 'number' && typeof c.lng === 'number') {
           coords = [c.lat, c.lng]
         } else if (cityToCoords[city]) {
           coords = cityToCoords[city]
         } else {
-          // Try common aliases
           const aliases: Record<string, string> = {
             'brussel stad': 'Brussel-Stad',
             'brussel-stad': 'Brussel-Stad',
@@ -377,15 +270,7 @@ export function ModernMap({ caregivers, country = 'BE', onCaregiverSelect }: Mod
         const marker = L.marker(coords as any, {
           icon: L.divIcon({
             className: 'caregiver-marker',
-            html: `<div style="
-              width: 16px;
-              height: 16px;
-              border-radius: 9999px;
-              background: hsl(var(--tt-primary));
-              border: 2px solid #ffffff;
-              box-shadow: 0 4px 10px rgba(0,0,0,0.25);
-              cursor: pointer;
-            "></div>`,
+            html: `<div style="width: 16px; height: 16px; border-radius: 9999px; background: hsl(var(--tt-primary)); border: 2px solid #ffffff; box-shadow: 0 4px 10px rgba(0,0,0,0.25); cursor: pointer;"></div>`,
             iconSize: [20, 20],
             iconAnchor: [10, 10]
           })
@@ -407,16 +292,13 @@ export function ModernMap({ caregivers, country = 'BE', onCaregiverSelect }: Mod
         
         marker.bindPopup(popupContent)
         
-        // Add click listener to popup button
         marker.on('popupopen', () => {
           const popup = marker.getPopup()
           if (popup) {
             const popupElement = popup.getElement()
             const button = popupElement?.querySelector('[data-caregiver-id]')
             if (button) {
-              button.addEventListener('click', (e) => {
-                e.stopPropagation()
-                e.stopImmediatePropagation()
+              button.addEventListener('click', () => {
                 if (onCaregiverSelect) {
                   onCaregiverSelect(c)
                 }
@@ -425,48 +307,31 @@ export function ModernMap({ caregivers, country = 'BE', onCaregiverSelect }: Mod
           }
         })
         
-        marker.on('click', (e) => {
-          if (e.originalEvent) {
-            e.originalEvent.stopPropagation()
-            e.originalEvent.stopImmediatePropagation()
-          }
+        marker.on('click', () => {
           onCaregiverSelect?.(c)
         })
         
         markers.push(marker)
-        if (!firstMarkerLatLng) firstMarkerLatLng = marker.getLatLng()
       })
 
-      // store markers for later radius updates
       markersRef.current = markers
 
-        // ALWAYS focus on selected country first
-        console.log(`🗺️ Fitting map to ${country} bounds, markers: ${markers.length}`)
-        
-        if (markers.length > 0) {
-          // Check if markers are in current country bounds
-          const group = L.featureGroup(markers)
-          const markersBounds = group.getBounds()
-          
-          if (countryBounds.intersects(markersBounds)) {
-            // Markers are in this country - zoom to them
-            map.fitBounds(markersBounds.pad(0.2))
-            console.log(`✅ Zooming to ${markers.length} markers in ${country}`)
-          } else {
-            // Markers outside country - just show country
-            map.fitBounds(countryBounds)
-            console.log(`⚠️ Markers outside ${country}, showing country bounds`)
-          }
+      // Fit map to markers or country
+      if (markers.length > 0) {
+        const group = L.featureGroup(markers)
+        const markersBounds = group.getBounds()
+        if (countryBounds.intersects(markersBounds)) {
+          map.fitBounds(markersBounds.pad(0.2))
         } else {
-          // No markers - ALWAYS show country center
-          console.log(`ℹ️ No markers, showing ${country} center:`, center)
-          map.setView(center as [number, number], 8)
+          map.fitBounds(countryBounds)
         }
+      } else {
+        map.setView(center as [number, number], 8)
+      }
     })
 
     return () => {
       try {
-        console.log('🧹 Cleanup effect running...')
         const cleanupMap = mapInstanceRef.current
         if (cleanupMap) {
           cleanupMap.off()
@@ -477,8 +342,6 @@ export function ModernMap({ caregivers, country = 'BE', onCaregiverSelect }: Mod
           const anyRef = mapRefElement as any
           delete anyRef._leaflet_id
         }
-        // Note: Event listeners are automatically cleaned up when element is removed
-        // No need to manually remove them
         mapInstanceRef.current = null
         markersRef.current = []
         setMapReady(false)
@@ -488,63 +351,44 @@ export function ModernMap({ caregivers, country = 'BE', onCaregiverSelect }: Mod
     }
   }, [caregivers, country, onCaregiverSelect])
 
-  // Update radius visuals and marker dimming when userLocation/radius/toggle changes
+  // Update user location marker and radius
   useEffect(() => {
     const L = leafletRef.current
     const map = mapInstanceRef.current
-    if (!L || !map) return
-    if (!userLocation) return
+    if (!L || !map || !userLocation) return
 
-    // ensure user marker exists
     if (!userMarkerRef.current) {
-      try {
-        userMarkerRef.current = L.marker([userLocation.lat, userLocation.lng], {
-          icon: L.divIcon({
-            className: 'user-marker',
-            html: `<div class=\"w-3.5 h-3.5 rounded-full bg-blue-600 border-2 border-white shadow-md\"></div>`,
-            iconSize: [14, 14],
-            iconAnchor: [7, 7]
-          })
-        }).addTo(map)
-      } catch (e) {
-        console.error('Error adding user marker:', e)
-        return
-      }
+      userMarkerRef.current = L.marker([userLocation.lat, userLocation.lng], {
+        icon: L.divIcon({
+          className: 'user-marker',
+          html: `<div style="width: 14px; height: 14px; border-radius: 9999px; background: #2563eb; border: 2px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.3);"></div>`,
+          iconSize: [14, 14],
+          iconAnchor: [7, 7]
+        })
+      }).addTo(map)
     } else {
       userMarkerRef.current.setLatLng([userLocation.lat, userLocation.lng])
     }
 
-    // circle handling
     if (showRadius) {
       if (!radiusCircleRef.current) {
-        try {
-          radiusCircleRef.current = L.circle([userLocation.lat, userLocation.lng], {
-            radius: radius * 1000,
-            color: '#2563eb',
-            weight: 2,
-            fillColor: '#93c5fd',
-            fillOpacity: 0.18
-          }).addTo(map)
-        } catch (e) {
-          console.error('Error adding radius circle:', e)
-          return
-        }
+        radiusCircleRef.current = L.circle([userLocation.lat, userLocation.lng], {
+          radius: radius * 1000,
+          color: '#2563eb',
+          weight: 2,
+          fillColor: '#93c5fd',
+          fillOpacity: 0.18
+        }).addTo(map)
       } else {
         radiusCircleRef.current.setLatLng([userLocation.lat, userLocation.lng])
         radiusCircleRef.current.setRadius(radius * 1000)
       }
-
-      // keep view approximately within circle without leaving Belgium bounds
-      try {
-        const circleBounds = radiusCircleRef.current.getBounds().pad(0.1)
-        map.fitBounds(circleBounds, { animate: false })
-      } catch {}
     } else if (radiusCircleRef.current) {
       map.removeLayer(radiusCircleRef.current)
       radiusCircleRef.current = null
     }
 
-    // dim markers outside radius
+    // Dim markers outside radius
     const haversineKm = (a: {lat:number;lng:number}, b:{lat:number;lng:number}) => {
       const toRad = (x:number) => (x * Math.PI) / 180
       const R = 6371
@@ -569,14 +413,17 @@ export function ModernMap({ caregivers, country = 'BE', onCaregiverSelect }: Mod
     })
   }, [userLocation, radius, showRadius])
 
-  // Request browser geolocation and center, respecting Belgium bounds
+  // Request browser geolocation
   const handleLocateMe = (e: React.MouseEvent) => {
     e.stopPropagation()
     e.preventDefault()
-    if (!navigator.geolocation) return
+    if (!navigator.geolocation) {
+      alert('Geolocatie wordt niet ondersteund door je browser')
+      return
+    }
     const L = leafletRef.current
     if (!L) return
-    const belgiumBounds = L.latLngBounds(BELGIUM_BOUNDS[0], BELGIUM_BOUNDS[1])
+    
     navigator.geolocation.getCurrentPosition(
       (pos) => {
         const lat = pos.coords.latitude
@@ -586,67 +433,17 @@ export function ModernMap({ caregivers, country = 'BE', onCaregiverSelect }: Mod
         setUserLocation(coords)
         centerOnLocation(coords, { fit: true })
       },
-      () => {
-        const coords = { lat: 50.8503, lng: 4.3517 }
-        setUserLocation(coords)
-        centerOnLocation(coords, { fit: true })
+      (error) => {
+        console.error('Geolocation error:', error)
+        alert('Kon je locatie niet bepalen. Controleer je browser instellingen.')
       },
       { enableHighAccuracy: true, timeout: 8000, maximumAge: 300000 }
     )
   }
 
   return (
-    <div 
-      ref={containerRef}
-      className="relative w-full"
-      onClick={(e) => {
-        e.stopPropagation()
-        if (e.nativeEvent) {
-          (e.nativeEvent as any).stopImmediatePropagation()
-        }
-      }}
-      onWheel={(e) => {
-        e.stopPropagation()
-        if (e.nativeEvent) {
-          (e.nativeEvent as any).stopImmediatePropagation()
-        }
-      }}
-      onTouchStart={(e) => {
-        e.stopPropagation()
-        if (e.nativeEvent) {
-          (e.nativeEvent as any).stopImmediatePropagation()
-        }
-      }}
-      onTouchMove={(e) => {
-        e.stopPropagation()
-        if (e.nativeEvent) {
-          (e.nativeEvent as any).stopImmediatePropagation()
-        }
-      }}
-      onTouchEnd={(e) => {
-        e.stopPropagation()
-        if (e.nativeEvent) {
-          (e.nativeEvent as any).stopImmediatePropagation()
-        }
-      }}
-      onMouseDown={(e) => {
-        e.stopPropagation()
-        if (e.nativeEvent) {
-          (e.nativeEvent as any).stopImmediatePropagation()
-        }
-      }}
-      onMouseUp={(e) => {
-        e.stopPropagation()
-        if (e.nativeEvent) {
-          (e.nativeEvent as any).stopImmediatePropagation()
-        }
-      }}
-      style={{ 
-        touchAction: 'none',
-        isolation: 'isolate' // CSS isolation to prevent event bubbling
-      }}
-    >
-      {/* Controls: Mijn locatie + Radius - RESPONSIVE voor mobile */}
+    <div className="relative w-full">
+      {/* Controls */}
       <div className="absolute top-2 right-2 md:top-4 md:right-4 z-[1000]">
         <div className="card-tt p-2 md:p-3 flex flex-col sm:flex-row items-start sm:items-center gap-2 md:gap-3 bg-white/95 backdrop-blur-sm shadow-lg rounded-lg">
           <button
@@ -693,54 +490,18 @@ export function ModernMap({ caregivers, country = 'BE', onCaregiverSelect }: Mod
         </div>
       </div>
 
-      {/* Map Container - FULLY ISOLATED */}
+      {/* Map Container - Only prevent navigation, not map interactions */}
       <div 
         className="map-container h-[400px] md:h-[500px] bg-gray-100 rounded-lg relative overflow-hidden w-full"
-        onClick={(e) => {
-          e.stopPropagation()
-          if (e.nativeEvent) {
-            (e.nativeEvent as any).stopImmediatePropagation()
-          }
-        }}
-        onWheel={(e) => {
-          e.stopPropagation()
-          if (e.nativeEvent) {
-            (e.nativeEvent as any).stopImmediatePropagation()
-          }
-        }}
-        onTouchStart={(e) => {
-          e.stopPropagation()
-          if (e.nativeEvent) {
-            (e.nativeEvent as any).stopImmediatePropagation()
-          }
-        }}
-        onTouchMove={(e) => {
-          e.stopPropagation()
-          if (e.nativeEvent) {
-            (e.nativeEvent as any).stopImmediatePropagation()
-          }
-        }}
-        onTouchEnd={(e) => {
-          e.stopPropagation()
-          if (e.nativeEvent) {
-            (e.nativeEvent as any).stopImmediatePropagation()
-          }
-        }}
         onMouseDown={(e) => {
-          e.stopPropagation()
-          if (e.nativeEvent) {
-            (e.nativeEvent as any).stopImmediatePropagation()
-          }
-        }}
-        onMouseUp={(e) => {
-          e.stopPropagation()
-          if (e.nativeEvent) {
-            (e.nativeEvent as any).stopImmediatePropagation()
+          // Only stop if clicking outside map area (on container background)
+          const target = e.target as HTMLElement
+          if (target === e.currentTarget || target.classList.contains('map-container')) {
+            e.stopPropagation()
           }
         }}
         style={{ 
-          touchAction: 'none',
-          isolation: 'isolate',
+          touchAction: 'pan-y pinch-zoom', // Allow vertical scroll and pinch zoom
           position: 'relative',
           zIndex: 1
         }}
@@ -749,15 +510,8 @@ export function ModernMap({ caregivers, country = 'BE', onCaregiverSelect }: Mod
           ref={mapRef} 
           className="w-full h-full" 
           key={`map-${country}-${caregivers.length}`}
-          onClick={(e) => {
-            e.stopPropagation()
-            if (e.nativeEvent) {
-              (e.nativeEvent as any).stopImmediatePropagation()
-            }
-          }}
-          style={{ touchAction: 'none' }}
+          style={{ touchAction: 'none' }} // Leaflet handles its own touch
         />
-        {/* Loading overlay - shows until map is initialized */}
         {!mapReady && (
           <div className="absolute inset-0 flex items-center justify-center bg-gray-100 z-50">
             <div className="text-center">
