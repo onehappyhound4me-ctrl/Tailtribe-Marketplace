@@ -3,6 +3,7 @@ export const revalidate = 0
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 import { calculateDistance } from '@/lib/distance'
+import { cache, getSearchCacheKey } from '@/lib/cache'
 
 export async function GET(request: NextRequest) {
   try {
@@ -17,6 +18,14 @@ export async function GET(request: NextRequest) {
     const userLng = searchParams.get('userLng') ? parseFloat(searchParams.get('userLng')!) : undefined
     
     console.log('🔍 API Search params:', { country, city, service, minRate, maxRate, userLat, userLng })
+
+    // Check cache first (30 second TTL for search results)
+    const cacheKey = getSearchCacheKey({ city, service, country, minRate, maxRate, userLat, userLng })
+    const cached = cache.get<any>(cacheKey)
+    if (cached) {
+      console.log('✅ Returning cached search results')
+      return NextResponse.json(cached)
+    }
 
     // Build where clause - Filter out test users
     const where: any = {
