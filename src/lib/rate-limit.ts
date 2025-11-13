@@ -94,6 +94,7 @@ export async function rateLimit(
       remaining: config.maxRequests - 1,
       resetTime: now.getTime() + config.windowMs
     }
+
   }
 }
 
@@ -112,7 +113,8 @@ export function getClientIP(request: Request): string {
   return 'unknown'
 }
 
-export async function checkRateLimit(
+// Legacy checkRateLimit function (kept for backward compatibility)
+export async function checkRateLimitLegacy(
   request: Request,
   type: keyof typeof DEFAULT_CONFIGS,
   userId?: string
@@ -144,6 +146,91 @@ export async function cleanupRateLimits(): Promise<void> {
     })
   } catch (error) {
     console.error('Error cleaning up rate limits:', error)
+  }
+}
+
+// Export helper function for generating rate limit keys
+export function getRateLimitKey(ip: string, pathname: string): string {
+  return `rate-limit:${ip}:${pathname}`
+}
+
+// Export rate limit configurations
+export const RATE_LIMITS = {
+  API: { limit: 100, windowMs: 15 * 60 * 1000 }, // 100 requests per 15 minutes
+  AUTH: { limit: 20, windowMs: 15 * 60 * 1000 }, // 20 requests per 15 minutes
+  SEARCH: { limit: 50, windowMs: 60 * 1000 }, // 50 requests per minute
+  BOOKING: { limit: 10, windowMs: 60 * 1000 }, // 10 requests per minute
+  PAYMENT: { limit: 5, windowMs: 60 * 1000 }, // 5 requests per minute
+} as const
+
+// Export checkRateLimit function with correct signature
+export async function checkRateLimit(params: {
+  identifier: string
+  limit: number
+  windowMs: number
+}): Promise<{ allowed: boolean; resetTime: Date }> {
+  const now = new Date()
+  const windowStart = new Date(now.getTime() - params.windowMs)
+
+  try {
+    let rateLimitRecord = await db.rateLimit.findUnique({
+      where: { key: params.identifier }
+    })
+
+    if (!rateLimitRecord) {
+      rateLimitRecord = await db.rateLimit.create({
+        data: {
+          key: params.identifier,
+          tokens: 1,
+          lastRefill: now,
+        }
+      })
+      return {
+        allowed: true,
+        resetTime: new Date(now.getTime() + params.windowMs)
+      }
+    }
+
+    if (rateLimitRecord.lastRefill < windowStart) {
+      rateLimitRecord = await db.rateLimit.update({
+        where: { key: params.identifier },
+        data: {
+          tokens: 1,
+          lastRefill: now,
+        }
+      })
+      return {
+        allowed: true,
+        resetTime: new Date(now.getTime() + params.windowMs)
+      }
+    }
+
+    if (rateLimitRecord.tokens >= params.limit) {
+      const resetTime = rateLimitRecord.lastRefill.getTime() + params.windowMs
+      return {
+        allowed: false,
+        resetTime: new Date(resetTime)
+      }
+    }
+
+    rateLimitRecord = await db.rateLimit.update({
+      where: { key: params.identifier },
+      data: {
+        tokens: rateLimitRecord.tokens + 1,
+      }
+    })
+
+    const resetTime = rateLimitRecord.lastRefill.getTime() + params.windowMs
+    return {
+      allowed: true,
+      resetTime: new Date(resetTime)
+    }
+  } catch (error) {
+    console.error('Rate limiting error:', error)
+    return {
+      allowed: true,
+      resetTime: new Date(now.getTime() + params.windowMs)
+    }
   }
 }
 

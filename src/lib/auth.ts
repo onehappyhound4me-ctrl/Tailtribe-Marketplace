@@ -205,6 +205,8 @@ export const authOptions: NextAuthOptions = {
           
           // If user doesn't exist or has no role, set default role
           if (!existingUser || !existingUser.role) {
+            // Type assertion for Google profile
+            const googleProfile = profile as any
             const updatedUser = await db.user.upsert({
               where: { email: user.email },
               update: {
@@ -212,8 +214,8 @@ export const authOptions: NextAuthOptions = {
               },
               create: {
                 email: user.email,
-                name: user.name || profile?.name || null,
-                image: user.image || profile?.picture || null,
+                name: user.name || googleProfile?.name || null,
+                image: user.image || googleProfile?.picture || null,
                 role: 'OWNER', // Default role for new Google users
                 emailVerified: new Date()
               }
@@ -288,4 +290,3 @@ declare module "next-auth/jwt" {
 
 // Helper function to get current session
 export const auth = () => getServerSession(authOptions)
-
