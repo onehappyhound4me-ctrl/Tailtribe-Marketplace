@@ -88,3 +88,40 @@ export function getSearchCacheKey(params: {
   ]
   return parts.join(':')
 }
+
+/**
+ * Cache TTL constants
+ */
+export const CacheTTL = {
+  SHORT: 30 * 1000,    // 30 seconds
+  MEDIUM: 5 * 60 * 1000,  // 5 minutes
+  LONG: 15 * 60 * 1000,   // 15 minutes
+} as const
+
+/**
+ * Cache key generators
+ */
+export const CacheKeys = {
+  caregiversList: (filters: string) => `caregivers:list:${filters}`,
+  caregiverProfile: (id: string) => `caregiver:profile:${id}`,
+  userBookings: (userId: string, role: string) => `bookings:${role}:${userId}`,
+} as const
+
+/**
+ * Get cached value or compute and cache
+ */
+export async function getCached<T>(
+  key: string,
+  fn: () => Promise<T>,
+  options?: { ttl?: number }
+): Promise<T> {
+  const cached = cache.get<T>(key)
+  if (cached !== null) {
+    return cached
+  }
+
+  const data = await fn()
+  const ttl = options?.ttl || CacheTTL.MEDIUM
+  cache.set(key, data, ttl)
+  return data
+}
