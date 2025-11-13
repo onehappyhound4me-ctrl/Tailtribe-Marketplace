@@ -3,7 +3,9 @@
 **Datum:** _______________  
 **Tester:** _______________  
 **Browser:** _______________  
-**Omgeving:** Production (tailtribe.be)
+**Omgeving:** Production (tailtribe.be) - **SITE STAAT AL LIVE**
+
+> **⚠️ BELANGRIJK:** Deze checklist is voor **verificatie** van de live site. De site draait al op `tailtribe.be`, maar we moeten verifiëren dat alles correct werkt voordat we volledig live gaan met marketing/promotie.
 
 ---
 
@@ -395,9 +397,9 @@ _________________________________________________
 
 ---
 
-## ✅ **GO-LIVE CHECKLIST**
+## ✅ **VERIFICATIE CHECKLIST**
 
-Voor je live gaat, verifieer:
+**SITE STAAT AL LIVE OP tailtribe.be** - Verifieer dat alles werkt:
 
 - [ ] Alle kritieke flows werken (Test 1-4)
 - [ ] UI/UX is correct (Test 5)
@@ -409,14 +411,20 @@ Voor je live gaat, verifieer:
 - [ ] Environment variables zijn correct ingesteld
 - [ ] SSL certificaat is actief
 - [ ] Domain is correct geconfigureerd
+- [ ] Geen deployment errors meer
+- [ ] Alle emails worden verstuurd
 
 ---
 
-## 🚀 **READY TO LAUNCH?**
+## 🚀 **READY FOR FULL LAUNCH?**
 
-**Datum:** _______________  
-**Go-Live Approved By:** _______________  
+**Status:** Site draait al live, maar deze checklist verifieert dat alles werkt voordat we volledig gaan promoten.
+
+**Datum Verificatie:** _______________  
+**Verificatie Approved By:** _______________  
 **Signature:** _______________
+
+**Volgende Stap:** Na verificatie kunnen we volledig live gaan met marketing/promotie.
 
 ---
 
