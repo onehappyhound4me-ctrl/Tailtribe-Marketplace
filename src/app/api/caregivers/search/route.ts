@@ -167,10 +167,15 @@ export async function GET(request: NextRequest) {
 
     console.log(`✅ Found ${results.length} caregivers`)
     
-    return NextResponse.json({
+    const response = {
       caregivers: results,
       total: results.length
-    })
+    }
+    
+    // Cache the response for 30 seconds
+    cache.set(cacheKey, response, 30 * 1000)
+    
+    return NextResponse.json(response)
 
   } catch (error) {
     console.error('Search error:', error)
