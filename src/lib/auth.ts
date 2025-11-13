@@ -85,9 +85,7 @@ export const authOptions: NextAuthOptions = {
           response_type: "code",
           redirect_uri: 'https://tailtribe.be/api/auth/callback/google'
         }
-      },
-      // Explicitly set redirect URI to match Google Cloud Console (exact match required)
-      redirectUri: 'https://tailtribe.be/api/auth/callback/google'
+      }
     }),
     // EmailProvider disabled - causes build errors with nodemailer fs dependency
     // EmailProvider({
