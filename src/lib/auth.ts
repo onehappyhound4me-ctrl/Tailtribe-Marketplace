@@ -180,24 +180,49 @@ export const authOptions: NextAuthOptions = {
       return session
     },
     async signIn({ user, account, profile }) {
-      // For Google OAuth, only allow login if user already exists in database
-      if (account?.provider === 'google' && user.email) {
+      // For Google OAuth, allow login if user already exists (account linking)
+      if (account?.provider === 'google' && user.email && account.providerAccountId) {
         try {
           const existingUser = await db.user.findUnique({
-            where: { email: user.email }
+            where: { email: user.email },
+            include: {
+              accounts: {
+                where: { provider: 'google' }
+              }
+            }
           })
           
-          console.log('[AUTH] Google signIn - existingUser:', existingUser?.id, existingUser?.role, 'email:', user.email)
+          console.log('[AUTH] Google signIn - existingUser:', existingUser?.id, existingUser?.role, 'email:', user.email, 'hasGoogleAccount:', existingUser?.accounts?.length > 0)
           
           // Block login if user doesn't exist - they must register first
           if (!existingUser) {
             console.log('[AUTH] Google signIn - user not found, blocking login for:', user.email)
-            // Return false to trigger AccessDenied error
             return false
           }
           
-          // Allow login if user exists
-          console.log('[AUTH] Google signIn - user found, allowing login')
+          // If user exists but doesn't have Google account linked, link it now
+          if (existingUser && existingUser.accounts.length === 0) {
+            console.log('[AUTH] Google signIn - linking Google account to existing user:', existingUser.id)
+            await db.account.create({
+              data: {
+                userId: existingUser.id,
+                type: account.type,
+                provider: account.provider,
+                providerAccountId: account.providerAccountId,
+                refresh_token: account.refresh_token,
+                access_token: account.access_token,
+                expires_at: account.expires_at,
+                token_type: account.token_type,
+                scope: account.scope,
+                id_token: account.id_token,
+                session_state: account.session_state,
+              }
+            })
+            console.log('[AUTH] Google signIn - account linked successfully')
+          }
+          
+          // Allow login - user exists and account is now linked
+          console.log('[AUTH] Google signIn - allowing login for existing user')
           return true
         } catch (error: any) {
           console.error('[AUTH] Error in signIn callback:', error)
