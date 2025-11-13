@@ -11,6 +11,7 @@ import { Button } from '@/components/ui/button'
 import { SearchFilters } from '@/components/search/SearchFilters'
 import { ModernMap } from '@/components/search/ModernMap'
 import { CaregiverCard } from '@/components/search/CaregiverCard'
+import { SkeletonGrid } from '@/components/loading/SkeletonCard'
 import { serviceLabels } from '@/lib/types'
 
 interface SearchParams {
@@ -73,6 +74,7 @@ export default function SearchPage({ searchParams }: Props) {
   const [caregivers, setCaregivers] = useState<any[]>([])
   const [selectedCaregiver, setSelectedCaregiver] = useState<any>(null)
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
   const clientSearchParams = useSearchParams()
   const router = useRouter()
   const { data: session, status } = useSession()
@@ -101,11 +103,20 @@ export default function SearchPage({ searchParams }: Props) {
   // Load caregivers on mount and when filters change
   useEffect(() => {
     let mounted = true
+    setIsLoading(true)
     getCaregivers(
       { city: liveCity, service: liveService, maxRate: liveMaxRate },
       userLocation || undefined
     ).then((data) => {
-      if (mounted) setCaregivers(data)
+      if (mounted) {
+        setCaregivers(data)
+        setIsLoading(false)
+      }
+    }).catch((error) => {
+      console.error('Error loading caregivers:', error)
+      if (mounted) {
+        setIsLoading(false)
+      }
     })
     return () => {
       mounted = false
@@ -215,7 +226,11 @@ export default function SearchPage({ searchParams }: Props) {
           </div>
 
           {/* Results */}
-          {caregivers.length > 0 ? (
+          {isLoading ? (
+            <div className="space-y-8">
+              <SkeletonGrid count={6} />
+            </div>
+          ) : caregivers.length > 0 ? (
             <div className="space-y-8">
               {/* Modern Map Section - Only show if we have caregivers with valid coordinates */}
               {(() => {

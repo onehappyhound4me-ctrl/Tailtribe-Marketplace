@@ -11,6 +11,7 @@ import { CountryDetectionPopup } from '@/components/common/CountryDetectionPopup
 import { FooterCountrySwitcher } from '@/components/common/FooterCountrySwitcher'
 import { DynamicFooterLinks } from '@/components/navigation/DynamicFooter'
 import { VercelAnalytics } from '@/components/analytics/VercelAnalytics'
+import { ErrorBoundary } from '@/components/error-boundary/ErrorBoundary'
 import './globals.css'
 // cache-bust: 2025-11-11
 
@@ -103,12 +104,13 @@ export default function RootLayout({
       <body className="h-full antialiased font-sans overflow-x-hidden">
         <Providers>
           <NavProvider>
-            <SiteHeader />
-            <MobileMenu />
-            <div className="min-h-full flex flex-col">
-              <main className="flex-1">
-                {children}
-              </main>
+            <ErrorBoundary>
+              <SiteHeader />
+              <MobileMenu />
+              <div className="min-h-full flex flex-col">
+                <main className="flex-1">
+                  {children}
+                </main>
               
               <footer className="bg-gradient-to-br from-slate-800 via-slate-900 to-gray-900 text-slate-100 border-t border-slate-700">
                 <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-4 md:py-6">
@@ -161,6 +163,7 @@ export default function RootLayout({
             <CookieConsent />
             <CountryDetectionPopup />
             <VercelAnalytics />
+            </ErrorBoundary>
           </NavProvider>
         </Providers>
       </body>
