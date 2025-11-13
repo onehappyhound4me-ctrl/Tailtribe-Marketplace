@@ -25,8 +25,10 @@
     "test": "vitest run",
     "test:ui": "vitest --ui",
     "test:e2e": "playwright test",
-    "test:flows": "tsx tests/test-all-flows.ts",
-    "verify": "tsx tests/test-all-flows.ts",
+    "test:flows": "tsx tests/test-critical-flows.ts",
+    "test:api": "tsx tests/test-api-flows.ts",
+    "test:all": "tsx tests/test-critical-flows.ts && tsx tests/test-api-flows.ts",
+    "verify": "tsx tests/test-critical-flows.ts",
     "postbuild": "prisma generate"
   },
   "dependencies": {
