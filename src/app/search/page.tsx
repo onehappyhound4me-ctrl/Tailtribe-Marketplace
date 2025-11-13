@@ -232,7 +232,7 @@ export default function SearchPage({ searchParams }: Props) {
             </div>
           ) : caregivers.length > 0 ? (
             <div className="space-y-8">
-              {/* Modern Map Section - Only show if we have caregivers with valid coordinates */}
+              {/* Modern Map Section - Always show map, even without caregivers */}
               {(() => {
                 const withCoords = caregivers.filter((c: any) => c.lat && c.lng)
                 console.log('🗺️ Kaart check:', {
@@ -240,18 +240,49 @@ export default function SearchPage({ searchParams }: Props) {
                   withCoords: withCoords.length,
                   firstCaregiver: caregivers[0] ? { name: caregivers[0].name, lat: caregivers[0].lat, lng: caregivers[0].lng } : null
                 })
-                return withCoords.length > 0 ? (
+                // Always show map, even if empty (so users can see the map functionality)
+                return (
                   <div className="card-tt p-6">
                     <h2 className="font-heading text-2xl font-semibold text-foreground mb-4">
-                      Verzorgers op de kaart ({withCoords.length})
+                      {withCoords.length > 0 
+                        ? `Verzorgers op de kaart (${withCoords.length})`
+                        : 'Zoek verzorgers op de kaart'
+                      }
                     </h2>
-                    <ModernMap 
-                      caregivers={withCoords as any}
-                      country="BE"
-                      onCaregiverSelect={handleCaregiverSelect}
-                    />
+                    {withCoords.length > 0 ? (
+                      <ModernMap 
+                        caregivers={withCoords as any}
+                        country="BE"
+                        onCaregiverSelect={handleCaregiverSelect}
+                      />
+                    ) : (
+                      <div className="relative">
+                        <ModernMap 
+                          caregivers={[]}
+                          country="BE"
+                          onCaregiverSelect={handleCaregiverSelect}
+                        />
+                        <div className="absolute inset-0 flex items-center justify-center bg-white/80 z-10 rounded-lg">
+                          <div className="text-center p-6">
+                            <div className="text-4xl mb-4">🗺️</div>
+                            <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                              Nog geen verzorgers op de kaart
+                            </h3>
+                            <p className="text-sm text-gray-600 mb-4">
+                              Word verzorger en verschijn hier op de kaart!
+                            </p>
+                            <Link 
+                              href="/auth/register" 
+                              className="inline-block px-6 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors"
+                            >
+                              Word verzorger
+                            </Link>
+                          </div>
+                        </div>
+                      </div>
+                    )}
                   </div>
-                ) : null
+                )
               })()}
 
               {/* Caregiver Cards Section */}
