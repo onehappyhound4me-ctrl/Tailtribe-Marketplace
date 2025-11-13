@@ -36,28 +36,6 @@ export async function GET(req: NextRequest) {
       where: { 
         id: { in: caregiverIds },
         isApproved: true,
-        user: {
-          AND: [
-            {
-              OR: [
-                { email: { not: { contains: 'test', mode: 'insensitive' } } },
-                { email: null }
-              ]
-            },
-            {
-              OR: [
-                { email: { not: { contains: 'example.com', mode: 'insensitive' } } },
-                { email: null }
-              ]
-            },
-            {
-              OR: [
-                { name: { not: { contains: 'test', mode: 'insensitive' } } },
-                { name: null }
-              ]
-            },
-          ],
-        },
       },
       include: {
         user: {
@@ -66,7 +44,7 @@ export async function GET(req: NextRequest) {
       }
     })
     
-    // Additional client-side filtering
+    // Client-side filtering to exclude test users
     const filteredCaregivers = caregivers.filter(caregiver => {
       const email = caregiver.user.email?.toLowerCase() || ''
       const name = caregiver.user.name?.toLowerCase() || ''
