@@ -47,19 +47,40 @@ export async function GET(request: NextRequest) {
     }
 
     // Add user filters to exclude test users (case-insensitive)
+    // Filter out: test, example.com, demo, fake, temp emails
     where.user = {
-      email: {
-        not: {
-          contains: 'test',
-          mode: 'insensitive',
+      AND: [
+        {
+          OR: [
+            { email: { not: { contains: 'test', mode: 'insensitive' } } },
+            { email: null }
+          ]
         },
-      },
-      name: {
-        not: {
-          contains: 'test',
-          mode: 'insensitive',
+        {
+          OR: [
+            { email: { not: { contains: 'example.com', mode: 'insensitive' } } },
+            { email: null }
+          ]
         },
-      },
+        {
+          OR: [
+            { email: { not: { contains: 'demo', mode: 'insensitive' } } },
+            { email: null }
+          ]
+        },
+        {
+          OR: [
+            { name: { not: { contains: 'test', mode: 'insensitive' } } },
+            { name: null }
+          ]
+        },
+        {
+          OR: [
+            { name: { not: { contains: 'demo', mode: 'insensitive' } } },
+            { name: null }
+          ]
+        },
+      ],
     }
 
     // Get caregivers with user data - Filter out test users
@@ -103,10 +124,12 @@ export async function GET(request: NextRequest) {
     })
 
     // Additional client-side filtering to be extra safe
+    // Filter out test patterns: test, example.com, demo, fake, temp
     const filteredCaregivers = caregivers.filter(caregiver => {
       const email = caregiver.user.email?.toLowerCase() || ''
       const name = caregiver.user.name?.toLowerCase() || ''
-      return !email.includes('test') && !name.includes('test')
+      const testPatterns = ['test', 'example.com', 'demo', 'fake', 'temp', 'sample']
+      return !testPatterns.some(pattern => email.includes(pattern) || name.includes(pattern))
     })
 
     // Calculate average rating and distance for each caregiver
