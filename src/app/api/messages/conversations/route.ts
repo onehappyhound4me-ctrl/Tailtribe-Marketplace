@@ -57,6 +57,29 @@ export async function GET(request: NextRequest) {
       }
     })
 
+    // Get unread message counts for all bookings
+    const unreadMessages = await db.message.findMany({
+      where: {
+        booking: {
+          OR: [
+            { ownerId: session.user.id },
+            { caregiverId: session.user.id }
+          ]
+        },
+        senderId: { not: session.user.id },
+        readAt: null
+      },
+      select: {
+        bookingId: true
+      }
+    })
+
+    // Count unread messages per booking
+    const unreadCountByBooking = unreadMessages.reduce((acc, msg) => {
+      acc[msg.bookingId] = (acc[msg.bookingId] || 0) + 1
+      return acc
+    }, {} as Record<string, number>)
+
     // Format conversations
     const conversations = bookings.map(booking => {
       const otherUser = booking.ownerId === session.user.id 
@@ -79,7 +102,7 @@ export async function GET(request: NextRequest) {
           content: 'Geen berichten',
           createdAt: booking.createdAt.toISOString()
         },
-        unreadCount: 0 // TODO: Calculate unread count
+        unreadCount: unreadCountByBooking[booking.id] || 0
       }
     })
 

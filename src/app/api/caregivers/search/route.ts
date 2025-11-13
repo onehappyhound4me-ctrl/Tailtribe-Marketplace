@@ -2,6 +2,7 @@ export const dynamic = 'force-dynamic'
 export const revalidate = 0
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
+import { calculateDistance } from '@/lib/distance'
 
 export async function GET(request: NextRequest) {
   try {
@@ -12,8 +13,10 @@ export async function GET(request: NextRequest) {
     const country = searchParams.get('country') || undefined // NEW: Country filter
     const minRate = searchParams.get('minRate') ? parseInt(searchParams.get('minRate')!) : undefined
     const maxRate = searchParams.get('maxRate') ? parseInt(searchParams.get('maxRate')!) : undefined
+    const userLat = searchParams.get('userLat') ? parseFloat(searchParams.get('userLat')!) : undefined
+    const userLng = searchParams.get('userLng') ? parseFloat(searchParams.get('userLng')!) : undefined
     
-    console.log('🔍 API Search params:', { country, city, service, minRate, maxRate })
+    console.log('🔍 API Search params:', { country, city, service, minRate, maxRate, userLat, userLng })
 
     // Build where clause
     const where: any = {
@@ -83,12 +86,18 @@ export async function GET(request: NextRequest) {
       take: 50 // Limit results
     })
 
-    // Calculate average rating for each caregiver
+    // Calculate average rating and distance for each caregiver
     const results = caregivers.map(caregiver => {
       const reviews = caregiver.user.reviewsReceived
       const avgRating = reviews.length > 0
         ? reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length
         : 0
+
+      // Calculate distance if user location and caregiver location are available
+      let distance: number | undefined = undefined
+      if (userLat && userLng && caregiver.lat && caregiver.lng) {
+        distance = calculateDistance(userLat, userLng, caregiver.lat, caregiver.lng)
+      }
 
       return {
         id: caregiver.id,
@@ -106,7 +115,8 @@ export async function GET(request: NextRequest) {
         profilePhoto: caregiver.profilePhoto,
         averageRating: Math.round(avgRating * 10) / 10,
         reviewCount: caregiver.user._count.reviewsReceived,
-        reviews: reviews.slice(0, 3) // Return top 3 reviews
+        reviews: reviews.slice(0, 3), // Return top 3 reviews
+        distance // Distance in km
       }
     })
 

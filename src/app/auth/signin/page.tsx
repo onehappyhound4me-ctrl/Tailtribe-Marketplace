@@ -19,19 +19,9 @@ export default function SignInPage() {
   const error = searchParams?.get('error')
   const { data: session, status } = useSession()
 
-  // Debug: log all params and error
-  useEffect(() => {
-    const allParams = Object.fromEntries(searchParams?.entries() || [])
-    console.log('[SIGNIN] Page loaded - error:', error, 'error type:', typeof error, 'error === OAuthAccountNotLinked:', error === 'OAuthAccountNotLinked')
-    console.log('[SIGNIN] All params:', allParams)
-    console.log('[SIGNIN] Full URL:', typeof window !== 'undefined' ? window.location.href : 'SSR')
-    console.log('[SIGNIN] Session status:', status, 'has session:', !!session)
-  }, [error, searchParams, status, session])
-
   // Redirect if already authenticated (prevent loops)
   useEffect(() => {
     if (status === 'authenticated' && session) {
-      console.log('[SIGNIN] Already authenticated, redirecting to dashboard')
       router.push(callbackUrl)
       router.refresh()
     }

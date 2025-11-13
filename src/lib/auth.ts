@@ -113,20 +113,17 @@ export const authOptions: NextAuthOptions = {
             select: { id: true, role: true, email: true }
           })
           
-          console.log('[AUTH] JWT - Google OAuth initial:', { email: user.email, dbUser: dbUser?.id, role: dbUser?.role })
           
           if (dbUser) {
             token.role = (dbUser.role as Role) || 'OWNER'
             token.id = dbUser.id
             token.sub = dbUser.id
             token.email = dbUser.email
-            console.log('[AUTH] JWT - Google OAuth token set:', { userId: dbUser.id, role: token.role, sub: token.sub })
           } else {
             // Fallback if user not found (shouldn't happen due to signIn callback)
             token.role = 'OWNER'
             token.id = user.id
             token.sub = user.id
-            console.log('[AUTH] JWT - Google OAuth fallback:', { userId: user.id, role: token.role })
           }
         } else {
           // For credentials provider
@@ -139,12 +136,10 @@ export const authOptions: NextAuthOptions = {
             token.role = (dbUser.role as Role) || 'OWNER'
             token.id = dbUser.id
             token.sub = dbUser.id
-            console.log('[AUTH] JWT - Credentials sign in:', { userId: dbUser.id, email: dbUser.email, role: token.role })
           } else {
             token.role = (user.role as Role) || 'OWNER'
             token.id = user.id
             token.sub = user.id
-            console.log('[AUTH] JWT - Credentials fallback:', { userId: user.id, role: token.role })
           }
         }
       }
@@ -157,7 +152,6 @@ export const authOptions: NextAuthOptions = {
         })
         if (dbUser) {
           token.role = (dbUser.role as Role) || 'OWNER'
-          console.log('[AUTH] JWT - session update:', { userId: token.sub, role: token.role })
         }
       }
       
@@ -167,15 +161,6 @@ export const authOptions: NextAuthOptions = {
       if (token && token.sub) {
         session.user.id = token.sub
         session.user.role = (token.role as Role) || 'OWNER'
-        console.log('[AUTH] Session callback:', { 
-          userId: session.user.id, 
-          email: session.user.email, 
-          role: session.user.role,
-          tokenRole: token.role,
-          tokenSub: token.sub
-        })
-      } else {
-        console.error('[AUTH] Session callback - no token or token.sub!', { hasToken: !!token, tokenSub: token?.sub })
       }
       return session
     },
@@ -192,17 +177,13 @@ export const authOptions: NextAuthOptions = {
             }
           })
           
-          console.log('[AUTH] Google signIn - existingUser:', existingUser?.id, existingUser?.role, 'email:', user.email, 'hasGoogleAccount:', existingUser?.accounts?.length > 0)
-          
           // Block login if user doesn't exist - they must register first
           if (!existingUser) {
-            console.log('[AUTH] Google signIn - user not found, blocking login for:', user.email)
             return false
           }
           
           // If user exists but doesn't have Google account linked, link it now
           if (existingUser && existingUser.accounts.length === 0) {
-            console.log('[AUTH] Google signIn - linking Google account to existing user:', existingUser.id)
             await db.account.create({
               data: {
                 userId: existingUser.id,
@@ -218,11 +199,9 @@ export const authOptions: NextAuthOptions = {
                 session_state: account.session_state,
               }
             })
-            console.log('[AUTH] Google signIn - account linked successfully')
           }
           
           // Allow login - user exists and account is now linked
-          console.log('[AUTH] Google signIn - allowing login for existing user')
           return true
         } catch (error: any) {
           console.error('[AUTH] Error in signIn callback:', error)
@@ -235,32 +214,23 @@ export const authOptions: NextAuthOptions = {
       return true
     },
     async redirect({ url, baseUrl }) {
-      console.log('[AUTH] Redirect callback:', { url, baseUrl, NEXTAUTH_URL: process.env.NEXTAUTH_URL })
-      
       // Allow relative URLs (e.g. "/dashboard")
       if (url.startsWith('/')) {
-        const redirectUrl = `${baseUrl}${url}`
-        console.log('[AUTH] Redirect to (relative):', redirectUrl)
-        return redirectUrl
+        return `${baseUrl}${url}`
       }
       
       // Allow same-origin absolute URLs
       try {
         const urlObj = new URL(url)
         if (urlObj.origin === baseUrl) {
-          console.log('[AUTH] Redirect to (same origin):', url)
           return url
         }
       } catch (e) {
         // Ignore parsing errors and fallback below
-        console.log('[AUTH] URL parsing failed:', e)
       }
       
       // Default for sign-in: send users to the main dashboard
-      // Never redirect back to /login or /auth/signin for authenticated users
-      const dashboardUrl = `${baseUrl}/dashboard`
-      console.log('[AUTH] Redirect to dashboard (default):', dashboardUrl)
-      return dashboardUrl
+      return `${baseUrl}/dashboard`
     },
   },
   events: {

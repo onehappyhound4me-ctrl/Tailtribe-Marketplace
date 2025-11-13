@@ -26,17 +26,24 @@ interface Props {
   searchParams: SearchParams
 }
 
-async function getCaregivers(searchParams: SearchParams) {
+async function getCaregivers(
+  searchParams: SearchParams,
+  userLocation?: { lat: number; lng: number }
+) {
   const params = new URLSearchParams()
   if (searchParams.city) params.set('city', searchParams.city)
   if (searchParams.service) params.set('service', searchParams.service)
   if (searchParams.maxRate) params.set('maxRate', searchParams.maxRate)
+  if (userLocation) {
+    params.set('userLat', userLocation.lat.toString())
+    params.set('userLng', userLocation.lng.toString())
+  }
   try {
     const res = await fetch(`/api/caregivers/search?${params.toString()}`, { cache: 'no-store' })
     const data = await res.json()
     const caregivers = data.caregivers || []
 
-    // Simple ranking as before
+    // Simple ranking with distance boost
     const availabilityRequested = Boolean(searchParams?.service || searchParams?.city)
     const ranked = caregivers
       .map((c: any) => {
@@ -45,8 +52,10 @@ async function getCaregivers(searchParams: SearchParams) {
         const newbieBoost = reviewsCount === 0 ? 0.8 : reviewsCount < 3 ? 0.3 : 0
         const availabilityBoost = availabilityRequested ? 0.2 : 0
         const engagementBoost = Math.min(reviewsCount, 10) * 0.05
+        // Distance boost: closer caregivers get higher score (max 0.5 boost for < 5km)
+        const distanceBoost = c.distance && c.distance < 5 ? (5 - c.distance) * 0.1 : 0
         const jitter = Math.random() * 0.1
-        const score = avg * 2 + engagementBoost + newbieBoost + availabilityBoost + jitter
+        const score = avg * 2 + engagementBoost + newbieBoost + availabilityBoost + distanceBoost + jitter
         return { ...c, _score: score }
       })
       .sort((a: any, b: any) => (b._score as number) - (a._score as number))
@@ -63,6 +72,7 @@ export const dynamic = 'force-dynamic'
 export default function SearchPage({ searchParams }: Props) {
   const [caregivers, setCaregivers] = useState<any[]>([])
   const [selectedCaregiver, setSelectedCaregiver] = useState<any>(null)
+  const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null)
   const clientSearchParams = useSearchParams()
   const router = useRouter()
   const { data: session, status } = useSession()
@@ -74,16 +84,33 @@ export default function SearchPage({ searchParams }: Props) {
   const preSelectedCaregiver = clientSearchParams.get('caregiver') || searchParams.caregiver || ''
   const preSelectedDate = clientSearchParams.get('date') || searchParams.date || ''
 
+  // Fetch user location if owner is logged in
+  useEffect(() => {
+    if (session?.user && session.user.role === 'OWNER') {
+      fetch('/api/profile/owner')
+        .then(res => res.json())
+        .then(data => {
+          if (data.lat && data.lng) {
+            setUserLocation({ lat: data.lat, lng: data.lng })
+          }
+        })
+        .catch(err => console.error('Error fetching user location:', err))
+    }
+  }, [session])
+
   // Load caregivers on mount and when filters change
   useEffect(() => {
     let mounted = true
-    getCaregivers({ city: liveCity, service: liveService, maxRate: liveMaxRate }).then((data) => {
+    getCaregivers(
+      { city: liveCity, service: liveService, maxRate: liveMaxRate },
+      userLocation || undefined
+    ).then((data) => {
       if (mounted) setCaregivers(data)
     })
     return () => {
       mounted = false
     }
-  }, [liveCity, liveService, liveMaxRate])
+  }, [liveCity, liveService, liveMaxRate, userLocation])
 
   // Pre-select caregiver when coming from owner calendar
   useEffect(() => {
@@ -230,7 +257,7 @@ export default function SearchPage({ searchParams }: Props) {
                       <CaregiverCard
                         key={caregiver.id}
                         caregiver={caregiver}
-                        distance={undefined} // TODO: Implement geolocation distance calculation
+                        distance={caregiver.distance} // Distance in km from API
                         onSelect={() => handleCaregiverSelect(caregiver)}
                         isSelected={isSelected}
                         isPreSelected={isPreSelected}

@@ -144,11 +144,31 @@ export default function SettingsPage() {
       return
     }
     
-    // TODO: Implement API call to change password
-    toast.success('Wachtwoord succesvol gewijzigd!')
-    setCurrentPassword('')
-    setNewPassword('')
-    setConfirmPassword('')
+    try {
+      const res = await fetch('/api/auth/change-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          currentPassword,
+          newPassword,
+          confirmPassword
+        })
+      })
+
+      const data = await res.json()
+
+      if (res.ok) {
+        toast.success('Wachtwoord succesvol gewijzigd!')
+        setCurrentPassword('')
+        setNewPassword('')
+        setConfirmPassword('')
+      } else {
+        toast.error(data.error || 'Er ging iets mis bij het wijzigen van je wachtwoord')
+      }
+    } catch (error) {
+      console.error('Password change error:', error)
+      toast.error('Er ging iets mis. Probeer het opnieuw.')
+    }
   }
 
   const handleDeleteAccount = async () => {

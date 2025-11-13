@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/lib/auth'
 import { db } from '@/lib/db'
+import { sendBookingConfirmationEmail } from '@/lib/email-notifications'
 
 export async function PATCH(
   request: NextRequest,
@@ -28,6 +29,19 @@ export async function PATCH(
       where: {
         id: params.id,
         caregiverId: session.user.id
+      },
+      include: {
+        owner: {
+          select: {
+            name: true,
+            email: true
+          }
+        },
+        caregiver: {
+          select: {
+            name: true
+          }
+        }
       }
     })
 
@@ -40,15 +54,27 @@ export async function PATCH(
     }
 
     // Update booking status
-    const newStatus = action === 'confirm' ? 'CONFIRMED' : 'CANCELLED'
+    const newStatus = action === 'confirm' ? 'ACCEPTED' : 'DECLINED'
     
     const updatedBooking = await db.booking.update({
       where: { id: params.id },
       data: { status: newStatus }
     })
 
-    // TODO: Send notification to owner about status change
-    // This would integrate with your notification system
+    // Send email notification to owner about status change
+    try {
+      await sendBookingConfirmationEmail({
+        ownerEmail: booking.owner.email,
+        ownerName: booking.owner.name || 'Eigenaar',
+        caregiverName: booking.caregiver.name || 'Verzorger',
+        serviceName: 'Dierenverzorging', // Default service name
+        date: `${new Date(booking.startAt).toLocaleDateString('nl-NL')} - ${new Date(booking.endAt).toLocaleDateString('nl-NL')}`,
+        status: newStatus === 'ACCEPTED' ? 'ACCEPTED' : 'DECLINED'
+      })
+    } catch (emailError) {
+      console.error('Error sending booking confirmation email:', emailError)
+      // Don't fail the request if email fails
+    }
 
     return NextResponse.json({
       success: true,
