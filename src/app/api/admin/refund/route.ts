@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { db } from '@/lib/db'
+import { sendRefundEmail } from '@/lib/email-notifications'
 import Stripe from 'stripe'
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
@@ -60,7 +61,19 @@ export async function POST(req: NextRequest) {
       data: { status: 'REFUNDED' }
     })
 
-    // TODO: Send email to owner about refund
+    // Send email notification to owner about refund
+    try {
+      await sendRefundEmail({
+        ownerEmail: booking.owner.email,
+        ownerName: booking.owner.name || 'Eigenaar',
+        amount: refund.amount / 100,
+        bookingId: booking.id,
+        reason: reason || 'Terugbetaling door beheerder'
+      })
+    } catch (emailError) {
+      console.error('Error sending refund email:', emailError)
+      // Don't fail the request if email fails
+    }
 
     return NextResponse.json({ 
       success: true,
