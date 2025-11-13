@@ -22,7 +22,8 @@ export default function SignInPage() {
   // Debug: log all params and error
   useEffect(() => {
     const allParams = Object.fromEntries(searchParams?.entries() || [])
-    console.log('[SIGNIN] Page loaded - error:', error, 'all params:', allParams)
+    console.log('[SIGNIN] Page loaded - error:', error, 'error type:', typeof error, 'error === OAuthAccountNotLinked:', error === 'OAuthAccountNotLinked')
+    console.log('[SIGNIN] All params:', allParams)
     console.log('[SIGNIN] Full URL:', typeof window !== 'undefined' ? window.location.href : 'SSR')
     console.log('[SIGNIN] Session status:', status, 'has session:', !!session)
   }, [error, searchParams, status, session])
@@ -47,6 +48,15 @@ export default function SignInPage() {
     error.toLowerCase() === 'noaccount' ||
     error.toLowerCase().includes('access') ||
     error.toLowerCase().includes('denied')
+  )
+
+  // Check if error indicates account already exists with different provider
+  // This happens when user tries Google login but account was created with email/password
+  const showAccountNotLinkedError = error && (
+    error === 'OAuthAccountNotLinked' ||
+    error.trim() === 'OAuthAccountNotLinked' ||
+    error.toLowerCase().includes('oauthaccountnotlinked') ||
+    error.toLowerCase().includes('accountnotlinked')
   )
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -100,8 +110,27 @@ export default function SignInPage() {
           </p>
         </div>
 
-        {/* Error Message - No Account */}
-        {showNoAccountError ? (
+        {/* Error Message - OAuthAccountNotLinked */}
+        {showAccountNotLinkedError ? (
+          <div className="mb-6 p-4 bg-blue-50 border-2 border-blue-200 rounded-xl shadow-sm">
+            <div className="flex items-start gap-3">
+              <svg className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+              </svg>
+              <div className="flex-1">
+                <h3 className="text-sm font-semibold text-blue-900 mb-2">
+                  Account bestaat al
+                </h3>
+                <p className="text-sm text-blue-800 mb-2">
+                  Er bestaat al een TailTribe account met dit e-mailadres. Log in met je e-mailadres en wachtwoord in plaats van Google.
+                </p>
+                <p className="text-xs text-blue-700">
+                  Als je je wachtwoord bent vergeten, gebruik dan de "Wachtwoord vergeten?" link hieronder.
+                </p>
+              </div>
+            </div>
+          </div>
+        ) : showNoAccountError ? (
           <div className="mb-6 p-4 bg-amber-50 border-2 border-amber-200 rounded-xl shadow-sm">
             <div className="flex items-start gap-3">
               <svg className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
@@ -123,12 +152,27 @@ export default function SignInPage() {
             </div>
           </div>
         ) : error ? (
-          // Debug: Show any other error for troubleshooting
-          <div className="mb-6 p-4 bg-red-50 border-2 border-red-200 rounded-xl">
-            <p className="text-sm text-red-800">
-              Error: {error} (Debug: This error is not handled)
-            </p>
-          </div>
+          // Fallback: Show OAuthAccountNotLinked even if detection failed
+          error.includes('OAuthAccountNotLinked') || error.includes('AccountNotLinked') ? (
+            <div className="mb-6 p-4 bg-blue-50 border-2 border-blue-200 rounded-xl shadow-sm">
+              <div className="flex items-start gap-3">
+                <svg className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+                </svg>
+                <div className="flex-1">
+                  <h3 className="text-sm font-semibold text-blue-900 mb-2">
+                    Account bestaat al
+                  </h3>
+                  <p className="text-sm text-blue-800 mb-2">
+                    Er bestaat al een TailTribe account met dit e-mailadres. Log in met je e-mailadres en wachtwoord in plaats van Google.
+                  </p>
+                  <p className="text-xs text-blue-700">
+                    Als je je wachtwoord bent vergeten, gebruik dan de "Wachtwoord vergeten?" link hieronder.
+                  </p>
+                </div>
+              </div>
+            </div>
+          ) : null
         ) : null}
 
         <form onSubmit={handleSubmit} className="space-y-6">
