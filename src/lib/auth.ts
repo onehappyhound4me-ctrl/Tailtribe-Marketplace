@@ -33,6 +33,10 @@ const getGoogleRedirectUri = () => {
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(db) as any,
   debug: process.env.NODE_ENV === 'development',
+  // Force base URL to match production domain
+  ...(process.env.NEXTAUTH_URL && {
+    baseUrl: process.env.NEXTAUTH_URL.replace(/\/$/, '')
+  }),
   providers: [
     CredentialsProvider({
       name: "credentials",
