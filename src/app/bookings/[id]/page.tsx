@@ -84,7 +84,7 @@ export default function BookingDetailPage({ params }: { params: { id: string } }
           <CardContent>
             <p className="text-gray-700 mb-4">{error || 'Boeking niet gevonden'}</p>
             <Button asChild>
-              <Link href="/">Terug naar Homepagina</Link>
+              <Link href="/bookings">Terug naar Boekingen</Link>
             </Button>
           </CardContent>
         </Card>
@@ -109,7 +109,7 @@ export default function BookingDetailPage({ params }: { params: { id: string } }
       <div className="max-w-4xl mx-auto">
         <div className="mb-6">
           <Button variant="outline" asChild>
-            <Link href="/">← Terug naar Homepagina</Link>
+            <Link href="/bookings">← Terug naar Boekingen</Link>
           </Button>
         </div>
 
