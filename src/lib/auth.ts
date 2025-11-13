@@ -86,7 +86,7 @@ export const authOptions: NextAuthOptions = {
           redirect_uri: 'https://tailtribe.be/api/auth/callback/google'
         }
       }
-    }),
+    } as any),
     // EmailProvider disabled - causes build errors with nodemailer fs dependency
     // EmailProvider({
     //   server: "smtp://localhost:587",
