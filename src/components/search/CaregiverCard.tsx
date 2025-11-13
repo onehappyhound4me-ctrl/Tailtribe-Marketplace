@@ -48,16 +48,24 @@ export function CaregiverCard({ caregiver, distance, onSelect, isSelected, isPre
   const displayPhotos = session ? allPhotos : limitPhotos(allPhotos, 1)
 
   return (
-    <Card className={`group hover:shadow-xl transition-all duration-300 border-2 overflow-hidden h-full flex flex-col ${
-      isPreSelected 
-        ? 'border-blue-400 bg-blue-50 shadow-lg' 
-        : isSelected 
-        ? 'border-emerald-400 bg-emerald-50 shadow-lg' 
-        : 'border-gray-200 hover:border-emerald-400'
-    }`}>
+    <Card 
+      className={`group hover:shadow-xl transition-all duration-300 border-2 overflow-hidden h-full flex flex-col ${
+        isPreSelected 
+          ? 'border-blue-400 bg-blue-50 shadow-lg' 
+          : isSelected 
+          ? 'border-emerald-400 bg-emerald-50 shadow-lg' 
+          : 'border-gray-200 hover:border-emerald-400'
+      }`}
+      role="article"
+      aria-labelledby={`caregiver-${caregiver.id}-name`}
+    >
       <CardContent className="p-0 flex flex-col flex-1">
         {/* Clickable Profile Area */}
-        <Link href={`/caregivers/${caregiver.id}`} className="block hover:bg-gray-50/50 transition-colors flex-1">
+        <Link 
+          href={`/caregivers/${caregiver.id}`} 
+          className="block hover:bg-gray-50/50 transition-colors flex-1"
+          aria-label={`Bekijk profiel van ${displayName}`}
+        >
           {/* Header with Avatar and Basic Info */}
           <div className="p-6 pb-4">
             <div className="flex items-start gap-4">
@@ -66,7 +74,7 @@ export function CaregiverCard({ caregiver, distance, onSelect, isSelected, isPre
                 {displayPhotos && displayPhotos.length > 0 ? (
                   <Image
                     src={displayPhotos[0]}
-                    alt={displayName}
+                    alt={`Profielfoto van ${displayName}`}
                     width={64}
                     height={64}
                     className="w-16 h-16 rounded-xl object-cover border-2 border-emerald-200 shadow-md"
@@ -82,19 +90,19 @@ export function CaregiverCard({ caregiver, distance, onSelect, isSelected, isPre
 
               {/* Name and Location */}
               <div className="flex-1 min-w-0">
-                <h3 className="font-heading font-semibold text-gray-900 text-lg mb-1">
+                <h3 id={`caregiver-${caregiver.id}-name`} className="font-heading font-semibold text-gray-900 text-lg mb-1">
                   {displayName}
                   {!session && (
-                    <span className="ml-2 text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-full">Log in voor volledige naam</span>
+                    <span className="ml-2 text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-full" aria-label="Log in voor volledige naam">Log in voor volledige naam</span>
                   )}
                   {isPreSelected && (
-                    <span className="ml-2 text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-full font-medium">Geselecteerd vanuit agenda</span>
+                    <span className="ml-2 text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-full font-medium" aria-label="Geselecteerd vanuit agenda">Geselecteerd vanuit agenda</span>
                   )}
                 </h3>
                 <div className="flex items-center gap-2 text-sm text-gray-600 mb-2">
-                  <span>📍 {caregiver.city}</span>
+                  <span aria-label={`Locatie: ${caregiver.city}`}>📍 {caregiver.city}</span>
                   {distance && (
-                    <span className="bg-emerald-100 text-emerald-700 px-2 py-1 rounded-full text-xs font-medium">
+                    <span className="bg-emerald-100 text-emerald-700 px-2 py-1 rounded-full text-xs font-medium" aria-label={`Afstand: ${distance.toFixed(1)} kilometer`}>
                       {distance.toFixed(1)} km
                     </span>
                   )}
