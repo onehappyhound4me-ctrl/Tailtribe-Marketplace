@@ -83,7 +83,7 @@ export async function middleware(request: NextRequest) {
   // If on BE domain and accessing root, ensure it's BE (no /nl prefix needed)
   // This is handled by the app structure already
 
-  // Skip auth check for NextAuth routes (must be before rate limiting)
+  // CRITICAL: Skip ALL checks for NextAuth routes - let NextAuth handle everything
   if (pathname.startsWith('/api/auth/')) {
     const response = NextResponse.next()
     // Add security headers
@@ -161,12 +161,17 @@ export async function middleware(request: NextRequest) {
       hostname
     })
 
+    // If no token, redirect to signin (but NOT if already on signin page to avoid loops)
     if (!token || !token.sub) {
-      console.log('[MIDDLEWARE] No token or token.sub, redirecting to signin')
-      const url = request.nextUrl.clone()
-      url.pathname = '/auth/signin'
-      url.searchParams.set('callbackUrl', pathname)
-      return NextResponse.redirect(url)
+      if (pathname !== '/auth/signin' && pathname !== '/auth/register') {
+        console.log('[MIDDLEWARE] No token, redirecting to signin')
+        const url = request.nextUrl.clone()
+        url.pathname = '/auth/signin'
+        url.searchParams.set('callbackUrl', pathname)
+        return NextResponse.redirect(url)
+      }
+      // If already on signin page and no token, allow it (let NextAuth handle it)
+      return NextResponse.next()
     }
 
     // Redirect /dashboard to role-specific dashboard
@@ -190,6 +195,9 @@ export async function middleware(request: NextRequest) {
       return NextResponse.redirect(new URL('/', request.url))
     }
   }
+  
+  // Create response for non-protected routes
+  const response = NextResponse.next()
   
   // Add security headers to response
   response.headers.set('X-DNS-Prefetch-Control', 'on')

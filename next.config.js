@@ -49,7 +49,32 @@ const nextConfig = {
           },
           {
             key: 'Referrer-Policy',
-            value: 'origin-when-cross-origin',
+            value: 'strict-origin-when-cross-origin',
+          },
+          {
+            key: 'Permissions-Policy',
+            value: 'camera=(), microphone=(), geolocation=()',
+          },
+          {
+            key: 'X-DNS-Prefetch-Control',
+            value: 'on',
+          },
+        ],
+      },
+      {
+        source: '/api/(.*)',
+        headers: [
+          {
+            key: 'Access-Control-Allow-Origin',
+            value: process.env.NEXT_PUBLIC_APP_URL || '*',
+          },
+          {
+            key: 'Access-Control-Allow-Methods',
+            value: 'GET, POST, PUT, DELETE, PATCH, OPTIONS',
+          },
+          {
+            key: 'Access-Control-Allow-Headers',
+            value: 'Content-Type, Authorization',
           },
         ],
       },

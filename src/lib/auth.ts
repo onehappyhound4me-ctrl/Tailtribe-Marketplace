@@ -229,16 +229,29 @@ export const authOptions: NextAuthOptions = {
       return true
     },
     async redirect({ url, baseUrl }) {
-      const normalizedBaseUrl = getBaseUrl()
-      console.log('[AUTH] Redirect callback:', { url, baseUrl, normalizedBaseUrl, NEXTAUTH_URL: process.env.NEXTAUTH_URL })
+      console.log('[AUTH] Redirect callback:', { url, baseUrl, NEXTAUTH_URL: process.env.NEXTAUTH_URL })
       
-      // Normalize baseUrl to match NEXTAUTH_URL (handle www vs non-www)
-      const useBaseUrl = normalizedBaseUrl || baseUrl.replace(/^https?:\/\/(www\.)?/, 'https://')
+      // If url is relative, make it absolute
+      if (url.startsWith('/')) {
+        const redirectUrl = `${baseUrl}${url}`
+        console.log('[AUTH] Redirect to (relative):', redirectUrl)
+        return redirectUrl
+      }
       
-      // Always redirect to dashboard after successful login
-      // This ensures consistent behavior regardless of callback URL
-      const dashboardUrl = `${useBaseUrl}/dashboard`
-      console.log('[AUTH] Redirect to dashboard:', dashboardUrl)
+      // If url is same origin, allow it
+      try {
+        const urlObj = new URL(url)
+        if (urlObj.origin === baseUrl) {
+          console.log('[AUTH] Redirect to (same origin):', url)
+          return url
+        }
+      } catch (e) {
+        console.log('[AUTH] URL parsing failed:', e)
+      }
+      
+      // Default redirect to dashboard
+      const dashboardUrl = `${baseUrl}/dashboard`
+      console.log('[AUTH] Redirect to dashboard (default):', dashboardUrl)
       return dashboardUrl
     },
   },

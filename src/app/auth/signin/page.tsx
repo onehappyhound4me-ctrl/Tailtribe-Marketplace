@@ -1,7 +1,7 @@
 'use client'
 
-import { useState } from 'react'
-import { signIn } from 'next-auth/react'
+import { useState, useEffect } from 'react'
+import { signIn, useSession } from 'next-auth/react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
@@ -16,6 +16,16 @@ export default function SignInPage() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const callbackUrl = searchParams?.get('callbackUrl') || '/dashboard'
+  const { data: session, status } = useSession()
+
+  // Redirect if already authenticated (prevent loops)
+  useEffect(() => {
+    if (status === 'authenticated' && session) {
+      console.log('[SIGNIN] Already authenticated, redirecting to dashboard')
+      router.push(callbackUrl)
+      router.refresh()
+    }
+  }, [status, session, callbackUrl, router])
 
   const handleGoogleSignIn = async () => {
     setLoading(true)
