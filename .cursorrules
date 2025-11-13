@@ -7,3 +7,18 @@
     Geen refactors of hernoemingen van bestaande code.
     Hou bestaande stijl en structuur aan.
     Gebruik best practices (Zod-validatie, veilige env-variabelen, SEO, lazy loading).
+
+- rule: |
+    GLOBAL NAVIGATION RULE (VERY IMPORTANT):
+    
+    - Never use router.push("/") or router.replace("/") as a generic fallback.
+    
+    - Only navigate to "/" when the UI clearly says it is a "Home" / "Terug naar home" / "Back to home" action.
+    
+    - For new buttons, links and forms:
+    
+      - If the action is contextual (dashboard, bookings, pets, settings, onboarding, profile, etc.), navigate to the appropriate route for that context (e.g. "/dashboard", "/bookings", "/pets") or stay on the same page.
+    
+      - If you are unsure where to go, DO NOT redirect to "/". Leave the user on the same page after the action.
+    
+    - Do NOT add hidden redirects to "/" in catch/finally/error blocks. On error, show a message instead of sending the user to the homepage.
