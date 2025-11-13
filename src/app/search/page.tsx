@@ -265,50 +265,26 @@ export default function SearchPage({ searchParams }: Props) {
                         : 'Zoek verzorgers op de kaart'
                       }
                     </h2>
-                    {withCoords.length > 0 ? (
-                      <ModernMap 
-                        caregivers={withCoords as any}
-                        country="BE"
-                        onCaregiverSelect={handleCaregiverSelect}
-                      />
-                    ) : (
-                      <div className="relative">
-                        <ModernMap 
-                          caregivers={[]}
-                          country="BE"
-                          onCaregiverSelect={handleCaregiverSelect}
-                        />
-                        <div 
-                          className="absolute inset-0 flex items-center justify-center bg-white/90 backdrop-blur-sm z-10 rounded-lg pointer-events-none"
-                          onClick={(e) => {
-                            e.stopPropagation()
-                            if (e.nativeEvent) {
-              (e.nativeEvent as any).stopImmediatePropagation()
-            }
-                          }}
+                    <ModernMap 
+                      caregivers={withCoords.length > 0 ? withCoords as any : []}
+                      country="BE"
+                      onCaregiverSelect={handleCaregiverSelect}
+                    />
+                    {withCoords.length === 0 && (
+                      <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg text-center">
+                        <div className="text-4xl mb-2">🗺️</div>
+                        <h3 className="text-base md:text-lg font-semibold text-gray-900 mb-2">
+                          Nog geen verzorgers op de kaart
+                        </h3>
+                        <p className="text-xs md:text-sm text-gray-600 mb-4">
+                          Word verzorger en verschijn hier op de kaart!
+                        </p>
+                        <Link 
+                          href="/auth/register" 
+                          className="inline-block px-4 md:px-6 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors text-sm md:text-base"
                         >
-                          <div className="text-center p-4 md:p-6 pointer-events-auto">
-                            <div className="text-4xl mb-4">🗺️</div>
-                            <h3 className="text-base md:text-lg font-semibold text-gray-900 mb-2">
-                              Nog geen verzorgers op de kaart
-                            </h3>
-                            <p className="text-xs md:text-sm text-gray-600 mb-4">
-                              Word verzorger en verschijn hier op de kaart!
-                            </p>
-                            <Link 
-                              href="/auth/register" 
-                              className="inline-block px-4 md:px-6 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors text-sm md:text-base"
-                              onClick={(e) => {
-                                e.stopPropagation()
-                                if (e.nativeEvent) {
-              (e.nativeEvent as any).stopImmediatePropagation()
-            }
-                              }}
-                            >
-                              Word verzorger
-                            </Link>
-                          </div>
-                        </div>
+                          Word verzorger
+                        </Link>
                       </div>
                     )}
                   </div>
