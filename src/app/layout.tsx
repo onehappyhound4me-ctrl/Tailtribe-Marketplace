@@ -10,6 +10,7 @@ import { CookieConsent } from '@/components/common/CookieConsent'
 import { CountryDetectionPopup } from '@/components/common/CountryDetectionPopup'
 import { FooterCountrySwitcher } from '@/components/common/FooterCountrySwitcher'
 import { DynamicFooterLinks } from '@/components/navigation/DynamicFooter'
+import { VercelAnalytics } from '@/components/analytics/VercelAnalytics'
 import './globals.css'
 // cache-bust: 2025-11-11
 
@@ -159,6 +160,7 @@ export default function RootLayout({
             <Toaster position="top-right" />
             <CookieConsent />
             <CountryDetectionPopup />
+            <VercelAnalytics />
           </NavProvider>
         </Providers>
       </body>

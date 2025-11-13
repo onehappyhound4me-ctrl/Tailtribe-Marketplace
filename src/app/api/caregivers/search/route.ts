@@ -18,9 +18,9 @@ export async function GET(request: NextRequest) {
     
     console.log('🔍 API Search params:', { country, city, service, minRate, maxRate, userLat, userLng })
 
-    // Build where clause
+    // Build where clause - Filter out test users
     const where: any = {
-      // Remove isApproved filter for testing - show all caregivers
+      isApproved: true, // Only show approved caregivers
     }
 
     // NEW: Filter by country (BE or NL)
@@ -46,7 +46,23 @@ export async function GET(request: NextRequest) {
       if (maxRate) where.hourlyRate.lte = maxRate
     }
 
-    // Get caregivers with user data
+    // Add user filters to exclude test users (case-insensitive)
+    where.user = {
+      email: {
+        not: {
+          contains: 'test',
+          mode: 'insensitive',
+        },
+      },
+      name: {
+        not: {
+          contains: 'test',
+          mode: 'insensitive',
+        },
+      },
+    }
+
+    // Get caregivers with user data - Filter out test users
     const caregivers = await db.caregiverProfile.findMany({
       where,
       include: {
@@ -86,8 +102,15 @@ export async function GET(request: NextRequest) {
       take: 50 // Limit results
     })
 
+    // Additional client-side filtering to be extra safe
+    const filteredCaregivers = caregivers.filter(caregiver => {
+      const email = caregiver.user.email?.toLowerCase() || ''
+      const name = caregiver.user.name?.toLowerCase() || ''
+      return !email.includes('test') && !name.includes('test')
+    })
+
     // Calculate average rating and distance for each caregiver
-    const results = caregivers.map(caregiver => {
+    const results = filteredCaregivers.map(caregiver => {
       const reviews = caregiver.user.reviewsReceived
       const avgRating = reviews.length > 0
         ? reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length

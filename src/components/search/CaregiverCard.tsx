@@ -5,6 +5,7 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { serviceLabels } from '@/lib/types'
 import Link from 'next/link'
+import Image from 'next/image'
 import { useSession } from 'next-auth/react'
 import { maskName, limitPhotos } from '@/lib/contact-gating'
 
@@ -63,10 +64,14 @@ export function CaregiverCard({ caregiver, distance, onSelect, isSelected, isPre
               {/* Professional Avatar */}
               <div className="flex-shrink-0">
                 {displayPhotos && displayPhotos.length > 0 ? (
-                  <img
+                  <Image
                     src={displayPhotos[0]}
                     alt={displayName}
+                    width={64}
+                    height={64}
                     className="w-16 h-16 rounded-xl object-cover border-2 border-emerald-200 shadow-md"
+                    loading="lazy"
+                    unoptimized={displayPhotos[0]?.startsWith('http')}
                   />
                 ) : (
                   <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-white font-bold text-xl border-2 border-emerald-300 shadow-md">

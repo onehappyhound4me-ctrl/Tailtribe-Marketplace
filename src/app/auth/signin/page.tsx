@@ -267,16 +267,6 @@ export default function SignInPage() {
             </Link>
           </p>
         </div>
-
-        {/* Demo Accounts */}
-        <div className="mt-8 p-4 bg-gray-50 rounded-xl">
-          <p className="text-xs text-gray-600 font-semibold mb-2">Test accounts:</p>
-          <div className="text-xs text-gray-500 space-y-1">
-            <p>Eigenaar: jan.vermeersch@example.com</p>
-            <p>Verzorger: sarah.janssens@example.com</p>
-            <p className="text-gray-400">(wachtwoord: password123)</p>
-          </div>
-        </div>
       </div>
     </div>
   )
