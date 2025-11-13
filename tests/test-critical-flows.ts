@@ -134,11 +134,22 @@ async function main() {
 
   // Test 8: Database indexes (performance check)
   await test('Database indexes check', async () => {
-    // Check if we can query efficiently
-    await db.user.findMany({
-      take: 1,
+    // Check if we can query efficiently using indexes
+    await db.user.findFirst({
       where: {
-        email: { not: null },
+        email: { contains: '@' },
+      },
+    })
+    
+    await db.caregiverProfile.findFirst({
+      where: {
+        isApproved: true,
+      },
+    })
+    
+    await db.booking.findFirst({
+      where: {
+        status: 'PENDING',
       },
     })
   })

@@ -27,7 +27,8 @@
     "test:e2e": "playwright test",
     "test:flows": "tsx tests/test-critical-flows.ts",
     "test:api": "tsx tests/test-api-flows.ts",
-    "test:all": "tsx tests/test-critical-flows.ts && tsx tests/test-api-flows.ts",
+    "test:emails": "tsx tests/test-email-notifications.ts",
+    "test:all": "tsx tests/test-critical-flows.ts && tsx tests/test-api-flows.ts && tsx tests/test-email-notifications.ts",
     "verify": "tsx tests/test-critical-flows.ts",
     "postbuild": "prisma generate"
   },
