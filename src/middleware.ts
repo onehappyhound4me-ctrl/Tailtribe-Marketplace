@@ -52,18 +52,19 @@ async function rateLimit(ip: string, pathname: string, limit: number = 100, wind
 }
 
 export async function middleware(request: NextRequest) {
-  const { pathname } = request.nextUrl
-  const hostname = request.headers.get('host') || ''
-  
-  // Normalize www vs non-www - redirect www to non-www for consistency
-  // MUST be done FIRST, before any other checks
-  if (hostname.startsWith('www.')) {
-    const normalizedHost = hostname.replace(/^www\./, '')
-    const url = new URL(request.url)
-    url.hostname = normalizedHost
-    console.log('[MIDDLEWARE] Redirecting www to non-www:', { from: hostname, to: normalizedHost, pathname })
-    return NextResponse.redirect(url, 301) // Permanent redirect
-  }
+  try {
+    const { pathname } = request.nextUrl
+    const hostname = request.headers.get('host') || ''
+    
+    // Normalize www vs non-www - redirect www to non-www for consistency
+    // MUST be done FIRST, before any other checks
+    if (hostname.startsWith('www.')) {
+      const normalizedHost = hostname.replace(/^www\./, '')
+      const url = request.nextUrl.clone()
+      url.hostname = normalizedHost
+      console.log('[MIDDLEWARE] Redirecting www to non-www:', { from: hostname, to: normalizedHost, pathname })
+      return NextResponse.redirect(url, 301) // Permanent redirect
+    }
   
   // Domain-based country routing
   const isNLDomain = hostname.includes('tailtribe.nl')
@@ -211,7 +212,12 @@ export async function middleware(request: NextRequest) {
     response.headers.set('Access-Control-Allow-Headers', 'Content-Type, Authorization')
   }
   
-  return response
+    return response
+  } catch (error) {
+    console.error('[MIDDLEWARE] Error:', error)
+    // If middleware fails, just continue with the request
+    return NextResponse.next()
+  }
 }
 
 export const config = {
