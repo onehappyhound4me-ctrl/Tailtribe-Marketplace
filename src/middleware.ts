@@ -57,13 +57,10 @@ export async function middleware(request: NextRequest) {
   
   // Normalize www vs non-www - redirect www to non-www for consistency
   // MUST be done FIRST, before any other checks
-  const normalizedHost = hostname.replace(/^www\./, '')
-  const expectedHost = process.env.NEXTAUTH_URL?.replace(/^https?:\/\/(www\.)?/, '').replace(/\/$/, '') || 'tailtribe.be'
-  
-  // Redirect www to non-www (but preserve the path and query params)
-  if (hostname.includes('www.') && normalizedHost === expectedHost) {
-    const url = request.nextUrl.clone()
-    url.host = normalizedHost
+  if (hostname.startsWith('www.')) {
+    const normalizedHost = hostname.replace(/^www\./, '')
+    const url = new URL(request.url)
+    url.hostname = normalizedHost
     console.log('[MIDDLEWARE] Redirecting www to non-www:', { from: hostname, to: normalizedHost, pathname })
     return NextResponse.redirect(url, 301) // Permanent redirect
   }
