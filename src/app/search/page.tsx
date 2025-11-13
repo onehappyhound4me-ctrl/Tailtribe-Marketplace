@@ -269,8 +269,11 @@ export default function SearchPage({ searchParams }: Props) {
                           country="BE"
                           onCaregiverSelect={handleCaregiverSelect}
                         />
-                        <div className="absolute inset-0 flex items-center justify-center bg-white/80 z-10 rounded-lg">
-                          <div className="text-center p-6">
+                        <div 
+                          className="absolute inset-0 flex items-center justify-center bg-white/80 z-10 rounded-lg pointer-events-none"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <div className="text-center p-6 pointer-events-auto">
                             <div className="text-4xl mb-4">🗺️</div>
                             <h3 className="text-lg font-semibold text-gray-900 mb-2">
                               Nog geen verzorgers op de kaart
@@ -281,6 +284,7 @@ export default function SearchPage({ searchParams }: Props) {
                             <Link 
                               href="/auth/register" 
                               className="inline-block px-6 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors"
+                              onClick={(e) => e.stopPropagation()}
                             >
                               Word verzorger
                             </Link>

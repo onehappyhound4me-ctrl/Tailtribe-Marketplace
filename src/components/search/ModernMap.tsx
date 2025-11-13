@@ -273,6 +273,34 @@ export function ModernMap({ caregivers, country = 'BE', onCaregiverSelect }: Mod
         dragging: true,
         touchZoom: true,
       })
+      
+      // Prevent map interactions from triggering page navigation
+      // Stop event propagation for all map events
+      const stopPropagation = (e: any) => {
+        if (e.originalEvent) {
+          e.originalEvent.stopPropagation()
+        }
+      }
+      
+      map.on('zoomstart', stopPropagation)
+      map.on('zoom', stopPropagation)
+      map.on('zoomend', stopPropagation)
+      map.on('move', stopPropagation)
+      map.on('moveend', stopPropagation)
+      map.on('drag', stopPropagation)
+      map.on('dragend', stopPropagation)
+      
+      // Prevent clicks/wheel/touch on map container from bubbling up to parent
+      const stopBubble = (e: Event) => {
+        e.stopPropagation()
+      }
+      
+      mapRefElement.addEventListener('click', stopBubble, true)
+      mapRefElement.addEventListener('wheel', stopBubble, true)
+      mapRefElement.addEventListener('touchstart', stopBubble, true)
+      mapRefElement.addEventListener('touchmove', stopBubble, true)
+      mapRefElement.addEventListener('touchend', stopBubble, true)
+      
       mapInstanceRef.current = map
 
       // Add tile layer
@@ -565,11 +593,19 @@ export function ModernMap({ caregivers, country = 'BE', onCaregiverSelect }: Mod
       </div>
 
       {/* Map Container */}
-      <div className="map-container h-[500px] bg-gray-100 rounded-lg relative overflow-hidden">
+      <div 
+        className="map-container h-[500px] bg-gray-100 rounded-lg relative overflow-hidden"
+        onClick={(e) => e.stopPropagation()}
+        onWheel={(e) => e.stopPropagation()}
+        onTouchStart={(e) => e.stopPropagation()}
+        onTouchMove={(e) => e.stopPropagation()}
+        onTouchEnd={(e) => e.stopPropagation()}
+      >
         <div 
           ref={mapRef} 
           className="w-full h-full" 
           key={`map-${country}-${caregivers.length}`}
+          onClick={(e) => e.stopPropagation()}
         />
         {/* Loading overlay - shows until map is initialized */}
         {!mapReady && (
