@@ -84,7 +84,7 @@ function ensureLeafletLoaded(): Promise<void> {
 
 interface ModernMapProps {
   caregivers: Caregiver[]
-  country?: 'BE' | 'NL' // NEW: Country prop
+  country?: 'BE' | 'NL'
   onCaregiverSelect?: (caregiver: Caregiver) => void
 }
 
@@ -95,6 +95,7 @@ export function ModernMap({ caregivers, country = 'BE', onCaregiverSelect }: Mod
   const userMarkerRef = useRef<any>(null)
   const markersRef = useRef<any[]>([])
   const radiusCircleRef = useRef<any>(null)
+  const containerRef = useRef<HTMLDivElement>(null)
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null)
   const [radius, setRadius] = useState(10)
   const [showRadius, setShowRadius] = useState(true)
@@ -236,6 +237,10 @@ export function ModernMap({ caregivers, country = 'BE', onCaregiverSelect }: Mod
     }
 
     const mapRefElement = mapRef.current
+    const containerElement = containerRef.current
+    
+    if (!mapRefElement || !containerElement) return
+
     ensureLeafletLoaded().then(() => {
       const win = window as any
       if (!mapRefElement || !win.L) return
@@ -257,6 +262,26 @@ export function ModernMap({ caregivers, country = 'BE', onCaregiverSelect }: Mod
       console.log(`🗺️ Initializing map for: ${country}, center:`, center)
       console.log(`🗺️ Caregivers to map:`, caregivers.length)
       
+      // CRITICAL: Prevent ALL events from bubbling up to parent
+      // This must be done BEFORE creating the map
+      const stopAllEvents = (e: Event) => {
+        e.stopPropagation()
+        e.stopImmediatePropagation()
+        // Don't prevent default for map interactions, only stop bubbling
+      }
+      
+      // Add event listeners to container BEFORE map creation
+      containerElement.addEventListener('click', stopAllEvents, true)
+      containerElement.addEventListener('dblclick', stopAllEvents, true)
+      containerElement.addEventListener('wheel', stopAllEvents, true)
+      containerElement.addEventListener('touchstart', stopAllEvents, true)
+      containerElement.addEventListener('touchmove', stopAllEvents, true)
+      containerElement.addEventListener('touchend', stopAllEvents, true)
+      containerElement.addEventListener('mousedown', stopAllEvents, true)
+      containerElement.addEventListener('mouseup', stopAllEvents, true)
+      containerElement.addEventListener('mousemove', stopAllEvents, true)
+      containerElement.addEventListener('contextmenu', stopAllEvents, true)
+      
       // Create map with country-specific focus
       map = L.map(mapRefElement, {
         center: center,
@@ -272,34 +297,42 @@ export function ModernMap({ caregivers, country = 'BE', onCaregiverSelect }: Mod
         keyboard: true,
         dragging: true,
         touchZoom: true,
+        // CRITICAL: Prevent map from interfering with page scroll
+        worldCopyJump: false,
       })
       
-      // Prevent map interactions from triggering page navigation
-      // Stop event propagation for all map events
-      const stopPropagation = (e: any) => {
+      // CRITICAL: Stop ALL map events from propagating
+      const stopMapEvents = (e: any) => {
         if (e.originalEvent) {
           e.originalEvent.stopPropagation()
+          e.originalEvent.stopImmediatePropagation()
         }
       }
       
-      map.on('zoomstart', stopPropagation)
-      map.on('zoom', stopPropagation)
-      map.on('zoomend', stopPropagation)
-      map.on('move', stopPropagation)
-      map.on('moveend', stopPropagation)
-      map.on('drag', stopPropagation)
-      map.on('dragend', stopPropagation)
+      // Listen to ALL map events and stop propagation
+      map.on('zoomstart', stopMapEvents)
+      map.on('zoom', stopMapEvents)
+      map.on('zoomend', stopMapEvents)
+      map.on('movestart', stopMapEvents)
+      map.on('move', stopMapEvents)
+      map.on('moveend', stopMapEvents)
+      map.on('dragstart', stopMapEvents)
+      map.on('drag', stopMapEvents)
+      map.on('dragend', stopMapEvents)
+      map.on('click', stopMapEvents)
+      map.on('dblclick', stopMapEvents)
+      map.on('mousedown', stopMapEvents)
+      map.on('mouseup', stopMapEvents)
+      map.on('mousemove', stopMapEvents)
+      map.on('contextmenu', stopMapEvents)
       
-      // Prevent clicks/wheel/touch on map container from bubbling up to parent
-      const stopBubble = (e: Event) => {
-        e.stopPropagation()
-      }
-      
-      mapRefElement.addEventListener('click', stopBubble, true)
-      mapRefElement.addEventListener('wheel', stopBubble, true)
-      mapRefElement.addEventListener('touchstart', stopBubble, true)
-      mapRefElement.addEventListener('touchmove', stopBubble, true)
-      mapRefElement.addEventListener('touchend', stopBubble, true)
+      // Also prevent events on the map container element itself
+      mapRefElement.addEventListener('click', stopAllEvents, true)
+      mapRefElement.addEventListener('dblclick', stopAllEvents, true)
+      mapRefElement.addEventListener('wheel', stopAllEvents, true)
+      mapRefElement.addEventListener('touchstart', stopAllEvents, true)
+      mapRefElement.addEventListener('touchmove', stopAllEvents, true)
+      mapRefElement.addEventListener('touchend', stopAllEvents, true)
       
       mapInstanceRef.current = map
 
@@ -381,7 +414,9 @@ export function ModernMap({ caregivers, country = 'BE', onCaregiverSelect }: Mod
             const popupElement = popup.getElement()
             const button = popupElement?.querySelector('[data-caregiver-id]')
             if (button) {
-              button.addEventListener('click', () => {
+              button.addEventListener('click', (e) => {
+                e.stopPropagation()
+                e.stopImmediatePropagation()
                 if (onCaregiverSelect) {
                   onCaregiverSelect(c)
                 }
@@ -390,7 +425,11 @@ export function ModernMap({ caregivers, country = 'BE', onCaregiverSelect }: Mod
           }
         })
         
-        marker.on('click', () => {
+        marker.on('click', (e) => {
+          if (e.originalEvent) {
+            e.originalEvent.stopPropagation()
+            e.originalEvent.stopImmediatePropagation()
+          }
           onCaregiverSelect?.(c)
         })
         
@@ -433,12 +472,13 @@ export function ModernMap({ caregivers, country = 'BE', onCaregiverSelect }: Mod
           cleanupMap.off()
           cleanupMap.remove()
         }
-        // Note: mapRefElement is captured in closure, safe to use
         if (mapRefElement) {
           mapRefElement.innerHTML = ''
           const anyRef = mapRefElement as any
           delete anyRef._leaflet_id
         }
+        // Note: Event listeners are automatically cleaned up when element is removed
+        // No need to manually remove them
         mapInstanceRef.current = null
         markersRef.current = []
         setMapReady(false)
@@ -530,7 +570,9 @@ export function ModernMap({ caregivers, country = 'BE', onCaregiverSelect }: Mod
   }, [userLocation, radius, showRadius])
 
   // Request browser geolocation and center, respecting Belgium bounds
-  const handleLocateMe = () => {
+  const handleLocateMe = (e: React.MouseEvent) => {
+    e.stopPropagation()
+    e.preventDefault()
     if (!navigator.geolocation) return
     const L = leafletRef.current
     if (!L) return
@@ -554,58 +596,166 @@ export function ModernMap({ caregivers, country = 'BE', onCaregiverSelect }: Mod
   }
 
   return (
-    <div className="relative">
-      {/* Controls: Mijn locatie + Radius (moved to top-right to avoid overlap with Leaflet zoom) */}
-      <div className="absolute top-4 right-4 z-[1000]">
-        <div className="card-tt p-3 flex items-center gap-3">
+    <div 
+      ref={containerRef}
+      className="relative w-full"
+      onClick={(e) => {
+        e.stopPropagation()
+        if (e.nativeEvent) {
+          (e.nativeEvent as any).stopImmediatePropagation()
+        }
+      }}
+      onWheel={(e) => {
+        e.stopPropagation()
+        if (e.nativeEvent) {
+          (e.nativeEvent as any).stopImmediatePropagation()
+        }
+      }}
+      onTouchStart={(e) => {
+        e.stopPropagation()
+        if (e.nativeEvent) {
+          (e.nativeEvent as any).stopImmediatePropagation()
+        }
+      }}
+      onTouchMove={(e) => {
+        e.stopPropagation()
+        if (e.nativeEvent) {
+          (e.nativeEvent as any).stopImmediatePropagation()
+        }
+      }}
+      onTouchEnd={(e) => {
+        e.stopPropagation()
+        if (e.nativeEvent) {
+          (e.nativeEvent as any).stopImmediatePropagation()
+        }
+      }}
+      onMouseDown={(e) => {
+        e.stopPropagation()
+        if (e.nativeEvent) {
+          (e.nativeEvent as any).stopImmediatePropagation()
+        }
+      }}
+      onMouseUp={(e) => {
+        e.stopPropagation()
+        if (e.nativeEvent) {
+          (e.nativeEvent as any).stopImmediatePropagation()
+        }
+      }}
+      style={{ 
+        touchAction: 'none',
+        isolation: 'isolate' // CSS isolation to prevent event bubbling
+      }}
+    >
+      {/* Controls: Mijn locatie + Radius - RESPONSIVE voor mobile */}
+      <div className="absolute top-2 right-2 md:top-4 md:right-4 z-[1000]">
+        <div className="card-tt p-2 md:p-3 flex flex-col sm:flex-row items-start sm:items-center gap-2 md:gap-3 bg-white/95 backdrop-blur-sm shadow-lg rounded-lg">
           <button
             onClick={handleLocateMe}
-            className="btn-accent text-xs px-3 py-1.5"
+            className="btn-accent text-xs px-2 py-1 md:px-3 md:py-1.5 whitespace-nowrap"
+            type="button"
           >
-            Mijn locatie
+            📍 Locatie
           </button>
-          <div className="h-5 w-px bg-black/10 dark:bg-white/10" />
-          <label className="text-xs text-foreground flex items-center gap-2">
-            <input
-              type="checkbox"
-              className="rounded border-gray-300 text-brand focus:ring-brand"
-              checked={showRadius}
-              onChange={(e) => setShowRadius(e.target.checked)}
-            />
-            Radius
-          </label>
-          {showRadius && (
-            <select
-              value={radius}
-              onChange={(e) => setRadius(Number(e.target.value))}
-              className="input-tt text-xs py-1"
-            >
-              <option value={5}>5 km</option>
-              <option value={10}>10 km</option>
-              <option value={20}>20 km</option>
-              <option value={50}>50 km</option>
-            </select>
-          )}
-          <div className="ml-2 text-xs text-muted-foreground">
-            {caregivers.length} verzorgers in {country === 'NL' ? 'Nederland' : 'België'}
+          <div className="hidden sm:block h-5 w-px bg-black/10 dark:bg-white/10" />
+          <div className="flex items-center gap-2">
+            <label className="text-xs text-foreground flex items-center gap-1.5">
+              <input
+                type="checkbox"
+                className="rounded border-gray-300 text-brand focus:ring-brand w-3.5 h-3.5"
+                checked={showRadius}
+                onChange={(e) => {
+                  e.stopPropagation()
+                  setShowRadius(e.target.checked)
+                }}
+              />
+              <span className="hidden sm:inline">Radius</span>
+            </label>
+            {showRadius && (
+              <select
+                value={radius}
+                onChange={(e) => {
+                  e.stopPropagation()
+                  setRadius(Number(e.target.value))
+                }}
+                className="input-tt text-xs py-1 px-1 md:px-2 min-w-[60px]"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <option value={5}>5 km</option>
+                <option value={10}>10 km</option>
+                <option value={20}>20 km</option>
+                <option value={50}>50 km</option>
+              </select>
+            )}
+          </div>
+          <div className="hidden md:block ml-2 text-xs text-muted-foreground whitespace-nowrap">
+            {caregivers.length} in {country === 'NL' ? 'NL' : 'BE'}
           </div>
         </div>
       </div>
 
-      {/* Map Container */}
+      {/* Map Container - FULLY ISOLATED */}
       <div 
-        className="map-container h-[500px] bg-gray-100 rounded-lg relative overflow-hidden"
-        onClick={(e) => e.stopPropagation()}
-        onWheel={(e) => e.stopPropagation()}
-        onTouchStart={(e) => e.stopPropagation()}
-        onTouchMove={(e) => e.stopPropagation()}
-        onTouchEnd={(e) => e.stopPropagation()}
+        className="map-container h-[400px] md:h-[500px] bg-gray-100 rounded-lg relative overflow-hidden w-full"
+        onClick={(e) => {
+          e.stopPropagation()
+          if (e.nativeEvent) {
+            (e.nativeEvent as any).stopImmediatePropagation()
+          }
+        }}
+        onWheel={(e) => {
+          e.stopPropagation()
+          if (e.nativeEvent) {
+            (e.nativeEvent as any).stopImmediatePropagation()
+          }
+        }}
+        onTouchStart={(e) => {
+          e.stopPropagation()
+          if (e.nativeEvent) {
+            (e.nativeEvent as any).stopImmediatePropagation()
+          }
+        }}
+        onTouchMove={(e) => {
+          e.stopPropagation()
+          if (e.nativeEvent) {
+            (e.nativeEvent as any).stopImmediatePropagation()
+          }
+        }}
+        onTouchEnd={(e) => {
+          e.stopPropagation()
+          if (e.nativeEvent) {
+            (e.nativeEvent as any).stopImmediatePropagation()
+          }
+        }}
+        onMouseDown={(e) => {
+          e.stopPropagation()
+          if (e.nativeEvent) {
+            (e.nativeEvent as any).stopImmediatePropagation()
+          }
+        }}
+        onMouseUp={(e) => {
+          e.stopPropagation()
+          if (e.nativeEvent) {
+            (e.nativeEvent as any).stopImmediatePropagation()
+          }
+        }}
+        style={{ 
+          touchAction: 'none',
+          isolation: 'isolate',
+          position: 'relative',
+          zIndex: 1
+        }}
       >
         <div 
           ref={mapRef} 
           className="w-full h-full" 
           key={`map-${country}-${caregivers.length}`}
-          onClick={(e) => e.stopPropagation()}
+          onClick={(e) => {
+            e.stopPropagation()
+            if (e.nativeEvent) {
+              (e.nativeEvent as any).stopImmediatePropagation()
+            }
+          }}
+          style={{ touchAction: 'none' }}
         />
         {/* Loading overlay - shows until map is initialized */}
         {!mapReady && (

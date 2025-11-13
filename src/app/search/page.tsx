@@ -249,8 +249,17 @@ export default function SearchPage({ searchParams }: Props) {
                 })
                 // Always show map, even if empty (so users can see the map functionality)
                 return (
-                  <div className="card-tt p-6">
-                    <h2 className="font-heading text-2xl font-semibold text-foreground mb-4">
+                  <div 
+                    className="card-tt p-4 md:p-6"
+                    onClick={(e) => {
+                      // Only stop if clicking on the card itself, not the map
+                      const target = e.target as HTMLElement
+                      if (target.closest('.map-container')) {
+                        e.stopPropagation()
+                      }
+                    }}
+                  >
+                    <h2 className="font-heading text-xl md:text-2xl font-semibold text-foreground mb-3 md:mb-4">
                       {withCoords.length > 0 
                         ? `Verzorgers op de kaart (${withCoords.length})`
                         : 'Zoek verzorgers op de kaart'
@@ -270,21 +279,31 @@ export default function SearchPage({ searchParams }: Props) {
                           onCaregiverSelect={handleCaregiverSelect}
                         />
                         <div 
-                          className="absolute inset-0 flex items-center justify-center bg-white/80 z-10 rounded-lg pointer-events-none"
-                          onClick={(e) => e.stopPropagation()}
+                          className="absolute inset-0 flex items-center justify-center bg-white/90 backdrop-blur-sm z-10 rounded-lg pointer-events-none"
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            if (e.nativeEvent) {
+              (e.nativeEvent as any).stopImmediatePropagation()
+            }
+                          }}
                         >
-                          <div className="text-center p-6 pointer-events-auto">
+                          <div className="text-center p-4 md:p-6 pointer-events-auto">
                             <div className="text-4xl mb-4">🗺️</div>
-                            <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                            <h3 className="text-base md:text-lg font-semibold text-gray-900 mb-2">
                               Nog geen verzorgers op de kaart
                             </h3>
-                            <p className="text-sm text-gray-600 mb-4">
+                            <p className="text-xs md:text-sm text-gray-600 mb-4">
                               Word verzorger en verschijn hier op de kaart!
                             </p>
                             <Link 
                               href="/auth/register" 
-                              className="inline-block px-6 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors"
-                              onClick={(e) => e.stopPropagation()}
+                              className="inline-block px-4 md:px-6 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors text-sm md:text-base"
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                if (e.nativeEvent) {
+              (e.nativeEvent as any).stopImmediatePropagation()
+            }
+                              }}
                             >
                               Word verzorger
                             </Link>
