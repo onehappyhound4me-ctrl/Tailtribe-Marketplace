@@ -11,16 +11,19 @@ export default function ServicesGrid({ showAll = false, className = '' }: Servic
   const displayServices = showAll ? services : services.slice(0, 6)
 
   return (
-    <section className={`py-16 ${className}`} aria-labelledby="services-heading">
+    <section className={`py-16 ${className}`} aria-labelledby={showAll ? undefined : "services-heading"}>
       <div className="container mx-auto px-4">
-        <div className="text-center mb-12">
-          <h2 id="services-heading" className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-            Onze diensten
-          </h2>
-          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-            Professionele dierenverzorging voor elke behoefte. Kies de dienst die het beste bij jouw situatie past.
-          </p>
-        </div>
+        {/* Only show title/description when NOT showing all services (i.e., on homepage) */}
+        {showAll === false && (
+          <div className="text-center mb-12">
+            <h2 id="services-heading" className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+              Onze diensten
+            </h2>
+            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+              Professionele dierenverzorging voor elke behoefte. Kies de dienst die het beste bij jouw situatie past.
+            </p>
+          </div>
+        )}
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
           {displayServices.map((service: Service) => (

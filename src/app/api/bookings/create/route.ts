@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 import { auth } from '@/lib/auth'
 import { z } from 'zod'
+import { sendBookingRequestEmail } from '@/lib/email-notifications'
 
 const bookingSchema = z.object({
   caregiverId: z.string(),
@@ -72,8 +73,20 @@ export async function POST(request: NextRequest) {
       }
     })
 
-    // TODO: Send email notification to caregiver
-    // TODO: Send confirmation email to owner
+    // Send email notifications
+    try {
+      await sendBookingRequestEmail({
+        caregiverEmail: booking.caregiver.email,
+        caregiverName: booking.caregiver.name,
+        ownerName: booking.owner.name,
+        serviceName: validated.service,
+        date: `${start.toLocaleDateString('nl-NL')} - ${end.toLocaleDateString('nl-NL')}`,
+        bookingId: booking.id
+      })
+    } catch (emailError) {
+      console.error('Error sending booking request email:', emailError)
+      // Don't fail the request if email fails
+    }
 
     return NextResponse.json({
       booking: {

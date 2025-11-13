@@ -23,8 +23,8 @@ export const metadata: Metadata = {
 export default function DienstenPage() {
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Hero Section */}
-      <section className="bg-gradient-to-br from-emerald-600 to-teal-700 text-white py-16">
+      {/* Hero Section - Only visible on desktop (md and up) */}
+      <section className="hidden md:block bg-gradient-to-br from-emerald-600 to-teal-700 text-white py-16">
         <div className="container mx-auto px-4">
           <div className="text-center max-w-4xl mx-auto">
             <h1 className="text-4xl md:text-5xl font-bold mb-6">
@@ -37,7 +37,7 @@ export default function DienstenPage() {
         </div>
       </section>
 
-      {/* Services Grid */}
+      {/* Services Grid - showAll={true} ensures NO duplicate title/description */}
       <ServicesGrid showAll={true} className="bg-white" />
 
       {/* CTA Section */}

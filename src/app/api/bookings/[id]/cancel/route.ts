@@ -4,6 +4,7 @@ import { authOptions } from '@/lib/auth'
 import { db } from '@/lib/db'
 import { calculateCancellation } from '@/lib/cancellation'
 import Stripe from 'stripe'
+import { sendBookingCancellationEmail } from '@/lib/email-notifications'
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: '2024-06-20'
@@ -92,7 +93,20 @@ export async function POST(
       }
     })
 
-    // TODO: Send email to caregiver about cancellation
+    // Send email to caregiver about cancellation
+    try {
+      await sendBookingCancellationEmail({
+        caregiverEmail: booking.caregiver.email,
+        caregiverName: booking.caregiver.name,
+        ownerName: booking.owner.name,
+        serviceName: 'Dierenverzorging', // Default service name
+        date: `${new Date(booking.startAt).toLocaleDateString('nl-NL')} - ${new Date(booking.endAt).toLocaleDateString('nl-NL')}`,
+        refundAmount: cancellation.refundAmount > 0 ? cancellation.refundAmount : undefined
+      })
+    } catch (emailError) {
+      console.error('Error sending cancellation email:', emailError)
+      // Don't fail the request if email fails
+    }
 
     return NextResponse.json({ 
       success: true,

@@ -413,3 +413,136 @@ export async function notifyAdminNewCaregiverProfile(data: {
   }
 }
 
+export async function sendBookingCancellationEmail(data: {
+  caregiverEmail: string
+  caregiverName: string
+  ownerName: string
+  serviceName: string
+  date: string
+  refundAmount?: number
+}) {
+  try {
+    await resend.emails.send({
+      from: FROM_EMAIL,
+      to: data.caregiverEmail,
+      subject: `Boeking geannuleerd door ${data.ownerName}`,
+      html: `
+        <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
+          <h2 style="color: #ef4444;">Boeking Geannuleerd</h2>
+          <p>Hoi ${data.caregiverName},</p>
+          <p>Helaas heeft <strong>${data.ownerName}</strong> de boeking geannuleerd.</p>
+          
+          <div style="background: #f3f4f6; padding: 20px; border-radius: 8px; margin: 20px 0;">
+            <p><strong>Service:</strong> ${data.serviceName}</p>
+            <p><strong>Datum:</strong> ${data.date}</p>
+            ${data.refundAmount !== undefined ? `<p><strong>Terugbetaling:</strong> €${data.refundAmount.toFixed(2)}</p>` : ''}
+          </div>
+          
+          <p>Geen zorgen! Er zijn nog veel andere boekingen beschikbaar.</p>
+          
+          <a href="${process.env.NEXT_PUBLIC_APP_URL}/dashboard/caregiver" 
+             style="display: inline-block; background: #10b981; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; margin-top: 10px;">
+            Naar Dashboard
+          </a>
+          
+          <p style="margin-top: 30px; color: #6b7280; font-size: 14px;">
+            Met vriendelijke groet,<br>
+            Het TailTribe Team
+          </p>
+        </div>
+      `
+    })
+  } catch (error) {
+    console.error('Error sending booking cancellation email:', error)
+  }
+}
+
+export async function sendRefundEmail(data: {
+  ownerEmail: string
+  ownerName: string
+  amount: number
+  bookingId: string
+  reason?: string
+}) {
+  try {
+    await resend.emails.send({
+      from: FROM_EMAIL,
+      to: data.ownerEmail,
+      subject: `Terugbetaling bevestigd - €${data.amount.toFixed(2)}`,
+      html: `
+        <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
+          <h2 style="color: #10b981;">✓ Terugbetaling Verwerkt</h2>
+          <p>Hoi ${data.ownerName},</p>
+          <p>Je terugbetaling is succesvol verwerkt.</p>
+          
+          <div style="background: #f3f4f6; padding: 20px; border-radius: 8px; margin: 20px 0;">
+            <p><strong>Bedrag:</strong> <span style="color: #10b981; font-size: 24px; font-weight: bold;">€${data.amount.toFixed(2)}</span></p>
+            <p><strong>Boeking ID:</strong> ${data.bookingId}</p>
+            ${data.reason ? `<p><strong>Reden:</strong> ${data.reason}</p>` : ''}
+          </div>
+          
+          <p>Het bedrag wordt binnen 5-10 werkdagen op je rekening teruggestort.</p>
+          
+          <a href="${process.env.NEXT_PUBLIC_APP_URL}/bookings" 
+             style="display: inline-block; background: #10b981; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; margin-top: 10px;">
+            Bekijk Boekingen
+          </a>
+          
+          <p style="margin-top: 30px; color: #6b7280; font-size: 14px;">
+            Met vriendelijke groet,<br>
+            Het TailTribe Team
+          </p>
+        </div>
+      `
+    })
+  } catch (error) {
+    console.error('Error sending refund email:', error)
+  }
+}
+
+export async function sendServiceCompletionEmail(data: {
+  ownerEmail: string
+  ownerName: string
+  caregiverName: string
+  serviceName: string
+  bookingId: string
+  date: string
+  notes?: string
+}) {
+  try {
+    await resend.emails.send({
+      from: FROM_EMAIL,
+      to: data.ownerEmail,
+      subject: `Service voltooid door ${data.caregiverName}`,
+      html: `
+        <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
+          <h2 style="color: #10b981;">✓ Service Voltooid!</h2>
+          <p>Hoi ${data.ownerName},</p>
+          <p><strong>${data.caregiverName}</strong> heeft de service succesvol voltooid.</p>
+          
+          <div style="background: #f3f4f6; padding: 20px; border-radius: 8px; margin: 20px 0;">
+            <p><strong>Verzorger:</strong> ${data.caregiverName}</p>
+            <p><strong>Service:</strong> ${data.serviceName}</p>
+            <p><strong>Datum:</strong> ${data.date}</p>
+            ${data.notes ? `<p><strong>Notities:</strong> ${data.notes}</p>` : ''}
+          </div>
+          
+          <p>We horen graag hoe het is gegaan! Laat een review achter om andere eigenaren te helpen.</p>
+          
+          <a href="${process.env.NEXT_PUBLIC_APP_URL}/reviews/write?booking=${data.bookingId}" 
+             style="display: inline-block; background: #10b981; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; margin-top: 10px;">
+            Schrijf een Review
+          </a>
+          
+          <p style="margin-top: 30px; color: #6b7280; font-size: 14px;">
+            Met vriendelijke groet,<br>
+            Het TailTribe Team
+          </p>
+        </div>
+      `
+    })
+  } catch (error) {
+    console.error('Error sending service completion email:', error)
+  }
+}
+

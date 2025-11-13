@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 import { auth } from '@/lib/auth'
 import Stripe from 'stripe'
+import { sendRefundEmail } from '@/lib/email-notifications'
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
   apiVersion: '2024-06-20',
@@ -25,7 +26,12 @@ export async function POST(
 
     // Get booking
     const booking = await db.booking.findUnique({
-      where: { id: params.id }
+      where: { id: params.id },
+      include: {
+        owner: {
+          select: { name: true, email: true }
+        }
+      }
     })
 
     if (!booking) {
@@ -88,7 +94,19 @@ export async function POST(
       }
     })
 
-    // TODO: Send email notifications
+    // Send email notifications
+    try {
+      await sendRefundEmail({
+        ownerEmail: booking.owner.email,
+        ownerName: booking.owner.name,
+        amount: refundAmount / 100,
+        bookingId: booking.id,
+        reason: reason || undefined
+      })
+    } catch (emailError) {
+      console.error('Error sending refund email:', emailError)
+      // Don't fail the request if email fails
+    }
 
     return NextResponse.json({
       refund: {

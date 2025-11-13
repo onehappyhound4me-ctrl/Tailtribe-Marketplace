@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { db } from '@/lib/db'
+import { sendServiceCompletionEmail } from '@/lib/email-notifications'
 
 export async function POST(req: NextRequest) {
   try {
@@ -83,15 +84,21 @@ export async function POST(req: NextRequest) {
       }
     })
 
-    // TODO: Send email notification to owner
-    // await sendServiceCompletionEmail({
-    //   to: booking.owner.email,
-    //   ownerName: booking.owner.name,
-    //   caregiverName: user.name,
-    //   bookingId: booking.id,
-    //   photos,
-    //   notes
-    // })
+    // Send email notification to owner
+    try {
+      await sendServiceCompletionEmail({
+        ownerEmail: booking.owner.email,
+        ownerName: booking.owner.name,
+        caregiverName: user.name || 'Verzorger',
+        serviceName: 'Dierenverzorging', // Default service name
+        bookingId: booking.id,
+        date: `${new Date(booking.startAt).toLocaleDateString('nl-NL')} - ${new Date(booking.endAt).toLocaleDateString('nl-NL')}`,
+        notes: notes || undefined
+      })
+    } catch (emailError) {
+      console.error('Error sending service completion email:', emailError)
+      // Don't fail the request if email fails
+    }
 
     return NextResponse.json({
       success: true,
