@@ -13,22 +13,8 @@ const sendVerificationRequest = async ({ identifier: email, url }: any) => {
   // In development, just log the magic link to console
 }
 
-// Normalize NEXTAUTH_URL to handle www vs non-www
-const getBaseUrl = () => {
-  const url = process.env.NEXTAUTH_URL || process.env.NEXT_PUBLIC_APP_URL || 'https://tailtribe.be'
-  // Remove trailing slash and normalize to non-www
-  const normalized = url.replace(/\/$/, '').replace(/^https?:\/\/(www\.)?/, 'https://')
-  console.log('[AUTH] getBaseUrl:', { original: url, normalized, NEXTAUTH_URL: process.env.NEXTAUTH_URL })
-  return normalized
-}
-
-// Get normalized redirect URI for Google OAuth
-const getGoogleRedirectUri = () => {
-  // Force exact URL to match Google Cloud Console
-  const redirectUri = 'https://tailtribe.be/api/auth/callback/google'
-  console.log('[AUTH] Google redirect URI:', { redirectUri, NEXTAUTH_URL: process.env.NEXTAUTH_URL })
-  return redirectUri
-}
+// NextAuth will automatically construct the redirect URI from NEXTAUTH_URL
+// No need for manual redirect URI configuration
 
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(db) as any,
@@ -83,10 +69,9 @@ export const authOptions: NextAuthOptions = {
           prompt: "consent",
           access_type: "offline",
           response_type: "code",
-          redirect_uri: 'https://tailtribe.be/api/auth/callback/google'
         }
       }
-    } as any),
+    }),
     // EmailProvider disabled - causes build errors with nodemailer fs dependency
     // EmailProvider({
     //   server: "smtp://localhost:587",
@@ -195,53 +180,46 @@ export const authOptions: NextAuthOptions = {
       return session
     },
     async signIn({ user, account, profile }) {
-      // For Google OAuth, ensure user exists in database
+      // For Google OAuth, only allow login if user already exists in database
       if (account?.provider === 'google' && user.email) {
         try {
           const existingUser = await db.user.findUnique({
             where: { email: user.email }
           })
           
-          console.log('[AUTH] Google signIn - existingUser:', existingUser?.id, existingUser?.role)
+          console.log('[AUTH] Google signIn - existingUser:', existingUser?.id, existingUser?.role, 'email:', user.email)
           
-          // If user doesn't exist or has no role, set default role
-          if (!existingUser || !existingUser.role) {
-            // Type assertion for Google profile
-            const googleProfile = profile as any
-            const updatedUser = await db.user.upsert({
-              where: { email: user.email },
-              update: {
-                role: existingUser?.role || 'OWNER'
-              },
-              create: {
-                email: user.email,
-                name: user.name || googleProfile?.name || null,
-                image: user.image || googleProfile?.picture || null,
-                role: 'OWNER', // Default role for new Google users
-                emailVerified: new Date()
-              }
-            })
-            console.log('[AUTH] Google signIn - user upserted:', updatedUser.id, updatedUser.role)
+          // Block login if user doesn't exist - they must register first
+          if (!existingUser) {
+            console.log('[AUTH] Google signIn - user not found, blocking login for:', user.email)
+            // Return false to trigger AccessDenied error
+            return false
           }
-        } catch (error) {
+          
+          // Allow login if user exists
+          console.log('[AUTH] Google signIn - user found, allowing login')
+          return true
+        } catch (error: any) {
           console.error('[AUTH] Error in signIn callback:', error)
-          // Don't block sign-in, but log error
+          // Block sign-in on any error
+          return false
         }
       }
       
+      // Allow credentials provider to proceed
       return true
     },
     async redirect({ url, baseUrl }) {
       console.log('[AUTH] Redirect callback:', { url, baseUrl, NEXTAUTH_URL: process.env.NEXTAUTH_URL })
       
-      // If url is relative, make it absolute
+      // Allow relative URLs (e.g. "/dashboard")
       if (url.startsWith('/')) {
         const redirectUrl = `${baseUrl}${url}`
         console.log('[AUTH] Redirect to (relative):', redirectUrl)
         return redirectUrl
       }
       
-      // If url is same origin, allow it
+      // Allow same-origin absolute URLs
       try {
         const urlObj = new URL(url)
         if (urlObj.origin === baseUrl) {
@@ -249,10 +227,12 @@ export const authOptions: NextAuthOptions = {
           return url
         }
       } catch (e) {
+        // Ignore parsing errors and fallback below
         console.log('[AUTH] URL parsing failed:', e)
       }
       
-      // Default redirect to dashboard
+      // Default for sign-in: send users to the main dashboard
+      // Never redirect back to /login or /auth/signin for authenticated users
       const dashboardUrl = `${baseUrl}/dashboard`
       console.log('[AUTH] Redirect to dashboard (default):', dashboardUrl)
       return dashboardUrl

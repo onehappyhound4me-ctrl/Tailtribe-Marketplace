@@ -1,7 +1,7 @@
 'use client'
 
-import { useState } from 'react'
-import { signIn } from 'next-auth/react'
+import { useState, useEffect } from 'react'
+import { signIn, useSession } from 'next-auth/react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
@@ -16,6 +16,38 @@ export default function SignInPage() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const callbackUrl = searchParams?.get('callbackUrl') || '/dashboard'
+  const error = searchParams?.get('error')
+  const { data: session, status } = useSession()
+
+  // Debug: log all params and error
+  useEffect(() => {
+    const allParams = Object.fromEntries(searchParams?.entries() || [])
+    console.log('[SIGNIN] Page loaded - error:', error, 'all params:', allParams)
+    console.log('[SIGNIN] Full URL:', typeof window !== 'undefined' ? window.location.href : 'SSR')
+    console.log('[SIGNIN] Session status:', status, 'has session:', !!session)
+  }, [error, searchParams, status, session])
+
+  // Redirect if already authenticated (prevent loops)
+  useEffect(() => {
+    if (status === 'authenticated' && session) {
+      console.log('[SIGNIN] Already authenticated, redirecting to dashboard')
+      router.push(callbackUrl)
+      router.refresh()
+    }
+  }, [status, session, callbackUrl, router])
+
+  // Check if error indicates no account (case-insensitive, handle all NextAuth error types)
+  const showNoAccountError = error && (
+    error === 'AccessDenied' || 
+    error === 'NoAccount' ||
+    error === 'OAuthSignin' ||
+    error === 'OAuthCallback' ||
+    error === 'OAuthCreateAccount' ||
+    error.toLowerCase() === 'accessdenied' ||
+    error.toLowerCase() === 'noaccount' ||
+    error.toLowerCase().includes('access') ||
+    error.toLowerCase().includes('denied')
+  )
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -67,6 +99,37 @@ export default function SignInPage() {
             Log in op je account
           </p>
         </div>
+
+        {/* Error Message - No Account */}
+        {showNoAccountError ? (
+          <div className="mb-6 p-4 bg-amber-50 border-2 border-amber-200 rounded-xl shadow-sm">
+            <div className="flex items-start gap-3">
+              <svg className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+              </svg>
+              <div className="flex-1">
+                <p className="text-sm font-medium text-amber-900 mb-3">
+                  Je hebt nog geen TailTribe account met dit e-mailadres. Registreer je eerst.
+                </p>
+                <Link href="/auth/register">
+                  <Button
+                    type="button"
+                    className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-lg py-2.5 px-4 text-sm transition-colors"
+                  >
+                    Account aanmaken
+                  </Button>
+                </Link>
+              </div>
+            </div>
+          </div>
+        ) : error ? (
+          // Debug: Show any other error for troubleshooting
+          <div className="mb-6 p-4 bg-red-50 border-2 border-red-200 rounded-xl">
+            <p className="text-sm text-red-800">
+              Error: {error} (Debug: This error is not handled)
+            </p>
+          </div>
+        ) : null}
 
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Email */}
