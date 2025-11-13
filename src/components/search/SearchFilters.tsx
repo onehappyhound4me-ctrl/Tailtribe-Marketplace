@@ -5,6 +5,7 @@ import { useRouter, useSearchParams, usePathname } from 'next/navigation'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { getCurrentCountry } from '@/lib/utils'
+import { serviceCodeToSlugFn, serviceSlugToCodeFn } from '@/lib/service-slugs'
 
 interface SearchFiltersProps {
   onFiltersChange?: (filters: SearchFilters) => void
@@ -45,9 +46,13 @@ export function SearchFilters({ onFiltersChange }: SearchFiltersProps) {
   const [searchPath, setSearchPath] = useState('/search')
   const [currentCountry, setCurrentCountry] = useState<'BE' | 'NL'>('BE')
   
+  // Convert URL slug to service code for internal use
+  const serviceParam = searchParams.get('service') || ''
+  const serviceCode = serviceParam ? serviceSlugToCodeFn(serviceParam) : ''
+  
   const [filters, setFilters] = useState<SearchFilters>({
     city: searchParams.get('city') || '',
-    service: searchParams.get('service') || '',
+    service: serviceCode, // Store as code internally
     availability: searchParams.get('availability') || ''
   })
   
@@ -95,10 +100,18 @@ export function SearchFilters({ onFiltersChange }: SearchFiltersProps) {
     const updatedFilters = { ...filters, ...newFilters }
     setFilters(updatedFilters)
     
-    // Update URL params
+    // Update URL params - convert service code to Dutch slug for URL
     const params = new URLSearchParams()
     Object.entries(updatedFilters).forEach(([key, value]) => {
-      if (value) params.set(key, value)
+      if (value) {
+        if (key === 'service') {
+          // Convert service code to Dutch slug for URL
+          const slug = serviceCodeToSlugFn(value)
+          params.set(key, slug)
+        } else {
+          params.set(key, value)
+        }
+      }
     })
     
     router.push(`${searchPath}?${params.toString()}`)

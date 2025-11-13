@@ -13,6 +13,7 @@ import { ModernMap } from '@/components/search/ModernMap'
 import { CaregiverCard } from '@/components/search/CaregiverCard'
 import { SkeletonGrid } from '@/components/loading/SkeletonCard'
 import { serviceLabels } from '@/lib/types'
+import { serviceSlugToCodeFn } from '@/lib/service-slugs'
 
 interface SearchParams {
   city?: string
@@ -33,7 +34,11 @@ async function getCaregivers(
 ) {
   const params = new URLSearchParams()
   if (searchParams.city) params.set('city', searchParams.city)
-  if (searchParams.service) params.set('service', searchParams.service)
+  // Convert Dutch slug to service code for API
+  if (searchParams.service) {
+    const serviceCode = serviceSlugToCodeFn(searchParams.service)
+    params.set('service', serviceCode)
+  }
   if (searchParams.maxRate) params.set('maxRate', searchParams.maxRate)
   if (userLocation) {
     params.set('userLat', userLocation.lat.toString())
@@ -80,8 +85,10 @@ export default function SearchPage({ searchParams }: Props) {
   const { data: session, status } = useSession()
 
   // Derive live filters from URL (client-side) to ensure refetch on user changes
+  // Note: service in URL is Dutch slug, but we convert it for API calls
   const liveCity = clientSearchParams.get('city') || searchParams.city || ''
-  const liveService = clientSearchParams.get('service') || searchParams.service || ''
+  const liveServiceSlug = clientSearchParams.get('service') || searchParams.service || ''
+  const liveService = liveServiceSlug ? serviceSlugToCodeFn(liveServiceSlug) : ''
   const liveMaxRate = clientSearchParams.get('maxRate') || searchParams.maxRate || ''
   const preSelectedCaregiver = clientSearchParams.get('caregiver') || searchParams.caregiver || ''
   const preSelectedDate = clientSearchParams.get('date') || searchParams.date || ''
@@ -104,10 +111,10 @@ export default function SearchPage({ searchParams }: Props) {
   useEffect(() => {
     let mounted = true
     setIsLoading(true)
-    getCaregivers(
-      { city: liveCity, service: liveService, maxRate: liveMaxRate },
-      userLocation || undefined
-    ).then((data) => {
+        getCaregivers(
+          { city: liveCity, service: liveServiceSlug, maxRate: liveMaxRate },
+          userLocation || undefined
+        ).then((data) => {
       if (mounted) {
         setCaregivers(data)
         setIsLoading(false)
@@ -118,10 +125,10 @@ export default function SearchPage({ searchParams }: Props) {
         setIsLoading(false)
       }
     })
-    return () => {
-      mounted = false
-    }
-  }, [liveCity, liveService, liveMaxRate, userLocation])
+        return () => {
+          mounted = false
+        }
+      }, [liveCity, liveServiceSlug, liveMaxRate, userLocation])
 
   // Pre-select caregiver when coming from owner calendar
   useEffect(() => {
@@ -230,7 +237,7 @@ export default function SearchPage({ searchParams }: Props) {
             <div className="space-y-8">
               <SkeletonGrid count={6} />
             </div>
-          ) : caregivers.length > 0 ? (
+          ) : (
             <div className="space-y-8">
               {/* Modern Map Section - Always show map, even without caregivers */}
               {(() => {
@@ -286,52 +293,54 @@ export default function SearchPage({ searchParams }: Props) {
               })()}
 
               {/* Caregiver Cards Section */}
-              <div id="caregiver-cards" className="space-y-6">
-                <div className="flex items-center justify-between">
-                  <h2 className="font-heading text-2xl font-semibold text-foreground">
-                    Alle verzorgers
-                  </h2>
-                  <div className="text-sm text-muted-foreground">
-                    {caregivers.length} verzorgers gevonden
+              {caregivers.length > 0 ? (
+                <div id="caregiver-cards" className="space-y-6">
+                  <div className="flex items-center justify-between">
+                    <h2 className="font-heading text-2xl font-semibold text-foreground">
+                      Alle verzorgers
+                    </h2>
+                    <div className="text-sm text-muted-foreground">
+                      {caregivers.length} verzorgers gevonden
+                    </div>
+                  </div>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {caregivers.map(caregiver => {
+                      const isPreSelected = preSelectedCaregiver === caregiver.id
+                      const isSelected = selectedCaregiver?.id === caregiver.id
+                      
+                      return (
+                        <CaregiverCard
+                          key={caregiver.id}
+                          caregiver={caregiver}
+                          distance={caregiver.distance} // Distance in km from API
+                          onSelect={() => handleCaregiverSelect(caregiver)}
+                          isSelected={isSelected}
+                          isPreSelected={isPreSelected}
+                        />
+                      )
+                    })}
                   </div>
                 </div>
-                
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {caregivers.map(caregiver => {
-                    const isPreSelected = preSelectedCaregiver === caregiver.id
-                    const isSelected = selectedCaregiver?.id === caregiver.id
-                    
-                    return (
-                      <CaregiverCard
-                        key={caregiver.id}
-                        caregiver={caregiver}
-                        distance={caregiver.distance} // Distance in km from API
-                        onSelect={() => handleCaregiverSelect(caregiver)}
-                        isSelected={isSelected}
-                        isPreSelected={isPreSelected}
-                      />
-                    )
-                  })}
-                </div>
-              </div>
+              ) : (
+                <Card className="card-tt">
+                  <CardContent className="text-center py-12">
+                    <div className="text-6xl mb-4">🔍</div>
+                    <h3 className="font-heading text-xl font-semibold text-foreground mb-2">
+                      Geen verzorgers gevonden
+                    </h3>
+                    <p className="text-muted-foreground mb-6">
+                      Probeer een andere stad of service te selecteren.
+                    </p>
+                    <Button variant="outline" asChild>
+                      <Link href="/search">
+                        Wis filters
+                      </Link>
+                    </Button>
+                  </CardContent>
+                </Card>
+              )}
             </div>
-          ) : (
-            <Card className="card-tt">
-              <CardContent className="text-center py-12">
-                <div className="text-6xl mb-4">🔍</div>
-                <h3 className="font-heading text-xl font-semibold text-foreground mb-2">
-                  Geen verzorgers gevonden
-                </h3>
-                <p className="text-muted-foreground mb-6">
-                  Probeer een andere stad of service te selecteren.
-                </p>
-                <Button variant="outline" asChild>
-                  <Link href="/search">
-                    Wis filters
-                  </Link>
-                </Button>
-              </CardContent>
-            </Card>
           )}
         </div>
       </div>
