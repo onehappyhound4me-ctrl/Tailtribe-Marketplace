@@ -232,6 +232,42 @@ export function ModernMap({ caregivers, country = 'BE', onCaregiverSelect }: Mod
         worldCopyJump: false,
       })
       
+      // CRITICAL: Prevent Leaflet zoom controls from triggering navigation
+      // Intercept clicks on zoom control buttons BEFORE they bubble up
+      map.whenReady(() => {
+        // Find zoom control container
+        const zoomControl = mapRefElement.querySelector('.leaflet-control-zoom')
+        if (zoomControl) {
+          // Stop all events on zoom control from bubbling
+          const stopBubble = (e: Event) => {
+            e.stopPropagation()
+            e.stopImmediatePropagation()
+          }
+          
+          zoomControl.addEventListener('click', stopBubble, true)
+          zoomControl.addEventListener('mousedown', stopBubble, true)
+          zoomControl.addEventListener('mouseup', stopBubble, true)
+          zoomControl.addEventListener('touchstart', stopBubble, true)
+          zoomControl.addEventListener('touchend', stopBubble, true)
+          
+          // Also stop events on individual buttons
+          const zoomIn = zoomControl.querySelector('.leaflet-control-zoom-in')
+          const zoomOut = zoomControl.querySelector('.leaflet-control-zoom-out')
+          
+          if (zoomIn) {
+            zoomIn.addEventListener('click', stopBubble, true)
+            zoomIn.addEventListener('mousedown', stopBubble, true)
+            zoomIn.addEventListener('mouseup', stopBubble, true)
+          }
+          
+          if (zoomOut) {
+            zoomOut.addEventListener('click', stopBubble, true)
+            zoomOut.addEventListener('mousedown', stopBubble, true)
+            zoomOut.addEventListener('mouseup', stopBubble, true)
+          }
+        }
+      })
+      
       mapInstanceRef.current = map
 
       // Add tile layer
@@ -490,26 +526,50 @@ export function ModernMap({ caregivers, country = 'BE', onCaregiverSelect }: Mod
         </div>
       </div>
 
-      {/* Map Container - Only prevent navigation, not map interactions */}
+      {/* Map Container - Prevent ALL events from bubbling to parent */}
       <div 
         className="map-container h-[400px] md:h-[500px] bg-gray-100 rounded-lg relative overflow-hidden w-full"
         onMouseDown={(e) => {
-          // Only stop if clicking outside map area (on container background)
-          const target = e.target as HTMLElement
-          if (target === e.currentTarget || target.classList.contains('map-container')) {
-            e.stopPropagation()
-          }
+          e.stopPropagation()
+        }}
+        onMouseUp={(e) => {
+          e.stopPropagation()
+        }}
+        onClick={(e) => {
+          e.stopPropagation()
+        }}
+        onWheel={(e) => {
+          e.stopPropagation()
+        }}
+        onTouchStart={(e) => {
+          e.stopPropagation()
+        }}
+        onTouchMove={(e) => {
+          e.stopPropagation()
+        }}
+        onTouchEnd={(e) => {
+          e.stopPropagation()
         }}
         style={{ 
           touchAction: 'pan-y pinch-zoom', // Allow vertical scroll and pinch zoom
           position: 'relative',
-          zIndex: 1
+          zIndex: 1,
+          isolation: 'isolate' // CSS isolation to prevent event bubbling
         }}
       >
         <div 
           ref={mapRef} 
           className="w-full h-full" 
           key={`map-${country}-${caregivers.length}`}
+          onMouseDown={(e) => {
+            e.stopPropagation()
+          }}
+          onMouseUp={(e) => {
+            e.stopPropagation()
+          }}
+          onClick={(e) => {
+            e.stopPropagation()
+          }}
           style={{ touchAction: 'none' }} // Leaflet handles its own touch
         />
         {!mapReady && (
