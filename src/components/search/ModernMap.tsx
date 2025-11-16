@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useRef, useMemo } from 'react';
+import React, { useEffect, useRef, useMemo, useState } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMapEvents, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
@@ -32,107 +32,13 @@ interface ModernMapProps {
   country?: string;
 }
 
-// CRITICAL: Component die ALLE events op de map container blokkeert VOORDAT ze naar parent kunnen
-function MapIsolationWrapper({ children }: { children: React.ReactNode }) {
-  const wrapperRef = useRef<HTMLDivElement>(null);
+// Custom Zoom Controls die WEL werken - buiten de map container
+function CustomZoomControls({ map }: { map: L.Map | null }) {
+  const [zoom, setZoom] = useState(10);
 
   useEffect(() => {
-    const wrapper = wrapperRef.current;
-    if (!wrapper) return;
-
-    // ULTRA AGGRESSIVE: Blokkeer ALLE events die navigatie kunnen triggeren
-    const blockNavigation = (e: Event) => {
-      e.stopPropagation();
-      e.stopImmediatePropagation();
-      if (e.cancelable) {
-        e.preventDefault();
-      }
-      return false;
-    };
-
-    const navigationEvents = [
-      'click',
-      'dblclick',
-      'mousedown',
-      'mouseup',
-      'touchstart',
-      'touchend',
-      'touchmove',
-      'contextmenu',
-      'pointerdown',
-      'pointerup',
-    ];
-
-    // Capture phase blocking
-    navigationEvents.forEach(eventType => {
-      wrapper.addEventListener(eventType, blockNavigation, { capture: true, passive: false });
-    });
-
-    // Document level blocking voor events die van de map komen
-    const blockDocumentEvents = (e: Event) => {
-      const target = e.target as HTMLElement;
-      if (wrapper.contains(target)) {
-        e.stopPropagation();
-        e.stopImmediatePropagation();
-        if (e.cancelable) {
-          e.preventDefault();
-        }
-      }
-    };
-
-    navigationEvents.forEach(eventType => {
-      document.addEventListener(eventType, blockDocumentEvents, { capture: true, passive: false });
-    });
-
-    return () => {
-      navigationEvents.forEach(eventType => {
-        wrapper.removeEventListener(eventType, blockNavigation, { capture: true } as any);
-        document.removeEventListener(eventType, blockDocumentEvents, { capture: true } as any);
-      });
-    };
-  }, []);
-
-  return (
-    <div
-      ref={wrapperRef}
-      style={{
-        position: 'relative',
-        width: '100%',
-        height: '100%',
-        isolation: 'isolate',
-        zIndex: 1,
-        pointerEvents: 'auto',
-      }}
-      onClick={(e) => {
-        e.stopPropagation();
-        e.preventDefault();
-        e.nativeEvent.stopImmediatePropagation();
-      }}
-      onDoubleClick={(e) => {
-        e.stopPropagation();
-        e.preventDefault();
-        e.nativeEvent.stopImmediatePropagation();
-      }}
-      onMouseDown={(e) => {
-        e.stopPropagation();
-        e.nativeEvent.stopImmediatePropagation();
-      }}
-      onMouseUp={(e) => {
-        e.stopPropagation();
-        e.nativeEvent.stopImmediatePropagation();
-      }}
-    >
-      {children}
-    </div>
-  );
-}
-
-// Custom Zoom Controls die WEL werken
-function CustomZoomControls() {
-  const map = useMap();
-  const [zoom, setZoom] = React.useState(map.getZoom());
-
-  useEffect(() => {
+    if (!map) return;
+    setZoom(map.getZoom());
     const updateZoom = () => setZoom(map.getZoom());
     map.on('zoomend', updateZoom);
     return () => {
@@ -144,22 +50,33 @@ function CustomZoomControls() {
     e.stopPropagation();
     e.preventDefault();
     e.nativeEvent.stopImmediatePropagation();
-    map.zoomIn();
+    if (map) {
+      map.zoomIn();
+    }
   };
 
   const handleZoomOut = (e: React.MouseEvent) => {
     e.stopPropagation();
     e.preventDefault();
     e.nativeEvent.stopImmediatePropagation();
-    map.zoomOut();
+    if (map) {
+      map.zoomOut();
+    }
   };
 
+  if (!map) return null;
+
   return (
-    <div className="absolute top-4 right-4 z-[1000] flex flex-col gap-2 shadow-xl">
+    <div className="absolute top-4 right-4 z-[10000] flex flex-col gap-2 shadow-2xl pointer-events-auto">
       <button
         type="button"
         onClick={handleZoomIn}
-        className="w-12 h-12 bg-white/95 backdrop-blur-sm border-2 border-gray-200 rounded-lg flex items-center justify-center text-2xl font-bold text-gray-700 hover:bg-emerald-50 hover:border-emerald-400 hover:text-emerald-600 transition-all duration-200 active:scale-95 shadow-md"
+        onMouseDown={(e) => {
+          e.stopPropagation();
+          e.preventDefault();
+          e.nativeEvent.stopImmediatePropagation();
+        }}
+        className="w-14 h-14 bg-white border-2 border-gray-300 rounded-xl flex items-center justify-center text-3xl font-bold text-gray-700 hover:bg-emerald-50 hover:border-emerald-500 hover:text-emerald-600 transition-all duration-200 active:scale-90 shadow-lg cursor-pointer"
         aria-label="Zoom in"
       >
         +
@@ -167,7 +84,12 @@ function CustomZoomControls() {
       <button
         type="button"
         onClick={handleZoomOut}
-        className="w-12 h-12 bg-white/95 backdrop-blur-sm border-2 border-gray-200 rounded-lg flex items-center justify-center text-2xl font-bold text-gray-700 hover:bg-emerald-50 hover:border-emerald-400 hover:text-emerald-600 transition-all duration-200 active:scale-95 shadow-md"
+        onMouseDown={(e) => {
+          e.stopPropagation();
+          e.preventDefault();
+          e.nativeEvent.stopImmediatePropagation();
+        }}
+        className="w-14 h-14 bg-white border-2 border-gray-300 rounded-xl flex items-center justify-center text-3xl font-bold text-gray-700 hover:bg-emerald-50 hover:border-emerald-500 hover:text-emerald-600 transition-all duration-200 active:scale-90 shadow-lg cursor-pointer"
         aria-label="Zoom out"
       >
         −
@@ -176,12 +98,26 @@ function CustomZoomControls() {
   );
 }
 
+// Component om map instance te krijgen
+function MapInstanceGetter({ onMapReady }: { onMapReady: (map: L.Map) => void }) {
+  const map = useMap();
+  
+  useEffect(() => {
+    onMapReady(map);
+  }, [map, onMapReady]);
+
+  return null;
+}
+
 // Component om Leaflet map events te gebruiken zonder navigatie
 function MapEventHandler({ onCaregiverSelect }: { onCaregiverSelect?: (caregiver: Caregiver) => void }) {
   useMapEvents({
     click: (e) => {
       e.originalEvent.stopPropagation();
       e.originalEvent.stopImmediatePropagation();
+      if (e.originalEvent.cancelable) {
+        e.originalEvent.preventDefault();
+      }
     },
   });
 
@@ -195,10 +131,57 @@ const ModernMap: React.FC<ModernMapProps> = ({
   onCaregiverSelect,
   country = 'BE',
 }) => {
-  const [isMounted, setIsMounted] = React.useState(false);
+  const [isMounted, setIsMounted] = useState(false);
+  const [mapInstance, setMapInstance] = useState<L.Map | null>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
 
-  React.useEffect(() => {
+  useEffect(() => {
     setIsMounted(true);
+  }, []);
+
+  // ULTRA AGGRESSIVE: Blokkeer ALLE events op container niveau
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    const blockAllEvents = (e: Event) => {
+      e.stopPropagation();
+      e.stopImmediatePropagation();
+      if (e.cancelable) {
+        e.preventDefault();
+      }
+      return false;
+    };
+
+    const events = ['click', 'dblclick', 'mousedown', 'mouseup', 'touchstart', 'touchend', 'contextmenu'];
+    
+    // Capture phase - blokkeer VOORDAT events naar child gaan
+    events.forEach(eventType => {
+      container.addEventListener(eventType, blockAllEvents, { capture: true, passive: false });
+    });
+
+    // Document level blocking
+    const blockDocumentEvents = (e: Event) => {
+      const target = e.target as HTMLElement;
+      if (container.contains(target) && !target.closest('.custom-zoom-controls')) {
+        e.stopPropagation();
+        e.stopImmediatePropagation();
+        if (e.cancelable) {
+          e.preventDefault();
+        }
+      }
+    };
+
+    events.forEach(eventType => {
+      document.addEventListener(eventType, blockDocumentEvents, { capture: true, passive: false });
+    });
+
+    return () => {
+      events.forEach(eventType => {
+        container.removeEventListener(eventType, blockAllEvents, { capture: true } as any);
+        document.removeEventListener(eventType, blockDocumentEvents, { capture: true } as any);
+      });
+    };
   }, []);
 
   const caregiversWithCoords = useMemo(() => {
@@ -242,60 +225,82 @@ const ModernMap: React.FC<ModernMapProps> = ({
   }
 
   return (
-    <div className="w-full h-[400px] rounded-2xl overflow-hidden border-2 border-gray-200 shadow-xl relative bg-white">
-      <MapIsolationWrapper>
-        <MapContainer
-          center={mapCenter}
-          zoom={zoom}
-          style={{ height: '100%', width: '100%', zIndex: 1 }}
-          zoomControl={false}
-          attributionControl={false}
-          scrollWheelZoom={true}
-          doubleClickZoom={true}
-          dragging={true}
-          touchZoom={true}
-          boxZoom={true}
-          keyboard={false}
-        >
-          <TileLayer
-            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-          />
-          
-          <MapEventHandler onCaregiverSelect={onCaregiverSelect} />
-          <CustomZoomControls />
+    <div 
+      ref={containerRef}
+      className="w-full h-[400px] rounded-2xl overflow-hidden border-2 border-gray-200 shadow-xl relative bg-white"
+      onClick={(e) => {
+        e.stopPropagation();
+        e.preventDefault();
+        e.nativeEvent.stopImmediatePropagation();
+      }}
+      onDoubleClick={(e) => {
+        e.stopPropagation();
+        e.preventDefault();
+        e.nativeEvent.stopImmediatePropagation();
+      }}
+      onMouseDown={(e) => {
+        e.stopPropagation();
+        e.nativeEvent.stopImmediatePropagation();
+      }}
+      onMouseUp={(e) => {
+        e.stopPropagation();
+        e.nativeEvent.stopImmediatePropagation();
+      }}
+    >
+      <MapContainer
+        center={mapCenter}
+        zoom={zoom}
+        style={{ height: '100%', width: '100%', zIndex: 1 }}
+        zoomControl={false}
+        attributionControl={false}
+        scrollWheelZoom={true}
+        doubleClickZoom={true}
+        dragging={true}
+        touchZoom={true}
+        boxZoom={true}
+        keyboard={false}
+      >
+        <TileLayer
+          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+        />
+        
+        <MapInstanceGetter onMapReady={setMapInstance} />
+        <MapEventHandler onCaregiverSelect={onCaregiverSelect} />
 
-          {caregiversWithCoords.map((caregiver) => (
-            <Marker
-              key={caregiver.id}
-              position={[caregiver.lat!, caregiver.lng!]}
-              eventHandlers={{
-                click: (e) => {
-                  e.originalEvent.stopPropagation();
-                  e.originalEvent.stopImmediatePropagation();
-                  if (onCaregiverSelect) {
-                    onCaregiverSelect(caregiver);
-                  }
-                },
-              }}
-            >
-              <Popup className="custom-popup">
-                <div className="p-3 min-w-[200px]">
-                  <h3 className="font-bold text-base text-gray-900 mb-1">{caregiver.name}</h3>
-                  {caregiver.city && (
-                    <p className="text-sm text-gray-600 mb-2">{caregiver.city}</p>
-                  )}
-                  {caregiver.service && (
-                    <p className="text-xs text-emerald-600 font-semibold bg-emerald-50 px-2 py-1 rounded inline-block">
-                      {caregiver.service}
-                    </p>
-                  )}
-                </div>
-              </Popup>
-            </Marker>
-          ))}
-        </MapContainer>
-      </MapIsolationWrapper>
+        {caregiversWithCoords.map((caregiver) => (
+          <Marker
+            key={caregiver.id}
+            position={[caregiver.lat!, caregiver.lng!]}
+            eventHandlers={{
+              click: (e) => {
+                e.originalEvent.stopPropagation();
+                e.originalEvent.stopImmediatePropagation();
+                if (onCaregiverSelect) {
+                  onCaregiverSelect(caregiver);
+                }
+              },
+            }}
+          >
+            <Popup className="custom-popup">
+              <div className="p-3 min-w-[200px]">
+                <h3 className="font-bold text-base text-gray-900 mb-1">{caregiver.name}</h3>
+                {caregiver.city && (
+                  <p className="text-sm text-gray-600 mb-2">{caregiver.city}</p>
+                )}
+                {caregiver.service && (
+                  <p className="text-xs text-emerald-600 font-semibold bg-emerald-50 px-2 py-1 rounded inline-block">
+                    {caregiver.service}
+                  </p>
+                )}
+              </div>
+            </Popup>
+          </Marker>
+        ))}
+      </MapContainer>
+      
+      {/* Custom Zoom Controls - BUITEN de map container */}
+      <CustomZoomControls map={mapInstance} />
     </div>
   );
 };
