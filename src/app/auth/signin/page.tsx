@@ -18,32 +18,7 @@ export default function SignInPage() {
   const callbackUrl = searchParams?.get('callbackUrl') || '/dashboard'
   const error = searchParams?.get('error')
   const { data: session, status } = useSession()
-  const hasRedirectedRef = useRef(false)
-
-  // Redirect if already authenticated (prevent loops)
-  useEffect(() => {
-    // Only redirect once and if authenticated
-    if (status === 'authenticated' && session && !hasRedirectedRef.current && typeof window !== 'undefined') {
-      // Prevent redirect loops - check if we're already on the target page
-      const currentPath = window.location.pathname
-      
-      // Determine redirect URL based on role
-      let redirectUrl = callbackUrl
-      if (session.user?.role === 'CAREGIVER') {
-        redirectUrl = '/dashboard/caregiver'
-      } else if (session.user?.role === 'OWNER') {
-        redirectUrl = '/dashboard/owner'
-      } else if (session.user?.role === 'ADMIN') {
-        redirectUrl = '/admin'
-      }
-      
-      // Only redirect if not already on target page or dashboard
-      if (currentPath !== redirectUrl && currentPath !== '/auth/signin' && !currentPath.startsWith('/dashboard') && currentPath !== '/admin') {
-        hasRedirectedRef.current = true
-        router.push(redirectUrl)
-      }
-    }
-  }, [status, session, callbackUrl, router])
+  // NO useEffect redirect - let middleware handle it or redirect after login
 
   // Check if error indicates no account (case-insensitive, handle all NextAuth error types)
   const showNoAccountError = error && (
@@ -83,9 +58,16 @@ export default function SignInPage() {
         setLoading(false)
       } else if (result?.ok) {
         toast.success('Succesvol ingelogd!')
-        // Don't redirect here - let useEffect handle it after session is updated
-        // This ensures role-based redirect works correctly
-        // The useEffect will trigger when status becomes 'authenticated'
+        setLoading(false)
+        
+        // Simple redirect after successful login - let middleware handle role-based routing
+        // Use a small delay to ensure session cookie is set
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            // Just go to dashboard - middleware will redirect to correct role-based dashboard
+            window.location.href = '/dashboard'
+          })
+        })
       } else {
         toast.error('Er ging iets mis bij het inloggen')
         setLoading(false)
