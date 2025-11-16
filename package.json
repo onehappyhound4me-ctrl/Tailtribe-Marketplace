@@ -30,7 +30,10 @@
     "test:emails": "tsx tests/test-email-notifications.ts",
     "test:all": "tsx tests/test-critical-flows.ts && tsx tests/test-api-flows.ts && tsx tests/test-email-notifications.ts",
     "verify": "tsx tests/test-critical-flows.ts",
-    "postbuild": "prisma generate"
+    "postbuild": "prisma generate",
+    "deploy": "powershell -ExecutionPolicy Bypass -File ./scripts/auto-deploy.ps1",
+    "deploy:quick": "powershell -ExecutionPolicy Bypass -File ./scripts/auto-deploy.ps1 -SkipBuild",
+    "check": "powershell -ExecutionPolicy Bypass -File ./scripts/pre-commit-check.ps1"
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.4.2",
