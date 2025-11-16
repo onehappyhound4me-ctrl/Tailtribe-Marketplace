@@ -157,17 +157,25 @@ const ModernMap: React.FC<ModernMapProps> = ({
   }, [caregivers]);
 
   // Track previous country to detect changes
-  const prevCountryRef = useRef<string | undefined>(country);
+  const prevCountryRef = useRef<string | undefined>(undefined);
   
   // Update map center wanneer stad, country of caregivers veranderen
   useEffect(() => {
     if (!mapInstance) return;
     
-    const countryChanged = prevCountryRef.current !== country;
+    const countryChanged = prevCountryRef.current !== undefined && prevCountryRef.current !== country;
     prevCountryRef.current = country;
     
     // Als country is veranderd, force update naar default center voor dat land
     if (countryChanged) {
+      console.log('🗺️ Country changed:', prevCountryRef.current, '→', country, 'Updating map to:', defaultCenter);
+      mapInstance.setView(defaultCenter, zoom, { animate: true, duration: 0.5 });
+      return;
+    }
+    
+    // Bij eerste mount of als er geen vorige country was, gebruik default center voor huidige country
+    if (prevCountryRef.current === undefined) {
+      console.log('🗺️ Initial map load for country:', country, 'Center:', defaultCenter);
       mapInstance.setView(defaultCenter, zoom);
       return;
     }
