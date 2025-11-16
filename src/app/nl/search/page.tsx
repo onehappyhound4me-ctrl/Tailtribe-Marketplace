@@ -7,7 +7,6 @@ import { useSession } from 'next-auth/react'
 import Link from 'next/link'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { ModernMap } from '@/components/search/ModernMap'
 import { CaregiverCard } from '@/components/search/CaregiverCard'
 
 interface SearchParams {
@@ -195,19 +194,7 @@ export default function NetherlandsSearchPage() {
           {/* Results */}
           {caregivers.length > 0 ? (
             <div className="space-y-10 md:space-y-12">
-              {/* Modern Map Section - Only show if we have caregivers with valid coordinates */}
-              {caregivers.some((c: any) => c.lat && c.lng) ? (
-                <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-6 md:p-8">
-                  <h2 className="font-heading text-2xl md:text-3xl font-bold text-gray-900 mb-6">
-                    Dierenoppassers op de kaart
-                  </h2>
-                  <ModernMap 
-                    caregivers={caregivers as any}
-                    country="NL"
-                    onCaregiverSelect={handleCaregiverSelect}
-                  />
-                </div>
-              ) : null}
+              {/* Map temporarily disabled */}
 
               {/* Caregiver Cards Section */}
               <div id="caregiver-cards" className="space-y-8">

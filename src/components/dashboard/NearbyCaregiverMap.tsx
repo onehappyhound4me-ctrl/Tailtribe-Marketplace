@@ -1,13 +1,6 @@
 'use client'
 
 import { useEffect, useState, useCallback } from 'react'
-import dynamic from 'next/dynamic'
-
-// Dynamically import map to avoid SSR issues
-const ModernMap = dynamic(
-  () => import('@/components/search/ModernMap').then(mod => mod.ModernMap),
-  { ssr: false, loading: () => <div className="h-[300px] bg-gray-100 rounded-lg animate-pulse" /> }
-)
 
 interface Props {
   userCity: string
@@ -90,14 +83,8 @@ export function NearbyCaregiverMap({ userCity, userCountry, userLat, userLng }: 
       
       <h3 className="text-lg font-bold text-gray-900 mb-3">Verzorgers in de buurt</h3>
       
-      <div className="flex-1">
-        <ModernMap 
-          caregivers={caregiversWithCoords}
-          country={userCountry as "BE" | "NL"}
-          onCaregiverSelect={(caregiver) => {
-            window.location.href = `/caregiver/${caregiver.id}`
-          }}
-        />
+      <div className="flex-1 h-[300px] bg-gray-100 rounded-lg flex items-center justify-center">
+        <p className="text-gray-500 text-sm">Kaart tijdelijk niet beschikbaar</p>
       </div>
     </div>
   )

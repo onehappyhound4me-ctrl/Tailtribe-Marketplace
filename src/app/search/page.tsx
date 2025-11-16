@@ -9,7 +9,6 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { SearchFilters } from '@/components/search/SearchFilters'
-import { ModernMap } from '@/components/search/ModernMap'
 import { CaregiverCard } from '@/components/search/CaregiverCard'
 import { SkeletonGrid } from '@/components/loading/SkeletonCard'
 import { serviceLabels } from '@/lib/types'
@@ -239,64 +238,7 @@ export default function SearchPage({ searchParams }: Props) {
             </div>
           ) : (
             <div className="space-y-8">
-              {/* Modern Map Section - Always show map, even without caregivers */}
-              {(() => {
-                const withCoords = caregivers.filter((c: any) => c.lat && c.lng)
-                console.log('🗺️ Kaart check:', {
-                  totalCaregivers: caregivers.length,
-                  withCoords: withCoords.length,
-                  firstCaregiver: caregivers[0] ? { name: caregivers[0].name, lat: caregivers[0].lat, lng: caregivers[0].lng } : null
-                })
-                // Always show map, even if empty (so users can see the map functionality)
-                return (
-                  <div 
-                    className="card-tt p-4 md:p-6"
-                    onMouseDown={(e) => {
-                      // Stop events from map container bubbling up
-                      const target = e.target as HTMLElement
-                      if (target.closest('.map-container')) {
-                        e.stopPropagation()
-                      }
-                    }}
-                    onClick={(e) => {
-                      // Stop events from map container bubbling up
-                      const target = e.target as HTMLElement
-                      if (target.closest('.map-container')) {
-                        e.stopPropagation()
-                      }
-                    }}
-                  >
-                    <h2 className="font-heading text-xl md:text-2xl font-semibold text-foreground mb-3 md:mb-4">
-                      {withCoords.length > 0 
-                        ? `Verzorgers op de kaart (${withCoords.length})`
-                        : 'Zoek verzorgers op de kaart'
-                      }
-                    </h2>
-                    <ModernMap 
-                      caregivers={withCoords.length > 0 ? withCoords as any : []}
-                      country="BE"
-                      onCaregiverSelect={handleCaregiverSelect}
-                    />
-                    {withCoords.length === 0 && (
-                      <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg text-center">
-                        <div className="text-4xl mb-2">🗺️</div>
-                        <h3 className="text-base md:text-lg font-semibold text-gray-900 mb-2">
-                          Nog geen verzorgers op de kaart
-                        </h3>
-                        <p className="text-xs md:text-sm text-gray-600 mb-4">
-                          Word verzorger en verschijn hier op de kaart!
-                        </p>
-                        <Link 
-                          href="/auth/register" 
-                          className="inline-block px-4 md:px-6 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors text-sm md:text-base"
-                        >
-                          Word verzorger
-                        </Link>
-                      </div>
-                    )}
-                  </div>
-                )
-              })()}
+              {/* Map temporarily disabled */}
 
               {/* Caregiver Cards Section */}
               {caregivers.length > 0 ? (
