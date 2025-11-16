@@ -12,8 +12,22 @@ export function CountryDetectionPopup() {
     const savedCountry = localStorage.getItem('userCountry')
     const countryPopupShown = localStorage.getItem('countryPopupShown')
     
-    // Only show popup if not shown before
-    if (!countryPopupShown) {
+    // Check current URL/pathname to see if user is already on a country-specific page
+    const pathname = window.location.pathname
+    const isOnCountryPage = pathname.startsWith('/nl') || pathname.startsWith('/be')
+    const hostname = window.location.hostname
+    const isOnCountryDomain = hostname.includes('tailtribe.nl') || hostname.includes('tailtribe.be')
+    
+    // Don't show popup if:
+    // 1. Already shown before
+    // 2. User is already on a country-specific page
+    // 3. User is on a country-specific domain
+    if (countryPopupShown || isOnCountryPage || isOnCountryDomain) {
+      return
+    }
+    
+    // Only show popup if not shown before AND user is on homepage
+    if (!countryPopupShown && (pathname === '/' || pathname === '')) {
       // Detect country from IP (simplified - in production use proper API)
       detectCountryFromIP().then(detectedCountry => {
         // Auto-save if confident, otherwise show popup

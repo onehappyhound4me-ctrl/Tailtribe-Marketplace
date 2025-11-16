@@ -156,7 +156,7 @@ const ModernMap: React.FC<ModernMapProps> = ({
     return caregivers.filter(c => c.lat != null && c.lng != null && !isNaN(c.lat) && !isNaN(c.lng));
   }, [caregivers]);
 
-  // Update map center wanneer stad of caregivers veranderen
+  // Update map center wanneer stad, country of caregivers veranderen
   useEffect(() => {
     if (!mapInstance) return;
     
@@ -175,9 +175,13 @@ const ModernMap: React.FC<ModernMapProps> = ({
       const coords = getFallbackCoordinates(city, country);
       if (coords && coords.success) {
         mapInstance.setView([coords.lat, coords.lng], zoom);
+        return;
       }
     }
-  }, [city, country, mapInstance, zoom, caregiversWithCoords]);
+    
+    // Als er geen stad is maar country is veranderd, update naar default center voor dat land
+    mapInstance.setView(defaultCenter, zoom);
+  }, [city, country, mapInstance, zoom, caregiversWithCoords, defaultCenter]);
 
   // Blokkeer alleen navigatie events, NIET drag events (mousedown/mouseup zijn nodig voor drag)
   useEffect(() => {
