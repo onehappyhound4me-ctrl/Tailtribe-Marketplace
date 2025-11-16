@@ -52,6 +52,38 @@ git push origin main
 
 ---
 
+## Nieuwe NPM Scripts
+
+### `npm run deploy`
+Automatisch committen, pushen en build check:
+```bash
+npm run deploy
+```
+- Controleert op uncommitted wijzigingen
+- Commit automatisch met message
+- Push naar GitHub
+- Voert build check uit
+- Vercel deployt automatisch
+
+### `npm run deploy:quick`
+Snelle deploy zonder build check:
+```bash
+npm run deploy:quick
+```
+- Zelfde als `deploy`, maar zonder build check (sneller)
+
+### `npm run check`
+Check of alles in sync is:
+```bash
+npm run check
+```
+- Controleert op uncommitted wijzigingen
+- Controleert op unpushed commits
+- Controleert of branch up-to-date is
+- Perfect om te gebruiken voordat je wijzigingen vraagt
+
+---
+
 ## Hoe te Controleren
 
 ### Check of wijzigingen gecommit zijn:
@@ -70,7 +102,7 @@ git log origin/main..HEAD
 
 ### Check Vercel deployment:
 1. Ga naar https://vercel.com/dashboard
-2. Kijk naar je project "tailtribe"
+2. Klik op je project "tailtribe"
 3. Zie de laatste deployment status
 
 ---
@@ -81,6 +113,7 @@ git log origin/main..HEAD
 - **Altijd** committen en pushen na wijzigingen
 - **Duidelijke** commit messages gebruiken
 - **Controleren** of deployment succesvol is
+- **Gebruik** `npm run check` voordat je wijzigingen vraagt
 
 ### ❌ DON'T:
 - **Niet** alleen lokaal wijzigen zonder commit
@@ -101,3 +134,49 @@ Voor elke wijziging die je vraagt:
 
 **Vanaf nu doe ik dit automatisch voor je!** 🚀
 
+---
+
+## Handmatige Commands (Als Nodig)
+
+Als je handmatig wilt deployen:
+
+```bash
+# Check status
+npm run check
+
+# Auto deploy met build check
+npm run deploy
+
+# Snelle deploy zonder build
+npm run deploy:quick
+
+# Of handmatig:
+git add .
+git commit -m "Jouw commit message"
+git push origin main
+```
+
+---
+
+## Troubleshooting
+
+### "Branch is achter op remote"
+```bash
+git pull origin main
+# Los eventuele conflicts op
+npm run deploy
+```
+
+### "Uncommitted wijzigingen"
+```bash
+npm run deploy
+# Of handmatig:
+git add .
+git commit -m "Beschrijving"
+git push origin main
+```
+
+### "Push gefaald"
+- Check je internet verbinding
+- Check of je toegang hebt tot GitHub
+- Check of er geen conflicts zijn: `git pull origin main`
