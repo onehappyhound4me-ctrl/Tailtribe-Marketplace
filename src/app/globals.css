@@ -148,6 +148,28 @@
   .map-marker:hover {
     @apply scale-110 shadow-tt-lg;
   }
+
+  /* Custom Leaflet Popup Styling */
+  .leaflet-popup-content-wrapper {
+    border-radius: 12px !important;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15) !important;
+    border: 2px solid #e5e7eb !important;
+    padding: 0 !important;
+  }
+
+  .leaflet-popup-content {
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  .custom-popup {
+    border-radius: 12px !important;
+  }
+
+  /* Hide default Leaflet zoom controls */
+  .leaflet-control-zoom {
+    display: none !important;
+  }
   
   /* Hero gradient background */
   .gradient-hero {

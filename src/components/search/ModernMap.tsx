@@ -41,22 +41,15 @@ function MapIsolationWrapper({ children }: { children: React.ReactNode }) {
     if (!wrapper) return;
 
     // ULTRA AGGRESSIVE: Blokkeer ALLE events die navigatie kunnen triggeren
-    // Gebruik capture phase (true) om events TE INTERCEPTEREN voordat ze naar parent gaan
     const blockNavigation = (e: Event) => {
-      // CRITICAL: Stop propagation VOORDAT event naar parent gaat
       e.stopPropagation();
       e.stopImmediatePropagation();
-      
-      // Prevent default alleen voor events die dat ondersteunen
       if (e.cancelable) {
         e.preventDefault();
       }
-      
-      // Extra beveiliging: return false voor oude browsers
       return false;
     };
 
-    // Lijst van events die navigatie kunnen triggeren
     const navigationEvents = [
       'click',
       'dblclick',
@@ -66,47 +59,16 @@ function MapIsolationWrapper({ children }: { children: React.ReactNode }) {
       'touchend',
       'touchmove',
       'contextmenu',
-      'wheel',
-      'scroll',
-      'keydown',
-      'keyup',
       'pointerdown',
       'pointerup',
     ];
 
-    // Voeg listeners toe op CAPTURE phase (true = capture phase)
-    // Dit betekent dat we events ONTVANGEN VOORDAT ze naar child elements gaan
+    // Capture phase blocking
     navigationEvents.forEach(eventType => {
       wrapper.addEventListener(eventType, blockNavigation, { capture: true, passive: false });
     });
 
-    // Extra beveiliging: blokkeer ook events op alle child elements (bubbling phase)
-    const blockChildEvents = (e: Event) => {
-      const target = e.target as HTMLElement;
-      
-      // Laat Leaflet zoom controls werken, maar blokkeer navigatie
-      if (target.closest('.leaflet-control-zoom')) {
-        // Zoom controls mogen werken, maar geen navigatie naar parent
-        e.stopPropagation();
-        e.stopImmediatePropagation();
-      } else {
-        // Alle andere events volledig blokkeren
-        e.stopPropagation();
-        e.stopImmediatePropagation();
-        if (e.cancelable) {
-          e.preventDefault();
-        }
-      }
-      
-      return false;
-    };
-
-    // Blokkeer events op alle child elements (bubbling phase)
-    navigationEvents.forEach(eventType => {
-      wrapper.addEventListener(eventType, blockChildEvents, { capture: false, passive: false });
-    });
-
-    // EXTRA: Blokkeer ook events op document niveau als ze van de map komen
+    // Document level blocking voor events die van de map komen
     const blockDocumentEvents = (e: Event) => {
       const target = e.target as HTMLElement;
       if (wrapper.contains(target)) {
@@ -118,16 +80,13 @@ function MapIsolationWrapper({ children }: { children: React.ReactNode }) {
       }
     };
 
-    // Blokkeer events op document niveau (alleen voor events die van de map komen)
     navigationEvents.forEach(eventType => {
       document.addEventListener(eventType, blockDocumentEvents, { capture: true, passive: false });
     });
 
     return () => {
-      // Cleanup: verwijder alle listeners
       navigationEvents.forEach(eventType => {
         wrapper.removeEventListener(eventType, blockNavigation, { capture: true } as any);
-        wrapper.removeEventListener(eventType, blockChildEvents, { capture: false } as any);
         document.removeEventListener(eventType, blockDocumentEvents, { capture: true } as any);
       });
     };
@@ -140,11 +99,10 @@ function MapIsolationWrapper({ children }: { children: React.ReactNode }) {
         position: 'relative',
         width: '100%',
         height: '100%',
-        isolation: 'isolate', // CSS isolation om stacking context te creëren
+        isolation: 'isolate',
         zIndex: 1,
-        pointerEvents: 'auto', // Zorg dat pointer events werken binnen de map
+        pointerEvents: 'auto',
       }}
-      // Extra React event handlers als backup
       onClick={(e) => {
         e.stopPropagation();
         e.preventDefault();
@@ -163,16 +121,57 @@ function MapIsolationWrapper({ children }: { children: React.ReactNode }) {
         e.stopPropagation();
         e.nativeEvent.stopImmediatePropagation();
       }}
-      onTouchStart={(e) => {
-        e.stopPropagation();
-        e.nativeEvent.stopImmediatePropagation();
-      }}
-      onTouchEnd={(e) => {
-        e.stopPropagation();
-        e.nativeEvent.stopImmediatePropagation();
-      }}
     >
       {children}
+    </div>
+  );
+}
+
+// Custom Zoom Controls die WEL werken
+function CustomZoomControls() {
+  const map = useMap();
+  const [zoom, setZoom] = React.useState(map.getZoom());
+
+  useEffect(() => {
+    const updateZoom = () => setZoom(map.getZoom());
+    map.on('zoomend', updateZoom);
+    return () => {
+      map.off('zoomend', updateZoom);
+    };
+  }, [map]);
+
+  const handleZoomIn = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    e.preventDefault();
+    e.nativeEvent.stopImmediatePropagation();
+    map.zoomIn();
+  };
+
+  const handleZoomOut = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    e.preventDefault();
+    e.nativeEvent.stopImmediatePropagation();
+    map.zoomOut();
+  };
+
+  return (
+    <div className="absolute top-4 right-4 z-[1000] flex flex-col gap-2 shadow-xl">
+      <button
+        type="button"
+        onClick={handleZoomIn}
+        className="w-12 h-12 bg-white/95 backdrop-blur-sm border-2 border-gray-200 rounded-lg flex items-center justify-center text-2xl font-bold text-gray-700 hover:bg-emerald-50 hover:border-emerald-400 hover:text-emerald-600 transition-all duration-200 active:scale-95 shadow-md"
+        aria-label="Zoom in"
+      >
+        +
+      </button>
+      <button
+        type="button"
+        onClick={handleZoomOut}
+        className="w-12 h-12 bg-white/95 backdrop-blur-sm border-2 border-gray-200 rounded-lg flex items-center justify-center text-2xl font-bold text-gray-700 hover:bg-emerald-50 hover:border-emerald-400 hover:text-emerald-600 transition-all duration-200 active:scale-95 shadow-md"
+        aria-label="Zoom out"
+      >
+        −
+      </button>
     </div>
   );
 }
@@ -181,96 +180,10 @@ function MapIsolationWrapper({ children }: { children: React.ReactNode }) {
 function MapEventHandler({ onCaregiverSelect }: { onCaregiverSelect?: (caregiver: Caregiver) => void }) {
   useMapEvents({
     click: (e) => {
-      // Blokkeer event propagation naar parent
       e.originalEvent.stopPropagation();
       e.originalEvent.stopImmediatePropagation();
     },
-    zoomstart: () => {
-      // Blokkeer zoom events van navigatie
-      if (typeof window !== 'undefined' && window.event) {
-        const event = window.event;
-        event.stopPropagation();
-        event.stopImmediatePropagation();
-      }
-    },
   });
-
-  return null;
-}
-
-// Component om zoom controls specifiek te beschermen EN WERKENDE ZOOM TOESTAAN
-function ZoomControlsProtector() {
-  const map = useMap();
-
-  useEffect(() => {
-    const container = map.getContainer();
-    
-    // Functie om zoom controls te beschermen maar WEL WERKENDE ZOOM TOESTAAN
-    const protectZoomControls = () => {
-      const zoomControls = container.querySelectorAll('.leaflet-control-zoom a');
-      zoomControls.forEach(control => {
-        // CRITICAL: Blokkeer navigatie maar laat Leaflet's eigen zoom handler werken
-        const handleZoomClick = (e: MouseEvent) => {
-          // Laat Leaflet's eigen zoom logica werken door NIET preventDefault te roepen
-          // Maar blokkeer WEL event propagation naar parent elementen
-          e.stopPropagation();
-          e.stopImmediatePropagation();
-          
-          // NIET preventDefault() - laat Leaflet de zoom uitvoeren
-          // Leaflet heeft zijn eigen click handler die we niet moeten blokkeren
-        };
-        
-        // Voeg listener toe op CAPTURE phase zodat we VOORDAT Leaflet handelt kunnen ingrijpen
-        // Maar we blokkeren alleen propagation, niet de default actie
-        control.addEventListener('click', handleZoomClick, { capture: true, passive: false });
-        control.addEventListener('mousedown', (e) => {
-          e.stopPropagation();
-          e.stopImmediatePropagation();
-        }, { capture: true, passive: false });
-        control.addEventListener('mouseup', (e) => {
-          e.stopPropagation();
-          e.stopImmediatePropagation();
-        }, { capture: true, passive: false });
-        
-        // Blokkeer ook touch events voor mobile
-        control.addEventListener('touchstart', (e) => {
-          e.stopPropagation();
-          e.stopImmediatePropagation();
-        }, { capture: true, passive: false });
-        control.addEventListener('touchend', (e) => {
-          e.stopPropagation();
-          e.stopImmediatePropagation();
-        }, { capture: true, passive: false });
-      });
-    };
-
-    // Bescherm zoom controls direct na mount
-    setTimeout(() => {
-      protectZoomControls();
-    }, 100);
-
-    // Blokkeer ook nieuwe zoom controls die later worden toegevoegd
-    const observer = new MutationObserver(() => {
-      setTimeout(() => {
-        protectZoomControls();
-      }, 50);
-    });
-
-    observer.observe(container, {
-      childList: true,
-      subtree: true,
-    });
-
-    // Ook periodiek checken (voor het geval dat)
-    const interval = setInterval(() => {
-      protectZoomControls();
-    }, 500);
-
-    return () => {
-      observer.disconnect();
-      clearInterval(interval);
-    };
-  }, [map]);
 
   return null;
 }
@@ -284,17 +197,14 @@ const ModernMap: React.FC<ModernMapProps> = ({
 }) => {
   const [isMounted, setIsMounted] = React.useState(false);
 
-  // Wacht tot component gemount is (client-side only)
   React.useEffect(() => {
     setIsMounted(true);
   }, []);
 
-  // Filter caregivers met coördinaten
   const caregiversWithCoords = useMemo(() => {
     return caregivers.filter(c => c.lat != null && c.lng != null && !isNaN(c.lat) && !isNaN(c.lng));
   }, [caregivers]);
 
-  // Bereken center op basis van caregivers als er geen center is gegeven
   const mapCenter = useMemo(() => {
     if (caregiversWithCoords.length === 0) {
       return center;
@@ -309,33 +219,36 @@ const ModernMap: React.FC<ModernMapProps> = ({
     return [avgLat, avgLng] as [number, number];
   }, [caregiversWithCoords, center]);
 
-  // Toon loading state tot component gemount is
   if (!isMounted) {
     return (
-      <div className="w-full h-[400px] rounded-2xl bg-gray-100 flex items-center justify-center text-sm text-gray-500 border border-gray-200">
-        Kaart laden...
+      <div className="w-full h-[400px] rounded-2xl bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center text-sm text-gray-500 border-2 border-gray-200 shadow-lg">
+        <div className="flex flex-col items-center gap-3">
+          <div className="w-8 h-8 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin"></div>
+          <span>Kaart laden...</span>
+        </div>
       </div>
     );
   }
 
-  // Check of Leaflet beschikbaar is
   if (typeof window === 'undefined' || !window.L) {
     return (
-      <div className="w-full h-[400px] rounded-2xl bg-gray-100 flex items-center justify-center text-sm text-gray-500 border border-gray-200">
-        Kaart initialiseren...
+      <div className="w-full h-[400px] rounded-2xl bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center text-sm text-gray-500 border-2 border-gray-200 shadow-lg">
+        <div className="flex flex-col items-center gap-3">
+          <div className="w-8 h-8 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin"></div>
+          <span>Kaart initialiseren...</span>
+        </div>
       </div>
     );
   }
 
-  // ALTIJD kaart tonen, ook zonder caregivers (met default center)
   return (
-    <div className="w-full h-[400px] rounded-2xl overflow-hidden border border-gray-200 shadow-lg relative">
+    <div className="w-full h-[400px] rounded-2xl overflow-hidden border-2 border-gray-200 shadow-xl relative bg-white">
       <MapIsolationWrapper>
         <MapContainer
           center={mapCenter}
           zoom={zoom}
           style={{ height: '100%', width: '100%', zIndex: 1 }}
-          zoomControl={true}
+          zoomControl={false}
           attributionControl={false}
           scrollWheelZoom={true}
           doubleClickZoom={true}
@@ -350,7 +263,7 @@ const ModernMap: React.FC<ModernMapProps> = ({
           />
           
           <MapEventHandler onCaregiverSelect={onCaregiverSelect} />
-          <ZoomControlsProtector />
+          <CustomZoomControls />
 
           {caregiversWithCoords.map((caregiver) => (
             <Marker
@@ -366,14 +279,16 @@ const ModernMap: React.FC<ModernMapProps> = ({
                 },
               }}
             >
-              <Popup>
-                <div className="p-2">
-                  <h3 className="font-semibold text-sm">{caregiver.name}</h3>
+              <Popup className="custom-popup">
+                <div className="p-3 min-w-[200px]">
+                  <h3 className="font-bold text-base text-gray-900 mb-1">{caregiver.name}</h3>
                   {caregiver.city && (
-                    <p className="text-xs text-gray-600">{caregiver.city}</p>
+                    <p className="text-sm text-gray-600 mb-2">{caregiver.city}</p>
                   )}
                   {caregiver.service && (
-                    <p className="text-xs text-emerald-600 mt-1">{caregiver.service}</p>
+                    <p className="text-xs text-emerald-600 font-semibold bg-emerald-50 px-2 py-1 rounded inline-block">
+                      {caregiver.service}
+                    </p>
                   )}
                 </div>
               </Popup>
