@@ -160,6 +160,24 @@ const ModernMap: React.FC<ModernMapProps> = ({
   const prevCountryRef = useRef<string | undefined>(undefined);
   const isInitialMountRef = useRef(true);
   
+  // Listen for country change events from CountrySwitcher
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    
+    const handleCountryChange = (event: CustomEvent) => {
+      const newCountry = event.detail as 'BE' | 'NL';
+      console.log('🗺️ Country change event received:', newCountry);
+      // Reset prevCountryRef so map will update on next render
+      prevCountryRef.current = undefined;
+    };
+    
+    window.addEventListener('countryChanged', handleCountryChange as EventListener);
+    
+    return () => {
+      window.removeEventListener('countryChanged', handleCountryChange as EventListener);
+    };
+  }, []);
+  
   // Update map center wanneer stad, country of caregivers veranderen
   useEffect(() => {
     if (!mapInstance) {
@@ -180,8 +198,8 @@ const ModernMap: React.FC<ModernMapProps> = ({
       city
     });
     
-    // Bij eerste mount, gebruik altijd default center voor huidige country
-    if (isInitialMount) {
+    // Bij eerste mount OF als prevCountry is gereset (country change event), gebruik altijd default center voor huidige country
+    if (isInitialMount || prevCountryRef.current === undefined) {
       console.log('🗺️ Initial map load for country:', country, 'Setting center to:', defaultCenter);
       mapInstance.setView(defaultCenter, zoom);
       isInitialMountRef.current = false;
@@ -202,8 +220,8 @@ const ModernMap: React.FC<ModernMapProps> = ({
       prevCountryRef.current = country;
     }
     
-    // Als er caregivers zijn, gebruik gemiddelde (prioriteit)
-    if (caregiversWithCoords.length > 0) {
+    // Als er caregivers zijn, gebruik gemiddelde (prioriteit) - MAAR alleen als country niet net is veranderd
+    if (caregiversWithCoords.length > 0 && !countryChanged) {
       const lats = caregiversWithCoords.map(c => c.lat!);
       const lngs = caregiversWithCoords.map(c => c.lng!);
       const avgLat = lats.reduce((a, b) => a + b, 0) / lats.length;
@@ -214,7 +232,7 @@ const ModernMap: React.FC<ModernMapProps> = ({
     }
     
     // Anders, als er een stad is, gebruik die
-    if (city) {
+    if (city && !countryChanged) {
       const coords = getFallbackCoordinates(city, country);
       if (coords && coords.success) {
         console.log('🗺️ Using city center:', [coords.lat, coords.lng]);

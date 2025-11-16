@@ -58,43 +58,66 @@ export function CountrySwitcher() {
   // Update dropdown position when opened
   useEffect(() => {
     if (isOpen && buttonRef.current && typeof window !== 'undefined') {
-      const rect = buttonRef.current.getBoundingClientRect()
-      const scrollX = window.scrollX || window.pageXOffset || 0
-      const scrollY = window.scrollY || window.pageYOffset || 0
-      
-      // Calculate position: align right edge of dropdown with right edge of button
-      const dropdownWidth = 120 // min-w-[120px]
-      const dropdownHeight = 112 // 2 buttons × 56px each
-      let left = rect.right + scrollX - dropdownWidth
-      
-      // Ensure dropdown doesn't go off-screen on the left
-      if (left < scrollX) {
-        left = rect.left + scrollX
-      }
-      
-      // Ensure dropdown doesn't go off-screen on the right
-      const maxLeft = scrollX + window.innerWidth - dropdownWidth
-      if (left > maxLeft) {
-        left = maxLeft
-      }
-      
-      // Check if there's enough space below the button
-      const spaceBelow = window.innerHeight - rect.bottom
-      const spaceAbove = rect.top
-      
-      // If not enough space below, show dropdown above button
-      let top: number
-      if (spaceBelow < dropdownHeight && spaceAbove > dropdownHeight) {
-        // Show above button
-        top = rect.top + scrollY - dropdownHeight - 8
-      } else {
-        // Show below button (default)
-        top = rect.bottom + scrollY + 8
-      }
-      
-      setDropdownPosition({
-        top: top,
-        left: left
+      // Use requestAnimationFrame to ensure DOM is ready
+      requestAnimationFrame(() => {
+        if (!buttonRef.current) return;
+        
+        const rect = buttonRef.current.getBoundingClientRect()
+        const scrollX = window.scrollX || window.pageXOffset || 0
+        const scrollY = window.scrollY || window.pageYOffset || 0
+        const viewportWidth = window.innerWidth
+        const viewportHeight = window.innerHeight
+        
+        // Calculate position: align right edge of dropdown with right edge of button
+        const dropdownWidth = 120 // min-w-[120px]
+        const dropdownHeight = 112 // 2 buttons × 56px each
+        const padding = 8 // spacing from button
+        
+        // Calculate left position - align right edge of dropdown with right edge of button
+        let left = rect.right + scrollX - dropdownWidth
+        
+        // Ensure dropdown doesn't go off-screen on the left
+        if (left < scrollX + padding) {
+          left = rect.left + scrollX
+        }
+        
+        // Ensure dropdown doesn't go off-screen on the right
+        const maxLeft = scrollX + viewportWidth - dropdownWidth - padding
+        if (left > maxLeft) {
+          left = maxLeft
+        }
+        
+        // Ensure dropdown doesn't go off-screen horizontally at all
+        if (left < scrollX + padding) {
+          left = scrollX + padding
+        }
+        
+        // Check if there's enough space below the button
+        const spaceBelow = viewportHeight - rect.bottom
+        const spaceAbove = rect.top
+        
+        // If not enough space below, show dropdown above button
+        let top: number
+        if (spaceBelow < dropdownHeight + padding && spaceAbove > dropdownHeight + padding) {
+          // Show above button
+          top = rect.top + scrollY - dropdownHeight - padding
+        } else {
+          // Show below button (default)
+          top = rect.bottom + scrollY + padding
+        }
+        
+        // Ensure dropdown doesn't go off-screen vertically
+        if (top < scrollY + padding) {
+          top = scrollY + padding
+        }
+        if (top + dropdownHeight > scrollY + viewportHeight - padding) {
+          top = scrollY + viewportHeight - dropdownHeight - padding
+        }
+        
+        setDropdownPosition({
+          top: Math.max(padding, top),
+          left: Math.max(padding, left)
+        })
       })
     }
   }, [isOpen])
