@@ -147,15 +147,28 @@ const ModernMap: React.FC<ModernMapProps> = ({
     setIsMounted(true);
   }, []);
 
-  // Update map center wanneer stad verandert
+  // Update map center wanneer stad of caregivers veranderen
   useEffect(() => {
-    if (mapInstance && city) {
+    if (!mapInstance) return;
+    
+    // Als er caregivers zijn, gebruik gemiddelde (prioriteit)
+    if (caregiversWithCoords.length > 0) {
+      const lats = caregiversWithCoords.map(c => c.lat!);
+      const lngs = caregiversWithCoords.map(c => c.lng!);
+      const avgLat = lats.reduce((a, b) => a + b, 0) / lats.length;
+      const avgLng = lngs.reduce((a, b) => a + b, 0) / lngs.length;
+      mapInstance.setView([avgLat, avgLng], zoom);
+      return;
+    }
+    
+    // Anders, als er een stad is, gebruik die
+    if (city) {
       const coords = getFallbackCoordinates(city, country);
       if (coords && coords.success) {
         mapInstance.setView([coords.lat, coords.lng], zoom);
       }
     }
-  }, [city, country, mapInstance, zoom]);
+  }, [city, country, mapInstance, zoom, caregiversWithCoords]);
 
   // ULTRA AGGRESSIVE: Blokkeer ALLE events op container niveau
   useEffect(() => {
@@ -207,15 +220,7 @@ const ModernMap: React.FC<ModernMapProps> = ({
   }, [caregivers]);
 
   const mapCenter = useMemo(() => {
-    // Als er een stad is geselecteerd, gebruik die
-    if (city) {
-      const coords = getFallbackCoordinates(city, country);
-      if (coords && coords.success) {
-        return [coords.lat, coords.lng] as [number, number];
-      }
-    }
-    
-    // Als er caregivers zijn met coördinaten, gebruik gemiddelde
+    // PRIORITEIT 1: Als er caregivers zijn met coördinaten, gebruik gemiddelde (toon waar profielen zijn)
     if (caregiversWithCoords.length > 0) {
       const lats = caregiversWithCoords.map(c => c.lat!);
       const lngs = caregiversWithCoords.map(c => c.lng!);
@@ -226,7 +231,15 @@ const ModernMap: React.FC<ModernMapProps> = ({
       return [avgLat, avgLng] as [number, number];
     }
     
-    // Gebruik provided center of default
+    // PRIORITEIT 2: Als er een stad is geselecteerd maar geen profielen, gebruik stad coordinaten
+    if (city) {
+      const coords = getFallbackCoordinates(city, country);
+      if (coords && coords.success) {
+        return [coords.lat, coords.lng] as [number, number];
+      }
+    }
+    
+    // PRIORITEIT 3: Gebruik provided center of default (Brussel voor BE, Amsterdam voor NL)
     return center || defaultCenter;
   }, [caregiversWithCoords, center, city, country, defaultCenter]);
 
