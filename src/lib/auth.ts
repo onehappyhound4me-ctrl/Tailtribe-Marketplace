@@ -122,6 +122,8 @@ export const authOptions: NextAuthOptions = {
     async jwt({ token, user, account, trigger }) {
       // Initial sign in
       if (user) {
+        console.log('[AUTH] JWT callback - user present, provider:', account?.provider)
+        
         // For Google OAuth, fetch user from database first
         if (account?.provider === 'google' && user.email) {
           const dbUser = await db.user.findUnique({
@@ -129,20 +131,22 @@ export const authOptions: NextAuthOptions = {
             select: { id: true, role: true, email: true }
           })
           
-          
           if (dbUser) {
             token.role = (dbUser.role as Role) || 'OWNER'
             token.id = dbUser.id
             token.sub = dbUser.id
             token.email = dbUser.email
+            console.log('[AUTH] JWT - Google user role:', token.role)
           } else {
             // Fallback if user not found (shouldn't happen due to signIn callback)
             token.role = 'OWNER'
             token.id = user.id
             token.sub = user.id
+            console.log('[AUTH] JWT - Google user not found in DB, using fallback')
           }
         } else {
           // For credentials provider
+          console.log('[AUTH] JWT - Credentials provider, user ID:', user.id)
           const dbUser = await db.user.findUnique({
             where: { id: user.id },
             select: { id: true, role: true, email: true }
@@ -152,10 +156,15 @@ export const authOptions: NextAuthOptions = {
             token.role = (dbUser.role as Role) || 'OWNER'
             token.id = dbUser.id
             token.sub = dbUser.id
+            token.email = dbUser.email
+            console.log('[AUTH] JWT - Credentials user role:', token.role)
           } else {
+            // Fallback to user object from authorize
             token.role = (user.role as Role) || 'OWNER'
             token.id = user.id
             token.sub = user.id
+            token.email = user.email
+            console.log('[AUTH] JWT - Credentials user not found in DB, using authorize data, role:', token.role)
           }
         }
       }
@@ -169,6 +178,12 @@ export const authOptions: NextAuthOptions = {
         if (dbUser) {
           token.role = (dbUser.role as Role) || 'OWNER'
         }
+      }
+      
+      // Ensure role is always set (safety check)
+      if (!token.role) {
+        token.role = 'OWNER'
+        console.log('[AUTH] JWT - No role found, defaulting to OWNER')
       }
       
       return token
