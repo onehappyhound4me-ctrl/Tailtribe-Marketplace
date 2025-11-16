@@ -282,6 +282,13 @@ const ModernMap: React.FC<ModernMapProps> = ({
   onCaregiverSelect,
   country = 'BE',
 }) => {
+  const [isMounted, setIsMounted] = React.useState(false);
+
+  // Wacht tot component gemount is (client-side only)
+  React.useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
   // Filter caregivers met coördinaten
   const caregiversWithCoords = useMemo(() => {
     return caregivers.filter(c => c.lat != null && c.lng != null && !isNaN(c.lat) && !isNaN(c.lng));
@@ -302,14 +309,25 @@ const ModernMap: React.FC<ModernMapProps> = ({
     return [avgLat, avgLng] as [number, number];
   }, [caregiversWithCoords, center]);
 
-  if (caregiversWithCoords.length === 0) {
+  // Toon loading state tot component gemount is
+  if (!isMounted) {
     return (
       <div className="w-full h-[400px] rounded-2xl bg-gray-100 flex items-center justify-center text-sm text-gray-500 border border-gray-200">
-        Geen locaties beschikbaar voor kaartweergave
+        Kaart laden...
       </div>
     );
   }
 
+  // Check of Leaflet beschikbaar is
+  if (typeof window === 'undefined' || !window.L) {
+    return (
+      <div className="w-full h-[400px] rounded-2xl bg-gray-100 flex items-center justify-center text-sm text-gray-500 border border-gray-200">
+        Kaart initialiseren...
+      </div>
+    );
+  }
+
+  // ALTIJD kaart tonen, ook zonder caregivers (met default center)
   return (
     <div className="w-full h-[400px] rounded-2xl overflow-hidden border border-gray-200 shadow-lg relative">
       <MapIsolationWrapper>

@@ -203,21 +203,21 @@ export default function NetherlandsSearchPage() {
           </div>
 
           {/* Results */}
-          {caregivers.length > 0 ? (
-            <div className="space-y-10 md:space-y-12">
-              {/* Map Section */}
-              <div className="mb-8">
-                <h2 className="font-heading text-xl font-semibold text-gray-900 mb-4">
-                  Kaartweergave
-                </h2>
-                <ModernMap
-                  caregivers={caregivers}
-                  onCaregiverSelect={handleCaregiverSelect}
-                  country="NL"
-                />
-              </div>
+          <div className="space-y-10 md:space-y-12">
+            {/* Map Section - ALTIJD tonen */}
+            <div className="mb-8">
+              <h2 className="font-heading text-xl font-semibold text-gray-900 mb-4">
+                Kaartweergave
+              </h2>
+              <ModernMap
+                caregivers={caregivers}
+                onCaregiverSelect={handleCaregiverSelect}
+                country="NL"
+              />
+            </div>
 
-              {/* Caregiver Cards Section */}
+            {/* Caregiver Cards Section */}
+            {caregivers.length > 0 ? (
               <div id="caregiver-cards" className="space-y-8">
                 <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
                   <h2 className="font-heading text-2xl md:text-3xl font-bold text-gray-900">
@@ -239,25 +239,25 @@ export default function NetherlandsSearchPage() {
                   ))}
                 </div>
               </div>
-            </div>
-          ) : (
-            <Card className="bg-white rounded-xl shadow-lg border border-gray-200">
-              <CardContent className="text-center py-12 md:py-16">
-                <div className="text-6xl mb-6">🔍</div>
-                <h3 className="font-heading text-xl md:text-2xl font-bold text-gray-900 mb-3">
-                  Geen dierenoppassers gevonden in Nederland
-                </h3>
-                <p className="text-gray-600 mb-8 max-w-md mx-auto">
-                  Probeer een andere stad of service te selecteren.
-                </p>
-                <Button variant="outline" asChild className="px-6 py-3">
-                  <Link href="/nl/search">
-                    Wis filters
-                  </Link>
-                </Button>
-              </CardContent>
-            </Card>
-          )}
+            ) : (
+              <Card className="bg-white rounded-xl shadow-lg border border-gray-200">
+                <CardContent className="text-center py-12 md:py-16">
+                  <div className="text-6xl mb-6">🔍</div>
+                  <h3 className="font-heading text-xl md:text-2xl font-bold text-gray-900 mb-3">
+                    Geen dierenoppassers gevonden in Nederland
+                  </h3>
+                  <p className="text-gray-600 mb-8 max-w-md mx-auto">
+                    Probeer een andere stad of service te selecteren.
+                  </p>
+                  <Button variant="outline" asChild className="px-6 py-3">
+                    <Link href="/nl/search">
+                      Wis filters
+                    </Link>
+                  </Button>
+                </CardContent>
+              </Card>
+            )}
+          </div>
         </div>
       </div>
     </div>

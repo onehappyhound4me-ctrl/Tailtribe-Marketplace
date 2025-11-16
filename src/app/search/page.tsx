@@ -249,19 +249,17 @@ export default function SearchPage({ searchParams }: Props) {
             </div>
           ) : (
             <div className="space-y-8">
-              {/* Map Section */}
-              {caregivers.length > 0 && (
-                <div className="mb-8">
-                  <h2 className="font-heading text-xl font-semibold text-foreground mb-4">
-                    Kaartweergave
-                  </h2>
-                  <ModernMap
-                    caregivers={caregivers}
-                    onCaregiverSelect={handleCaregiverSelect}
-                    country="BE"
-                  />
-                </div>
-              )}
+              {/* Map Section - ALTIJD tonen */}
+              <div className="mb-8">
+                <h2 className="font-heading text-xl font-semibold text-foreground mb-4">
+                  Kaartweergave
+                </h2>
+                <ModernMap
+                  caregivers={caregivers}
+                  onCaregiverSelect={handleCaregiverSelect}
+                  country="BE"
+                />
+              </div>
 
               {/* Caregiver Cards Section */}
               {caregivers.length > 0 ? (
