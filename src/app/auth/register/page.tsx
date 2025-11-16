@@ -228,15 +228,53 @@ export default function RegisterPage() {
           console.log('Login successful, redirecting...')
           toast.success('Account aangemaakt en ingelogd!')
           
-          // Simple redirect after successful registration - let middleware handle role-based routing
-          // Use a small delay to ensure session cookie is set
-          // Don't set loading to false here - we're redirecting anyway
-          requestAnimationFrame(() => {
-            requestAnimationFrame(() => {
-              // Just go to dashboard - middleware will redirect to correct role-based dashboard
-              window.location.href = '/dashboard'
-            })
-          })
+          // Wait for session to be set before redirecting
+          // Poll session endpoint to ensure cookie is set
+          const waitForSession = async () => {
+            let attempts = 0
+            const maxAttempts = 10
+            
+            while (attempts < maxAttempts) {
+              try {
+                const sessionRes = await fetch('/api/auth/session', {
+                  credentials: 'include',
+                  cache: 'no-store'
+                })
+                
+                if (sessionRes.ok) {
+                  const sessionData = await sessionRes.json()
+                  
+                  if (sessionData?.user) {
+                    // Session is ready, determine redirect URL
+                    let redirectUrl = '/dashboard'
+                    if (sessionData.user.role === 'CAREGIVER') {
+                      redirectUrl = '/dashboard/caregiver'
+                    } else if (sessionData.user.role === 'OWNER') {
+                      redirectUrl = '/dashboard/owner'
+                    } else if (sessionData.user.role === 'ADMIN') {
+                      redirectUrl = '/admin'
+                    }
+                    
+                    // Redirect to role-specific dashboard
+                    window.location.href = redirectUrl
+                    return
+                  }
+                }
+              } catch (error) {
+                console.error('Error checking session:', error)
+              }
+              
+              // Wait a bit before retrying
+              await new Promise(resolve => setTimeout(resolve, 200))
+              attempts++
+            }
+            
+            // Fallback: redirect anyway after max attempts
+            window.location.href = '/dashboard'
+          }
+          
+          // Start waiting for session
+          waitForSession()
           // Don't set loading to false - we're redirecting
           return
         } else {
