@@ -325,16 +325,36 @@ const ModernMap: React.FC<ModernMapProps> = ({
             }}
           >
             <Popup className="custom-popup">
-              <div className="p-3 min-w-[200px]">
-                <h3 className="font-bold text-base text-gray-900 mb-1">{caregiver.name}</h3>
+              <div className="p-4 min-w-[220px]">
+                <h3 className="font-bold text-lg text-gray-900 mb-2">{caregiver.name}</h3>
                 {caregiver.city && (
-                  <p className="text-sm text-gray-600 mb-2">{caregiver.city}</p>
+                  <p className="text-sm text-gray-600 mb-3 flex items-center gap-1">
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                    {caregiver.city}
+                  </p>
                 )}
                 {caregiver.service && (
-                  <p className="text-xs text-emerald-600 font-semibold bg-emerald-50 px-2 py-1 rounded inline-block">
+                  <p className="text-xs text-emerald-600 font-semibold bg-emerald-50 px-2 py-1 rounded inline-block mb-3">
                     {caregiver.service}
                   </p>
                 )}
+                <a
+                  href={`/booking/new?caregiver=${caregiver.id}`}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    e.nativeEvent.stopImmediatePropagation();
+                    // Laat navigatie naar booking page werken
+                  }}
+                  className="w-full mt-3 inline-flex items-center justify-center gap-2 px-4 py-2 bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-semibold rounded-lg hover:from-emerald-600 hover:to-teal-700 transition-all duration-200 shadow-md hover:shadow-lg active:scale-95"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                  Boek nu
+                </a>
               </div>
             </Popup>
           </Marker>
