@@ -66,7 +66,9 @@ function ResetPasswordForm() {
       if (res.ok) {
         setSuccess(true)
         toast.success('Wachtwoord succesvol gereset!')
-        setTimeout(() => {
+        // Use requestAnimationFrame instead of setTimeout to avoid CSP issues
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
           router.push('/auth/signin')
         }, 2000)
       } else {

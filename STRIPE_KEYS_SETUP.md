@@ -263,3 +263,4 @@ STRIPE_WEBHOOK_SECRET=whsec_... (live webhook secret)
 
 **Laatste update:** 2025-01-13
 
+

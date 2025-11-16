@@ -580,3 +580,4 @@ Voor betalingen gebruik je:
 
 **🎉 Als alle tests slagen → SITE IS KLAAR VOOR LAUNCH! 🎉**
 
+

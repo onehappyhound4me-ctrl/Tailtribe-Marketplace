@@ -239,3 +239,4 @@ vercel logs https://tailtribe-f4ztgalq4-stevens-projects-6df24ffb.vercel.app
 **Laatste update:** 13 November 2025  
 **Volgende check:** Na handmatige flow tests
 
+

@@ -32,10 +32,10 @@ export default function SignInPage() {
         redirectUrl = '/admin'
       }
       
-      router.push(redirectUrl)
-      router.refresh()
+      // Use window.location for reliable redirect (CSP-safe, ensures session is loaded)
+      window.location.href = redirectUrl
     }
-  }, [status, session, callbackUrl, router])
+  }, [status, session, callbackUrl])
 
   // Check if error indicates no account (case-insensitive, handle all NextAuth error types)
   const showNoAccountError = error && (
@@ -75,11 +75,9 @@ export default function SignInPage() {
         setLoading(false)
       } else if (result?.ok) {
         toast.success('Succesvol ingelogd!')
-        // Wait a bit for session to be set, then redirect
-        setTimeout(() => {
-          router.push(callbackUrl)
-          router.refresh()
-        }, 100)
+        // Don't redirect here - let useEffect handle it after session is updated
+        // This ensures role-based redirect works correctly
+        // The useEffect will trigger when status becomes 'authenticated'
       } else {
         toast.error('Er ging iets mis bij het inloggen')
         setLoading(false)

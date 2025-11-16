@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
+import { useSession } from 'next-auth/react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { toast } from 'sonner'
@@ -21,6 +22,25 @@ export default function RegisterPage() {
   const [referralInfo, setReferralInfo] = useState<any>(null)
   const router = useRouter()
   const searchParams = useSearchParams()
+  const { data: session, status } = useSession()
+  
+  // Redirect if already authenticated (prevent loops)
+  useEffect(() => {
+    if (status === 'authenticated' && session) {
+      // Determine redirect URL based on role
+      let redirectUrl = '/dashboard'
+      if (session.user?.role === 'CAREGIVER') {
+        redirectUrl = '/dashboard/caregiver'
+      } else if (session.user?.role === 'OWNER') {
+        redirectUrl = '/dashboard/owner'
+      } else if (session.user?.role === 'ADMIN') {
+        redirectUrl = '/admin'
+      }
+      
+      // Use window.location for reliable redirect (CSP-safe, ensures session is loaded)
+      window.location.href = redirectUrl
+    }
+  }, [status, session])
 
   // Quick test fill
   const fillTestOwner = () => {
@@ -202,15 +222,21 @@ export default function RegisterPage() {
 
         if (result?.error) {
           console.error('Login error:', result.error)
-          toast.error('Inloggen mislukt. Probeer handmatig in te loggen.')
+          toast.error('Account aangemaakt, maar automatisch inloggen mislukt. Log handmatig in.')
           router.push('/auth/signin')
+          setLoading(false)
+        } else if (result?.ok) {
+          console.log('Login successful, waiting for session...')
+          toast.success('Account aangemaakt en ingelogd!')
+          
+          // Don't redirect here - let useEffect handle it after session is updated
+          // This ensures role-based redirect works correctly
+          // The useEffect will trigger when status becomes 'authenticated'
+          // NextAuth will update the session automatically, triggering the useEffect
         } else {
-          console.log('Login successful, redirecting...')
-          // Redirect to onboarding based on role
-          const onboardingUrl = formData.role === 'OWNER' 
-            ? '/onboarding/owner' 
-            : '/onboarding/caregiver-new'
-          router.push(onboardingUrl)
+          toast.error('Account aangemaakt, maar automatisch inloggen mislukt. Log handmatig in.')
+          router.push('/auth/signin')
+          setLoading(false)
         }
       } catch (loginError) {
         console.error('Login error:', loginError)

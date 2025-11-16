@@ -241,3 +241,4 @@ OVERALL:               ████████████████░░░
 **Laatste update:** 2025-01-20  
 **Next steps:** Email notifications integreren + testing
 
+

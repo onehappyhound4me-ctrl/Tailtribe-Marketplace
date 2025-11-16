@@ -80,3 +80,4 @@ Write-Host "`n=== KLAAR ===" -ForegroundColor Green
 Write-Host "Alle wijzigingen zijn gecommit en gepusht naar GitHub." -ForegroundColor Cyan
 Write-Host "Vercel zal automatisch een nieuwe deployment starten." -ForegroundColor Cyan
 
+
