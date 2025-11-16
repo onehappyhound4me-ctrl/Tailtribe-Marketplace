@@ -8,7 +8,17 @@ import Link from 'next/link'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { CaregiverCard } from '@/components/search/CaregiverCard'
-import ModernMap from '@/components/search/ModernMap'
+import nextDynamic from 'next/dynamic'
+
+// Dynamisch importeren om SSR te voorkomen (map heeft window dependency)
+const ModernMap = nextDynamic(() => import('@/components/search/ModernMap'), {
+  ssr: false,
+  loading: () => (
+    <div className="w-full h-[400px] rounded-2xl bg-gray-100 flex items-center justify-center text-sm text-gray-500 border border-gray-200">
+      Kaart laden...
+    </div>
+  ),
+})
 
 interface SearchParams {
   city?: string

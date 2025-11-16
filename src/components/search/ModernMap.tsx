@@ -187,8 +187,8 @@ function MapEventHandler({ onCaregiverSelect }: { onCaregiverSelect?: (caregiver
     },
     zoomstart: () => {
       // Blokkeer zoom events van navigatie
-      const event = window.event;
-      if (event) {
+      if (typeof window !== 'undefined' && window.event) {
+        const event = window.event;
         event.stopPropagation();
         event.stopImmediatePropagation();
       }
