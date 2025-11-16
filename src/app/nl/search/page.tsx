@@ -213,6 +213,7 @@ export default function NetherlandsSearchPage() {
                 caregivers={caregivers}
                 onCaregiverSelect={handleCaregiverSelect}
                 country="NL"
+                city={liveCity}
               />
             </div>
 

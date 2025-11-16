@@ -4,6 +4,7 @@ import React, { useEffect, useRef, useMemo, useState } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMapEvents, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
+import { getFallbackCoordinates } from '@/lib/geocoding';
 
 // Fix voor Next.js: Leaflet icon paths
 if (typeof window !== 'undefined') {
@@ -30,6 +31,7 @@ interface ModernMapProps {
   zoom?: number;
   onCaregiverSelect?: (caregiver: Caregiver) => void;
   country?: string;
+  city?: string; // Geselecteerde stad voor center
 }
 
 // Custom Zoom Controls die WEL werken - buiten de map container
@@ -126,18 +128,34 @@ function MapEventHandler({ onCaregiverSelect }: { onCaregiverSelect?: (caregiver
 
 const ModernMap: React.FC<ModernMapProps> = ({
   caregivers = [],
-  center = [50.8503, 4.3517], // Brussel default
+  center,
   zoom = 10,
   onCaregiverSelect,
   country = 'BE',
+  city,
 }) => {
   const [isMounted, setIsMounted] = useState(false);
   const [mapInstance, setMapInstance] = useState<L.Map | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
+  // Default center op basis van country
+  const defaultCenter: [number, number] = country === 'NL' 
+    ? [52.3676, 4.9041] // Amsterdam
+    : [50.8503, 4.3517]; // Brussel
+
   useEffect(() => {
     setIsMounted(true);
   }, []);
+
+  // Update map center wanneer stad verandert
+  useEffect(() => {
+    if (mapInstance && city) {
+      const coords = getFallbackCoordinates(city, country);
+      if (coords && coords.success) {
+        mapInstance.setView([coords.lat, coords.lng], zoom);
+      }
+    }
+  }, [city, country, mapInstance, zoom]);
 
   // ULTRA AGGRESSIVE: Blokkeer ALLE events op container niveau
   useEffect(() => {
@@ -189,18 +207,28 @@ const ModernMap: React.FC<ModernMapProps> = ({
   }, [caregivers]);
 
   const mapCenter = useMemo(() => {
-    if (caregiversWithCoords.length === 0) {
-      return center;
+    // Als er een stad is geselecteerd, gebruik die
+    if (city) {
+      const coords = getFallbackCoordinates(city, country);
+      if (coords && coords.success) {
+        return [coords.lat, coords.lng] as [number, number];
+      }
     }
     
-    const lats = caregiversWithCoords.map(c => c.lat!);
-    const lngs = caregiversWithCoords.map(c => c.lng!);
+    // Als er caregivers zijn met coördinaten, gebruik gemiddelde
+    if (caregiversWithCoords.length > 0) {
+      const lats = caregiversWithCoords.map(c => c.lat!);
+      const lngs = caregiversWithCoords.map(c => c.lng!);
+      
+      const avgLat = lats.reduce((a, b) => a + b, 0) / lats.length;
+      const avgLng = lngs.reduce((a, b) => a + b, 0) / lngs.length;
+      
+      return [avgLat, avgLng] as [number, number];
+    }
     
-    const avgLat = lats.reduce((a, b) => a + b, 0) / lats.length;
-    const avgLng = lngs.reduce((a, b) => a + b, 0) / lngs.length;
-    
-    return [avgLat, avgLng] as [number, number];
-  }, [caregiversWithCoords, center]);
+    // Gebruik provided center of default
+    return center || defaultCenter;
+  }, [caregiversWithCoords, center, city, country, defaultCenter]);
 
   if (!isMounted) {
     return (
@@ -261,8 +289,9 @@ const ModernMap: React.FC<ModernMapProps> = ({
         keyboard={false}
       >
         <TileLayer
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>'
+          url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
+          subdomains="abcd"
         />
         
         <MapInstanceGetter onMapReady={setMapInstance} />

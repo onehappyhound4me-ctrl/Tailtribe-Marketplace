@@ -258,6 +258,7 @@ export default function SearchPage({ searchParams }: Props) {
                   caregivers={caregivers}
                   onCaregiverSelect={handleCaregiverSelect}
                   country="BE"
+                  city={liveCity}
                 />
               </div>
 
