@@ -13,6 +13,7 @@ import { CaregiverCard } from '@/components/search/CaregiverCard'
 import { SkeletonGrid } from '@/components/loading/SkeletonCard'
 import { serviceLabels } from '@/lib/types'
 import { serviceSlugToCodeFn } from '@/lib/service-slugs'
+import ModernMap from '@/components/search/ModernMap'
 
 interface SearchParams {
   city?: string
@@ -238,7 +239,19 @@ export default function SearchPage({ searchParams }: Props) {
             </div>
           ) : (
             <div className="space-y-8">
-              {/* Map temporarily disabled */}
+              {/* Map Section */}
+              {caregivers.length > 0 && (
+                <div className="mb-8">
+                  <h2 className="font-heading text-xl font-semibold text-foreground mb-4">
+                    Kaartweergave
+                  </h2>
+                  <ModernMap
+                    caregivers={caregivers}
+                    onCaregiverSelect={handleCaregiverSelect}
+                    country="BE"
+                  />
+                </div>
+              )}
 
               {/* Caregiver Cards Section */}
               {caregivers.length > 0 ? (

@@ -12,6 +12,7 @@ import { FooterCountrySwitcher } from '@/components/common/FooterCountrySwitcher
 import { DynamicFooterLinks } from '@/components/navigation/DynamicFooter'
 import { VercelAnalytics } from '@/components/analytics/VercelAnalytics'
 import { ErrorBoundary } from '@/components/error-boundary/ErrorBoundary'
+import 'leaflet/dist/leaflet.css'
 import './globals.css'
 // cache-bust: 2025-11-11
 

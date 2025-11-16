@@ -8,6 +8,7 @@ import Link from 'next/link'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { CaregiverCard } from '@/components/search/CaregiverCard'
+import ModernMap from '@/components/search/ModernMap'
 
 interface SearchParams {
   city?: string
@@ -194,7 +195,17 @@ export default function NetherlandsSearchPage() {
           {/* Results */}
           {caregivers.length > 0 ? (
             <div className="space-y-10 md:space-y-12">
-              {/* Map temporarily disabled */}
+              {/* Map Section */}
+              <div className="mb-8">
+                <h2 className="font-heading text-xl font-semibold text-gray-900 mb-4">
+                  Kaartweergave
+                </h2>
+                <ModernMap
+                  caregivers={caregivers}
+                  onCaregiverSelect={handleCaregiverSelect}
+                  country="NL"
+                />
+              </div>
 
               {/* Caregiver Cards Section */}
               <div id="caregiver-cards" className="space-y-8">
