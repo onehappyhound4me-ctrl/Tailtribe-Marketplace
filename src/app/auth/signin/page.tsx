@@ -20,33 +20,56 @@ export default function SignInPage() {
   const { data: session, status } = useSession()
   // NO useEffect redirect - let middleware handle it or redirect after login
 
-  // Check if error indicates no account (case-insensitive, handle all NextAuth error types)
-  const showNoAccountError = error && (
-    error === 'AccessDenied' || 
-    error === 'NoAccount' ||
-    error === 'OAuthSignin' ||
-    error === 'OAuthCallback' ||
-    error === 'OAuthCreateAccount' ||
-    error.toLowerCase() === 'accessdenied' ||
-    error.toLowerCase() === 'noaccount' ||
-    error.toLowerCase().includes('access') ||
-    error.toLowerCase().includes('denied')
-  )
+  // Map error codes to user-friendly messages
+  const getErrorMessage = (errorCode: string | null): { title: string; message: string; type: 'error' | 'warning' | 'info' } | null => {
+    if (!errorCode) return null
 
-  // Check if error indicates account already exists with different provider
-  // This happens when user tries Google login but account was created with email/password
-  const showAccountNotLinkedError = error && (
-    error === 'OAuthAccountNotLinked' ||
-    error.trim() === 'OAuthAccountNotLinked' ||
-    error.toLowerCase().includes('oauthaccountnotlinked') ||
-    error.toLowerCase().includes('accountnotlinked')
-  )
+    const errorLower = errorCode.toLowerCase()
+
+    // CredentialsSignin - wrong password or email
+    if (errorLower === 'credentialssignin' || errorLower.includes('credential')) {
+      return {
+        title: 'Ongeldige inloggegevens',
+        message: 'Het e-mailadres of wachtwoord is onjuist. Controleer je gegevens en probeer opnieuw.',
+        type: 'error'
+      }
+    }
+
+    // AccessDenied - no access
+    if (errorLower === 'accessdenied' || errorLower.includes('access') || errorLower.includes('denied')) {
+      return {
+        title: 'Geen toegang',
+        message: 'Je hebt geen toegang tot dit account.',
+        type: 'error'
+      }
+    }
+
+    // OAuthAccountNotLinked - account exists with different provider
+    if (errorLower.includes('oauthaccountnotlinked') || errorLower.includes('accountnotlinked')) {
+      return {
+        title: 'Account bestaat al',
+        message: 'Dit e-mailadres is al gekoppeld via een andere login methode. Log in met je e-mailadres en wachtwoord.',
+        type: 'info'
+      }
+    }
+
+    // Default error
+    return {
+      title: 'Inloggen mislukt',
+      message: 'Er ging iets mis bij het inloggen. Probeer opnieuw.',
+      type: 'error'
+    }
+  }
+
+  const errorInfo = getErrorMessage(error)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
 
     try {
+      // Determine redirect URL based on callbackUrl or default
+      // We'll let NextAuth handle the redirect via redirect callback
       const result = await signIn('credentials', {
         email: formData.email,
         password: formData.password,
@@ -54,7 +77,10 @@ export default function SignInPage() {
       })
 
       if (result?.error) {
-        toast.error('Ongeldige inloggegevens')
+        console.error('[SIGNIN] Login error:', result.error)
+        // Error will be shown via URL param (?error=CredentialsSignin)
+        // Redirect to signin with error param
+        router.push(`/auth/signin?error=${result.error}&callbackUrl=${encodeURIComponent(callbackUrl)}`)
         setLoading(false)
       } else if (result?.ok) {
         toast.success('Succesvol ingelogd!')
@@ -77,8 +103,10 @@ export default function SignInPage() {
                 const sessionData = await sessionRes.json()
                 
                 if (sessionData?.user) {
-                  // Session is ready, determine redirect URL
+                  // Session is ready, determine redirect URL based on role
                   let redirectUrl = callbackUrl
+                  
+                  // Override callbackUrl with role-specific dashboard if needed
                   if (sessionData.user.role === 'CAREGIVER') {
                     redirectUrl = '/dashboard/caregiver'
                   } else if (sessionData.user.role === 'OWNER') {
@@ -87,13 +115,19 @@ export default function SignInPage() {
                     redirectUrl = '/admin'
                   }
                   
+                  // Ensure we don't redirect back to signin
+                  if (redirectUrl.includes('/auth/signin')) {
+                    redirectUrl = '/dashboard'
+                  }
+                  
+                  console.log('[SIGNIN] Redirecting to:', redirectUrl)
                   // Redirect to role-specific dashboard
                   window.location.href = redirectUrl
                   return
                 }
               }
             } catch (error) {
-              console.error('Error checking session:', error)
+              console.error('[SIGNIN] Error checking session:', error)
             }
             
             // Wait a bit before retrying
@@ -102,12 +136,14 @@ export default function SignInPage() {
           }
           
           // Fallback: redirect anyway after max attempts
+          console.log('[SIGNIN] Max attempts reached, redirecting to dashboard')
           window.location.href = '/dashboard'
         }
         
         // Start waiting for session
         waitForSession()
       } else {
+        console.error('[SIGNIN] Unexpected result:', result)
         toast.error('Er ging iets mis bij het inloggen')
         setLoading(false)
       }
@@ -144,70 +180,57 @@ export default function SignInPage() {
           </p>
         </div>
 
-        {/* Error Message - OAuthAccountNotLinked */}
-        {showAccountNotLinkedError ? (
-          <div className="mb-6 p-4 bg-blue-50 border-2 border-blue-200 rounded-xl shadow-sm">
+        {/* Error Message */}
+        {errorInfo && (
+          <div className={`mb-6 p-4 border-2 rounded-xl shadow-sm ${
+            errorInfo.type === 'error' 
+              ? 'bg-red-50 border-red-200' 
+              : errorInfo.type === 'warning'
+              ? 'bg-amber-50 border-amber-200'
+              : 'bg-blue-50 border-blue-200'
+          }`}>
             <div className="flex items-start gap-3">
-              <svg className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
-              </svg>
-              <div className="flex-1">
-                <h3 className="text-sm font-semibold text-blue-900 mb-2">
-                  Account bestaat al
-                </h3>
-                <p className="text-sm text-blue-800 mb-2">
-                  Er bestaat al een TailTribe account met dit e-mailadres. Log in met je e-mailadres en wachtwoord in plaats van Google.
-                </p>
-                <p className="text-xs text-blue-700">
-                  Als je je wachtwoord bent vergeten, gebruik dan de "Wachtwoord vergeten?" link hieronder.
-                </p>
-              </div>
-            </div>
-          </div>
-        ) : showNoAccountError ? (
-          <div className="mb-6 p-4 bg-amber-50 border-2 border-amber-200 rounded-xl shadow-sm">
-            <div className="text-center">
-              <div className="flex justify-center mb-3">
-                <svg className="w-6 h-6 text-amber-600" fill="currentColor" viewBox="0 0 20 20">
+              {errorInfo.type === 'error' ? (
+                <svg className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                </svg>
+              ) : errorInfo.type === 'warning' ? (
+                <svg className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
                 </svg>
-              </div>
-              <p className="text-sm font-medium text-amber-900 mb-4">
-                Je hebt nog geen TailTribe account met dit e-mailadres. Registreer je eerst.
-              </p>
-              <Link href="/auth/register" className="block">
-                <Button
-                  type="button"
-                  className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-lg py-2.5 px-4 text-sm transition-colors"
-                >
-                  Account aanmaken
-                </Button>
-              </Link>
-            </div>
-          </div>
-        ) : error ? (
-          // Fallback: Show OAuthAccountNotLinked even if detection failed
-          error.includes('OAuthAccountNotLinked') || error.includes('AccountNotLinked') ? (
-            <div className="mb-6 p-4 bg-blue-50 border-2 border-blue-200 rounded-xl shadow-sm">
-              <div className="flex items-start gap-3">
+              ) : (
                 <svg className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
                 </svg>
-                <div className="flex-1">
-                  <h3 className="text-sm font-semibold text-blue-900 mb-2">
-                    Account bestaat al
-                  </h3>
-                  <p className="text-sm text-blue-800 mb-2">
-                    Er bestaat al een TailTribe account met dit e-mailadres. Log in met je e-mailadres en wachtwoord in plaats van Google.
-                  </p>
-                  <p className="text-xs text-blue-700">
+              )}
+              <div className="flex-1">
+                <h3 className={`text-sm font-semibold mb-2 ${
+                  errorInfo.type === 'error' 
+                    ? 'text-red-900' 
+                    : errorInfo.type === 'warning'
+                    ? 'text-amber-900'
+                    : 'text-blue-900'
+                }`}>
+                  {errorInfo.title}
+                </h3>
+                <p className={`text-sm ${
+                  errorInfo.type === 'error' 
+                    ? 'text-red-800' 
+                    : errorInfo.type === 'warning'
+                    ? 'text-amber-800'
+                    : 'text-blue-800'
+                }`}>
+                  {errorInfo.message}
+                </p>
+                {errorInfo.type === 'info' && (
+                  <p className="text-xs text-blue-700 mt-2">
                     Als je je wachtwoord bent vergeten, gebruik dan de "Wachtwoord vergeten?" link hieronder.
                   </p>
-                </div>
+                )}
               </div>
             </div>
-          ) : null
-        ) : null}
+          </div>
+        )}
 
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Email */}

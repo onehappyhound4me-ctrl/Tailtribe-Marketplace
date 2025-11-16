@@ -31,31 +31,47 @@ export const authOptions: NextAuthOptions = {
         password: { label: "Wachtwoord", type: "password" }
       },
       async authorize(credentials) {
+        console.log('[AUTH] Credentials authorize called')
+        console.log('[AUTH] Email:', credentials?.email)
+        
         if (!credentials?.email || !credentials?.password) {
-          throw new Error("Email en wachtwoord zijn verplicht")
+          console.log('[AUTH] Missing email or password')
+          return null // Return null instead of throwing - NextAuth expects this
         }
 
+        console.log('[AUTH] Looking up user in database...')
         const user = await db.user.findUnique({
           where: { email: credentials.email }
         })
 
-        if (!user || !user.password) {
-          throw new Error("Ongeldige inloggegevens")
+        if (!user) {
+          console.log('[AUTH] User not found:', credentials.email)
+          return null
         }
 
+        if (!user.password) {
+          console.log('[AUTH] User found but no password set:', credentials.email)
+          return null
+        }
+
+        console.log('[AUTH] User found, checking password...')
         const isPasswordValid = await bcrypt.compare(
           credentials.password,
           user.password
         )
 
         if (!isPasswordValid) {
-          throw new Error("Ongeldige inloggegevens")
+          console.log('[AUTH] Password invalid for:', credentials.email)
+          return null
         }
 
+        console.log('[AUTH] Password valid, returning user object')
+        console.log('[AUTH] User role:', user.role)
+        
         return {
           id: user.id,
           email: user.email,
-          name: user.name,
+          name: user.name || `${user.firstName || ''} ${user.lastName || ''}`.trim() || user.email,
           role: user.role as Role,
           image: user.image,
         }
@@ -158,9 +174,13 @@ export const authOptions: NextAuthOptions = {
       return token
     },
     async session({ session, token }) {
+      console.log('[AUTH] Session callback - token.sub:', token.sub, 'token.role:', token.role)
       if (token && token.sub) {
         session.user.id = token.sub
         session.user.role = (token.role as Role) || 'OWNER'
+        console.log('[AUTH] Session callback - final role:', session.user.role)
+      } else {
+        console.log('[AUTH] Session callback - No token.sub, session might be invalid')
       }
       return session
     },
@@ -214,15 +234,26 @@ export const authOptions: NextAuthOptions = {
       return true
     },
     async redirect({ url, baseUrl }) {
+      console.log('[AUTH] Redirect callback - url:', url, 'baseUrl:', baseUrl)
+      
+      // Never redirect back to signin page after successful login
+      if (url.includes('/auth/signin')) {
+        console.log('[AUTH] Redirect callback - preventing redirect to signin, using dashboard instead')
+        return `${baseUrl}/dashboard`
+      }
+      
       // Allow relative URLs (e.g. "/dashboard")
       if (url.startsWith('/')) {
-        return `${baseUrl}${url}`
+        const finalUrl = `${baseUrl}${url}`
+        console.log('[AUTH] Redirect callback - relative URL, returning:', finalUrl)
+        return finalUrl
       }
       
       // Allow same-origin absolute URLs
       try {
         const urlObj = new URL(url)
         if (urlObj.origin === baseUrl) {
+          console.log('[AUTH] Redirect callback - same origin, returning:', url)
           return url
         }
       } catch (e) {
@@ -230,6 +261,7 @@ export const authOptions: NextAuthOptions = {
       }
       
       // Default for sign-in: send users to the main dashboard
+      console.log('[AUTH] Redirect callback - default fallback to dashboard')
       return `${baseUrl}/dashboard`
     },
   },
