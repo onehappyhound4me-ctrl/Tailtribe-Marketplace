@@ -115,6 +115,7 @@ export const authOptions: NextAuthOptions = {
         secure: process.env.NEXTAUTH_URL?.startsWith('https://') ?? true,
         // Don't set domain - let browser handle it automatically
         // This prevents cookie issues with www vs non-www
+        maxAge: 30 * 24 * 60 * 60, // 30 days
       },
     },
   },

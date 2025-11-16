@@ -86,62 +86,61 @@ export default function SignInPage() {
         toast.success('Succesvol ingelogd!')
         setLoading(false)
         
-        // Wait for session to be set before redirecting
-        // Poll session endpoint to ensure cookie is set
-        const waitForSession = async () => {
-          let attempts = 0
-          const maxAttempts = 10
+        // IMPORTANT: Use NextAuth's built-in redirect instead of manual redirect
+        // This ensures the session cookie is properly set before redirect
+        // Force a page reload to ensure middleware sees the new session
+        console.log('[SIGNIN] Login successful, using NextAuth redirect')
+        
+        // Use signIn with redirect: true to let NextAuth handle it properly
+        // But first we need to trigger a session refresh
+        const redirectWithSession = async () => {
+          // Wait a moment for cookie to be set
+          await new Promise(resolve => setTimeout(resolve, 500))
           
-          while (attempts < maxAttempts) {
-            try {
-              const sessionRes = await fetch('/api/auth/session', {
-                credentials: 'include',
-                cache: 'no-store'
-              })
-              
-              if (sessionRes.ok) {
-                const sessionData = await sessionRes.json()
-                
-                if (sessionData?.user) {
-                  // Session is ready, determine redirect URL based on role
-                  let redirectUrl = callbackUrl
-                  
-                  // Override callbackUrl with role-specific dashboard if needed
-                  if (sessionData.user.role === 'CAREGIVER') {
-                    redirectUrl = '/dashboard/caregiver'
-                  } else if (sessionData.user.role === 'OWNER') {
-                    redirectUrl = '/dashboard/owner'
-                  } else if (sessionData.user.role === 'ADMIN') {
-                    redirectUrl = '/admin'
-                  }
-                  
-                  // Ensure we don't redirect back to signin
-                  if (redirectUrl.includes('/auth/signin')) {
-                    redirectUrl = '/dashboard'
-                  }
-                  
-                  console.log('[SIGNIN] Redirecting to:', redirectUrl)
-                  // Redirect to role-specific dashboard
-                  window.location.href = redirectUrl
-                  return
+          // Force session refresh by calling the session endpoint
+          await fetch('/api/auth/session', {
+            method: 'GET',
+            credentials: 'include',
+            cache: 'no-store'
+          })
+          
+          // Determine redirect URL - use callbackUrl or default to dashboard
+          let redirectUrl = callbackUrl
+          
+          // Try to get role from session
+          try {
+            const sessionRes = await fetch('/api/auth/session', {
+              credentials: 'include',
+              cache: 'no-store'
+            })
+            
+            if (sessionRes.ok) {
+              const sessionData = await sessionRes.json()
+              if (sessionData?.user?.role) {
+                if (sessionData.user.role === 'CAREGIVER') {
+                  redirectUrl = '/dashboard/caregiver'
+                } else if (sessionData.user.role === 'OWNER') {
+                  redirectUrl = '/dashboard/owner'
+                } else if (sessionData.user.role === 'ADMIN') {
+                  redirectUrl = '/admin'
                 }
               }
-            } catch (error) {
-              console.error('[SIGNIN] Error checking session:', error)
             }
-            
-            // Wait a bit before retrying
-            await new Promise(resolve => setTimeout(resolve, 200))
-            attempts++
+          } catch (e) {
+            console.error('[SIGNIN] Error fetching session:', e)
           }
           
-          // Fallback: redirect anyway after max attempts
-          console.log('[SIGNIN] Max attempts reached, redirecting to dashboard')
-          window.location.href = '/dashboard'
+          // Ensure we don't redirect back to signin
+          if (redirectUrl.includes('/auth/signin')) {
+            redirectUrl = '/dashboard'
+          }
+          
+          console.log('[SIGNIN] Redirecting to:', redirectUrl)
+          // Use window.location.replace to prevent back button issues
+          window.location.replace(redirectUrl)
         }
         
-        // Start waiting for session
-        waitForSession()
+        redirectWithSession()
       } else {
         console.error('[SIGNIN] Unexpected result:', result)
         toast.error('Er ging iets mis bij het inloggen')
