@@ -219,10 +219,6 @@ const ModernMap: React.FC<ModernMapProps> = ({
     };
   }, []);
 
-  const caregiversWithCoords = useMemo(() => {
-    return caregivers.filter(c => c.lat != null && c.lng != null && !isNaN(c.lat) && !isNaN(c.lng));
-  }, [caregivers]);
-
   const mapCenter = useMemo(() => {
     // PRIORITEIT 1: Als er caregivers zijn met coördinaten, gebruik gemiddelde (toon waar profielen zijn)
     if (caregiversWithCoords.length > 0) {
