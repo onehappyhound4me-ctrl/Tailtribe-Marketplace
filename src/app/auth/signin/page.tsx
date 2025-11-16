@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { signIn, useSession } from 'next-auth/react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
@@ -18,10 +18,15 @@ export default function SignInPage() {
   const callbackUrl = searchParams?.get('callbackUrl') || '/dashboard'
   const error = searchParams?.get('error')
   const { data: session, status } = useSession()
+  const hasRedirectedRef = useRef(false)
 
   // Redirect if already authenticated (prevent loops)
   useEffect(() => {
-    if (status === 'authenticated' && session) {
+    // Only redirect once and if authenticated
+    if (status === 'authenticated' && session && !hasRedirectedRef.current && typeof window !== 'undefined') {
+      // Prevent redirect loops - check if we're already on the target page
+      const currentPath = window.location.pathname
+      
       // Determine redirect URL based on role
       let redirectUrl = callbackUrl
       if (session.user?.role === 'CAREGIVER') {
@@ -32,10 +37,13 @@ export default function SignInPage() {
         redirectUrl = '/admin'
       }
       
-      // Use window.location for reliable redirect (CSP-safe, ensures session is loaded)
-      window.location.href = redirectUrl
+      // Only redirect if not already on target page or dashboard
+      if (currentPath !== redirectUrl && currentPath !== '/auth/signin' && !currentPath.startsWith('/dashboard') && currentPath !== '/admin') {
+        hasRedirectedRef.current = true
+        router.push(redirectUrl)
+      }
     }
-  }, [status, session, callbackUrl])
+  }, [status, session, callbackUrl, router])
 
   // Check if error indicates no account (case-insensitive, handle all NextAuth error types)
   const showNoAccountError = error && (
