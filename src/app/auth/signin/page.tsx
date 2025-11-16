@@ -22,7 +22,17 @@ export default function SignInPage() {
   // Redirect if already authenticated (prevent loops)
   useEffect(() => {
     if (status === 'authenticated' && session) {
-      router.push(callbackUrl)
+      // Determine redirect URL based on role
+      let redirectUrl = callbackUrl
+      if (session.user?.role === 'CAREGIVER') {
+        redirectUrl = '/dashboard/caregiver'
+      } else if (session.user?.role === 'OWNER') {
+        redirectUrl = '/dashboard/owner'
+      } else if (session.user?.role === 'ADMIN') {
+        redirectUrl = '/admin'
+      }
+      
+      router.push(redirectUrl)
       router.refresh()
     }
   }, [status, session, callbackUrl, router])
@@ -62,14 +72,21 @@ export default function SignInPage() {
 
       if (result?.error) {
         toast.error('Ongeldige inloggegevens')
-      } else {
+        setLoading(false)
+      } else if (result?.ok) {
         toast.success('Succesvol ingelogd!')
-        router.push(callbackUrl)
-        router.refresh()
+        // Wait a bit for session to be set, then redirect
+        setTimeout(() => {
+          router.push(callbackUrl)
+          router.refresh()
+        }, 100)
+      } else {
+        toast.error('Er ging iets mis bij het inloggen')
+        setLoading(false)
       }
     } catch (error) {
+      console.error('Login error:', error)
       toast.error('Er ging iets mis')
-    } finally {
       setLoading(false)
     }
   }
