@@ -248,12 +248,13 @@ export default function RegisterPage() {
         console.error('Login error:', loginError)
         toast.error('Inloggen mislukt. Probeer handmatig in te loggen.')
         router.push('/auth/signin')
+        setLoading(false)
       }
     } catch (error: any) {
       toast.error(error.message || 'Er ging iets mis')
-    } finally {
       setLoading(false)
     }
+    // Note: Don't use finally here - we might be redirecting
   }
 
   return (
