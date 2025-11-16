@@ -29,8 +29,11 @@ export async function middleware(request: NextRequest) {
         secret: process.env.NEXTAUTH_SECRET
       })
 
+      console.log('[MIDDLEWARE] Protected path:', pathname, 'Token present:', !!token, 'Token sub:', token?.sub)
+
       // If no token, redirect to signin (but NOT if already on signin page to avoid loops)
       if (!token || !token.sub) {
+        console.log('[MIDDLEWARE] No token found, redirecting to signin')
         if (pathname !== '/auth/signin' && pathname !== '/auth/register') {
           const url = request.nextUrl.clone()
           url.pathname = '/auth/signin'
@@ -38,8 +41,11 @@ export async function middleware(request: NextRequest) {
           return NextResponse.redirect(url)
         }
         // If already on signin page and no token, allow it (let NextAuth handle it)
+        console.log('[MIDDLEWARE] Already on signin page, allowing access')
         return NextResponse.next()
       }
+
+      console.log('[MIDDLEWARE] Token found, role:', token.role)
 
       // Redirect /dashboard to role-specific dashboard
       if (pathname === '/dashboard') {
