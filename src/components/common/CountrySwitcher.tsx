@@ -64,6 +64,7 @@ export function CountrySwitcher() {
       
       // Calculate position: align right edge of dropdown with right edge of button
       const dropdownWidth = 120 // min-w-[120px]
+      const dropdownHeight = 112 // 2 buttons × 56px each
       let left = rect.right + scrollX - dropdownWidth
       
       // Ensure dropdown doesn't go off-screen on the left
@@ -77,8 +78,22 @@ export function CountrySwitcher() {
         left = maxLeft
       }
       
+      // Check if there's enough space below the button
+      const spaceBelow = window.innerHeight - rect.bottom
+      const spaceAbove = rect.top
+      
+      // If not enough space below, show dropdown above button
+      let top: number
+      if (spaceBelow < dropdownHeight && spaceAbove > dropdownHeight) {
+        // Show above button
+        top = rect.top + scrollY - dropdownHeight - 8
+      } else {
+        // Show below button (default)
+        top = rect.bottom + scrollY + 8
+      }
+      
       setDropdownPosition({
-        top: rect.bottom + scrollY + 8,
+        top: top,
         left: left
       })
     }

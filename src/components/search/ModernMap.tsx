@@ -156,9 +156,21 @@ const ModernMap: React.FC<ModernMapProps> = ({
     return caregivers.filter(c => c.lat != null && c.lng != null && !isNaN(c.lat) && !isNaN(c.lng));
   }, [caregivers]);
 
+  // Track previous country to detect changes
+  const prevCountryRef = useRef<string | undefined>(country);
+  
   // Update map center wanneer stad, country of caregivers veranderen
   useEffect(() => {
     if (!mapInstance) return;
+    
+    const countryChanged = prevCountryRef.current !== country;
+    prevCountryRef.current = country;
+    
+    // Als country is veranderd, force update naar default center voor dat land
+    if (countryChanged) {
+      mapInstance.setView(defaultCenter, zoom);
+      return;
+    }
     
     // Als er caregivers zijn, gebruik gemiddelde (prioriteit)
     if (caregiversWithCoords.length > 0) {
@@ -179,7 +191,7 @@ const ModernMap: React.FC<ModernMapProps> = ({
       }
     }
     
-    // Als er geen stad is maar country is veranderd, update naar default center voor dat land
+    // Als er geen stad is, gebruik default center voor dat land
     mapInstance.setView(defaultCenter, zoom);
   }, [city, country, mapInstance, zoom, caregiversWithCoords, defaultCenter]);
 
