@@ -32,24 +32,32 @@ interface ModernMapProps {
   country?: string;
 }
 
-// Component om ALLE map events te blokkeren die navigatie kunnen triggeren
-function MapEventBlocker() {
-  const map = useMap();
+// CRITICAL: Component die ALLE events op de map container blokkeert VOORDAT ze naar parent kunnen
+function MapIsolationWrapper({ children }: { children: React.ReactNode }) {
+  const wrapperRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const mapContainer = map.getContainer();
-    
-    // Blokkeer ALLE events op capture phase (eerste fase)
-    const blockEvent = (e: Event) => {
+    const wrapper = wrapperRef.current;
+    if (!wrapper) return;
+
+    // ULTRA AGGRESSIVE: Blokkeer ALLE events die navigatie kunnen triggeren
+    // Gebruik capture phase (true) om events TE INTERCEPTEREN voordat ze naar parent gaan
+    const blockNavigation = (e: Event) => {
+      // CRITICAL: Stop propagation VOORDAT event naar parent gaat
       e.stopPropagation();
       e.stopImmediatePropagation();
+      
+      // Prevent default alleen voor events die dat ondersteunen
       if (e.cancelable) {
         e.preventDefault();
       }
+      
+      // Extra beveiliging: return false voor oude browsers
+      return false;
     };
 
-    // Lijst van alle events die navigatie kunnen triggeren
-    const eventsToBlock = [
+    // Lijst van events die navigatie kunnen triggeren
+    const navigationEvents = [
       'click',
       'dblclick',
       'mousedown',
@@ -60,71 +68,209 @@ function MapEventBlocker() {
       'contextmenu',
       'wheel',
       'scroll',
+      'keydown',
+      'keyup',
+      'pointerdown',
+      'pointerup',
     ];
 
-    // Voeg event listeners toe op capture phase (true = capture)
-    eventsToBlock.forEach(eventType => {
-      mapContainer.addEventListener(eventType, blockEvent, true);
+    // Voeg listeners toe op CAPTURE phase (true = capture phase)
+    // Dit betekent dat we events ONTVANGEN VOORDAT ze naar child elements gaan
+    navigationEvents.forEach(eventType => {
+      wrapper.addEventListener(eventType, blockNavigation, { capture: true, passive: false });
     });
 
-    // Blokkeer ook events op de zoom controls specifiek
-    const blockZoomControls = () => {
-      const zoomControls = document.querySelectorAll('.leaflet-control-zoom a');
-      zoomControls.forEach(control => {
-        eventsToBlock.forEach(eventType => {
-          control.addEventListener(eventType, blockEvent, true);
-        });
-      });
+    // Extra beveiliging: blokkeer ook events op alle child elements (bubbling phase)
+    const blockChildEvents = (e: Event) => {
+      const target = e.target as HTMLElement;
+      
+      // Laat Leaflet zoom controls werken, maar blokkeer navigatie
+      if (target.closest('.leaflet-control-zoom')) {
+        // Zoom controls mogen werken, maar geen navigatie naar parent
+        e.stopPropagation();
+        e.stopImmediatePropagation();
+      } else {
+        // Alle andere events volledig blokkeren
+        e.stopPropagation();
+        e.stopImmediatePropagation();
+        if (e.cancelable) {
+          e.preventDefault();
+        }
+      }
+      
+      return false;
     };
 
-    // Blokkeer zoom controls direct
-    blockZoomControls();
-
-    // Blokkeer ook nieuwe zoom controls die later worden toegevoegd
-    const observer = new MutationObserver(() => {
-      blockZoomControls();
+    // Blokkeer events op alle child elements (bubbling phase)
+    navigationEvents.forEach(eventType => {
+      wrapper.addEventListener(eventType, blockChildEvents, { capture: false, passive: false });
     });
 
-    observer.observe(mapContainer, {
-      childList: true,
-      subtree: true,
+    // EXTRA: Blokkeer ook events op document niveau als ze van de map komen
+    const blockDocumentEvents = (e: Event) => {
+      const target = e.target as HTMLElement;
+      if (wrapper.contains(target)) {
+        e.stopPropagation();
+        e.stopImmediatePropagation();
+        if (e.cancelable) {
+          e.preventDefault();
+        }
+      }
+    };
+
+    // Blokkeer events op document niveau (alleen voor events die van de map komen)
+    navigationEvents.forEach(eventType => {
+      document.addEventListener(eventType, blockDocumentEvents, { capture: true, passive: false });
     });
 
     return () => {
       // Cleanup: verwijder alle listeners
-      eventsToBlock.forEach(eventType => {
-        mapContainer.removeEventListener(eventType, blockEvent, true);
+      navigationEvents.forEach(eventType => {
+        wrapper.removeEventListener(eventType, blockNavigation, { capture: true } as any);
+        wrapper.removeEventListener(eventType, blockChildEvents, { capture: false } as any);
+        document.removeEventListener(eventType, blockDocumentEvents, { capture: true } as any);
       });
-      observer.disconnect();
     };
-  }, [map]);
+  }, []);
 
-  return null;
+  return (
+    <div
+      ref={wrapperRef}
+      style={{
+        position: 'relative',
+        width: '100%',
+        height: '100%',
+        isolation: 'isolate', // CSS isolation om stacking context te creëren
+        zIndex: 1,
+        pointerEvents: 'auto', // Zorg dat pointer events werken binnen de map
+      }}
+      // Extra React event handlers als backup
+      onClick={(e) => {
+        e.stopPropagation();
+        e.preventDefault();
+        e.nativeEvent.stopImmediatePropagation();
+      }}
+      onDoubleClick={(e) => {
+        e.stopPropagation();
+        e.preventDefault();
+        e.nativeEvent.stopImmediatePropagation();
+      }}
+      onMouseDown={(e) => {
+        e.stopPropagation();
+        e.nativeEvent.stopImmediatePropagation();
+      }}
+      onMouseUp={(e) => {
+        e.stopPropagation();
+        e.nativeEvent.stopImmediatePropagation();
+      }}
+      onTouchStart={(e) => {
+        e.stopPropagation();
+        e.nativeEvent.stopImmediatePropagation();
+      }}
+      onTouchEnd={(e) => {
+        e.stopPropagation();
+        e.nativeEvent.stopImmediatePropagation();
+      }}
+    >
+      {children}
+    </div>
+  );
 }
 
-// Component om map events te gebruiken zonder navigatie
-function MapClickHandler({ onCaregiverSelect }: { onCaregiverSelect?: (caregiver: Caregiver) => void }) {
+// Component om Leaflet map events te gebruiken zonder navigatie
+function MapEventHandler({ onCaregiverSelect }: { onCaregiverSelect?: (caregiver: Caregiver) => void }) {
   useMapEvents({
     click: (e) => {
-      // Blokkeer event propagation
+      // Blokkeer event propagation naar parent
       e.originalEvent.stopPropagation();
       e.originalEvent.stopImmediatePropagation();
-      if (e.originalEvent.cancelable) {
-        e.originalEvent.preventDefault();
-      }
     },
     zoomstart: () => {
-      // Blokkeer zoom events
+      // Blokkeer zoom events van navigatie
       const event = window.event;
       if (event) {
         event.stopPropagation();
         event.stopImmediatePropagation();
-        if (event.cancelable) {
-          event.preventDefault();
-        }
       }
     },
   });
+
+  return null;
+}
+
+// Component om zoom controls specifiek te beschermen EN WERKENDE ZOOM TOESTAAN
+function ZoomControlsProtector() {
+  const map = useMap();
+
+  useEffect(() => {
+    const container = map.getContainer();
+    
+    // Functie om zoom controls te beschermen maar WEL WERKENDE ZOOM TOESTAAN
+    const protectZoomControls = () => {
+      const zoomControls = container.querySelectorAll('.leaflet-control-zoom a');
+      zoomControls.forEach(control => {
+        // CRITICAL: Blokkeer navigatie maar laat Leaflet's eigen zoom handler werken
+        const handleZoomClick = (e: MouseEvent) => {
+          // Laat Leaflet's eigen zoom logica werken door NIET preventDefault te roepen
+          // Maar blokkeer WEL event propagation naar parent elementen
+          e.stopPropagation();
+          e.stopImmediatePropagation();
+          
+          // NIET preventDefault() - laat Leaflet de zoom uitvoeren
+          // Leaflet heeft zijn eigen click handler die we niet moeten blokkeren
+        };
+        
+        // Voeg listener toe op CAPTURE phase zodat we VOORDAT Leaflet handelt kunnen ingrijpen
+        // Maar we blokkeren alleen propagation, niet de default actie
+        control.addEventListener('click', handleZoomClick, { capture: true, passive: false });
+        control.addEventListener('mousedown', (e) => {
+          e.stopPropagation();
+          e.stopImmediatePropagation();
+        }, { capture: true, passive: false });
+        control.addEventListener('mouseup', (e) => {
+          e.stopPropagation();
+          e.stopImmediatePropagation();
+        }, { capture: true, passive: false });
+        
+        // Blokkeer ook touch events voor mobile
+        control.addEventListener('touchstart', (e) => {
+          e.stopPropagation();
+          e.stopImmediatePropagation();
+        }, { capture: true, passive: false });
+        control.addEventListener('touchend', (e) => {
+          e.stopPropagation();
+          e.stopImmediatePropagation();
+        }, { capture: true, passive: false });
+      });
+    };
+
+    // Bescherm zoom controls direct na mount
+    setTimeout(() => {
+      protectZoomControls();
+    }, 100);
+
+    // Blokkeer ook nieuwe zoom controls die later worden toegevoegd
+    const observer = new MutationObserver(() => {
+      setTimeout(() => {
+        protectZoomControls();
+      }, 50);
+    });
+
+    observer.observe(container, {
+      childList: true,
+      subtree: true,
+    });
+
+    // Ook periodiek checken (voor het geval dat)
+    const interval = setInterval(() => {
+      protectZoomControls();
+    }, 500);
+
+    return () => {
+      observer.disconnect();
+      clearInterval(interval);
+    };
+  }, [map]);
 
   return null;
 }
@@ -136,9 +282,6 @@ const ModernMap: React.FC<ModernMapProps> = ({
   onCaregiverSelect,
   country = 'BE',
 }) => {
-  const mapRef = useRef<L.Map | null>(null);
-  const wrapperRef = useRef<HTMLDivElement>(null);
-
   // Filter caregivers met coördinaten
   const caregiversWithCoords = useMemo(() => {
     return caregivers.filter(c => c.lat != null && c.lng != null && !isNaN(c.lat) && !isNaN(c.lng));
@@ -159,31 +302,6 @@ const ModernMap: React.FC<ModernMapProps> = ({
     return [avgLat, avgLng] as [number, number];
   }, [caregiversWithCoords, center]);
 
-  // Extra event blocking op wrapper niveau
-  useEffect(() => {
-    const wrapper = wrapperRef.current;
-    if (!wrapper) return;
-
-    const blockAllEvents = (e: Event) => {
-      e.stopPropagation();
-      e.stopImmediatePropagation();
-      if (e.cancelable) {
-        e.preventDefault();
-      }
-    };
-
-    const events = ['click', 'dblclick', 'mousedown', 'mouseup', 'touchstart', 'touchend', 'contextmenu'];
-    events.forEach(eventType => {
-      wrapper.addEventListener(eventType, blockAllEvents, true);
-    });
-
-    return () => {
-      events.forEach(eventType => {
-        wrapper.removeEventListener(eventType, blockAllEvents, true);
-      });
-    };
-  }, []);
-
   if (caregiversWithCoords.length === 0) {
     return (
       <div className="w-full h-[400px] rounded-2xl bg-gray-100 flex items-center justify-center text-sm text-gray-500 border border-gray-200">
@@ -193,101 +311,58 @@ const ModernMap: React.FC<ModernMapProps> = ({
   }
 
   return (
-    <div
-      ref={wrapperRef}
-      className="w-full h-[400px] rounded-2xl overflow-hidden border border-gray-200 shadow-lg relative"
-      style={{ isolation: 'isolate' }}
-      onClick={(e) => {
-        e.stopPropagation();
-        e.preventDefault();
-      }}
-      onDoubleClick={(e) => {
-        e.stopPropagation();
-        e.preventDefault();
-      }}
-      onMouseDown={(e) => {
-        e.stopPropagation();
-      }}
-      onMouseUp={(e) => {
-        e.stopPropagation();
-      }}
-    >
-      <MapContainer
-        center={mapCenter}
-        zoom={zoom}
-        style={{ height: '100%', width: '100%', zIndex: 1 }}
-        zoomControl={true}
-        attributionControl={false}
-        scrollWheelZoom={true}
-        doubleClickZoom={true}
-        dragging={true}
-        touchZoom={true}
-        boxZoom={true}
-        keyboard={false}
-        whenCreated={(map) => {
-          mapRef.current = map;
+    <div className="w-full h-[400px] rounded-2xl overflow-hidden border border-gray-200 shadow-lg relative">
+      <MapIsolationWrapper>
+        <MapContainer
+          center={mapCenter}
+          zoom={zoom}
+          style={{ height: '100%', width: '100%', zIndex: 1 }}
+          zoomControl={true}
+          attributionControl={false}
+          scrollWheelZoom={true}
+          doubleClickZoom={true}
+          dragging={true}
+          touchZoom={true}
+          boxZoom={true}
+          keyboard={false}
+        >
+          <TileLayer
+            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          />
           
-          // Extra beveiliging: blokkeer alle events op de map container
-          const container = map.getContainer();
-          const blockEvent = (e: Event) => {
-            e.stopPropagation();
-            e.stopImmediatePropagation();
-            if (e.cancelable) {
-              e.preventDefault();
-            }
-          };
+          <MapEventHandler onCaregiverSelect={onCaregiverSelect} />
+          <ZoomControlsProtector />
 
-          ['click', 'dblclick', 'mousedown', 'mouseup', 'contextmenu'].forEach(eventType => {
-            container.addEventListener(eventType, blockEvent, true);
-          });
-
-          // Blokkeer zoom control clicks specifiek
-          setTimeout(() => {
-            const zoomControls = container.querySelectorAll('.leaflet-control-zoom a');
-            zoomControls.forEach(control => {
-              ['click', 'mousedown', 'mouseup', 'touchstart', 'touchend'].forEach(eventType => {
-                control.addEventListener(eventType, blockEvent, true);
-              });
-            });
-          }, 100);
-        }}
-      >
-        <TileLayer
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-        />
-        
-        <MapEventBlocker />
-        <MapClickHandler onCaregiverSelect={onCaregiverSelect} />
-
-        {caregiversWithCoords.map((caregiver) => (
-          <Marker
-            key={caregiver.id}
-            position={[caregiver.lat!, caregiver.lng!]}
-            eventHandlers={{
-              click: (e) => {
-                e.originalEvent.stopPropagation();
-                e.originalEvent.stopImmediatePropagation();
-                if (onCaregiverSelect) {
-                  onCaregiverSelect(caregiver);
-                }
-              },
-            }}
-          >
-            <Popup>
-              <div className="p-2">
-                <h3 className="font-semibold text-sm">{caregiver.name}</h3>
-                {caregiver.city && (
-                  <p className="text-xs text-gray-600">{caregiver.city}</p>
-                )}
-                {caregiver.service && (
-                  <p className="text-xs text-emerald-600 mt-1">{caregiver.service}</p>
-                )}
-              </div>
-            </Popup>
-          </Marker>
-        ))}
-      </MapContainer>
+          {caregiversWithCoords.map((caregiver) => (
+            <Marker
+              key={caregiver.id}
+              position={[caregiver.lat!, caregiver.lng!]}
+              eventHandlers={{
+                click: (e) => {
+                  e.originalEvent.stopPropagation();
+                  e.originalEvent.stopImmediatePropagation();
+                  if (onCaregiverSelect) {
+                    onCaregiverSelect(caregiver);
+                  }
+                },
+              }}
+            >
+              <Popup>
+                <div className="p-2">
+                  <h3 className="font-semibold text-sm">{caregiver.name}</h3>
+                  {caregiver.city && (
+                    <p className="text-xs text-gray-600">{caregiver.city}</p>
+                  )}
+                  {caregiver.service && (
+                    <p className="text-xs text-emerald-600 mt-1">{caregiver.service}</p>
+                  )}
+                </div>
+              </Popup>
+            </Marker>
+          ))}
+        </MapContainer>
+      </MapIsolationWrapper>
     </div>
   );
 };
