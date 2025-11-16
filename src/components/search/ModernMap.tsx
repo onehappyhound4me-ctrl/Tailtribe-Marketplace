@@ -147,6 +147,10 @@ const ModernMap: React.FC<ModernMapProps> = ({
     setIsMounted(true);
   }, []);
 
+  const caregiversWithCoords = useMemo(() => {
+    return caregivers.filter(c => c.lat != null && c.lng != null && !isNaN(c.lat) && !isNaN(c.lng));
+  }, [caregivers]);
+
   // Update map center wanneer stad of caregivers veranderen
   useEffect(() => {
     if (!mapInstance) return;
