@@ -158,26 +158,48 @@ const ModernMap: React.FC<ModernMapProps> = ({
 
   // Track previous country to detect changes
   const prevCountryRef = useRef<string | undefined>(undefined);
+  const isInitialMountRef = useRef(true);
   
   // Update map center wanneer stad, country of caregivers veranderen
   useEffect(() => {
-    if (!mapInstance) return;
+    if (!mapInstance) {
+      console.log('🗺️ Map instance not ready yet');
+      return;
+    }
     
     const countryChanged = prevCountryRef.current !== undefined && prevCountryRef.current !== country;
-    prevCountryRef.current = country;
+    const isInitialMount = isInitialMountRef.current;
+    
+    console.log('🗺️ Map center update triggered:', {
+      country,
+      prevCountry: prevCountryRef.current,
+      countryChanged,
+      isInitialMount,
+      defaultCenter,
+      caregiversCount: caregiversWithCoords.length,
+      city
+    });
+    
+    // Bij eerste mount, gebruik altijd default center voor huidige country
+    if (isInitialMount) {
+      console.log('🗺️ Initial map load for country:', country, 'Setting center to:', defaultCenter);
+      mapInstance.setView(defaultCenter, zoom);
+      isInitialMountRef.current = false;
+      prevCountryRef.current = country;
+      return;
+    }
     
     // Als country is veranderd, force update naar default center voor dat land
     if (countryChanged) {
       console.log('🗺️ Country changed:', prevCountryRef.current, '→', country, 'Updating map to:', defaultCenter);
       mapInstance.setView(defaultCenter, zoom, { animate: true, duration: 0.5 });
+      prevCountryRef.current = country;
       return;
     }
     
-    // Bij eerste mount of als er geen vorige country was, gebruik default center voor huidige country
-    if (prevCountryRef.current === undefined) {
-      console.log('🗺️ Initial map load for country:', country, 'Center:', defaultCenter);
-      mapInstance.setView(defaultCenter, zoom);
-      return;
+    // Update prevCountryRef als country verandert (zonder force update)
+    if (prevCountryRef.current !== country) {
+      prevCountryRef.current = country;
     }
     
     // Als er caregivers zijn, gebruik gemiddelde (prioriteit)
@@ -186,6 +208,7 @@ const ModernMap: React.FC<ModernMapProps> = ({
       const lngs = caregiversWithCoords.map(c => c.lng!);
       const avgLat = lats.reduce((a, b) => a + b, 0) / lats.length;
       const avgLng = lngs.reduce((a, b) => a + b, 0) / lngs.length;
+      console.log('🗺️ Using caregiver average center:', [avgLat, avgLng]);
       mapInstance.setView([avgLat, avgLng], zoom);
       return;
     }
@@ -194,12 +217,14 @@ const ModernMap: React.FC<ModernMapProps> = ({
     if (city) {
       const coords = getFallbackCoordinates(city, country);
       if (coords && coords.success) {
+        console.log('🗺️ Using city center:', [coords.lat, coords.lng]);
         mapInstance.setView([coords.lat, coords.lng], zoom);
         return;
       }
     }
     
     // Als er geen stad is, gebruik default center voor dat land
+    console.log('🗺️ Using default center for country:', country, defaultCenter);
     mapInstance.setView(defaultCenter, zoom);
   }, [city, country, mapInstance, zoom, caregiversWithCoords, defaultCenter]);
 
