@@ -69,8 +69,9 @@ function ResetPasswordForm() {
         // Use requestAnimationFrame instead of setTimeout to avoid CSP issues
         requestAnimationFrame(() => {
           requestAnimationFrame(() => {
-          router.push('/auth/signin')
-        }, 2000)
+            router.push('/auth/signin')
+          })
+        })
       } else {
         const data = await res.json()
         toast.error(data.error || 'Er ging iets mis')
