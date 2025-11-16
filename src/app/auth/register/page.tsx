@@ -35,6 +35,14 @@ export default function RegisterPage() {
       role: 'OWNER',
       referralCode: ''
     })
+    // Clear any previous errors
+    setErrors({})
+    setTouched({
+      firstName: true,
+      lastName: true,
+      email: true,
+      password: true
+    })
     toast.success('Test Owner data ingevuld!')
   }
 
@@ -46,6 +54,14 @@ export default function RegisterPage() {
       password: 'test123456',
       role: 'CAREGIVER',
       referralCode: ''
+    })
+    // Clear any previous errors
+    setErrors({})
+    setTouched({
+      firstName: true,
+      lastName: true,
+      email: true,
+      password: true
     })
     toast.success('Test Caregiver data ingevuld!')
   }
@@ -214,12 +230,15 @@ export default function RegisterPage() {
           
           // Simple redirect after successful registration - let middleware handle role-based routing
           // Use a small delay to ensure session cookie is set
+          // Don't set loading to false here - we're redirecting anyway
           requestAnimationFrame(() => {
             requestAnimationFrame(() => {
               // Just go to dashboard - middleware will redirect to correct role-based dashboard
               window.location.href = '/dashboard'
             })
           })
+          // Don't set loading to false - we're redirecting
+          return
         } else {
           toast.error('Account aangemaakt, maar automatisch inloggen mislukt. Log handmatig in.')
           router.push('/auth/signin')
