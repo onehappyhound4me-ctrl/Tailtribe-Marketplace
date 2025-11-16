@@ -179,48 +179,95 @@ const ModernMap: React.FC<ModernMapProps> = ({
     }
   }, [city, country, mapInstance, zoom, caregiversWithCoords]);
 
-  // ULTRA AGGRESSIVE: Blokkeer ALLE events op container niveau
+  // Blokkeer alleen navigatie events, NIET drag events (mousedown/mouseup zijn nodig voor drag)
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
 
-    const blockAllEvents = (e: Event) => {
+    // Track of er gedragged wordt
+    let isDragging = false;
+    let dragStartTime = 0;
+
+    const handleMouseDown = (e: MouseEvent) => {
+      dragStartTime = Date.now();
+      isDragging = false;
+      // Laat mousedown door voor drag functionaliteit
+    };
+
+    const handleMouseMove = () => {
+      // Als er beweging is na mousedown, is het een drag
+      if (dragStartTime > 0) {
+        isDragging = true;
+      }
+    };
+
+    const handleMouseUp = (e: MouseEvent) => {
+      // Als het een drag was, blokkeer click niet (laat Leaflet het afhandelen)
+      if (isDragging) {
+        isDragging = false;
+        dragStartTime = 0;
+        return; // Laat drag events door
+      }
+      
+      // Als het GEEN drag was maar een click, blokkeer navigatie
+      const clickDuration = Date.now() - dragStartTime;
+      if (clickDuration < 200) { // Korte click = navigatie risk
+        e.stopPropagation();
+        e.stopImmediatePropagation();
+      }
+      dragStartTime = 0;
+    };
+
+    // Blokkeer alleen click events die navigatie kunnen triggeren
+    const blockClick = (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+      
+      // Laat clicks op Leaflet controls door
+      if (target.closest('.leaflet-control') || target.closest('.custom-zoom-controls')) {
+        return;
+      }
+      
+      // Als het een click is (niet drag), blokkeer navigatie
+      if (!isDragging) {
+        e.stopPropagation();
+        e.stopImmediatePropagation();
+      }
+    };
+
+    // Blokkeer contextmenu (rechts klik)
+    const blockContextMenu = (e: Event) => {
       e.stopPropagation();
       e.stopImmediatePropagation();
       if (e.cancelable) {
         e.preventDefault();
       }
-      return false;
     };
 
-    const events = ['click', 'dblclick', 'mousedown', 'mouseup', 'touchstart', 'touchend', 'contextmenu'];
-    
-    // Capture phase - blokkeer VOORDAT events naar child gaan
-    events.forEach(eventType => {
-      container.addEventListener(eventType, blockAllEvents, { capture: true, passive: false });
-    });
+    // Voeg listeners toe
+    container.addEventListener('mousedown', handleMouseDown, { capture: true });
+    container.addEventListener('mousemove', handleMouseMove, { capture: true });
+    container.addEventListener('mouseup', handleMouseUp, { capture: true });
+    container.addEventListener('click', blockClick, { capture: true, passive: false });
+    container.addEventListener('contextmenu', blockContextMenu, { capture: true, passive: false });
 
-    // Document level blocking
-    const blockDocumentEvents = (e: Event) => {
+    // Document level blocking alleen voor clicks (niet voor drag)
+    const blockDocumentClick = (e: MouseEvent) => {
       const target = e.target as HTMLElement;
-      if (container.contains(target) && !target.closest('.custom-zoom-controls')) {
+      if (container.contains(target) && !target.closest('.custom-zoom-controls') && !isDragging) {
         e.stopPropagation();
         e.stopImmediatePropagation();
-        if (e.cancelable) {
-          e.preventDefault();
-        }
       }
     };
 
-    events.forEach(eventType => {
-      document.addEventListener(eventType, blockDocumentEvents, { capture: true, passive: false });
-    });
+    document.addEventListener('click', blockDocumentClick, { capture: true, passive: false });
 
     return () => {
-      events.forEach(eventType => {
-        container.removeEventListener(eventType, blockAllEvents, { capture: true } as any);
-        document.removeEventListener(eventType, blockDocumentEvents, { capture: true } as any);
-      });
+      container.removeEventListener('mousedown', handleMouseDown, { capture: true } as any);
+      container.removeEventListener('mousemove', handleMouseMove, { capture: true } as any);
+      container.removeEventListener('mouseup', handleMouseUp, { capture: true } as any);
+      container.removeEventListener('click', blockClick, { capture: true } as any);
+      container.removeEventListener('contextmenu', blockContextMenu, { capture: true } as any);
+      document.removeEventListener('click', blockDocumentClick, { capture: true } as any);
     };
   }, []);
 
@@ -275,20 +322,11 @@ const ModernMap: React.FC<ModernMapProps> = ({
       ref={containerRef}
       className="w-full h-[400px] rounded-2xl overflow-hidden border-2 border-gray-200 shadow-xl relative bg-white"
       onClick={(e) => {
+        // Alleen blokkeer als het geen drag was
         e.stopPropagation();
-        e.preventDefault();
         e.nativeEvent.stopImmediatePropagation();
       }}
       onDoubleClick={(e) => {
-        e.stopPropagation();
-        e.preventDefault();
-        e.nativeEvent.stopImmediatePropagation();
-      }}
-      onMouseDown={(e) => {
-        e.stopPropagation();
-        e.nativeEvent.stopImmediatePropagation();
-      }}
-      onMouseUp={(e) => {
         e.stopPropagation();
         e.nativeEvent.stopImmediatePropagation();
       }}
