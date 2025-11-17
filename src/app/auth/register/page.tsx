@@ -1,8 +1,8 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { useSession } from 'next-auth/react'
+import { useSession, signOut } from 'next-auth/react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { toast } from 'sonner'
@@ -23,10 +23,21 @@ export default function RegisterPage() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const { data: session, status } = useSession()
-  // NO useEffect redirect - redirect only after successful registration/login
+  const isAuthenticated = status === 'authenticated' && !!session?.user?.id
+
+  const getDashboardUrl = () => {
+    if (session?.user?.role === 'CAREGIVER') return '/dashboard/caregiver'
+    if (session?.user?.role === 'ADMIN') return '/admin'
+    if (session?.user?.role === 'OWNER') return '/dashboard/owner'
+    return '/dashboard'
+  }
 
   // Quick test fill
   const fillTestOwner = () => {
+    if (isAuthenticated) {
+      toast.warning('Log eerst uit voordat je een nieuw testaccount aanmaakt')
+      return
+    }
     setFormData({
       firstName: 'Test',
       lastName: 'Owner',
@@ -35,18 +46,14 @@ export default function RegisterPage() {
       role: 'OWNER',
       referralCode: ''
     })
-    // Clear any previous errors
-    setErrors({})
-    setTouched({
-      firstName: true,
-      lastName: true,
-      email: true,
-      password: true
-    })
     toast.success('Test Owner data ingevuld!')
   }
 
   const fillTestCaregiver = () => {
+    if (isAuthenticated) {
+      toast.warning('Log eerst uit voordat je een nieuw testaccount aanmaakt')
+      return
+    }
     setFormData({
       firstName: 'Test',
       lastName: 'Caregiver',
@@ -54,14 +61,6 @@ export default function RegisterPage() {
       password: 'test123456',
       role: 'CAREGIVER',
       referralCode: ''
-    })
-    // Clear any previous errors
-    setErrors({})
-    setTouched({
-      firstName: true,
-      lastName: true,
-      email: true,
-      password: true
     })
     toast.success('Test Caregiver data ingevuld!')
   }
@@ -185,6 +184,11 @@ export default function RegisterPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+
+    if (isAuthenticated) {
+      toast.warning('Je bent al ingelogd. Log eerst uit om een nieuw account aan te maken.')
+      return
+    }
     
     // Validate before submit
     if (!validateForm()) {
@@ -213,27 +217,57 @@ export default function RegisterPage() {
       // Auto login after registration
       try {
         const { signIn } = await import('next-auth/react')
-        // Use NextAuth's built-in redirect mechanism
-        // This ensures session cookie is set before redirect
-        await signIn('credentials', {
+        const result = await signIn('credentials', {
           email: formData.email,
           password: formData.password,
-          redirect: true,
-          callbackUrl: '/dashboard',
+          redirect: false,
         })
 
-        // Note: signIn with redirect: true will navigate away, so code below won't execute
+        if (result?.error) {
+          console.error('Login error:', result.error)
+          toast.error('Account aangemaakt, maar automatisch inloggen mislukt. Log handmatig in.')
+          router.push('/auth/signin')
+          setLoading(false)
+        } else if (result?.ok) {
+          console.log('Login successful, redirecting...')
+          toast.success('Account aangemaakt en ingelogd!')
+          
+          // Determine dashboard URL based on role
+          const dashboardUrl = formData.role === 'OWNER' 
+            ? '/dashboard/owner' 
+            : formData.role === 'CAREGIVER'
+            ? '/dashboard/caregiver'
+            : '/dashboard'
+          
+          // Wait for session to be set using requestAnimationFrame (CSP-safe)
+          const redirectToDashboard = () => {
+            router.push(dashboardUrl)
+            router.refresh()
+          }
+          
+          // Use multiple requestAnimationFrame calls to ensure session is set
+          requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+              requestAnimationFrame(() => {
+                redirectToDashboard()
+              })
+            })
+          })
+        } else {
+          toast.error('Account aangemaakt, maar automatisch inloggen mislukt. Log handmatig in.')
+          router.push('/auth/signin')
+          setLoading(false)
+        }
       } catch (loginError) {
-        console.error('[REGISTER] Login error:', loginError)
-        toast.error('Account aangemaakt, maar automatisch inloggen mislukt. Log handmatig in.')
+        console.error('Login error:', loginError)
+        toast.error('Inloggen mislukt. Probeer handmatig in te loggen.')
         router.push('/auth/signin')
-        setLoading(false)
       }
     } catch (error: any) {
       toast.error(error.message || 'Er ging iets mis')
+    } finally {
       setLoading(false)
     }
-    // Note: Don't use finally here - we might be redirecting
   }
 
   return (
@@ -247,6 +281,34 @@ export default function RegisterPage() {
             Start vandaag nog met TailTribe
           </p>
         </div>
+
+        {isAuthenticated && (
+          <div className="mb-6 rounded-lg border border-amber-200 bg-amber-50 p-4">
+            <h2 className="text-sm font-semibold text-amber-900 mb-1">
+              Je bent al ingelogd
+            </h2>
+            <p className="text-sm text-amber-800 mb-3">
+              Log eerst uit als je een nieuw testaccount wilt aanmaken. Je huidige sessie wordt anders direct naar het dashboard doorgestuurd.
+            </p>
+            <div className="flex flex-col gap-2 sm:flex-row">
+              <Button
+                type="button"
+                variant="secondary"
+                className="w-full justify-center border border-emerald-600 bg-white text-emerald-700 hover:bg-emerald-50"
+                onClick={() => router.push(getDashboardUrl())}
+              >
+                Naar dashboard
+              </Button>
+              <Button
+                type="button"
+                className="w-full justify-center"
+                onClick={() => signOut({ callbackUrl: '/auth/register' })}
+              >
+                Uitloggen en opnieuw registreren
+              </Button>
+            </div>
+          </div>
+        )}
 
         {/* Referral Banner */}
         {referralInfo && (
@@ -268,6 +330,7 @@ export default function RegisterPage() {
         )}
 
         <form onSubmit={handleSubmit} className="space-y-5">
+          <fieldset disabled={isAuthenticated} className={isAuthenticated ? 'opacity-50 pointer-events-none' : ''}>
           {/* Role Selection */}
           <div>
             <label className="block text-sm font-semibold text-gray-900 mb-3">
@@ -503,6 +566,7 @@ export default function RegisterPage() {
               </div>
             </div>
           )}
+          </fieldset>
         </form>
 
 
@@ -513,6 +577,7 @@ export default function RegisterPage() {
             <button
               type="button"
               onClick={fillTestOwner}
+              disabled={isAuthenticated}
               className="flex-1 px-3 py-1.5 text-xs bg-gray-100 text-gray-700 hover:bg-gray-200 rounded font-medium transition-colors border border-gray-300"
             >
               Test Eigenaar
@@ -520,6 +585,7 @@ export default function RegisterPage() {
             <button
               type="button"
               onClick={fillTestCaregiver}
+              disabled={isAuthenticated}
               className="flex-1 px-3 py-1.5 text-xs bg-gray-100 text-gray-700 hover:bg-gray-200 rounded font-medium transition-colors border border-gray-300"
             >
               Test Verzorger
