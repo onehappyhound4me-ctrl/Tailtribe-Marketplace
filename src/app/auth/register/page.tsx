@@ -213,75 +213,16 @@ export default function RegisterPage() {
       // Auto login after registration
       try {
         const { signIn } = await import('next-auth/react')
-        const result = await signIn('credentials', {
+        // Use NextAuth's built-in redirect mechanism
+        // This ensures session cookie is set before redirect
+        await signIn('credentials', {
           email: formData.email,
           password: formData.password,
-          redirect: false,
+          redirect: true,
+          callbackUrl: '/dashboard',
         })
 
-        if (result?.error) {
-          console.error('Login error:', result.error)
-          toast.error('Account aangemaakt, maar automatisch inloggen mislukt. Log handmatig in.')
-          router.push('/auth/signin')
-          setLoading(false)
-        } else if (result?.ok) {
-          console.log('Login successful, redirecting...')
-          toast.success('Account aangemaakt en ingelogd!')
-          
-          // Wait for session to be set before redirecting
-          // Poll session endpoint to ensure cookie is set
-          const waitForSession = async () => {
-            let attempts = 0
-            const maxAttempts = 10
-            
-            while (attempts < maxAttempts) {
-              try {
-                const sessionRes = await fetch('/api/auth/session', {
-                  credentials: 'include',
-                  cache: 'no-store'
-                })
-                
-                if (sessionRes.ok) {
-                  const sessionData = await sessionRes.json()
-                  
-                  if (sessionData?.user) {
-                    // Session is ready, determine redirect URL
-                    let redirectUrl = '/dashboard'
-                    if (sessionData.user.role === 'CAREGIVER') {
-                      redirectUrl = '/dashboard/caregiver'
-                    } else if (sessionData.user.role === 'OWNER') {
-                      redirectUrl = '/dashboard/owner'
-                    } else if (sessionData.user.role === 'ADMIN') {
-                      redirectUrl = '/admin'
-                    }
-                    
-                    // Redirect to role-specific dashboard
-                    window.location.href = redirectUrl
-                    return
-                  }
-                }
-              } catch (error) {
-                console.error('Error checking session:', error)
-              }
-              
-              // Wait a bit before retrying
-              await new Promise(resolve => setTimeout(resolve, 200))
-              attempts++
-            }
-            
-            // Fallback: redirect anyway after max attempts
-            window.location.href = '/dashboard'
-          }
-          
-          // Start waiting for session
-          waitForSession()
-          // Don't set loading to false - we're redirecting
-          return
-        } else {
-          toast.error('Account aangemaakt, maar automatisch inloggen mislukt. Log handmatig in.')
-          router.push('/auth/signin')
-          setLoading(false)
-        }
+        // Note: signIn with redirect: true will navigate away, so code below won't execute
       } catch (loginError) {
         console.error('Login error:', loginError)
         toast.error('Inloggen mislukt. Probeer handmatig in te loggen.')
