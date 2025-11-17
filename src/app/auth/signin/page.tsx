@@ -68,18 +68,78 @@ export default function SignInPage() {
     setLoading(true)
 
     try {
-      // Use NextAuth's built-in redirect mechanism
-      // This ensures the session cookie is properly set before redirect
-      await signIn('credentials', {
+      // First attempt login without redirect to verify credentials
+      const result = await signIn('credentials', {
         email: formData.email,
         password: formData.password,
-        redirect: true,
-        callbackUrl: callbackUrl,
+        redirect: false,
       })
-      // Note: signIn with redirect: true will navigate away, so code below won't execute
+
+      if (result?.error) {
+        console.error('[SIGNIN] Login error:', result.error)
+        // Redirect to signin with error param so user sees the error message
+        router.push(`/auth/signin?error=${result.error}&callbackUrl=${encodeURIComponent(callbackUrl)}`)
+        setLoading(false)
+        return
+      }
+
+      if (result?.ok) {
+        console.log('[SIGNIN] Login successful, establishing session...')
+        toast.success('Succesvol ingelogd!')
+        
+        // CRITICAL: Force session to be established before redirect
+        // Call session endpoint multiple times to ensure cookie is set
+        try {
+          // First call: trigger session creation
+          await fetch('/api/auth/session', {
+            method: 'GET',
+            credentials: 'include',
+            cache: 'no-store',
+            headers: {
+              'Cache-Control': 'no-cache',
+            }
+          })
+          
+          // Wait for cookie to be available
+          await new Promise(resolve => setTimeout(resolve, 300))
+          
+          // Second call: verify session is available
+          const sessionCheck = await fetch('/api/auth/session', {
+            method: 'GET',
+            credentials: 'include',
+            cache: 'no-store',
+            headers: {
+              'Cache-Control': 'no-cache',
+            }
+          })
+          
+          if (sessionCheck.ok) {
+            const sessionData = await sessionCheck.json()
+            if (sessionData?.user?.id) {
+              console.log('[SIGNIN] Session verified, redirecting to:', callbackUrl)
+              // Session is confirmed, now redirect
+              window.location.href = callbackUrl
+              return
+            }
+          }
+          
+          // If session check failed, redirect anyway (fallback)
+          console.log('[SIGNIN] Session check failed, redirecting anyway')
+          window.location.href = callbackUrl
+        } catch (e) {
+          console.error('[SIGNIN] Error during session check:', e)
+          // Fallback: redirect anyway
+          window.location.href = callbackUrl
+        }
+        // Don't set loading to false - we're redirecting
+        return
+      } else {
+        console.error('[SIGNIN] Unexpected result:', result)
+        toast.error('Er ging iets mis bij het inloggen')
+        setLoading(false)
+      }
     } catch (error) {
       console.error('[SIGNIN] Login error:', error)
-      // If signIn throws an error, show error message
       toast.error('Er ging iets mis bij het inloggen')
       setLoading(false)
     }
