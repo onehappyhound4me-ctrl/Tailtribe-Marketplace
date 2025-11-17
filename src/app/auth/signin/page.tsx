@@ -84,78 +84,22 @@ export default function SignInPage() {
       }
 
       if (result?.ok) {
-        console.log('[SIGNIN] Login successful, establishing session...')
+        console.log('[SIGNIN] Login successful, redirecting...')
         toast.success('Succesvol ingelogd!')
         
-        // CRITICAL: Force session to be established before redirect
-        // Call session endpoint multiple times to ensure cookie is set
-        try {
-          // First call: trigger session creation
-          await fetch('/api/auth/session', {
-            method: 'GET',
-            credentials: 'include',
-            cache: 'no-store',
-            headers: {
-              'Cache-Control': 'no-cache',
-            }
-          })
-          
-          // Wait for cookie to be available
-          await new Promise(resolve => setTimeout(resolve, 300))
-          
-          // Second call: verify session is available
-          const sessionCheck = await fetch('/api/auth/session', {
-            method: 'GET',
-            credentials: 'include',
-            cache: 'no-store',
-            headers: {
-              'Cache-Control': 'no-cache',
-            }
-          })
-          
-          if (sessionCheck.ok) {
-            const sessionData = await sessionCheck.json()
-            console.log('[SIGNIN] Session check response:', sessionData)
-            if (sessionData?.user?.id) {
-              console.log('[SIGNIN] Session verified, redirecting to:', callbackUrl)
-              // Session is confirmed, now redirect
-              window.location.href = callbackUrl
-              return
-            } else {
-              console.warn('[SIGNIN] Session check OK but no user.id found:', sessionData)
-            }
-          } else {
-            console.warn('[SIGNIN] Session check failed with status:', sessionCheck.status)
-          }
-          
-          // If session check failed, wait a bit longer and try once more
-          console.log('[SIGNIN] Waiting longer for session cookie...')
-          await new Promise(resolve => setTimeout(resolve, 500))
-          
-          const finalCheck = await fetch('/api/auth/session', {
-            method: 'GET',
-            credentials: 'include',
-            cache: 'no-store',
-          })
-          
-          if (finalCheck.ok) {
-            const finalData = await finalCheck.json()
-            if (finalData?.user?.id) {
-              console.log('[SIGNIN] Session verified on retry, redirecting')
-              window.location.href = callbackUrl
-              return
-            }
-          }
-          
-          // Final fallback: redirect anyway
-          console.log('[SIGNIN] Session check failed after retry, redirecting anyway')
-          window.location.href = callbackUrl
-        } catch (e) {
-          console.error('[SIGNIN] Error during session check:', e)
-          // Fallback: redirect anyway
-          window.location.href = callbackUrl
-        }
-        // Don't set loading to false - we're redirecting
+        // CRITICAL: Use NextAuth's built-in redirect mechanism
+        // This ensures the session cookie is properly set via NextAuth's callback
+        // Wait briefly for the signIn callback to complete
+        await new Promise(resolve => setTimeout(resolve, 200))
+        
+        // Use NextAuth's redirect mechanism which handles session cookie setting
+        await signIn('credentials', {
+          email: formData.email,
+          password: formData.password,
+          redirect: true,
+          callbackUrl: callbackUrl,
+        })
+        // Note: signIn with redirect: true will navigate away
         return
       } else {
         console.error('[SIGNIN] Unexpected result:', result)

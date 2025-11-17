@@ -120,6 +120,26 @@ export const authOptions: NextAuthOptions = {
         // Ensure cookie is available immediately after setting
       },
     },
+    callbackUrl: {
+      name: `__Secure-next-auth.callback-url`,
+      options: {
+        httpOnly: true,
+        sameSite: 'lax',
+        path: '/',
+        secure: process.env.NEXTAUTH_URL?.startsWith('https://') ?? true,
+        maxAge: 15 * 60, // 15 minutes
+      },
+    },
+    csrfToken: {
+      name: `__Host-next-auth.csrf-token`,
+      options: {
+        httpOnly: true,
+        sameSite: 'lax',
+        path: '/',
+        secure: process.env.NEXTAUTH_URL?.startsWith('https://') ?? true,
+        maxAge: 15 * 60, // 15 minutes
+      },
+    },
   },
   callbacks: {
     async jwt({ token, user, account, trigger }) {
