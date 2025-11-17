@@ -20,6 +20,7 @@ export default function RegisterPage() {
   const [errors, setErrors] = useState<{[key: string]: string}>({})
   const [touched, setTouched] = useState<{[key: string]: boolean}>({})
   const [referralInfo, setReferralInfo] = useState<any>(null)
+  const [ownerConsent, setOwnerConsent] = useState(false)
   const router = useRouter()
   const searchParams = useSearchParams()
   const { data: session, status } = useSession()
@@ -185,6 +186,11 @@ export default function RegisterPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
+    if (formData.role === 'OWNER' && !ownerConsent) {
+      toast.error('Bevestig eerst dat je akkoord gaat met de voorwaarden')
+      return
+    }
+
     if (isAuthenticated) {
       toast.warning('Je bent al ingelogd. Log eerst uit om een nieuw account aan te maken.')
       return
@@ -336,7 +342,10 @@ export default function RegisterPage() {
             <div className="grid grid-cols-2 gap-3">
               <button
                 type="button"
-                onClick={() => setFormData({ ...formData, role: 'OWNER' })}
+              onClick={() => {
+                setFormData({ ...formData, role: 'OWNER' })
+                setOwnerConsent(false)
+              }}
                 className={`p-4 rounded-lg border-2 transition-all ${
                   formData.role === 'OWNER'
                     ? 'border-emerald-600 bg-emerald-50 shadow-sm'
@@ -360,7 +369,10 @@ export default function RegisterPage() {
               </button>
               <button
                 type="button"
-                onClick={() => setFormData({ ...formData, role: 'CAREGIVER' })}
+              onClick={() => {
+                setFormData({ ...formData, role: 'CAREGIVER' })
+                setOwnerConsent(false)
+              }}
                 className={`p-4 rounded-lg border-2 transition-all ${
                   formData.role === 'CAREGIVER'
                     ? 'border-emerald-600 bg-emerald-50 shadow-sm'
@@ -528,12 +540,43 @@ export default function RegisterPage() {
             )}
           </div>
 
+          {/* Owner consent */}
+          {formData.role === 'OWNER' && (
+            <div className="flex items-start gap-3 rounded-lg border border-gray-200 bg-gray-50 px-4 py-3">
+              <input
+                id="ownerConsent"
+                type="checkbox"
+                checked={ownerConsent}
+                onChange={(e) => setOwnerConsent(e.target.checked)}
+                className="mt-1 h-4 w-4 rounded border-gray-300 text-emerald-600 focus:ring-emerald-500"
+                required
+              />
+              <label htmlFor="ownerConsent" className="text-sm text-gray-700 leading-relaxed">
+                Ik ga akkoord met de{' '}
+                <Link href="/terms" className="text-emerald-600 font-semibold hover:underline">
+                  Algemene Voorwaarden
+                </Link>{' '}
+                en het{' '}
+                <Link href="/privacy" className="text-emerald-600 font-semibold hover:underline">
+                  Privacybeleid
+                </Link>{' '}
+                en bevestig dat ik correcte informatie over mijn huisdieren verstrek.
+              </label>
+            </div>
+          )}
+
           {/* Submit Button */}
           <Button
             type="submit"
-            disabled={loading || (Object.keys(errors).length > 0)}
+            disabled={
+              loading ||
+              Object.keys(errors).length > 0 ||
+              (formData.role === 'OWNER' && !ownerConsent)
+            }
             className={`w-full h-12 font-semibold rounded-lg shadow-sm hover:shadow-md transition-all mt-6 ${
-              loading || (Object.keys(errors).length > 0)
+              loading ||
+              Object.keys(errors).length > 0 ||
+              (formData.role === 'OWNER' && !ownerConsent)
                 ? 'bg-gray-400 cursor-not-allowed'
                 : 'bg-emerald-600 hover:bg-emerald-700'
             } text-white`}
