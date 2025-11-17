@@ -20,8 +20,18 @@ export default function SignInPage() {
   const { data: session, status } = useSession()
   // NO useEffect redirect - let middleware handle it or redirect after login
 
+  type ErrorInfo = {
+    title: string
+    message: string
+    type: 'error' | 'warning' | 'info'
+    action?: {
+      label: string
+      href: string
+    }
+  }
+
   // Map error codes to user-friendly messages
-  const getErrorMessage = (errorCode: string | null): { title: string; message: string; type: 'error' | 'warning' | 'info' } | null => {
+  const getErrorMessage = (errorCode: string | null): ErrorInfo | null => {
     if (!errorCode) return null
 
     const errorLower = errorCode.toLowerCase()
@@ -38,9 +48,13 @@ export default function SignInPage() {
     // AccessDenied - no access
     if (errorLower === 'accessdenied' || errorLower.includes('access') || errorLower.includes('denied')) {
       return {
-        title: 'Geen toegang',
-        message: 'Je hebt geen toegang tot dit account.',
-        type: 'error'
+        title: 'Account nog niet geregistreerd',
+        message: 'Je hebt nog geen TailTribe account met dit e-mailadres. Registreer je eerst om verder te gaan.',
+        type: 'warning',
+        action: {
+          label: 'Account aanmaken',
+          href: '/auth/register'
+        }
       }
     }
 
@@ -157,6 +171,14 @@ export default function SignInPage() {
                   <p className="text-xs text-blue-700 mt-2">
                     Als je je wachtwoord bent vergeten, gebruik dan de "Wachtwoord vergeten?" link hieronder.
                   </p>
+                )}
+                {errorInfo.action && (
+                  <Link
+                    href={errorInfo.action.href}
+                    className="inline-flex items-center justify-center rounded-lg border border-green-600 px-4 py-2 text-sm font-semibold text-green-700 hover:bg-green-50 transition-colors mt-4"
+                  >
+                    {errorInfo.action.label}
+                  </Link>
                 )}
               </div>
             </div>
