@@ -568,18 +568,8 @@ export default function OwnerOnboardingPage() {
       return
     }
 
-    if (!serviceNeeds.frequency) {
-      toast.error('Selecteer hoe vaak je de dienst nodig hebt')
-      return
-    }
-
     if (serviceNeeds.timing.length === 0) {
       toast.error('Selecteer minimaal 1 tijdstip')
-      return
-    }
-
-    if (serviceNeeds.location.length === 0) {
-      toast.error('Selecteer minimaal 1 locatie')
       return
     }
 
@@ -1176,13 +1166,12 @@ export default function OwnerOnboardingPage() {
 
             <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  Hoe vaak heb je verzorging nodig? *
+                  Hoe vaak heb je verzorging nodig? <span className="text-gray-400 text-xs font-normal">(optioneel)</span>
                 </label>
                 <select
                   value={serviceNeeds.frequency}
                   onChange={(e) => setServiceNeeds({ ...serviceNeeds, frequency: e.target.value })}
                   className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
-                  required
                 >
                   <option value="">Selecteer...</option>
                 <option value="EENMALIG">Eenmalig</option>
@@ -1219,7 +1208,7 @@ export default function OwnerOnboardingPage() {
 
             <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-3">
-                  Waar moet de dienst plaatsvinden? * <span className="text-xs text-gray-500">(meerdere mogelijk)</span>
+                  Waar moet de dienst plaatsvinden? <span className="text-xs text-gray-500">(optioneel, meerdere mogelijk)</span>
                 </label>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
                   {[
@@ -1241,8 +1230,8 @@ export default function OwnerOnboardingPage() {
                   </button>
                 ))}
               </div>
-                {serviceNeeds.location.length === 0 && (
-                  <p className="text-xs text-red-600 mt-2">* Selecteer minimaal 1 locatie</p>
+                {!serviceNeeds.location.length && (
+                  <p className="text-xs text-gray-500 mt-2">Je kunt dit ook later nog kiezen.</p>
                 )}
               </div>
 
