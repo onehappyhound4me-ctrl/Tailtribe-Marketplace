@@ -113,16 +113,22 @@ export const authOptions: NextAuthOptions = {
         path: '/',
         secure: process.env.NEXTAUTH_URL?.startsWith('https://') ?? true,
         // Don't set domain - let browser handle it automatically
-        // This prevents cookie issues with www vs non-www
+        // This prevents cookie issues with www vs non-www and cross-domain (.be vs .nl)
         maxAge: 30 * 24 * 60 * 60, // 30 days
+        // Ensure cookie is available immediately after setting
       },
     },
   },
   callbacks: {
     async jwt({ token, user, account, trigger }) {
-      // Initial sign in
+      // Initial sign in - CRITICAL: Always set token.sub for session to work
       if (user) {
         console.log('[AUTH] JWT callback - user present, provider:', account?.provider)
+        
+        // CRITICAL: Always set token.sub from user.id first
+        token.sub = user.id
+        token.id = user.id
+        token.email = user.email || token.email
         
         // For Google OAuth, fetch user from database first
         if (account?.provider === 'google' && user.email) {
@@ -134,37 +140,49 @@ export const authOptions: NextAuthOptions = {
           if (dbUser) {
             token.role = (dbUser.role as Role) || 'OWNER'
             token.id = dbUser.id
-            token.sub = dbUser.id
+            token.sub = dbUser.id // Ensure sub is set
             token.email = dbUser.email
             console.log('[AUTH] JWT - Google user role:', token.role)
           } else {
             // Fallback if user not found (shouldn't happen due to signIn callback)
             token.role = 'OWNER'
             token.id = user.id
-            token.sub = user.id
+            token.sub = user.id // Ensure sub is set
             console.log('[AUTH] JWT - Google user not found in DB, using fallback')
           }
         } else {
-          // For credentials provider
+          // For credentials provider - CRITICAL: Use user data directly
           console.log('[AUTH] JWT - Credentials provider, user ID:', user.id)
-          const dbUser = await db.user.findUnique({
-            where: { id: user.id },
-            select: { id: true, role: true, email: true }
-          })
           
-          if (dbUser) {
-            token.role = (dbUser.role as Role) || 'OWNER'
-            token.id = dbUser.id
-            token.sub = dbUser.id
-            token.email = dbUser.email
-            console.log('[AUTH] JWT - Credentials user role:', token.role)
+          // CRITICAL: Always set sub from user.id first
+          token.sub = user.id
+          token.id = user.id
+          token.email = user.email || token.email
+          
+          // Try to get role from user object first (from authorize)
+          if (user.role) {
+            token.role = user.role as Role
+            console.log('[AUTH] JWT - Using role from authorize:', token.role)
           } else {
-            // Fallback to user object from authorize
-            token.role = (user.role as Role) || 'OWNER'
-            token.id = user.id
-            token.sub = user.id
-            token.email = user.email
-            console.log('[AUTH] JWT - Credentials user not found in DB, using authorize data, role:', token.role)
+            // Fallback: fetch from database
+            const dbUser = await db.user.findUnique({
+              where: { id: user.id },
+              select: { id: true, role: true, email: true }
+            })
+            
+            if (dbUser) {
+              token.role = (dbUser.role as Role) || 'OWNER'
+              token.id = dbUser.id
+              token.sub = dbUser.id // Ensure sub is set
+              token.email = dbUser.email
+              console.log('[AUTH] JWT - Credentials user role from DB:', token.role)
+            } else {
+              // Final fallback: use default role
+              token.role = 'OWNER'
+              token.id = user.id
+              token.sub = user.id // Ensure sub is set
+              console.log('[AUTH] JWT - Credentials user not found in DB, using default OWNER')
+            }
           }
         }
       }
@@ -180,23 +198,41 @@ export const authOptions: NextAuthOptions = {
         }
       }
       
+      // CRITICAL: Ensure token.sub is always set (required for session)
+      if (!token.sub && token.id) {
+        token.sub = String(token.id)
+        console.log('[AUTH] JWT - Setting token.sub from token.id')
+      }
+      
       // Ensure role is always set (safety check)
       if (!token.role) {
         token.role = 'OWNER'
         console.log('[AUTH] JWT - No role found, defaulting to OWNER')
       }
       
+      console.log('[AUTH] JWT - Final token:', { sub: token.sub, id: token.id, role: token.role, email: token.email })
+      
       return token
     },
     async session({ session, token }) {
-      console.log('[AUTH] Session callback - token.sub:', token.sub, 'token.role:', token.role)
-      if (token && token.sub) {
-        session.user.id = token.sub
-        session.user.role = (token.role as Role) || 'OWNER'
-        console.log('[AUTH] Session callback - final role:', session.user.role)
+      console.log('[AUTH] Session callback - token.sub:', token.sub, 'token.role:', token.role, 'token.id:', token.id)
+      
+      // CRITICAL: Always populate session.user if token exists
+      if (token) {
+        // Use token.sub as primary ID, fallback to token.id (convert to string)
+        const userId = token.sub || (token.id ? String(token.id) : null)
+        if (userId) {
+          session.user.id = userId
+          session.user.role = (token.role as Role) || 'OWNER'
+          session.user.email = (token.email as string) || session.user.email || ''
+          console.log('[AUTH] Session callback - session created:', { id: session.user.id, role: session.user.role, email: session.user.email })
+        } else {
+          console.error('[AUTH] Session callback - No token.sub or token.id, session invalid!')
+        }
       } else {
-        console.log('[AUTH] Session callback - No token.sub, session might be invalid')
+        console.error('[AUTH] Session callback - No token present, session invalid!')
       }
+      
       return session
     },
     async signIn({ user, account, profile }) {
@@ -342,3 +378,4 @@ declare module "next-auth/jwt" {
 
 // Helper function to get current session
 export const auth = () => getServerSession(authOptions)
+

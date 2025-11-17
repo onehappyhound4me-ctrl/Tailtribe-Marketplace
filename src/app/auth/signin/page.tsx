@@ -68,55 +68,18 @@ export default function SignInPage() {
     setLoading(true)
 
     try {
-      // First try without redirect to catch errors
-      const result = await signIn('credentials', {
+      // Use NextAuth's built-in redirect mechanism
+      // This ensures the session cookie is properly set before redirect
+      await signIn('credentials', {
         email: formData.email,
         password: formData.password,
-        redirect: false,
+        redirect: true,
+        callbackUrl: callbackUrl,
       })
-
-      if (result?.error) {
-        console.error('[SIGNIN] Login error:', result.error)
-        // Redirect to signin with error param so user sees the error message
-        router.push(`/auth/signin?error=${result.error}&callbackUrl=${encodeURIComponent(callbackUrl)}`)
-        setLoading(false)
-        return
-      }
-
-      if (result?.ok) {
-        console.log('[SIGNIN] Login successful, redirecting to:', callbackUrl)
-        toast.success('Succesvol ingelogd!')
-        
-        // Login successful - session cookie is set
-        // Force session refresh and wait for cookie to be available
-        try {
-          // Force session refresh
-          await fetch('/api/auth/session', {
-            method: 'GET',
-            credentials: 'include',
-            cache: 'no-store'
-          })
-          
-          // Wait a bit longer for cookie to be fully set
-          await new Promise(resolve => setTimeout(resolve, 500))
-          
-          // Use window.location.replace to prevent back button issues
-          // This ensures full page reload with new session
-          window.location.replace(callbackUrl)
-        } catch (e) {
-          console.error('[SIGNIN] Error during redirect:', e)
-          // Fallback: redirect anyway
-          window.location.replace(callbackUrl)
-        }
-        // Don't set loading to false - we're redirecting
-        return
-      } else {
-        console.error('[SIGNIN] Unexpected result:', result)
-        toast.error('Er ging iets mis bij het inloggen')
-        setLoading(false)
-      }
+      // Note: signIn with redirect: true will navigate away, so code below won't execute
     } catch (error) {
       console.error('[SIGNIN] Login error:', error)
+      // If signIn throws an error, show error message
       toast.error('Er ging iets mis bij het inloggen')
       setLoading(false)
     }

@@ -4,12 +4,13 @@ import { auth } from '@/lib/auth'
 export default async function DashboardRedirect() {
   const session = await auth()
   
-  if (!session?.user) {
-    redirect('/auth/signin')
+  // CRITICAL: Check for valid session with user.id
+  if (!session?.user?.id) {
+    redirect('/auth/signin?callbackUrl=/dashboard')
   }
   
   // Direct redirect based on role
-  const role = session.user.role
+  const role = session.user.role || 'OWNER'
   
   if (role === 'CAREGIVER') {
     redirect('/dashboard/caregiver')
