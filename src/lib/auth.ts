@@ -19,11 +19,9 @@ const sendVerificationRequest = async ({ identifier: email, url }: any) => {
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(db) as any,
   debug: process.env.NODE_ENV === 'development',
-  // Force base URL to match production domain
-  // Note: NEXTAUTH_URL should be set in Vercel environment variables for each domain
-  ...(process.env.NEXTAUTH_URL && {
-    baseUrl: process.env.NEXTAUTH_URL.replace(/\/$/, '')
-  }),
+  // Don't set baseUrl statically - let NextAuth detect it from request headers
+  // This allows it to work with both tailtribe.be and tailtribe.nl
+  // Note: NEXTAUTH_URL can be set in Vercel, but NextAuth will use request origin if not set
   providers: [
     CredentialsProvider({
       name: "credentials",
@@ -261,10 +259,18 @@ export const authOptions: NextAuthOptions = {
       }
       
       // Block external URLs (open redirect protection)
+      // But allow both tailtribe.be and tailtribe.nl domains
       try {
         const urlObj = new URL(url)
-        // If URL is external (different origin), block it
-        if (urlObj.origin !== baseUrl && !url.startsWith('/')) {
+        const allowedOrigins = [
+          'https://tailtribe.be',
+          'https://www.tailtribe.be',
+          'https://tailtribe.nl',
+          'https://www.tailtribe.nl'
+        ]
+        
+        // If URL is external and not in allowed origins, block it
+        if (!url.startsWith('/') && !allowedOrigins.includes(urlObj.origin)) {
           console.log('[AUTH] Redirect callback - blocking external URL:', url)
           return `${baseUrl}/dashboard`
         }
@@ -279,11 +285,18 @@ export const authOptions: NextAuthOptions = {
         return finalUrl
       }
       
-      // Allow same-origin absolute URLs
+      // Allow same-origin absolute URLs and allowed TailTribe domains
       try {
         const urlObj = new URL(url)
-        if (urlObj.origin === baseUrl) {
-          console.log('[AUTH] Redirect callback - same origin, returning:', url)
+        const allowedOrigins = [
+          'https://tailtribe.be',
+          'https://www.tailtribe.be',
+          'https://tailtribe.nl',
+          'https://www.tailtribe.nl'
+        ]
+        
+        if (allowedOrigins.includes(urlObj.origin)) {
+          console.log('[AUTH] Redirect callback - allowed TailTribe domain, returning:', url)
           return url
         }
       } catch (e) {
