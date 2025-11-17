@@ -89,6 +89,9 @@ export function PetsCard() {
         </div>
       )}
       
+      <p className="text-[11px] text-gray-500 mb-2">
+        Via <span className="font-semibold text-gray-700">Beheer</span> kan je extra info toevoegen – daar staan meer vragen over je huisdier.
+      </p>
       <Link 
         href="/pets" 
         className="w-full mt-auto bg-emerald-600 hover:bg-emerald-700 text-white transition-all duration-200 rounded-lg py-2 text-sm font-semibold block text-center"
