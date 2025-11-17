@@ -18,9 +18,14 @@ export async function middleware(request: NextRequest) {
     }
 
     // Get token for protected routes
+    // CRITICAL: Use the same secret as NextAuth config
     const token = await getToken({
       req: request,
-      secret: process.env.NEXTAUTH_SECRET
+      secret: process.env.NEXTAUTH_SECRET,
+      // Ensure cookie is read correctly
+      cookieName: process.env.NODE_ENV === 'production' 
+        ? '__Secure-next-auth.session-token' 
+        : 'next-auth.session-token',
     })
 
     // Protected routes - require authentication
@@ -36,13 +41,20 @@ export async function middleware(request: NextRequest) {
     const isProtected = protectedPaths.some(path => pathname.startsWith(path))
 
     if (isProtected) {
-      console.log('[MIDDLEWARE] Protected path:', pathname, 'Token present:', !!token, 'Token sub:', token?.sub, 'Token id:', token?.id)
+      console.log('[MIDDLEWARE] Protected path:', pathname)
+      console.log('[MIDDLEWARE] Token present:', !!token)
+      console.log('[MIDDLEWARE] Token sub:', token?.sub)
+      console.log('[MIDDLEWARE] Token id:', token?.id)
+      console.log('[MIDDLEWARE] Token role:', token?.role)
+      console.log('[MIDDLEWARE] Token email:', token?.email)
+      console.log('[MIDDLEWARE] Full token:', JSON.stringify(token, null, 2))
 
       // CRITICAL: Check for token.sub OR token.id (fallback for compatibility)
       const hasValidToken = token && (token.sub || token.id)
       
       if (!hasValidToken) {
         console.log('[MIDDLEWARE] No valid token found (no sub or id), redirecting to signin')
+        console.log('[MIDDLEWARE] Token object:', token)
         if (pathname !== '/auth/signin' && pathname !== '/auth/register') {
           const url = request.nextUrl.clone()
           url.pathname = '/auth/signin'
@@ -60,7 +72,7 @@ export async function middleware(request: NextRequest) {
         console.log('[MIDDLEWARE] Set token.sub from token.id')
       }
 
-      console.log('[MIDDLEWARE] Token found, role:', token.role, 'sub:', token.sub)
+      console.log('[MIDDLEWARE] Token validated successfully, role:', token.role, 'sub:', token.sub)
 
       // Redirect /dashboard to role-specific dashboard
       if (pathname === '/dashboard') {
