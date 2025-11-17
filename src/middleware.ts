@@ -23,6 +23,18 @@ export async function middleware(request: NextRequest) {
     const token = await getToken({
       req: request,
       secret: process.env.NEXTAUTH_SECRET,
+      // Explicitly set secure to match production HTTPS
+      secureCookie: request.nextUrl.protocol === 'https:',
+    })
+    
+    // Debug: Log cookie presence
+    const cookies = request.cookies.getAll()
+    const sessionCookie = cookies.find(c => c.name.includes('session-token'))
+    console.log('[MIDDLEWARE] Cookie check:', {
+      hasSessionCookie: !!sessionCookie,
+      cookieName: sessionCookie?.name,
+      cookieValueLength: sessionCookie?.value?.length,
+      tokenPresent: !!token,
     })
 
     // Protected routes - require authentication
