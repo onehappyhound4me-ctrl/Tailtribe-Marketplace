@@ -224,8 +224,8 @@ export default function RegisterPage() {
 
         // Note: signIn with redirect: true will navigate away, so code below won't execute
       } catch (loginError) {
-        console.error('Login error:', loginError)
-        toast.error('Inloggen mislukt. Probeer handmatig in te loggen.')
+        console.error('[REGISTER] Login error:', loginError)
+        toast.error('Account aangemaakt, maar automatisch inloggen mislukt. Log handmatig in.')
         router.push('/auth/signin')
         setLoading(false)
       }
