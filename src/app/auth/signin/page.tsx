@@ -68,15 +68,37 @@ export default function SignInPage() {
     setLoading(true)
 
     try {
-      // Use NextAuth's built-in redirect mechanism
-      // This ensures session cookie is set before redirect
-      await signIn('credentials', {
+      // First try without redirect to catch errors
+      const result = await signIn('credentials', {
         email: formData.email,
         password: formData.password,
-        redirect: true,
-        callbackUrl: callbackUrl,
+        redirect: false,
       })
-      // Note: signIn with redirect: true will navigate away, so code below won't execute
+
+      if (result?.error) {
+        console.error('[SIGNIN] Login error:', result.error)
+        // Redirect to signin with error param so user sees the error message
+        router.push(`/auth/signin?error=${result.error}&callbackUrl=${encodeURIComponent(callbackUrl)}`)
+        setLoading(false)
+        return
+      }
+
+      if (result?.ok) {
+        console.log('[SIGNIN] Login successful, redirecting...')
+        // Login successful, now redirect using NextAuth's mechanism
+        // This ensures session cookie is set before redirect
+        await signIn('credentials', {
+          email: formData.email,
+          password: formData.password,
+          redirect: true,
+          callbackUrl: callbackUrl,
+        })
+        // Note: signIn with redirect: true will navigate away
+      } else {
+        console.error('[SIGNIN] Unexpected result:', result)
+        toast.error('Er ging iets mis bij het inloggen')
+        setLoading(false)
+      }
     } catch (error) {
       console.error('[SIGNIN] Login error:', error)
       toast.error('Er ging iets mis bij het inloggen')
@@ -268,3 +290,4 @@ export default function SignInPage() {
     </div>
   )
 }
+
