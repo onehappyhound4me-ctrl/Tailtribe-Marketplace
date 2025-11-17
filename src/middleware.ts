@@ -72,11 +72,12 @@ export async function middleware(request: NextRequest) {
     // Create response for all routes
     const response = NextResponse.next()
     
-    // Add security headers
+    // Add security headers (but NOT CSP - that's handled by next.config.js)
+    // Don't set CSP here to avoid conflicts with next.config.js headers
     response.headers.set('X-DNS-Prefetch-Control', 'on')
     response.headers.set('Strict-Transport-Security', 'max-age=31536000; includeSubDomains')
     response.headers.set('X-Content-Type-Options', 'nosniff')
-    response.headers.set('X-Frame-Options', 'SAMEORIGIN')
+    // Note: X-Frame-Options is set in next.config.js as DENY, don't override here
     response.headers.set('X-XSS-Protection', '1; mode=block')
     response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin')
     
