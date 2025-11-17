@@ -229,27 +229,24 @@ export default function RegisterPage() {
           router.push('/auth/signin')
           setLoading(false)
         } else if (result?.ok) {
-          console.log('Login successful, redirecting...')
+          console.log('Login successful, redirecting to onboarding...')
           toast.success('Account aangemaakt en ingelogd!')
           
-          // Determine dashboard URL based on role
-          const dashboardUrl = formData.role === 'OWNER' 
-            ? '/dashboard/owner' 
-            : formData.role === 'CAREGIVER'
-            ? '/dashboard/caregiver'
-            : '/dashboard'
+          // Always route new accounts door de onboarding
+          const onboardingUrl = formData.role === 'CAREGIVER'
+            ? '/onboarding/caregiver-new'
+            : '/onboarding/owner'
           
-          // Wait for session to be set using requestAnimationFrame (CSP-safe)
-          const redirectToDashboard = () => {
-            router.push(dashboardUrl)
+          const redirectToOnboarding = () => {
+            router.push(onboardingUrl)
             router.refresh()
           }
           
-          // Use multiple requestAnimationFrame calls to ensure session is set
+          // Gebruik requestAnimationFrame zodat de sessie zeker staat
           requestAnimationFrame(() => {
             requestAnimationFrame(() => {
               requestAnimationFrame(() => {
-                redirectToDashboard()
+                redirectToOnboarding()
               })
             })
           })
