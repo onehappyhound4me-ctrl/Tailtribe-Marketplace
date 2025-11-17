@@ -1,53 +1,27 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
-import { useRouter, usePathname } from 'next/navigation'
+import { usePathname } from 'next/navigation'
 import { createPortal } from 'react-dom'
-import { switchCountryDomain } from '@/lib/utils'
 
 export function CountrySwitcher() {
-  const router = useRouter()
   const pathname = usePathname()
   const [isOpen, setIsOpen] = useState(false)
   const [mounted, setMounted] = useState(false)
   const buttonRef = useRef<HTMLButtonElement>(null)
   const [dropdownPosition, setDropdownPosition] = useState({ top: 0, left: 0 })
   
-  // Initialize from hostname or pathname
-  const getInitialCountry = (): 'BE' | 'NL' => {
-    if (typeof window !== 'undefined') {
-      const hostname = window.location.hostname
-      if (hostname.includes('tailtribe.nl') || hostname === 'tailtribe.nl') return 'NL'
-      if (hostname.includes('tailtribe.be') || hostname === 'tailtribe.be') return 'BE'
-    }
+  // Initialize from pathname only (server-safe)
+  const [currentCountry, setCurrentCountry] = useState<'BE' | 'NL'>(() => {
     return pathname?.startsWith('/nl') ? 'NL' : 'BE'
-  }
-  
-  const [currentCountry, setCurrentCountry] = useState<'BE' | 'NL'>(getInitialCountry)
+  })
 
   useEffect(() => {
     setMounted(true)
     
-    // Sync with hostname, localStorage and URL
-    const getCountryFromHostname = (): 'BE' | 'NL' => {
-      if (typeof window !== 'undefined') {
-        const hostname = window.location.hostname
-        if (hostname.includes('tailtribe.nl') || hostname === 'tailtribe.nl') return 'NL'
-        if (hostname.includes('tailtribe.be') || hostname === 'tailtribe.be') return 'BE'
-      }
-      return pathname?.startsWith('/nl') ? 'NL' : 'BE'
-    }
-    
-    const countryFromHostname = getCountryFromHostname()
+    // Sync with localStorage and URL
     const saved = localStorage.getItem('userCountry') as 'BE' | 'NL' | null
-    
-    // Prioritize hostname over localStorage
-    if (countryFromHostname) {
-      setCurrentCountry(countryFromHostname)
-      if (typeof window !== 'undefined') {
-        localStorage.setItem('userCountry', countryFromHostname)
-      }
-    } else if (saved) {
+    if (saved) {
       setCurrentCountry(saved)
     } else {
       const country = pathname?.startsWith('/nl') ? 'NL' : 'BE'
@@ -58,90 +32,49 @@ export function CountrySwitcher() {
   // Update dropdown position when opened
   useEffect(() => {
     if (isOpen && buttonRef.current && typeof window !== 'undefined') {
-      // Use requestAnimationFrame to ensure DOM is ready
-      requestAnimationFrame(() => {
-        if (!buttonRef.current) return;
-        
-        const rect = buttonRef.current.getBoundingClientRect()
-        const scrollX = window.scrollX || window.pageXOffset || 0
-        const scrollY = window.scrollY || window.pageYOffset || 0
-        const viewportWidth = window.innerWidth
-        const viewportHeight = window.innerHeight
-        
-        // Calculate position: align right edge of dropdown with right edge of button
-        const dropdownWidth = 120 // min-w-[120px]
-        const dropdownHeight = 112 // 2 buttons × 56px each
-        const padding = 8 // spacing from button
-        
-        // Calculate left position - align right edge of dropdown with right edge of button
-        let left = rect.right + scrollX - dropdownWidth
-        
-        // Ensure dropdown doesn't go off-screen on the left
-        if (left < scrollX + padding) {
-          left = rect.left + scrollX
-        }
-        
-        // Ensure dropdown doesn't go off-screen on the right
-        const maxLeft = scrollX + viewportWidth - dropdownWidth - padding
-        if (left > maxLeft) {
-          left = maxLeft
-        }
-        
-        // Ensure dropdown doesn't go off-screen horizontally at all
-        if (left < scrollX + padding) {
-          left = scrollX + padding
-        }
-        
-        // Check if there's enough space below the button
-        const spaceBelow = viewportHeight - rect.bottom
-        const spaceAbove = rect.top
-        
-        // If not enough space below, show dropdown above button
-        let top: number
-        if (spaceBelow < dropdownHeight + padding && spaceAbove > dropdownHeight + padding) {
-          // Show above button
-          top = rect.top + scrollY - dropdownHeight - padding
-        } else {
-          // Show below button (default)
-          top = rect.bottom + scrollY + padding
-        }
-        
-        // Ensure dropdown doesn't go off-screen vertically
-        if (top < scrollY + padding) {
-          top = scrollY + padding
-        }
-        if (top + dropdownHeight > scrollY + viewportHeight - padding) {
-          top = scrollY + viewportHeight - dropdownHeight - padding
-        }
-        
-        setDropdownPosition({
-          top: Math.max(padding, top),
-          left: Math.max(padding, left)
-        })
+      const rect = buttonRef.current.getBoundingClientRect()
+      const scrollX = window.scrollX || window.pageXOffset || 0
+      const scrollY = window.scrollY || window.pageYOffset || 0
+      
+      // Calculate position: align right edge of dropdown with right edge of button
+      const dropdownWidth = 120 // min-w-[120px]
+      let left = rect.right + scrollX - dropdownWidth
+      
+      // Ensure dropdown doesn't go off-screen on the left
+      if (left < scrollX) {
+        left = rect.left + scrollX
+      }
+      
+      // Ensure dropdown doesn't go off-screen on the right
+      const maxLeft = scrollX + window.innerWidth - dropdownWidth
+      if (left > maxLeft) {
+        left = maxLeft
+      }
+      
+      setDropdownPosition({
+        top: rect.bottom + scrollY + 8,
+        left: left
       })
     }
   }, [isOpen])
 
   const handleSwitchCountry = (country: 'BE' | 'NL') => {
-    // Save to localStorage
-    localStorage.setItem('userCountry', country)
+    if (country === currentCountry) {
+      setIsOpen(false)
+      return
+    }
+
+    try {
+      localStorage.setItem('userCountry', country)
+    } catch (_) {
+      // ignore storage errors
+    }
+
     setCurrentCountry(country)
     setIsOpen(false)
-    
-    // Dispatch custom event to notify other components
+
     if (typeof window !== 'undefined') {
       window.dispatchEvent(new CustomEvent('countryChanged', { detail: country }))
-    }
-    
-    // Use utility function to get correct domain and path
-    const targetUrl = switchCountryDomain(pathname || '/', country)
-    
-    // Use window.location for hard navigation to switch domains
-    if (typeof window !== 'undefined') {
-      window.location.href = targetUrl
-    } else {
-      router.push(targetUrl)
-      router.refresh()
     }
   }
 
