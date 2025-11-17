@@ -1,4 +1,4 @@
-import { PrismaClient, Role } from '@prisma/client'
+import { PrismaClient } from '@prisma/client'
 import bcrypt from 'bcryptjs'
 
 const prisma = new PrismaClient()
@@ -40,7 +40,7 @@ async function createOrResetTestOwner() {
         where: { email: TEST_OWNER_EMAIL },
         data: {
           password: hashedPassword,
-          role: 'OWNER' as Role,
+          role: 'OWNER',
           firstName: 'Test',
           lastName: 'Owner',
           name: 'Test Owner',
@@ -64,7 +64,7 @@ async function createOrResetTestOwner() {
         data: {
           email: TEST_OWNER_EMAIL,
           password: hashedPassword,
-          role: 'OWNER' as Role,
+          role: 'OWNER',
           firstName: 'Test',
           lastName: 'Owner',
           name: 'Test Owner',

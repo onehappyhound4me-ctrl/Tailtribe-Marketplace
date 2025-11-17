@@ -115,16 +115,40 @@ export default function SignInPage() {
           
           if (sessionCheck.ok) {
             const sessionData = await sessionCheck.json()
+            console.log('[SIGNIN] Session check response:', sessionData)
             if (sessionData?.user?.id) {
               console.log('[SIGNIN] Session verified, redirecting to:', callbackUrl)
               // Session is confirmed, now redirect
               window.location.href = callbackUrl
               return
+            } else {
+              console.warn('[SIGNIN] Session check OK but no user.id found:', sessionData)
+            }
+          } else {
+            console.warn('[SIGNIN] Session check failed with status:', sessionCheck.status)
+          }
+          
+          // If session check failed, wait a bit longer and try once more
+          console.log('[SIGNIN] Waiting longer for session cookie...')
+          await new Promise(resolve => setTimeout(resolve, 500))
+          
+          const finalCheck = await fetch('/api/auth/session', {
+            method: 'GET',
+            credentials: 'include',
+            cache: 'no-store',
+          })
+          
+          if (finalCheck.ok) {
+            const finalData = await finalCheck.json()
+            if (finalData?.user?.id) {
+              console.log('[SIGNIN] Session verified on retry, redirecting')
+              window.location.href = callbackUrl
+              return
             }
           }
           
-          // If session check failed, redirect anyway (fallback)
-          console.log('[SIGNIN] Session check failed, redirecting anyway')
+          // Final fallback: redirect anyway
+          console.log('[SIGNIN] Session check failed after retry, redirecting anyway')
           window.location.href = callbackUrl
         } catch (e) {
           console.error('[SIGNIN] Error during session check:', e)
