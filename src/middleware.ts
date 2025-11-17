@@ -11,6 +11,23 @@ export async function middleware(request: NextRequest) {
       return NextResponse.next()
     }
 
+    // CRITICAL: If user is authenticated and tries to access auth pages, redirect to dashboard
+    // This prevents authenticated users from seeing login/register pages
+    const token = await getToken({
+      req: request,
+      secret: process.env.NEXTAUTH_SECRET
+    })
+
+    if (token && token.sub) {
+      // User is authenticated
+      if (pathname.startsWith('/auth/signin') || pathname.startsWith('/auth/register')) {
+        console.log('[MIDDLEWARE] Authenticated user on auth page, redirecting to dashboard')
+        const url = request.nextUrl.clone()
+        url.pathname = '/dashboard'
+        return NextResponse.redirect(url)
+      }
+    }
+
     // Protected routes - require authentication
     const protectedPaths = [
       '/dashboard',
@@ -24,11 +41,6 @@ export async function middleware(request: NextRequest) {
     const isProtected = protectedPaths.some(path => pathname.startsWith(path))
 
     if (isProtected) {
-      const token = await getToken({
-        req: request,
-        secret: process.env.NEXTAUTH_SECRET
-      })
-
       console.log('[MIDDLEWARE] Protected path:', pathname, 'Token present:', !!token, 'Token sub:', token?.sub)
 
       // If no token, redirect to signin (but NOT if already on signin page to avoid loops)

@@ -19,6 +19,7 @@ const sendVerificationRequest = async ({ identifier: email, url }: any) => {
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(db) as any,
   debug: process.env.NODE_ENV === 'development',
+  trustHost: true, // Required for Vercel and multiple domains (.be and .nl)
   // Force base URL to match production domain
   ...(process.env.NEXTAUTH_URL && {
     baseUrl: process.env.NEXTAUTH_URL.replace(/\/$/, '')
@@ -252,10 +253,23 @@ export const authOptions: NextAuthOptions = {
     async redirect({ url, baseUrl }) {
       console.log('[AUTH] Redirect callback - url:', url, 'baseUrl:', baseUrl)
       
-      // Never redirect back to signin page after successful login
+      // CRITICAL: Never redirect authenticated users back to auth pages
+      // This prevents redirect loops after successful login
       if (url.includes('/auth/signin') || url.includes('/auth/register')) {
         console.log('[AUTH] Redirect callback - preventing redirect to auth page, using dashboard instead')
         return `${baseUrl}/dashboard`
+      }
+      
+      // Block external URLs (open redirect protection)
+      try {
+        const urlObj = new URL(url)
+        // If URL is external (different origin), block it
+        if (urlObj.origin !== baseUrl && !url.startsWith('/')) {
+          console.log('[AUTH] Redirect callback - blocking external URL:', url)
+          return `${baseUrl}/dashboard`
+        }
+      } catch (e) {
+        // If URL parsing fails, treat as relative
       }
       
       // Allow relative URLs (e.g. "/dashboard", "/dashboard/owner")
