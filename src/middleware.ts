@@ -19,13 +19,10 @@ export async function middleware(request: NextRequest) {
 
     // Get token for protected routes
     // CRITICAL: Use the same secret as NextAuth config
+    // Don't specify cookieName - let getToken auto-detect based on secure flag
     const token = await getToken({
       req: request,
       secret: process.env.NEXTAUTH_SECRET,
-      // Ensure cookie is read correctly
-      cookieName: process.env.NODE_ENV === 'production' 
-        ? '__Secure-next-auth.session-token' 
-        : 'next-auth.session-token',
     })
 
     // Protected routes - require authentication
