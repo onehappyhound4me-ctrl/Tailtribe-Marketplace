@@ -142,6 +142,12 @@ export function NewUsersWidget() {
         ))}
       </div>
 
+      {isCaregiver && (
+        <p className="text-xs text-gray-500 mt-4">
+          Om privacyredenen tonen we hier alleen een samenvatting. Volledige gegevens verschijnen zodra een eigenaar een aanvraag of bericht verstuurt.
+        </p>
+      )}
+
       {newUsers.length > 3 && (
         <div className="mt-4 text-center">
           <Link

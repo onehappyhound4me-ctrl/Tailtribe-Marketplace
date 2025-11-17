@@ -51,6 +51,7 @@ export async function GET(request: NextRequest) {
         select: {
           id: true,
           name: true,
+          email: true,
           city: true,
           createdAt: true,
           pets: {
@@ -65,9 +66,19 @@ export async function GET(request: NextRequest) {
         take: 5
       })
 
+      const sanitizedOwners = newOwners.filter(owner => {
+        const email = owner.email?.toLowerCase() || ''
+        const name = owner.name?.toLowerCase() || ''
+        return !email.includes('test') && !email.includes('example') && !name.includes('test')
+      })
+
       return NextResponse.json({ 
-        newUsers: newOwners.map(owner => ({
-          ...owner,
+        newUsers: sanitizedOwners.map(owner => ({
+          id: owner.id,
+          name: owner.name,
+          city: owner.city,
+          createdAt: owner.createdAt,
+          pets: owner.pets,
           userType: 'OWNER',
           petCount: owner.pets.length
         }))
@@ -89,6 +100,7 @@ export async function GET(request: NextRequest) {
             select: {
               id: true,
               name: true,
+              email: true,
               createdAt: true
             }
           }
@@ -119,8 +131,14 @@ export async function GET(request: NextRequest) {
         return acc
       }, {} as Record<string, number[]>)
 
+      const sanitizedCaregivers = newCaregivers.filter(caregiver => {
+        const email = caregiver.user.email?.toLowerCase() || ''
+        const name = caregiver.user.name?.toLowerCase() || ''
+        return !email.includes('test') && !email.includes('example') && !name.includes('test')
+      })
+
       return NextResponse.json({ 
-        newUsers: newCaregivers.map(caregiver => {
+        newUsers: sanitizedCaregivers.map(caregiver => {
           const caregiverReviews = reviewsByCaregiver[caregiver.userId] || []
           const avgRating = caregiverReviews.length > 0
             ? caregiverReviews.reduce((sum, r) => sum + r, 0) / caregiverReviews.length
