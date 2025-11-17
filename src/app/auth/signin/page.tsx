@@ -85,11 +85,29 @@ export default function SignInPage() {
 
       if (result?.ok) {
         console.log('[SIGNIN] Login successful, redirecting to:', callbackUrl)
+        toast.success('Succesvol ingelogd!')
+        
         // Login successful - session cookie is set
-        // Wait a moment for cookie to be set, then redirect
-        await new Promise(resolve => setTimeout(resolve, 300))
-        // Use window.location to ensure full page reload with new session
-        window.location.href = callbackUrl
+        // Force session refresh and wait for cookie to be available
+        try {
+          // Force session refresh
+          await fetch('/api/auth/session', {
+            method: 'GET',
+            credentials: 'include',
+            cache: 'no-store'
+          })
+          
+          // Wait a bit longer for cookie to be fully set
+          await new Promise(resolve => setTimeout(resolve, 500))
+          
+          // Use window.location.replace to prevent back button issues
+          // This ensures full page reload with new session
+          window.location.replace(callbackUrl)
+        } catch (e) {
+          console.error('[SIGNIN] Error during redirect:', e)
+          // Fallback: redirect anyway
+          window.location.replace(callbackUrl)
+        }
         // Don't set loading to false - we're redirecting
         return
       } else {
