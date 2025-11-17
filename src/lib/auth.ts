@@ -253,12 +253,12 @@ export const authOptions: NextAuthOptions = {
       console.log('[AUTH] Redirect callback - url:', url, 'baseUrl:', baseUrl)
       
       // Never redirect back to signin page after successful login
-      if (url.includes('/auth/signin')) {
-        console.log('[AUTH] Redirect callback - preventing redirect to signin, using dashboard instead')
+      if (url.includes('/auth/signin') || url.includes('/auth/register')) {
+        console.log('[AUTH] Redirect callback - preventing redirect to auth page, using dashboard instead')
         return `${baseUrl}/dashboard`
       }
       
-      // Allow relative URLs (e.g. "/dashboard")
+      // Allow relative URLs (e.g. "/dashboard", "/dashboard/owner")
       if (url.startsWith('/')) {
         const finalUrl = `${baseUrl}${url}`
         console.log('[AUTH] Redirect callback - relative URL, returning:', finalUrl)
@@ -277,6 +277,7 @@ export const authOptions: NextAuthOptions = {
       }
       
       // Default for sign-in: send users to the main dashboard
+      // Middleware will redirect to role-specific dashboard
       console.log('[AUTH] Redirect callback - default fallback to dashboard')
       return `${baseUrl}/dashboard`
     },

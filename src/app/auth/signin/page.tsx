@@ -68,87 +68,18 @@ export default function SignInPage() {
     setLoading(true)
 
     try {
-      // Determine redirect URL based on callbackUrl or default
-      // We'll let NextAuth handle the redirect via redirect callback
-      const result = await signIn('credentials', {
+      // Use NextAuth's built-in redirect mechanism
+      // This ensures session cookie is set before redirect
+      await signIn('credentials', {
         email: formData.email,
         password: formData.password,
-        redirect: false,
+        redirect: true,
+        callbackUrl: callbackUrl,
       })
-
-      if (result?.error) {
-        console.error('[SIGNIN] Login error:', result.error)
-        // Error will be shown via URL param (?error=CredentialsSignin)
-        // Redirect to signin with error param
-        router.push(`/auth/signin?error=${result.error}&callbackUrl=${encodeURIComponent(callbackUrl)}`)
-        setLoading(false)
-      } else if (result?.ok) {
-        toast.success('Succesvol ingelogd!')
-        setLoading(false)
-        
-        // IMPORTANT: Use NextAuth's built-in redirect instead of manual redirect
-        // This ensures the session cookie is properly set before redirect
-        // Force a page reload to ensure middleware sees the new session
-        console.log('[SIGNIN] Login successful, using NextAuth redirect')
-        
-        // Use signIn with redirect: true to let NextAuth handle it properly
-        // But first we need to trigger a session refresh
-        const redirectWithSession = async () => {
-          // Wait a moment for cookie to be set
-          await new Promise(resolve => setTimeout(resolve, 500))
-          
-          // Force session refresh by calling the session endpoint
-          await fetch('/api/auth/session', {
-            method: 'GET',
-            credentials: 'include',
-            cache: 'no-store'
-          })
-          
-          // Determine redirect URL - use callbackUrl or default to dashboard
-          let redirectUrl = callbackUrl
-          
-          // Try to get role from session
-          try {
-            const sessionRes = await fetch('/api/auth/session', {
-              credentials: 'include',
-              cache: 'no-store'
-            })
-            
-            if (sessionRes.ok) {
-              const sessionData = await sessionRes.json()
-              if (sessionData?.user?.role) {
-                if (sessionData.user.role === 'CAREGIVER') {
-                  redirectUrl = '/dashboard/caregiver'
-                } else if (sessionData.user.role === 'OWNER') {
-                  redirectUrl = '/dashboard/owner'
-                } else if (sessionData.user.role === 'ADMIN') {
-                  redirectUrl = '/admin'
-                }
-              }
-            }
-          } catch (e) {
-            console.error('[SIGNIN] Error fetching session:', e)
-          }
-          
-          // Ensure we don't redirect back to signin
-          if (redirectUrl.includes('/auth/signin')) {
-            redirectUrl = '/dashboard'
-          }
-          
-          console.log('[SIGNIN] Redirecting to:', redirectUrl)
-          // Use window.location.replace to prevent back button issues
-          window.location.replace(redirectUrl)
-        }
-        
-        redirectWithSession()
-      } else {
-        console.error('[SIGNIN] Unexpected result:', result)
-        toast.error('Er ging iets mis bij het inloggen')
-        setLoading(false)
-      }
+      // Note: signIn with redirect: true will navigate away, so code below won't execute
     } catch (error) {
-      console.error('Login error:', error)
-      toast.error('Er ging iets mis')
+      console.error('[SIGNIN] Login error:', error)
+      toast.error('Er ging iets mis bij het inloggen')
       setLoading(false)
     }
   }
