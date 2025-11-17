@@ -84,16 +84,14 @@ export default function SignInPage() {
       }
 
       if (result?.ok) {
-        console.log('[SIGNIN] Login successful, redirecting...')
-        // Login successful, now redirect using NextAuth's mechanism
-        // This ensures session cookie is set before redirect
-        await signIn('credentials', {
-          email: formData.email,
-          password: formData.password,
-          redirect: true,
-          callbackUrl: callbackUrl,
-        })
-        // Note: signIn with redirect: true will navigate away
+        console.log('[SIGNIN] Login successful, redirecting to:', callbackUrl)
+        // Login successful - session cookie is set
+        // Wait a moment for cookie to be set, then redirect
+        await new Promise(resolve => setTimeout(resolve, 300))
+        // Use window.location to ensure full page reload with new session
+        window.location.href = callbackUrl
+        // Don't set loading to false - we're redirecting
+        return
       } else {
         console.error('[SIGNIN] Unexpected result:', result)
         toast.error('Er ging iets mis bij het inloggen')
