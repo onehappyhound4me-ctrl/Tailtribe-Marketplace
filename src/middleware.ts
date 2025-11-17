@@ -36,11 +36,13 @@ export async function middleware(request: NextRequest) {
     const isProtected = protectedPaths.some(path => pathname.startsWith(path))
 
     if (isProtected) {
-      console.log('[MIDDLEWARE] Protected path:', pathname, 'Token present:', !!token, 'Token sub:', token?.sub)
+      console.log('[MIDDLEWARE] Protected path:', pathname, 'Token present:', !!token, 'Token sub:', token?.sub, 'Token id:', token?.id)
 
-      // If no token, redirect to signin (but NOT if already on signin page to avoid loops)
-      if (!token || !token.sub) {
-        console.log('[MIDDLEWARE] No token found, redirecting to signin')
+      // CRITICAL: Check for token.sub OR token.id (fallback for compatibility)
+      const hasValidToken = token && (token.sub || token.id)
+      
+      if (!hasValidToken) {
+        console.log('[MIDDLEWARE] No valid token found (no sub or id), redirecting to signin')
         if (pathname !== '/auth/signin' && pathname !== '/auth/register') {
           const url = request.nextUrl.clone()
           url.pathname = '/auth/signin'
@@ -52,7 +54,13 @@ export async function middleware(request: NextRequest) {
         return NextResponse.next()
       }
 
-      console.log('[MIDDLEWARE] Token found, role:', token.role)
+      // Ensure token.sub is set if only token.id exists
+      if (!token.sub && token.id) {
+        token.sub = String(token.id)
+        console.log('[MIDDLEWARE] Set token.sub from token.id')
+      }
+
+      console.log('[MIDDLEWARE] Token found, role:', token.role, 'sub:', token.sub)
 
       // Redirect /dashboard to role-specific dashboard
       if (pathname === '/dashboard') {
