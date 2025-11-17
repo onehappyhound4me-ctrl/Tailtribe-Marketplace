@@ -68,18 +68,68 @@ export default function SignInPage() {
     setLoading(true)
 
     try {
-      // Use NextAuth's built-in redirect mechanism
-      // This ensures the session cookie is properly set before redirect
-      await signIn('credentials', {
+      // First login without redirect to verify credentials and set session
+      const result = await signIn('credentials', {
         email: formData.email,
         password: formData.password,
-        redirect: true,
-        callbackUrl: callbackUrl,
+        redirect: false,
       })
-      // Note: signIn with redirect: true will navigate away, so code below won't execute
+
+      if (result?.error) {
+        console.error('[SIGNIN] Login error:', result.error)
+        // Redirect to signin with error param so user sees the error message
+        router.push(`/auth/signin?error=${result.error}&callbackUrl=${encodeURIComponent(callbackUrl)}`)
+        setLoading(false)
+        return
+      }
+
+      if (result?.ok) {
+        console.log('[SIGNIN] Login successful, waiting for session cookie...')
+        toast.success('Succesvol ingelogd!')
+        
+        // CRITICAL: Wait for NextAuth to set the session cookie
+        // The cookie is set via the /api/auth/callback/credentials endpoint
+        // We need to wait for this to complete before redirecting
+        await new Promise(resolve => setTimeout(resolve, 500))
+        
+        // Verify session is available before redirecting
+        try {
+          const sessionResponse = await fetch('/api/auth/session', {
+            method: 'GET',
+            credentials: 'include',
+            cache: 'no-store',
+          })
+          
+          if (sessionResponse.ok) {
+            const sessionData = await sessionResponse.json()
+            console.log('[SIGNIN] Session data:', sessionData)
+            
+            if (sessionData?.user?.id) {
+              console.log('[SIGNIN] Session verified, redirecting to:', callbackUrl)
+              // Use window.location.replace to ensure full page reload with new session
+              window.location.replace(callbackUrl)
+              return
+            } else {
+              console.warn('[SIGNIN] Session exists but no user.id:', sessionData)
+            }
+          } else {
+            console.warn('[SIGNIN] Session check failed:', sessionResponse.status)
+          }
+        } catch (sessionError) {
+          console.error('[SIGNIN] Error checking session:', sessionError)
+        }
+        
+        // Fallback: redirect anyway after delay
+        console.log('[SIGNIN] Redirecting after delay (fallback)')
+        window.location.replace(callbackUrl)
+        return
+      } else {
+        console.error('[SIGNIN] Unexpected result:', result)
+        toast.error('Er ging iets mis bij het inloggen')
+        setLoading(false)
+      }
     } catch (error) {
       console.error('[SIGNIN] Login error:', error)
-      // If signIn throws an error, show error message
       toast.error('Er ging iets mis bij het inloggen')
       setLoading(false)
     }
