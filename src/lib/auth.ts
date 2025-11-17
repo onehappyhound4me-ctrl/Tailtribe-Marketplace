@@ -19,8 +19,8 @@ const sendVerificationRequest = async ({ identifier: email, url }: any) => {
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(db) as any,
   debug: process.env.NODE_ENV === 'development',
-  trustHost: true, // Required for Vercel and multiple domains (.be and .nl)
   // Force base URL to match production domain
+  // Note: NEXTAUTH_URL should be set in Vercel environment variables for each domain
   ...(process.env.NEXTAUTH_URL && {
     baseUrl: process.env.NEXTAUTH_URL.replace(/\/$/, '')
   }),
