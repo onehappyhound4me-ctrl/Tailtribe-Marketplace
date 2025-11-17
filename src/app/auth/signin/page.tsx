@@ -68,46 +68,18 @@ export default function SignInPage() {
     setLoading(true)
 
     try {
-      // First attempt login without redirect to verify credentials
-      const result = await signIn('credentials', {
+      // Use NextAuth's built-in redirect mechanism
+      // This ensures the session cookie is properly set before redirect
+      await signIn('credentials', {
         email: formData.email,
         password: formData.password,
-        redirect: false,
+        redirect: true,
+        callbackUrl: callbackUrl,
       })
-
-      if (result?.error) {
-        console.error('[SIGNIN] Login error:', result.error)
-        // Redirect to signin with error param so user sees the error message
-        router.push(`/auth/signin?error=${result.error}&callbackUrl=${encodeURIComponent(callbackUrl)}`)
-        setLoading(false)
-        return
-      }
-
-      if (result?.ok) {
-        console.log('[SIGNIN] Login successful, redirecting...')
-        toast.success('Succesvol ingelogd!')
-        
-        // CRITICAL: Use NextAuth's built-in redirect mechanism
-        // This ensures the session cookie is properly set via NextAuth's callback
-        // Wait briefly for the signIn callback to complete
-        await new Promise(resolve => setTimeout(resolve, 200))
-        
-        // Use NextAuth's redirect mechanism which handles session cookie setting
-        await signIn('credentials', {
-          email: formData.email,
-          password: formData.password,
-          redirect: true,
-          callbackUrl: callbackUrl,
-        })
-        // Note: signIn with redirect: true will navigate away
-        return
-      } else {
-        console.error('[SIGNIN] Unexpected result:', result)
-        toast.error('Er ging iets mis bij het inloggen')
-        setLoading(false)
-      }
+      // Note: signIn with redirect: true will navigate away, so code below won't execute
     } catch (error) {
       console.error('[SIGNIN] Login error:', error)
+      // If signIn throws an error, show error message
       toast.error('Er ging iets mis bij het inloggen')
       setLoading(false)
     }
