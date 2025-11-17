@@ -32,6 +32,13 @@ export default function CaregiverSettingsPage() {
   const router = useRouter()
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
+  const [passwordData, setPasswordData] = useState({
+    currentPassword: '',
+    newPassword: '',
+    confirmPassword: ''
+  })
+  const [passwordSaving, setPasswordSaving] = useState(false)
+  const [deleteLoading, setDeleteLoading] = useState(false)
   const fileInputRef = useRef<HTMLInputElement | null>(null)
   
   const [formData, setFormData] = useState({
@@ -191,6 +198,63 @@ export default function CaregiverSettingsPage() {
       toast.error('Er ging iets mis')
     } finally {
       setSaving(false)
+    }
+  }
+
+  const handlePasswordChange = async () => {
+    if (!passwordData.currentPassword || !passwordData.newPassword || !passwordData.confirmPassword) {
+      toast.error('Vul alle wachtwoordvelden in')
+      return
+    }
+
+    setPasswordSaving(true)
+    try {
+      const res = await fetch('/api/auth/change-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(passwordData)
+      })
+
+      const data = await res.json()
+
+      if (!res.ok) {
+        throw new Error(data.error || 'Wachtwoord wijzigen mislukt')
+      }
+
+      toast.success('Wachtwoord succesvol gewijzigd')
+      setPasswordData({
+        currentPassword: '',
+        newPassword: '',
+        confirmPassword: ''
+      })
+    } catch (error: any) {
+      toast.error(error.message || 'Er ging iets mis bij het wijzigen van je wachtwoord')
+    } finally {
+      setPasswordSaving(false)
+    }
+  }
+
+  const handleDeleteAccount = async () => {
+    const confirmed = window.confirm('Ben je zeker dat je je account permanent wil verwijderen? Deze actie kan niet ongedaan worden gemaakt.')
+    if (!confirmed) return
+
+    setDeleteLoading(true)
+    try {
+      const res = await fetch('/api/profile/delete-account', { method: 'DELETE' })
+      const data = await res.json()
+
+      if (!res.ok) {
+        throw new Error(data.error || 'Account verwijderen mislukt')
+      }
+
+      toast.success('Account verwijderd. Je wordt afgemeld.')
+      setTimeout(() => {
+        window.location.href = '/auth/signout'
+      }, 1500)
+    } catch (error: any) {
+      toast.error(error.message || 'Er ging iets mis bij het verwijderen van je account')
+    } finally {
+      setDeleteLoading(false)
     }
   }
   
@@ -697,28 +761,36 @@ export default function CaregiverSettingsPage() {
                 <h3 className="font-medium text-gray-800">Wachtwoord wijzigen</h3>
                 <span className="text-xs text-green-600 bg-green-100 px-2 py-1 rounded">Veilig</span>
               </div>
-              <div className="space-y-2">
-                <input 
-                  type="password" 
-                  placeholder="Huidig wachtwoord" 
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 focus:border-transparent" 
-                />
-                <input 
-                  type="password" 
-                  placeholder="Nieuw wachtwoord (min. 8 karakters)" 
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 focus:border-transparent" 
-                />
-                <input 
-                  type="password" 
-                  placeholder="Bevestig nieuw wachtwoord" 
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 focus:border-transparent" 
-                />
-              </div>
-              <button 
-                className="w-full bg-emerald-500 text-white hover:bg-emerald-600 active:bg-emerald-700 rounded-lg py-2 text-sm font-medium transition-colors mt-3"
-              >
-                Wachtwoord wijzigen
-              </button>
+            <div className="space-y-2">
+              <input 
+                type="password" 
+                placeholder="Huidig wachtwoord" 
+                value={passwordData.currentPassword}
+                onChange={(e) => setPasswordData(prev => ({ ...prev, currentPassword: e.target.value }))}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 focus:border-transparent" 
+              />
+              <input 
+                type="password" 
+                placeholder="Nieuw wachtwoord (min. 8 karakters)" 
+                value={passwordData.newPassword}
+                onChange={(e) => setPasswordData(prev => ({ ...prev, newPassword: e.target.value }))}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 focus:border-transparent" 
+              />
+              <input 
+                type="password" 
+                placeholder="Bevestig nieuw wachtwoord" 
+                value={passwordData.confirmPassword}
+                onChange={(e) => setPasswordData(prev => ({ ...prev, confirmPassword: e.target.value }))}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 focus:border-transparent" 
+              />
+            </div>
+            <button 
+              onClick={handlePasswordChange}
+              disabled={passwordSaving}
+              className={`w-full rounded-lg py-2 text-sm font-medium transition-colors mt-3 ${passwordSaving ? 'bg-gray-400 text-white cursor-not-allowed' : 'bg-emerald-500 text-white hover:bg-emerald-600 active:bg-emerald-700'}`}
+            >
+              {passwordSaving ? 'Bezig...' : 'Wachtwoord wijzigen'}
+            </button>
             </div>
 
             <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
@@ -770,9 +842,11 @@ export default function CaregiverSettingsPage() {
             <p className="text-sm text-gray-600 mb-4">Deze actie kan niet ongedaan gemaakt worden. Al je gegevens worden permanent verwijderd.</p>
             
             <button 
-              className="px-4 py-2 bg-red-600 text-white hover:bg-red-700 rounded-lg text-sm font-medium transition-colors"
+              onClick={handleDeleteAccount}
+              disabled={deleteLoading}
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${deleteLoading ? 'bg-red-400 cursor-not-allowed text-white' : 'bg-red-600 text-white hover:bg-red-700'}`}
             >
-              Account permanent verwijderen
+              {deleteLoading ? 'Verwijderen...' : 'Account permanent verwijderen'}
             </button>
           </div>
           
