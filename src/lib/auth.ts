@@ -19,9 +19,11 @@ const sendVerificationRequest = async ({ identifier: email, url }: any) => {
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(db) as any,
   debug: process.env.NODE_ENV === 'development',
-  // Don't set baseUrl statically - let NextAuth detect it from request headers
+  // Use NEXTAUTH_URL if set, otherwise NextAuth will detect from request headers
   // This allows it to work with both tailtribe.be and tailtribe.nl
-  // Note: NEXTAUTH_URL can be set in Vercel, but NextAuth will use request origin if not set
+  ...(process.env.NEXTAUTH_URL && {
+    baseUrl: process.env.NEXTAUTH_URL.replace(/\/$/, '')
+  }),
   providers: [
     CredentialsProvider({
       name: "credentials",
