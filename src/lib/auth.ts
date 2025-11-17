@@ -117,27 +117,6 @@ export const authOptions: NextAuthOptions = {
         // Don't set domain - let browser handle it automatically
         // This prevents cookie issues with www vs non-www and cross-domain (.be vs .nl)
         maxAge: 30 * 24 * 60 * 60, // 30 days
-        // Ensure cookie is available immediately after setting
-      },
-    },
-    callbackUrl: {
-      name: `__Secure-next-auth.callback-url`,
-      options: {
-        httpOnly: true,
-        sameSite: 'lax',
-        path: '/',
-        secure: process.env.NEXTAUTH_URL?.startsWith('https://') ?? true,
-        maxAge: 15 * 60, // 15 minutes
-      },
-    },
-    csrfToken: {
-      name: `__Host-next-auth.csrf-token`,
-      options: {
-        httpOnly: true,
-        sameSite: 'lax',
-        path: '/',
-        secure: process.env.NEXTAUTH_URL?.startsWith('https://') ?? true,
-        maxAge: 15 * 60, // 15 minutes
       },
     },
   },

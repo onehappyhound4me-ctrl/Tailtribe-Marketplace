@@ -84,44 +84,19 @@ export default function SignInPage() {
       }
 
       if (result?.ok) {
-        console.log('[SIGNIN] Login successful, waiting for session cookie...')
+        console.log('[SIGNIN] Login successful, redirecting...')
         toast.success('Succesvol ingelogd!')
         
-        // CRITICAL: Wait for NextAuth to set the session cookie
-        // The cookie is set via the /api/auth/callback/credentials endpoint
-        // We need to wait for this to complete before redirecting
-        await new Promise(resolve => setTimeout(resolve, 500))
-        
-        // Verify session is available before redirecting
-        try {
-          const sessionResponse = await fetch('/api/auth/session', {
-            method: 'GET',
-            credentials: 'include',
-            cache: 'no-store',
-          })
-          
-          if (sessionResponse.ok) {
-            const sessionData = await sessionResponse.json()
-            console.log('[SIGNIN] Session data:', sessionData)
-            
-            if (sessionData?.user?.id) {
-              console.log('[SIGNIN] Session verified, redirecting to:', callbackUrl)
-              // Use window.location.replace to ensure full page reload with new session
-              window.location.replace(callbackUrl)
-              return
-            } else {
-              console.warn('[SIGNIN] Session exists but no user.id:', sessionData)
-            }
-          } else {
-            console.warn('[SIGNIN] Session check failed:', sessionResponse.status)
-          }
-        } catch (sessionError) {
-          console.error('[SIGNIN] Error checking session:', sessionError)
-        }
-        
-        // Fallback: redirect anyway after delay
-        console.log('[SIGNIN] Redirecting after delay (fallback)')
-        window.location.replace(callbackUrl)
+        // CRITICAL: Use NextAuth's built-in redirect mechanism
+        // This ensures the session cookie is properly set via NextAuth's callback
+        // The redirect happens server-side, ensuring cookie is set before redirect
+        await signIn('credentials', {
+          email: formData.email,
+          password: formData.password,
+          redirect: true,
+          callbackUrl: callbackUrl,
+        })
+        // Note: signIn with redirect: true will navigate away
         return
       } else {
         console.error('[SIGNIN] Unexpected result:', result)
