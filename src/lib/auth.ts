@@ -106,20 +106,6 @@ export const authOptions: NextAuthOptions = {
     strategy: "jwt",
     maxAge: 30 * 24 * 60 * 60, // 30 days
   },
-  cookies: {
-    sessionToken: {
-      name: `next-auth.session-token`,
-      options: {
-        httpOnly: true,
-        sameSite: 'lax',
-        path: '/',
-        secure: process.env.NEXTAUTH_URL?.startsWith('https://') ?? true,
-        // Don't set domain - let browser handle it automatically
-        // This prevents cookie issues with www vs non-www and cross-domain (.be vs .nl)
-        maxAge: 30 * 24 * 60 * 60, // 30 days
-      },
-    },
-  },
   callbacks: {
     async jwt({ token, user, account, trigger }) {
       // Initial sign in - CRITICAL: Always set token.sub for session to work
