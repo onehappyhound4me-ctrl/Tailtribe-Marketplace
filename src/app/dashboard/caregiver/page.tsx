@@ -8,16 +8,27 @@ import { CaregiverProfileSummary } from '@/components/dashboard/CaregiverProfile
 import { AvailabilityCalendar } from '@/components/caregiver/AvailabilityCalendar'
 import { Legend } from '@/components/caregiver/Legend'
 import { NewUsersWidget } from '@/components/dashboard/NewUsersWidget'
-import CaregiverDashboardWidget from '@/components/caregiver/CaregiverDashboardWidget'
-import { OwnerInfoCard } from '@/components/dashboard/OwnerInfoCard'
 
 export default function CaregiverDashboardPage() {
   const { data: session } = useSession()
   const [profile, setProfile] = useState<any>(null)
   const [loading, setLoading] = useState(true)
+  const [stats, setStats] = useState({
+    servedClients: 0,
+    averageRating: 0,
+    totalEarnings: 0,
+    totalReviews: 0,
+    pendingBookings: 0,
+    upcomingBookings: 0
+  })
+  const [statsLoading, setStatsLoading] = useState(true)
+  const [referralStats, setReferralStats] = useState<any>(null)
+  const [referralLoading, setReferralLoading] = useState(true)
 
   useEffect(() => {
     fetchProfile()
+    fetchStats()
+    fetchReferralStats()
   }, [])
 
   const fetchProfile = async () => {
@@ -42,6 +53,71 @@ export default function CaregiverDashboardPage() {
       setLoading(false)
     }
   }
+
+  const fetchStats = async () => {
+    try {
+      setStatsLoading(true)
+      const res = await fetch('/api/caregiver/stats', {
+        cache: 'no-store',
+        credentials: 'include'
+      })
+      if (res.ok) {
+        const data = await res.json()
+        if (data?.stats) {
+          setStats({
+            servedClients: data.stats.servedClients ?? 0,
+            averageRating: data.stats.averageRating ?? 0,
+            totalEarnings: data.stats.totalEarnings ?? 0,
+            totalReviews: data.stats.totalReviews ?? 0,
+            pendingBookings: data.stats.pendingBookings ?? 0,
+            upcomingBookings: data.stats.upcomingBookings ?? 0
+          })
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching caregiver stats:', error)
+    } finally {
+      setStatsLoading(false)
+    }
+  }
+
+  const fetchReferralStats = async () => {
+    try {
+      setReferralLoading(true)
+      const res = await fetch('/api/referral/generate', {
+        cache: 'no-store',
+        credentials: 'include'
+      })
+      if (res.ok) {
+        const data = await res.json()
+        setReferralStats(data)
+      }
+    } catch (error) {
+      console.error('Error fetching referral stats:', error)
+    } finally {
+      setReferralLoading(false)
+    }
+  }
+
+  const renderStatValue = (value: string | number) => {
+    if (statsLoading) {
+      return <span className="inline-block h-5 w-12 rounded bg-white/30 animate-pulse"></span>
+    }
+    return value
+  }
+
+  const formatCurrency = (value: number) =>
+    value.toLocaleString('nl-BE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+
+  const satisfactionScore = stats.averageRating
+    ? Math.min(10, Math.round((stats.averageRating / 5) * 10))
+    : 0
+
+  const referralReward = referralStats?.rewardPerReferral ?? referralStats?.reward ?? 10
+  const referralSummary = referralLoading
+    ? 'Referrals worden geladen...'
+    : `${referralStats?.totalReferrals ?? 0} uitnodigingen • ${referralStats?.successfulReferrals ?? 0} succesvol`
+  const referralEarnings = referralStats?.totalEarned ?? 0
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-teal-50 to-blue-50 relative overflow-hidden">
@@ -72,19 +148,27 @@ export default function CaregiverDashboardPage() {
           <div className="mt-6 grid grid-cols-2 md:grid-cols-4 gap-4">
             <div className="rounded-xl bg-white/10 backdrop-blur-sm px-4 py-3 ring-1 ring-white/20">
               <div className="text-xs text-white/80">Klanten bediend</div>
-              <div className="text-2xl font-bold">23</div>
+              <div className="text-2xl font-bold">
+                {renderStatValue(stats.servedClients.toLocaleString('nl-BE'))}
+              </div>
             </div>
             <div className="rounded-xl bg-white/10 backdrop-blur-sm px-4 py-3 ring-1 ring-white/20">
               <div className="text-xs text-white/80">Gemiddelde rating</div>
-              <div className="text-2xl font-bold">4.9</div>
+              <div className="text-2xl font-bold">
+                {renderStatValue(stats.averageRating ? stats.averageRating.toFixed(1) : '0.0')}
+              </div>
             </div>
             <div className="rounded-xl bg-white/10 backdrop-blur-sm px-4 py-3 ring-1 ring-white/20">
               <div className="text-xs text-white/80">Totale inkomsten</div>
-              <div className="text-2xl font-bold">€2,340</div>
+              <div className="text-2xl font-bold">
+                {renderStatValue(`€${formatCurrency(stats.totalEarnings)}`)}
+              </div>
             </div>
             <div className="rounded-xl bg-white/10 backdrop-blur-sm px-4 py-3 ring-1 ring-white/20">
               <div className="text-xs text-white/80">Tevredenheid</div>
-              <div className="text-2xl font-bold">8</div>
+              <div className="text-2xl font-bold">
+                {renderStatValue(`${satisfactionScore}/10`)}
+              </div>
             </div>
           </div>
         </nav>
@@ -147,7 +231,9 @@ export default function CaregiverDashboardPage() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                 </svg>
               </div>
-              <span className="bg-blue-100/80 text-blue-700 text-xs px-2 py-1 rounded-full">8 Actief</span>
+              <span className="bg-blue-100/80 text-blue-700 text-xs px-2 py-1 rounded-full">
+                {statsLoading ? '…' : `${stats.pendingBookings} actief`}
+              </span>
             </div>
             <h3 className="text-xl font-bold text-gray-900 mb-2">Aanvragen</h3>
             <p className="text-gray-600 text-sm mb-4">Beheer inkomende boekingen van eigenaren</p>
@@ -164,7 +250,9 @@ export default function CaregiverDashboardPage() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
               </div>
-              <span className="bg-green-100/80 text-green-700 text-xs px-2 py-1 rounded-full">€2,340</span>
+              <span className="bg-green-100/80 text-green-700 text-xs px-2 py-1 rounded-full">
+                {statsLoading ? '…' : `€${formatCurrency(stats.totalEarnings)}`}
+              </span>
             </div>
             <h3 className="text-xl font-bold text-gray-900 mb-2">Inkomsten</h3>
             <p className="text-gray-600 text-sm mb-4">Bekijk je verdiensten en uitbetalingen</p>
@@ -230,10 +318,15 @@ export default function CaregiverDashboardPage() {
               <div className="w-10 h-10 bg-gradient-to-br from-yellow-500 to-amber-600 rounded-lg flex items-center justify-center">
                 <span className="text-white text-xl">🎁</span>
               </div>
-              <span className="bg-yellow-100/80 text-yellow-700 text-xs px-2 py-1 rounded-full">€10/persoon</span>
+              <span className="bg-yellow-100/80 text-yellow-700 text-xs px-2 py-1 rounded-full">
+                €{referralReward}/persoon
+              </span>
             </div>
             <h3 className="text-xl font-bold text-gray-900 mb-2">Verwijzingen</h3>
-            <p className="text-gray-600 text-sm mb-4">Nodig vrienden uit en verdien €10 per verwijzing</p>
+            <p className="text-gray-600 text-sm mb-2">{referralSummary}</p>
+            <p className="text-sm text-yellow-700 font-semibold mb-4">
+              {referralLoading ? '–' : `Totaal verdiend: €${formatCurrency(referralEarnings)}`}
+            </p>
             <Link href="/referrals" className="w-full bg-gradient-to-r from-yellow-500 to-amber-700 text-white hover:from-yellow-600 hover:to-amber-800 transition-all duration-300 rounded-lg py-2 text-sm font-medium block text-center">
               Mijn Verwijzingslink
             </Link>

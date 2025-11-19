@@ -215,7 +215,7 @@ function NewMessageContent() {
               Of boek direct een afspraak:
             </p>
             <Button variant="outline" className="py-3 px-6 font-semibold" asChild>
-              <Link href={`/booking/new?caregiver=${caregiverId}`}>
+              <Link href={`/booking/new?caregiver=${caregiverId}&from=messages`}>
                 📅 Direct boeken
               </Link>
             </Button>

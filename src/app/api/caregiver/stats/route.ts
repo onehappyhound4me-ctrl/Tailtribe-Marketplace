@@ -1,71 +1,62 @@
 export const dynamic = 'force-dynamic'
 export const revalidate = 0
 import { NextRequest, NextResponse } from 'next/server'
-import { getServerSession } from 'next-auth'
-import { authOptions } from '@/lib/auth'
+import { auth } from '@/lib/auth'
 import { db } from '@/lib/db'
 
 export async function GET(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions)
+    const session = await auth()
     
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    // Get caregiver profile
-    const caregiver = await db.caregiverProfile.findUnique({
-      where: { userId: session.user.id }
-    })
+    const caregiverUserId = session.user.id
 
-    if (!caregiver) {
-      return NextResponse.json({ error: 'Caregiver profile not found' }, { status: 404 })
-    }
+    const [bookings, reviews] = await Promise.all([
+      db.booking.findMany({
+        where: { caregiverId: caregiverUserId },
+        select: {
+          ownerId: true,
+          status: true,
+          amountCents: true,
+          caregiverAmountCents: true,
+          startAt: true,
+        },
+      }),
+      db.review.findMany({
+        where: {
+          revieweeId: caregiverUserId,
+          revieweeRole: 'CAREGIVER',
+        },
+        select: { rating: true },
+      }),
+    ])
 
-    // Get bookings for this caregiver
-    const bookings = await db.booking.findMany({
-      where: { caregiverId: caregiver.id },
-      include: {
-        owner: true,
-        caregiver: true
-      },
-      orderBy: { startAt: 'desc' }
-    })
+    const completedStatuses = ['PAID', 'COMPLETED']
+    const completedBookings = bookings.filter(b => completedStatuses.includes(b.status))
+    const servedClients = new Set(completedBookings.map(b => b.ownerId)).size
+    const totalEarningsCents = completedBookings.reduce((sum, booking) => {
+      const payout = booking.caregiverAmountCents ?? Math.round(booking.amountCents * 0.8)
+      return sum + payout
+    }, 0)
 
-    // Calculate stats
-    const now = new Date()
-    const weekStart = new Date(now.setDate(now.getDate() - now.getDay()))
-    const monthStart = new Date(now.getFullYear(), now.getMonth(), 1)
-
-    const weeklyBookings = bookings.filter(b => new Date(b.startAt) >= weekStart)
-    const monthlyBookings = bookings.filter(b => new Date(b.startAt) >= monthStart)
+    const averageRating =
+      reviews.length > 0
+        ? reviews.reduce((sum, review) => sum + review.rating, 0) / reviews.length
+        : 0
 
     const stats = {
       totalBookings: bookings.length,
+      servedClients,
+      averageRating: Number(averageRating.toFixed(1)),
+      totalReviews: reviews.length,
+      totalEarnings: totalEarningsCents / 100,
       pendingBookings: bookings.filter(b => b.status === 'PENDING').length,
-      confirmedBookings: bookings.filter(b => b.status === 'CONFIRMED').length,
-      completedBookings: bookings.filter(b => b.status === 'COMPLETED').length,
-      weeklyEarnings: weeklyBookings.reduce((sum, b) => sum + (b.amountCents / 100), 0),
-      monthlyEarnings: monthlyBookings.reduce((sum, b) => sum + (b.amountCents / 100), 0),
-      averageRating: 4.8, // TODO: Implement rating system
-      totalReviews: 12, // TODO: Implement review system
-      recentBookings: bookings.slice(0, 5).map(booking => ({
-        id: booking.id,
-        status: booking.status,
-        startAt: booking.startAt,
-        endAt: booking.endAt,
-        amountCents: booking.amountCents,
-        petName: booking.petName,
-        petType: booking.petType,
-        service: 'Dienstverlening',
-        owner: {
-          name: booking.owner.name,
-          email: booking.owner.email,
-          phone: booking.owner.phone
-        },
-        specialInstructions: booking.specialInstructions,
-        location: 'Locatie' // TODO: Add location field to booking
-      }))
+      upcomingBookings: bookings.filter(
+        b => new Date(b.startAt) > new Date() && !['CANCELLED', 'DECLINED'].includes(b.status)
+      ).length,
     }
 
     return NextResponse.json({ stats })

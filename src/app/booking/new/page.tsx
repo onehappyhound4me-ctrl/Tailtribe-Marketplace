@@ -34,15 +34,49 @@ interface BookingData {
   recurringEndDate: string
 }
 
+const normalizeServices = (servicesInput: any) => {
+  const formatService = (serviceName: string) => ({
+    name: serviceName,
+    label: serviceLabels[serviceName as keyof typeof serviceLabels] || serviceName,
+    duration: 'Varieert'
+  })
+
+  if (!servicesInput) {
+    return []
+  }
+
+  if (Array.isArray(servicesInput)) {
+    return servicesInput
+      .map((service: string) => service?.trim())
+      .filter(Boolean)
+      .map(service => formatService(service as string))
+  }
+
+  if (typeof servicesInput === 'string') {
+    return servicesInput
+      .split(',')
+      .map(service => service.trim())
+      .filter(Boolean)
+      .map(service => formatService(service))
+  }
+
+  return []
+}
+
 function BookingContent() {
   const searchParams = useSearchParams()
   const caregiverId = searchParams.get('caregiver')
   const from = searchParams.get('from')
+  const defaultDate = searchParams.get('date')
+  const defaultService = searchParams.get('service')
+  const defaultStart = searchParams.get('start')
+  const defaultEnd = searchParams.get('end')
   
   // Determine back link
   const getBackInfo = () => {
     if (from === 'search') return { href: '/search', label: 'Zoek Verzorgers', icon: 'M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z' }
     if (from === 'profile') return { href: caregiverId ? `/caregivers/${caregiverId}` : '/search', label: 'Terug naar profiel', icon: 'M10 19l-7-7m0 0l7-7m-7 7h18' }
+    if (from === 'messages') return { href: '/messages', label: 'Berichten', icon: 'M7 8h10M7 12h6m5 2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v8a2 2 0 002 2h6l4 4v-4h2z' }
     return { href: '/dashboard', label: 'Dashboard', icon: 'M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6' }
   }
   
@@ -79,6 +113,40 @@ function BookingContent() {
   const [caregiverData, setCaregiverData] = useState<any>(null)
   const [availability, setAvailability] = useState<any>(null)
   const [errors, setErrors] = useState<{[key: string]: string}>({})
+
+  useEffect(() => {
+    setBookingData((prev) => {
+      let next = { ...prev }
+
+      if (defaultService && !next.service) {
+        next = { ...next, service: defaultService }
+      }
+
+      if (!next.startTime) {
+        next = { ...next, startTime: defaultStart || '09:00' }
+      }
+
+      if (!next.endTime) {
+        next = { ...next, endTime: defaultEnd || '10:00' }
+      }
+
+      if (defaultDate && next.dates.length === 0) {
+        next = {
+          ...next,
+          dates: [defaultDate],
+          dayTimes: {
+            ...(next.dayTimes || {}),
+            [defaultDate]: {
+              startTime: defaultStart || next.startTime,
+              endTime: defaultEnd || next.endTime
+            }
+          }
+        }
+      }
+
+      return next
+    })
+  }, [defaultDate, defaultService, defaultStart, defaultEnd])
 
   // Helper function to convert weeklyJson to exactDailySlots
   const weeklyJsonToExactDailySlots = (weeklyJson: string | null) => {
@@ -156,6 +224,8 @@ function BookingContent() {
     fetchCaregiverData()
   }, [caregiverId])
 
+  const normalizedServices = caregiverData ? normalizeServices(caregiverData.services) : []
+
   // Use caregiverData from API if available, otherwise use placeholder
   const caregiver = caregiverData ? {
     id: caregiverData.id || caregiverId || '1',
@@ -163,25 +233,7 @@ function BookingContent() {
     city: caregiverData.city || 'Onbekend',
     hourlyRate: caregiverData.hourlyRate || 0,
     photo: caregiverData.photo || '',
-    services: Array.isArray(caregiverData.services) 
-      ? caregiverData.services.map((s: string) => {
-          const serviceName = s.trim()
-          return {
-            name: serviceName,
-            label: serviceLabels[serviceName as keyof typeof serviceLabels] || serviceName,
-            duration: 'Varieert'
-          }
-        })
-      : (typeof caregiverData.services === 'string' 
-          ? caregiverData.services.split(',').map((s: string) => {
-              const serviceName = s.trim()
-              return {
-                name: serviceName,
-                label: serviceLabels[serviceName as keyof typeof serviceLabels] || serviceName,
-                duration: 'Varieert'
-              }
-            })
-          : [])
+    services: normalizedServices
   } : {
     id: caregiverId || '1',
     name: 'Laden...',
@@ -190,6 +242,23 @@ function BookingContent() {
     photo: '',
     services: []
   }
+
+  useEffect(() => {
+    if (!caregiverData) return
+    setBookingData((prev) => {
+      if (prev.service && prev.startTime && prev.endTime) {
+        return prev
+      }
+
+      return {
+        ...prev,
+        service: prev.service || (normalizedServices[0]?.name || ''),
+        startTime: prev.startTime || '09:00',
+        endTime: prev.endTime || '10:00'
+      }
+    })
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [caregiverData])
 
   const calculateTotal = () => {
     if (!bookingData.startTime || !bookingData.endTime) return 0
