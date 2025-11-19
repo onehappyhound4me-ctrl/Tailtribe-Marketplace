@@ -51,7 +51,6 @@ export default function CaregiverSettingsPage() {
     city: '',
     postalCode: '',
     country: 'BE',
-  const [notificationPrefs, setNotificationPrefs] = useState(defaultNotificationPrefs)
     actionRadius: '10',
     bio: '',
     profilePhoto: '',
@@ -66,6 +65,7 @@ export default function CaregiverSettingsPage() {
     vatNumber: '',
     businessNumber: ''
   })
+  const [notificationPrefs, setNotificationPrefs] = useState(defaultNotificationPrefs)
   
   useEffect(() => {
     loadProfile()
