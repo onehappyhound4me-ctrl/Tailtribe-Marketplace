@@ -161,6 +161,21 @@ export default function CaregiverSettingsPage() {
   }
   
   const handleSave = async () => {
+    const sanitizedServices = (formData.services || []).filter(Boolean)
+    if (sanitizedServices.length === 0) {
+      toast.error('Selecteer minstens één dienst')
+      return
+    }
+
+    const parsedActionRadius = parseInt(formData.actionRadius, 10)
+    const parsedMaxAnimals = parseInt(formData.maxAnimalsAtOnce, 10)
+    const sanitizedServicePricesEntries = Object.entries(formData.servicePrices || {}).filter(
+      ([, value]) => value !== undefined && value !== null && String(value).trim() !== ''
+    )
+    const sanitizedServicePrices = Object.fromEntries(
+      sanitizedServicePricesEntries.map(([key, value]) => [key, String(value).trim()])
+    )
+
     setSaving(true)
     try {
       const res = await fetch('/api/profile/caregiver', {
@@ -169,33 +184,35 @@ export default function CaregiverSettingsPage() {
         credentials: 'include',
         body: JSON.stringify({
           city: formData.city,
-          postalCode: formData.postalCode,
-          actionRadius: parseInt(formData.actionRadius),
+          postalCode: formData.postalCode || '',
+          actionRadius: Number.isNaN(parsedActionRadius) ? undefined : parsedActionRadius,
           bio: formData.bio,
           profilePhoto: formData.profilePhoto,
-          hourlyRate: 25, // Default value
-          services: formData.services,
-          animalTypes: formData.animalTypes,
-          customAnimalTypes: formData.customAnimalTypes,
-          animalSizes: formData.animalSizes,
-          maxAnimalsAtOnce: parseInt(formData.maxAnimalsAtOnce),
-          servicePrices: formData.servicePrices,
-          iban: formData.iban,
-          accountHolder: formData.accountHolder,
-          vatNumber: formData.vatNumber,
-          businessNumber: formData.businessNumber
+          hourlyRate: 25,
+          services: sanitizedServices,
+          animalTypes: formData.animalTypes?.filter(Boolean) || [],
+          customAnimalTypes: formData.customAnimalTypes || '',
+          animalSizes: formData.animalSizes?.filter(Boolean) || [],
+          maxAnimalsAtOnce: Number.isNaN(parsedMaxAnimals) ? undefined : parsedMaxAnimals,
+          servicePrices: sanitizedServicePrices,
+          iban: formData.iban || '',
+          accountHolder: formData.accountHolder || '',
+          vatNumber: formData.vatNumber || '',
+          businessNumber: formData.businessNumber || ''
         })
       })
+
+      const data = await res.json()
       
       if (res.ok) {
         toast.success('Profiel bijgewerkt!')
         router.push('/dashboard/caregiver')
       } else {
-        const errorData = await res.json()
-        console.error('❌ Save failed:', errorData)
-        toast.error(errorData.error || 'Er ging iets mis')
+        console.error('❌ Save failed:', data)
+        toast.error(data.error || 'Er ging iets mis')
       }
     } catch (error) {
+      console.error('Save error:', error)
       toast.error('Er ging iets mis')
     } finally {
       setSaving(false)
