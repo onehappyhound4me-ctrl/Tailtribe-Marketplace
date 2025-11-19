@@ -166,6 +166,7 @@ export default function CaregiverSettingsPage() {
       const res = await fetch('/api/profile/caregiver', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({
           city: formData.city,
           postalCode: formData.postalCode,
