@@ -212,6 +212,7 @@ export default function CaregiverSettingsPage() {
       const res = await fetch('/api/auth/change-password', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify(passwordData)
       })
 
@@ -240,7 +241,7 @@ export default function CaregiverSettingsPage() {
 
     setDeleteLoading(true)
     try {
-      const res = await fetch('/api/profile/delete-account', { method: 'DELETE' })
+      const res = await fetch('/api/profile/delete-account', { method: 'DELETE', credentials: 'include' })
       const data = await res.json()
 
       if (!res.ok) {
