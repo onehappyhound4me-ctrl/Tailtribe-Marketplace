@@ -41,10 +41,17 @@ export default function CaregiverSettingsPage() {
   const [deleteLoading, setDeleteLoading] = useState(false)
   const fileInputRef = useRef<HTMLInputElement | null>(null)
   
+  const defaultNotificationPrefs = {
+    email: true,
+    messages: true,
+    bookings: true,
+  }
+
   const [formData, setFormData] = useState({
     city: '',
     postalCode: '',
     country: 'BE',
+  const [notificationPrefs, setNotificationPrefs] = useState(defaultNotificationPrefs)
     actionRadius: '10',
     bio: '',
     profilePhoto: '',
@@ -151,6 +158,13 @@ export default function CaregiverSettingsPage() {
             vatNumber: p.vatNumber || '',
             businessNumber: p.businessNumber || ''
           })
+          
+          const prefs = data?.user?.notificationPreferences || defaultNotificationPrefs
+          setNotificationPrefs({
+            email: prefs.email ?? true,
+            messages: prefs.messages ?? true,
+            bookings: prefs.bookings ?? true,
+          })
         }
       }
     } catch (error) {
@@ -198,7 +212,8 @@ export default function CaregiverSettingsPage() {
           iban: formData.iban || '',
           accountHolder: formData.accountHolder || '',
           vatNumber: formData.vatNumber || '',
-          businessNumber: formData.businessNumber || ''
+          businessNumber: formData.businessNumber || '',
+          notificationPreferences: notificationPrefs,
         })
       })
 
@@ -832,7 +847,12 @@ export default function CaregiverSettingsPage() {
               <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                 <span className="text-sm text-gray-700">Email notificaties</span>
                 <label className="relative inline-flex items-center cursor-pointer">
-                  <input type="checkbox" className="sr-only peer" defaultChecked />
+                  <input
+                    type="checkbox"
+                    className="sr-only peer"
+                    checked={notificationPrefs.email}
+                    onChange={(e) => setNotificationPrefs(prev => ({ ...prev, email: e.target.checked }))}
+                  />
                   <div className="w-11 h-6 bg-gray-200 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-600"></div>
                 </label>
               </div>
@@ -840,7 +860,12 @@ export default function CaregiverSettingsPage() {
               <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                 <span className="text-sm text-gray-700">Nieuwe berichten</span>
                 <label className="relative inline-flex items-center cursor-pointer">
-                  <input type="checkbox" className="sr-only peer" defaultChecked />
+                  <input
+                    type="checkbox"
+                    className="sr-only peer"
+                    checked={notificationPrefs.messages}
+                    onChange={(e) => setNotificationPrefs(prev => ({ ...prev, messages: e.target.checked }))}
+                  />
                   <div className="w-11 h-6 bg-gray-200 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-600"></div>
                 </label>
               </div>
@@ -848,7 +873,12 @@ export default function CaregiverSettingsPage() {
               <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                 <span className="text-sm text-gray-700">Boekingen updates</span>
                 <label className="relative inline-flex items-center cursor-pointer">
-                  <input type="checkbox" className="sr-only peer" defaultChecked />
+                  <input
+                    type="checkbox"
+                    className="sr-only peer"
+                    checked={notificationPrefs.bookings}
+                    onChange={(e) => setNotificationPrefs(prev => ({ ...prev, bookings: e.target.checked }))}
+                  />
                   <div className="w-11 h-6 bg-gray-200 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-600"></div>
                 </label>
               </div>

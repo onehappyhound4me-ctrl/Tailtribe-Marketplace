@@ -45,7 +45,10 @@ export async function GET(req: NextRequest) {
         name: user.name,
         email: user.email,
         image: user.image,
-        role: user.role
+        role: user.role,
+        notificationPreferences: user.notificationPreferences
+          ? JSON.parse(user.notificationPreferences)
+          : { email: true, messages: true, bookings: true }
       },
       hasProfile: !!user.caregiverProfile
     })
@@ -92,6 +95,7 @@ export async function PUT(req: NextRequest) {
     }
 
     const data = validation.data
+    const notificationPreferences = data.notificationPreferences
 
     // Prepare update data
     const updateData: any = {
@@ -127,6 +131,15 @@ export async function PUT(req: NextRequest) {
       },
       update: updateData
     })
+
+    if (notificationPreferences) {
+      await db.user.update({
+        where: { id: user.id },
+        data: {
+          notificationPreferences: JSON.stringify(notificationPreferences)
+        }
+      })
+    }
 
     // Parse for response
     const responseProfile = {

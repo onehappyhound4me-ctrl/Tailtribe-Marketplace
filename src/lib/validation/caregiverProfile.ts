@@ -42,6 +42,13 @@ export const caregiverProfileSchema = z.object({
   
   // Service prices
   servicePrices: z.record(z.string(), z.string()).optional(),
+  
+  // Notification preferences
+  notificationPreferences: z.object({
+    email: z.boolean(),
+    messages: z.boolean(),
+    bookings: z.boolean(),
+  }).optional(),
 })
 
 export type CaregiverProfileInput = z.infer<typeof caregiverProfileSchema>
