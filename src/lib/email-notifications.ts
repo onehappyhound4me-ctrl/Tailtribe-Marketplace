@@ -235,6 +235,47 @@ export async function sendCaregiverApprovalEmail(data: {
   }
 }
 
+export async function sendTwoFactorCodeEmail(data: {
+  email: string
+  name?: string | null
+  code: string
+  expiresAt: Date
+}) {
+  const safeName = data.name || 'TailTribe gebruiker'
+  const formattedExpiry = data.expiresAt.toLocaleTimeString('nl-BE', {
+    hour: '2-digit',
+    minute: '2-digit'
+  })
+
+  try {
+    await resend.emails.send({
+      from: FROM_EMAIL,
+      to: data.email,
+      subject: 'Je inlogcode voor TailTribe',
+      html: `
+        <div style="font-family: sans-serif; max-width: 560px; margin: 0 auto;">
+          <h2 style="color: #10b981;">Bevestig je inlog</h2>
+          <p>Hoi ${safeName},</p>
+          <p>Gebruik onderstaande code om je login te bevestigen:</p>
+          <div style="background: #f0fdf4; padding: 24px; border-radius: 12px; text-align: center; margin: 24px 0;">
+            <span style="font-size: 32px; font-weight: bold; letter-spacing: 8px; color: #065f46;">
+              ${data.code}
+            </span>
+          </div>
+          <p style="color: #374151;">Deze code verloopt om <strong>${formattedExpiry}</strong> of zodra je opnieuw om een code vraagt.</p>
+          <p>Heb je dit niet aangevraagd? Neem dan meteen contact op met support.</p>
+          <p style="margin-top: 30px; color: #6b7280; font-size: 14px;">
+            Met vriendelijke groet,<br />
+            Het TailTribe team
+          </p>
+        </div>
+      `
+    })
+  } catch (error) {
+    console.error('Error sending 2FA code:', error)
+  }
+}
+
 /**
  * Notify caregivers about new owners in their area
  */

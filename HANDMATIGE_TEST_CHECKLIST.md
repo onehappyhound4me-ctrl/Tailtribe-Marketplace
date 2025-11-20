@@ -24,6 +24,37 @@
 
 ---
 
+## ✅ **TEST 0: Twee-factor authenticatie** (~10 min)
+
+### 0.1 Code ontvangen na login
+- [ ] Ga naar `/auth/signin`
+- [ ] Vul geldig email + wachtwoord in en klik op "Volgende"
+- [ ] **Verwacht:** Succesmelding "Bevestigingscode verzonden"
+- [ ] Check inbox van het testaccount
+- [ ] **Verwacht:** Email met onderwerp "Je inlogcode voor TailTribe" en 6-cijferige code
+
+### 0.2 Foute code
+- [ ] Voer een willekeurige foutieve code in
+- [ ] Klik op "Inloggen"
+- [ ] **Verwacht:** Foutmelding "De code is ongeldig of verlopen"
+- [ ] **Verwacht:** Geen redirect naar dashboard
+
+### 0.3 Code opnieuw versturen
+- [ ] Klik op "Code opnieuw verzenden"
+- [ ] **Verwacht:** Nieuwe email met andere code (oude code ongeldig)
+- [ ] **Verwacht:** Succesmelding "Nieuwe code verstuurd"
+
+### 0.4 Succesvolle verificatie
+- [ ] Vul de nieuwste code in
+- [ ] Klik op "Inloggen"
+- [ ] **Verwacht:** Redirect naar dashboard en toast "Succesvol ingelogd!"
+- [ ] Log uit en herhaal om te bevestigen dat 2FA elke login vereist
+
+**Resultaat:** ☐ Geslaagd ☐ Gefaald  
+**Notities:** _________________________________________________
+
+---
+
 ## ✅ **TEST 1: Google Login Flow** (~15 min)
 
 ### 1.1 Nieuwe Gebruiker (Geen Account)
