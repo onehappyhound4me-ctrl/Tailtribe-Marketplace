@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
-import crypto from 'crypto'
 import { Resend } from 'resend'
+import { createPasswordResetToken, getResetPasswordUrl } from '@/lib/passwordReset'
 
 const resend = new Resend(process.env.RESEND_API_KEY)
 
@@ -26,73 +26,96 @@ export async function POST(request: NextRequest) {
       })
     }
 
-    // Generate reset token
-    const resetToken = crypto.randomBytes(32).toString('hex')
-    const resetTokenExpiry = new Date(Date.now() + 3600000) // 1 hour
+    // Generate reset token and store hashed version
+    const { token: resetToken, expires } = await createPasswordResetToken(user.id)
 
-    // Save token to database
-    await db.user.update({
-      where: { id: user.id },
-      data: {
-        // We'll need to add these fields to the User model
-        // For now, we'll store it in a separate table or use a simple approach
-        // resetToken: resetToken,
-        // resetTokenExpiry: resetTokenExpiry
-      }
-    })
-
-    // Send email
-    const resetUrl = `${process.env.NEXT_PUBLIC_APP_URL}/auth/reset-password?token=${resetToken}`
+    const requestOrigin = request.headers.get('origin') || new URL(request.url).origin
+    const resetUrl = getResetPasswordUrl(resetToken, requestOrigin)
+    const friendlyName = user.firstName || user.name || 'daar'
 
     try {
+      const friendlyExpiry = expires.toLocaleTimeString('nl-BE', {
+        hour: '2-digit',
+        minute: '2-digit',
+      })
+
+      const textBody = [
+        `Hoi ${friendlyName},`,
+        '',
+        'Je hebt gevraagd om je wachtwoord te resetten. Gebruik onderstaande link (of kopieer hem in je browser):',
+        `${resetUrl}`,
+        '',
+        `Deze link verloopt om ${friendlyExpiry} en werkt slechts één keer.`,
+        'Heb je dit niet aangevraagd? Negeer deze email.',
+        '',
+        'Met vriendelijke groet,',
+        'Het TailTribe team',
+      ].join('\n')
+
+      const htmlBody = `
+<!DOCTYPE html>
+<html lang="nl">
+  <body style="margin:0;padding:0;background-color:#f5f7fa;">
+    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="padding:24px 0;">
+      <tr>
+        <td align="center">
+          <table role="presentation" width="520" cellspacing="0" cellpadding="0" style="background:#ffffff;border-radius:8px;border:1px solid #e5e7eb;">
+            <tr>
+              <td style="padding:32px;">
+                <table width="100%" cellspacing="0" cellpadding="0">
+                  <tr>
+                    <td align="center" style="padding-bottom:24px;">
+                      <img src="https://www.tailtribe.be/assets/tailtribe-logo.png" width="56" height="56" alt="TailTribe" style="display:block;margin-bottom:12px;" />
+                      <h1 style="font-size:22px;margin:0;color:#111827;font-family:Arial,Helvetica,sans-serif;">Wachtwoord resetten</h1>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td style="font-size:15px;line-height:1.6;color:#374151;font-family:Arial,Helvetica,sans-serif;">
+                      <p style="margin:0 0 16px;">Hoi ${friendlyName},</p>
+                      <p style="margin:0 0 16px;">Je hebt gevraagd om je wachtwoord te resetten. Klik op de knop hieronder of kopieer de link:</p>
+                      <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="margin:24px 0;">
+                        <tr>
+                          <td align="center">
+                            <a href="${resetUrl}"
+                              style="display:inline-block;background-color:#10b981;color:#ffffff;text-decoration:none;font-weight:600;font-size:15px;border-radius:4px;padding:12px 24px;font-family:Arial,Helvetica,sans-serif;"
+                              target="_blank" rel="noopener noreferrer">
+                              Reset wachtwoord
+                            </a>
+                          </td>
+                        </tr>
+                      </table>
+                      <p style="margin:0 0 12px;">Werkt de knop niet? Kopieer dan deze link:</p>
+                      <p style="word-break:break-all;margin:0 0 24px;">
+                        <a href="${resetUrl}" style="color:#047857;text-decoration:none;font-weight:600;">${resetUrl}</a>
+                      </p>
+                      <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="border:1px solid #fcd34d;background-color:#fef3c7;border-radius:6px;margin-bottom:16px;">
+                        <tr>
+                          <td style="padding:12px;font-size:13px;color:#92400e;font-family:Arial,Helvetica,sans-serif;">
+                            <strong>Let op:</strong> deze link verloopt om ${friendlyExpiry} en kan maar één keer gebruikt worden. Heb je dit niet aangevraagd? Negeer deze e-mail dan.
+                          </td>
+                        </tr>
+                      </table>
+                      <p style="margin:0;">Met vriendelijke groet,<br />Het TailTribe team</p>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+          </table>
+          <p style="font-size:12px;color:#9ca3af;margin-top:16px;font-family:Arial,Helvetica,sans-serif;">© ${new Date().getFullYear()} TailTribe · Betrouwbare dierenverzorging</p>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>
+      `.trim()
+
       await resend.emails.send({
         from: 'TailTribe <noreply@tailtribe.be>',
         to: email,
         subject: 'Reset je wachtwoord - TailTribe',
-        html: `
-          <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
-            <div style="background: linear-gradient(135deg, #10b981 0%, #14b8a6 100%); padding: 30px; text-align: center; border-radius: 10px 10px 0 0;">
-              <h1 style="color: white; margin: 0;">Wachtwoord Resetten</h1>
-            </div>
-            
-            <div style="background: white; padding: 30px; border-radius: 0 0 10px 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
-              <p style="font-size: 16px; color: #374151;">Hoi ${user.name || 'daar'},</p>
-              
-              <p style="font-size: 16px; color: #374151;">
-                Je hebt gevraagd om je wachtwoord te resetten. Klik op de knop hieronder om een nieuw wachtwoord in te stellen:
-              </p>
-              
-              <div style="text-align: center; margin: 30px 0;">
-                <a href="${resetUrl}" 
-                   style="display: inline-block; background: linear-gradient(135deg, #10b981 0%, #14b8a6 100%); color: white; padding: 14px 30px; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 16px;">
-                  Reset Wachtwoord
-                </a>
-              </div>
-              
-              <p style="font-size: 14px; color: #6b7280;">
-                Of kopieer deze link naar je browser:
-              </p>
-              <p style="font-size: 14px; color: #10b981; word-break: break-all;">
-                ${resetUrl}
-              </p>
-              
-              <div style="margin-top: 30px; padding: 15px; background: #fef3c7; border-left: 4px solid #f59e0b; border-radius: 4px;">
-                <p style="margin: 0; font-size: 14px; color: #92400e;">
-                  <strong>⚠️ Belangrijk:</strong> Deze link is 1 uur geldig. Heb je deze reset niet aangevraagd? Negeer deze email dan.
-                </p>
-              </div>
-              
-              <p style="margin-top: 30px; font-size: 14px; color: #6b7280;">
-                Met vriendelijke groet,<br>
-                Het TailTribe Team
-              </p>
-            </div>
-            
-            <div style="text-align: center; margin-top: 20px; color: #9ca3af; font-size: 12px;">
-              <p>TailTribe - Betrouwbare dierenverzorging in België</p>
-            </div>
-          </div>
-        `
+        text: textBody,
+        html: htmlBody,
       })
     } catch (emailError) {
       console.error('Email send error:', emailError)
