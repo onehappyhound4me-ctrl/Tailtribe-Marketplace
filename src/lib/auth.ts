@@ -6,7 +6,6 @@ import CredentialsProvider from "next-auth/providers/credentials"
 import { db } from "./db"
 import { Role } from "./types"
 import bcrypt from "bcryptjs"
-import { verifyTwoFactorCode } from "./twoFactor"
 
 // Simple email transport for development
 const sendVerificationRequest = async ({ identifier: email, url }: any) => {
@@ -21,8 +20,7 @@ export const authOptions: NextAuthOptions = {
       name: "credentials",
       credentials: {
         email: { label: "Email", type: "email" },
-        password: { label: "Wachtwoord", type: "password" },
-        twoFactorCode: { label: "2FA code", type: "text" },
+        password: { label: "Wachtwoord", type: "password" }
       },
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) {
@@ -44,19 +42,6 @@ export const authOptions: NextAuthOptions = {
 
         if (!isPasswordValid) {
           throw new Error("Ongeldige inloggegevens")
-        }
-
-        if (!credentials.twoFactorCode) {
-          throw new Error("TWO_FACTOR_REQUIRED")
-        }
-
-        const isTwoFactorValid = await verifyTwoFactorCode(
-          user.id,
-          credentials.twoFactorCode
-        )
-
-        if (!isTwoFactorValid) {
-          throw new Error("TWO_FACTOR_INVALID")
         }
 
         return {
@@ -101,7 +86,7 @@ export const authOptions: NextAuthOptions = {
           select: { role: true }
         })
         if (dbUser) {
-          token.role = dbUser.role
+          token.role = dbUser.role as Role
         }
 
       }
