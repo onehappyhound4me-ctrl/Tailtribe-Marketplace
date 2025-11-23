@@ -3,7 +3,8 @@ import { db } from '@/lib/db'
 import { Resend } from 'resend'
 import { createPasswordResetToken, getResetPasswordUrl } from '@/lib/passwordReset'
 
-const resend = new Resend(process.env.RESEND_API_KEY)
+const resendApiKey = process.env.RESEND_API_KEY
+const resend = resendApiKey ? new Resend(resendApiKey) : null
 
 export async function POST(request: NextRequest) {
   try {
@@ -29,30 +30,30 @@ export async function POST(request: NextRequest) {
     // Generate reset token and store hashed version
     const { token: resetToken, expires } = await createPasswordResetToken(user.id)
 
-    const requestOrigin = request.headers.get('origin') || new URL(request.url).origin
-    const resetUrl = getResetPasswordUrl(resetToken, requestOrigin)
+    const resetUrl = getResetPasswordUrl(resetToken)
     const friendlyName = user.firstName || user.name || 'daar'
 
-    try {
-      const friendlyExpiry = expires.toLocaleTimeString('nl-BE', {
-        hour: '2-digit',
-        minute: '2-digit',
-      })
+    if (resend) {
+      try {
+        const friendlyExpiry = expires.toLocaleTimeString('nl-BE', {
+          hour: '2-digit',
+          minute: '2-digit',
+        })
 
-      const textBody = [
-        `Hoi ${friendlyName},`,
-        '',
-        'Je hebt gevraagd om je wachtwoord te resetten. Gebruik onderstaande link (of kopieer hem in je browser):',
-        `${resetUrl}`,
-        '',
-        `Deze link verloopt om ${friendlyExpiry} en werkt slechts één keer.`,
-        'Heb je dit niet aangevraagd? Negeer deze email.',
-        '',
-        'Met vriendelijke groet,',
-        'Het TailTribe team',
-      ].join('\n')
+        const textBody = [
+          `Hoi ${friendlyName},`,
+          '',
+          'Je hebt gevraagd om je wachtwoord te resetten. Gebruik onderstaande link (of kopieer hem in je browser):',
+          `${resetUrl}`,
+          '',
+          `Deze link verloopt om ${friendlyExpiry} en werkt slechts één keer.`,
+          'Heb je dit niet aangevraagd? Negeer deze email.',
+          '',
+          'Met vriendelijke groet,',
+          'Het TailTribe team',
+        ].join('\n')
 
-      const htmlBody = `
+        const htmlBody = `
 <!DOCTYPE html>
 <html lang="nl">
   <body style="margin:0;padding:0;background-color:#f5f7fa;">
@@ -108,18 +109,21 @@ export async function POST(request: NextRequest) {
     </table>
   </body>
 </html>
-      `.trim()
+        `.trim()
 
-      await resend.emails.send({
-        from: 'TailTribe <noreply@tailtribe.be>',
-        to: email,
-        subject: 'Reset je wachtwoord - TailTribe',
-        text: textBody,
-        html: htmlBody,
-      })
-    } catch (emailError) {
-      console.error('Email send error:', emailError)
-      // Don't fail the request if email fails
+        await resend.emails.send({
+          from: 'TailTribe <noreply@tailtribe.be>',
+          to: email,
+          subject: 'Reset je wachtwoord - TailTribe',
+          text: textBody,
+          html: htmlBody,
+        })
+      } catch (emailError) {
+        console.error('Email send error:', emailError)
+        // Don't fail the request if email fails
+      }
+    } else {
+      console.warn('RESEND_API_KEY ontbreekt - reset e-mail niet verzonden')
     }
 
     return NextResponse.json({ 
