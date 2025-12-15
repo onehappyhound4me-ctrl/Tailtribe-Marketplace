@@ -1,7 +1,7 @@
 import { NextAuthOptions, getServerSession } from "next-auth"
 import { PrismaAdapter } from "@auth/prisma-adapter"
 import EmailProvider from "next-auth/providers/email"
-// import GoogleProvider from "next-auth/providers/google" // Temporarily disabled
+import GoogleProvider from "next-auth/providers/google"
 import CredentialsProvider from "next-auth/providers/credentials"
 import { db } from "./db"
 import { Role } from "./types"
@@ -13,22 +13,38 @@ const sendVerificationRequest = async ({ identifier: email, url }: any) => {
   // In development, just log the magic link to console
 }
 
-export const authOptions: NextAuthOptions = {
-  adapter: PrismaAdapter(db) as any,
-  providers: [
-    CredentialsProvider({
+const googleClientId = process.env.GOOGLE_CLIENT_ID
+const googleClientSecret = process.env.GOOGLE_CLIENT_SECRET
+
+// Demo-accounts die zonder 2FA mogen inloggen (alleen voor testen/delen)
+const demoAccounts = new Set(
+  ['jan.vermeersch@example.com', 'sarah.janssens@example.com'].map((email) =>
+    email.toLowerCase()
+  )
+)
+
+const providers: NextAuthOptions['providers'] = [
+  CredentialsProvider({
       name: "credentials",
       credentials: {
         email: { label: "Email", type: "email" },
-        password: { label: "Wachtwoord", type: "password" }
+        password: { label: "Wachtwoord", type: "password" },
+        otp: { label: "Bevestigingscode", type: "text" }
       },
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) {
           throw new Error("Email en wachtwoord zijn verplicht")
         }
 
+        const email = credentials.email.toLowerCase()
+        const isDemo = demoAccounts.has(email)
+
+        if (!credentials?.otp && !isDemo) {
+          throw new Error("Voer de beveiligingscode in")
+        }
+
         const user = await db.user.findUnique({
-          where: { email: credentials.email }
+          where: { email }
         })
 
         if (!user || !user.password) {
@@ -44,6 +60,32 @@ export const authOptions: NextAuthOptions = {
           throw new Error("Ongeldige inloggegevens")
         }
 
+        if (!isDemo) {
+          const verificationRecord = await db.verificationToken.findFirst({
+            where: {
+              identifier: `2fa:${user.id}`,
+              expires: { gt: new Date() }
+            }
+          })
+
+          if (!verificationRecord) {
+            throw new Error("Geen geldige bevestigingscode gevonden")
+          }
+
+          const isOtpValid = await bcrypt.compare(
+            credentials.otp,
+            verificationRecord.token
+          )
+
+          if (!isOtpValid) {
+            throw new Error("De code is ongeldig of verlopen")
+          }
+
+          await db.verificationToken.deleteMany({
+            where: { identifier: `2fa:${user.id}` }
+          })
+        }
+
         return {
           id: user.id,
           email: user.email,
@@ -53,17 +95,26 @@ export const authOptions: NextAuthOptions = {
         }
       }
     }),
-    // GoogleProvider - Temporarily disabled (will enable when site goes live)
-    // GoogleProvider({
-    //   clientId: process.env.GOOGLE_CLIENT_ID || "",
-    //   clientSecret: process.env.GOOGLE_CLIENT_SECRET || "",
-    // }),
     EmailProvider({
       server: "smtp://localhost:587",
       from: "noreply@tailtribe.be",
       sendVerificationRequest,
     }),
-  ],
+]
+
+if (googleClientId && googleClientSecret) {
+  providers.unshift(
+    GoogleProvider({
+      clientId: googleClientId,
+      clientSecret: googleClientSecret,
+      allowDangerousEmailAccountLinking: true,
+    })
+  )
+}
+
+export const authOptions: NextAuthOptions = {
+  adapter: PrismaAdapter(db) as any,
+  providers,
   pages: {
     signIn: '/auth/signin',
     signOut: '/auth/signout',
@@ -100,8 +151,19 @@ export const authOptions: NextAuthOptions = {
       }
       return session
     },
-    async signIn({ user, account, profile, email, credentials }) {
-      // Allow all sign-ins
+    async signIn({ user, account }) {
+      if (account?.provider === 'google') {
+        if (!user.email) {
+          return '/auth/signin?error=REGISTER_FIRST'
+        }
+
+        if (!user.password) {
+          await db.account.deleteMany({ where: { userId: user.id } })
+          await db.user.delete({ where: { id: user.id } })
+          return `/auth/signin?error=REGISTER_FIRST&email=${encodeURIComponent(user.email)}`
+        }
+      }
+
       return true
     },
     async redirect({ url, baseUrl }) {
