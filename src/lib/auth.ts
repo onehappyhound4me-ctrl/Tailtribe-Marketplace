@@ -23,6 +23,18 @@ const demoAccounts = new Set(
   )
 )
 
+const demoDefaults: Record<
+  string,
+  { role: Role; name: string; caregiverProfile?: boolean }
+> = {
+  'jan.vermeersch@example.com': { role: 'OWNER', name: 'Jan Vermeersch' },
+  'sarah.janssens@example.com': {
+    role: 'CAREGIVER',
+    name: 'Sarah Janssens',
+    caregiverProfile: true
+  }
+}
+
 const providers: NextAuthOptions['providers'] = [
   CredentialsProvider({
       name: "credentials",
@@ -43,9 +55,42 @@ const providers: NextAuthOptions['providers'] = [
           throw new Error("Voer de beveiligingscode in")
         }
 
-        const user = await db.user.findUnique({
+        let user = await db.user.findUnique({
           where: { email }
         })
+
+        // Voor demo-accounts: indien niet aanwezig of zonder wachtwoord, automatisch aanmaken/bijwerken
+        if (isDemo && (!user || !user.password)) {
+          const hashedPassword = await bcrypt.hash('password123', 10)
+          const defaults = demoDefaults[email]
+
+          if (!user) {
+            user = await db.user.create({
+              data: {
+                email,
+                name: defaults?.name,
+                role: (defaults?.role as Role) ?? 'OWNER',
+                password: hashedPassword,
+                caregiverProfile: defaults?.caregiverProfile
+                  ? {
+                      create: {
+                        city: 'Antwerpen',
+                        services: JSON.stringify(['DOG_WALKING', 'PET_SITTING']),
+                        hourlyRate: 18,
+                        bio: 'Demo-profiel voor testen van het platform.',
+                        isApproved: true,
+                      }
+                    }
+                  : undefined
+              }
+            })
+          } else {
+            user = await db.user.update({
+              where: { id: user.id },
+              data: { password: hashedPassword }
+            })
+          }
+        }
 
         if (!user || !user.password) {
           throw new Error("Ongeldige inloggegevens")
