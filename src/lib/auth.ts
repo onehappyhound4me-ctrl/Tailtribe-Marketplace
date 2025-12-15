@@ -157,10 +157,17 @@ export const authOptions: NextAuthOptions = {
           return '/auth/signin?error=REGISTER_FIRST'
         }
 
-        if (!user.password) {
+        const dbUser = await db.user.findUnique({
+          where: { id: user.id },
+          select: { password: true, email: true }
+        })
+
+        if (!dbUser?.password) {
           await db.account.deleteMany({ where: { userId: user.id } })
           await db.user.delete({ where: { id: user.id } })
-          return `/auth/signin?error=REGISTER_FIRST&email=${encodeURIComponent(user.email)}`
+          const email = user.email || dbUser?.email
+          const emailQuery = email ? `&email=${encodeURIComponent(email)}` : ''
+          return `/auth/signin?error=REGISTER_FIRST${emailQuery}`
         }
       }
 
