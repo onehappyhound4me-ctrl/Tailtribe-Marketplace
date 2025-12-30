@@ -40,6 +40,8 @@ export default function AdminPage() {
   const [errorMsg, setErrorMsg] = useState<string | null>(null)
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [actionLoadingId, setActionLoadingId] = useState<string | null>(null)
+  const [emailSending, setEmailSending] = useState(false)
+  const [emailSentMsg, setEmailSentMsg] = useState<string | null>(null)
 
   const [team, setTeam] = useState<TeamMember[]>([])
   const [newTeamName, setNewTeamName] = useState('')
@@ -102,6 +104,28 @@ export default function AdminPage() {
       await fetchBookings()
     } finally {
       setActionLoadingId(null)
+    }
+  }
+
+  const sendCustomerEmail = async (bookingId: string) => {
+    setEmailSentMsg(null)
+    setEmailSending(true)
+    try {
+      const res = await fetch('/api/admin/email-customer', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ bookingId }),
+      })
+      const data = await res.json().catch(() => null)
+      if (!res.ok) {
+        setErrorMsg(data?.error || 'Kon e-mail niet versturen. Probeer opnieuw.')
+        return
+      }
+      setEmailSentMsg('E-mail verstuurd.')
+    } catch {
+      setErrorMsg('Kon e-mail niet versturen. Probeer opnieuw.')
+    } finally {
+      setEmailSending(false)
     }
   }
 
@@ -264,13 +288,16 @@ export default function AdminPage() {
                         {serviceNames[selected.service] || selected.service}
                       </div>
                     </div>
-                    <a
-                      href={`mailto:${encodeURIComponent(selected.email)}?subject=${encodeURIComponent('TailTribe – bevestiging van je aanvraag')}`}
-                      className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm font-medium"
+                    <button
+                      type="button"
+                      disabled={emailSending}
+                      onClick={() => sendCustomerEmail(selected.id)}
+                      className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm font-medium disabled:opacity-60"
                     >
-                      E-mail klant
-                    </a>
+                      {emailSending ? 'Versturen…' : 'E-mail klant'}
+                    </button>
                   </div>
+                  {emailSentMsg ? <div className="mt-3 text-sm text-emerald-700">{emailSentMsg}</div> : null}
 
                   <div className="mt-5 grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
