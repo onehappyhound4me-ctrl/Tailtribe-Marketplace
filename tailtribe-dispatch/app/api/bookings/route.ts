@@ -248,6 +248,15 @@ async function updateBooking(rec: BookingRecord) {
   await upstashCmd(['SET', `tt:booking:${rec.id}`, JSON.stringify(rec)])
 }
 
+async function deleteBooking(id: string) {
+  if (!hasUpstash()) {
+    bookings = bookings.filter((b) => String(b.id) !== String(id))
+    return
+  }
+  await upstashCmd(['DEL', `tt:booking:${id}`])
+  await upstashCmd(['LREM', 'tt:bookings:ids', 0, id])
+}
+
 export async function GET() {
   const all = await readAllBookings()
   return NextResponse.json(all)
@@ -383,6 +392,21 @@ export async function PATCH(request: NextRequest) {
     return NextResponse.json({ success: true, booking: next })
   } catch {
     return NextResponse.json({ error: 'Failed to update booking' }, { status: 500 })
+  }
+}
+
+export async function DELETE(request: NextRequest) {
+  try {
+    const body = await request.json().catch(() => ({}))
+    const id = String(body?.id ?? '')
+    if (!id) {
+      return NextResponse.json({ error: 'Missing booking id' }, { status: 400 })
+    }
+
+    await deleteBooking(id)
+    return NextResponse.json({ success: true })
+  } catch {
+    return NextResponse.json({ error: 'Failed to delete booking' }, { status: 500 })
   }
 }
 

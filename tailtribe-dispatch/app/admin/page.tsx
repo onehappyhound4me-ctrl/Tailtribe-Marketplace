@@ -34,6 +34,21 @@ type TeamMember = {
   name: string
 }
 
+type CaregiverApplication = {
+  id: string
+  firstName: string
+  lastName: string
+  email: string
+  phone: string
+  city: string
+  postalCode: string
+  services: string[]
+  experience: string
+  message?: string
+  createdAt: string
+  updatedAt: string
+}
+
 export default function AdminPage() {
   const [bookings, setBookings] = useState<Booking[]>([])
   const [loading, setLoading] = useState(true)
@@ -42,14 +57,21 @@ export default function AdminPage() {
   const [actionLoadingId, setActionLoadingId] = useState<string | null>(null)
   const [emailSending, setEmailSending] = useState(false)
   const [emailSentMsg, setEmailSentMsg] = useState<string | null>(null)
+  const [tab, setTab] = useState<'customers' | 'caregivers'>('customers')
+  const [caregiverApps, setCaregiverApps] = useState<CaregiverApplication[]>([])
+  const [selectedCaregiverId, setSelectedCaregiverId] = useState<string | null>(null)
 
   const [team, setTeam] = useState<TeamMember[]>([])
   const [newTeamName, setNewTeamName] = useState('')
 
   useEffect(() => {
     fetchBookings()
+    fetchCaregiverApps()
     // Auto-refresh every 30 seconds
-    const interval = setInterval(fetchBookings, 30000)
+    const interval = setInterval(() => {
+      fetchBookings()
+      fetchCaregiverApps()
+    }, 30000)
     return () => clearInterval(interval)
   }, [])
 
@@ -88,6 +110,19 @@ export default function AdminPage() {
     }
   }
 
+  const fetchCaregiverApps = async () => {
+    try {
+      const response = await fetch('/api/admin/caregiver-applications')
+      const data = await response.json()
+      const next = Array.isArray(data) ? (data as CaregiverApplication[]) : []
+      setCaregiverApps(next)
+      setSelectedCaregiverId((prev) => prev ?? (next[0]?.id ?? null))
+    } catch (error) {
+      console.error('Failed to fetch caregiver applications:', error)
+      // don't overwrite booking errors
+    }
+  }
+
   const updateBooking = async (id: string, patch: Record<string, any>) => {
     setActionLoadingId(id)
     setErrorMsg(null)
@@ -102,6 +137,50 @@ export default function AdminPage() {
         return
       }
       await fetchBookings()
+    } finally {
+      setActionLoadingId(null)
+    }
+  }
+
+  const deleteBooking = async (id: string) => {
+    const ok = window.confirm('Ben je zeker dat je deze aanvraag wilt verwijderen?')
+    if (!ok) return
+    setActionLoadingId(id)
+    setErrorMsg(null)
+    try {
+      const res = await fetch('/api/bookings', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id }),
+      })
+      const data = await res.json().catch(() => null)
+      if (!res.ok) {
+        setErrorMsg(data?.error || 'Kon aanvraag niet verwijderen. Probeer opnieuw.')
+        return
+      }
+      await fetchBookings()
+    } finally {
+      setActionLoadingId(null)
+    }
+  }
+
+  const deleteCaregiverApp = async (id: string) => {
+    const ok = window.confirm('Ben je zeker dat je deze aanmelding wilt verwijderen?')
+    if (!ok) return
+    setActionLoadingId(id)
+    setErrorMsg(null)
+    try {
+      const res = await fetch('/api/admin/caregiver-applications', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id }),
+      })
+      const data = await res.json().catch(() => null)
+      if (!res.ok) {
+        setErrorMsg(data?.error || 'Kon aanmelding niet verwijderen. Probeer opnieuw.')
+        return
+      }
+      await fetchCaregiverApps()
     } finally {
       setActionLoadingId(null)
     }
@@ -160,6 +239,8 @@ export default function AdminPage() {
   })
 
   const selected = sorted.find((b) => b.id === selectedId) ?? sorted[0] ?? null
+  const sortedCaregivers = [...caregiverApps].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+  const selectedCaregiver = sortedCaregivers.find((c) => c.id === selectedCaregiverId) ?? sortedCaregivers[0] ?? null
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-green-50 via-white to-blue-50">
@@ -211,10 +292,15 @@ export default function AdminPage() {
         </div>
 
         {/* Main layout */}
-        {bookings.length === 0 ? (
+        {tab === 'customers' && bookings.length === 0 ? (
           <div className="bg-white rounded-xl p-12 text-center">
             <h3 className="text-xl font-semibold text-gray-900 mb-2">Nog geen bookings</h3>
             <p className="text-gray-600">Nieuwe bookings verschijnen hier automatisch</p>
+          </div>
+        ) : tab === 'caregivers' && caregiverApps.length === 0 ? (
+          <div className="bg-white rounded-xl p-12 text-center">
+            <h3 className="text-xl font-semibold text-gray-900 mb-2">Nog geen aanmeldingen</h3>
+            <p className="text-gray-600">Nieuwe aanmeldingen van verzorgers verschijnen hier automatisch</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
@@ -222,62 +308,115 @@ export default function AdminPage() {
             <div className="lg:col-span-7">
               <div className="bg-white rounded-2xl shadow-sm border border-black/5 overflow-hidden">
                 <div className="px-5 py-4 border-b border-black/5 flex items-center justify-between">
-                  <h2 className="text-lg font-semibold text-gray-900">Aanvragen</h2>
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setTab('customers')}
+                      className={`px-3 py-1.5 rounded-full text-sm font-medium ${
+                        tab === 'customers' ? 'bg-gray-900 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                      }`}
+                    >
+                      Aanvragen klant
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setTab('caregivers')}
+                      className={`px-3 py-1.5 rounded-full text-sm font-medium ${
+                        tab === 'caregivers' ? 'bg-gray-900 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                      }`}
+                    >
+                      Aanmeldingen verzorgers
+                    </button>
+                  </div>
                   <div className="text-sm text-gray-500">Auto-refresh: 30s</div>
                 </div>
                 <div className="divide-y">
-                  {sorted.map((b) => {
-                    const isSelected = b.id === selected?.id
-                    return (
-                      <button
-                        key={b.id}
-                        type="button"
-                        onClick={() => setSelectedId(b.id)}
-                        className={`w-full text-left px-5 py-4 hover:bg-gray-50 transition ${
-                          isSelected ? 'bg-emerald-50/60' : ''
-                        }`}
-                      >
-                        <div className="flex items-start justify-between gap-4">
-                          <div>
-                            <div className="flex items-center gap-2">
-                              <div className="font-semibold text-gray-900">
-                                {b.firstName} {b.lastName}
+                  {tab === 'customers'
+                    ? sorted.map((b) => {
+                        const isSelected = b.id === selected?.id
+                        return (
+                          <button
+                            key={b.id}
+                            type="button"
+                            onClick={() => setSelectedId(b.id)}
+                            className={`w-full text-left px-5 py-4 hover:bg-gray-50 transition ${
+                              isSelected ? 'bg-emerald-50/60' : ''
+                            }`}
+                          >
+                            <div className="flex items-start justify-between gap-4">
+                              <div>
+                                <div className="flex items-center gap-2">
+                                  <div className="font-semibold text-gray-900">
+                                    {b.firstName} {b.lastName}
+                                  </div>
+                                  <span
+                                    className={`px-2.5 py-1 rounded-full text-xs font-medium ${
+                                      statusColors[b.status] || 'bg-gray-100 text-gray-800'
+                                    }`}
+                                  >
+                                    {statusLabels[b.status] ?? b.status}
+                                  </span>
+                                </div>
+                                <div className="text-sm text-gray-600 mt-1">
+                                  {serviceNames[b.service] || b.service} • {b.city} ({b.postalCode})
+                                </div>
+                                <div className="text-xs text-gray-500 mt-1">
+                                  {b.date} om {b.time}
+                                  {b.assignedTo ? ` • Toegewezen: ${b.assignedTo}` : ''}
+                                </div>
                               </div>
-                              <span
-                                className={`px-2.5 py-1 rounded-full text-xs font-medium ${
-                                  statusColors[b.status] || 'bg-gray-100 text-gray-800'
-                                }`}
-                              >
-                                {statusLabels[b.status] ?? b.status}
-                              </span>
+                              <div className="text-xs text-gray-500 whitespace-nowrap">
+                                {new Date(b.createdAt).toLocaleDateString('nl-BE', {
+                                  day: 'numeric',
+                                  month: 'short',
+                                  hour: '2-digit',
+                                  minute: '2-digit',
+                                })}
+                              </div>
                             </div>
-                            <div className="text-sm text-gray-600 mt-1">
-                              {serviceNames[b.service] || b.service} • {b.city} ({b.postalCode})
+                          </button>
+                        )
+                      })
+                    : sortedCaregivers.map((c) => {
+                        const isSelected = c.id === selectedCaregiver?.id
+                        return (
+                          <button
+                            key={c.id}
+                            type="button"
+                            onClick={() => setSelectedCaregiverId(c.id)}
+                            className={`w-full text-left px-5 py-4 hover:bg-gray-50 transition ${
+                              isSelected ? 'bg-emerald-50/60' : ''
+                            }`}
+                          >
+                            <div className="flex items-start justify-between gap-4">
+                              <div>
+                                <div className="font-semibold text-gray-900">
+                                  {c.firstName} {c.lastName}
+                                </div>
+                                <div className="text-sm text-gray-600 mt-1">
+                                  {c.city} ({c.postalCode})
+                                </div>
+                                <div className="text-xs text-gray-500 mt-1">{c.email}</div>
+                              </div>
+                              <div className="text-xs text-gray-500 whitespace-nowrap">
+                                {new Date(c.createdAt).toLocaleDateString('nl-BE', {
+                                  day: 'numeric',
+                                  month: 'short',
+                                  hour: '2-digit',
+                                  minute: '2-digit',
+                                })}
+                              </div>
                             </div>
-                            <div className="text-xs text-gray-500 mt-1">
-                              {b.date} om {b.time}
-                              {b.assignedTo ? ` • Toegewezen: ${b.assignedTo}` : ''}
-                            </div>
-                          </div>
-                          <div className="text-xs text-gray-500 whitespace-nowrap">
-                            {new Date(b.createdAt).toLocaleDateString('nl-BE', {
-                              day: 'numeric',
-                              month: 'short',
-                              hour: '2-digit',
-                              minute: '2-digit',
-                            })}
-                          </div>
-                        </div>
-                      </button>
-                    )
-                  })}
+                          </button>
+                        )
+                      })}
                 </div>
               </div>
             </div>
 
             {/* Middle: selected request */}
             <div className="lg:col-span-5">
-              {selected ? (
+              {tab === 'customers' && selected ? (
                 <div className="bg-white rounded-2xl shadow-sm border border-black/5 p-5">
                   <div className="flex items-start justify-between gap-4">
                     <div>
@@ -331,6 +470,67 @@ export default function AdminPage() {
                     {selected.message ? (
                       <div className="text-sm text-gray-700 mt-2 whitespace-pre-wrap">{selected.message}</div>
                     ) : null}
+                  </div>
+
+                  <div className="mt-5 flex justify-end">
+                    <button
+                      type="button"
+                      disabled={actionLoadingId === selected.id}
+                      onClick={() => deleteBooking(selected.id)}
+                      className="px-4 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700 text-sm font-medium disabled:opacity-60"
+                    >
+                      Verwijder aanvraag
+                    </button>
+                  </div>
+                </div>
+              ) : null}
+
+              {tab === 'caregivers' && selectedCaregiver ? (
+                <div className="bg-white rounded-2xl shadow-sm border border-black/5 p-5">
+                  <div className="flex items-start justify-between gap-4">
+                    <div>
+                      <h2 className="text-lg font-semibold text-gray-900">
+                        {selectedCaregiver.firstName} {selectedCaregiver.lastName}
+                      </h2>
+                      <div className="text-sm text-gray-600 mt-1">
+                        {selectedCaregiver.city}, {selectedCaregiver.postalCode}
+                      </div>
+                      <div className="text-sm text-gray-700 mt-1">{selectedCaregiver.email}</div>
+                      <div className="text-sm text-gray-700">{selectedCaregiver.phone}</div>
+                    </div>
+                    <button
+                      type="button"
+                      disabled={actionLoadingId === selectedCaregiver.id}
+                      onClick={() => deleteCaregiverApp(selectedCaregiver.id)}
+                      className="px-4 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700 text-sm font-medium disabled:opacity-60"
+                    >
+                      Verwijder aanmelding
+                    </button>
+                  </div>
+
+                  <div className="mt-5 rounded-xl bg-gray-50 border border-black/5 p-4">
+                    <div className="text-xs font-medium text-gray-500 mb-1">Ervaring</div>
+                    <div className="text-sm text-gray-800 whitespace-pre-wrap">{selectedCaregiver.experience}</div>
+                    {selectedCaregiver.message ? (
+                      <div className="text-sm text-gray-800 whitespace-pre-wrap mt-3">{selectedCaregiver.message}</div>
+                    ) : null}
+                  </div>
+
+                  <div className="mt-5">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const name = `${selectedCaregiver.firstName} ${selectedCaregiver.lastName}`.trim()
+                        if (!name) return
+                        setTeam((prev) => {
+                          if (prev.some((m) => m.name.toLowerCase() === name.toLowerCase())) return prev
+                          return [{ id: `${Date.now()}`, name }, ...prev]
+                        })
+                      }}
+                      className="px-4 py-2 rounded-lg bg-brand text-white hover:brightness-110 text-sm font-medium"
+                    >
+                      Voeg toe aan team
+                    </button>
                   </div>
                 </div>
               ) : null}
