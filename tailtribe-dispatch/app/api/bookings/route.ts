@@ -72,6 +72,51 @@ type BookingRecord = {
   updatedAt: string
 }
 
+function getAppUrl() {
+  return process.env.NEXT_PUBLIC_APP_URL ?? 'https://tailtribe.be'
+}
+
+function formatServiceLabel(serviceId: string) {
+  return DISPATCH_SERVICES.find((s) => s.id === (serviceId as any))?.name ?? serviceId
+}
+
+async function sendEmail({
+  to,
+  subject,
+  html,
+  replyTo,
+}: {
+  to: string
+  subject: string
+  html: string
+  replyTo?: string
+}) {
+  const apiKey = process.env.RESEND_API_KEY
+  if (!apiKey) return
+
+  const res = await fetch('https://api.resend.com/emails', {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${apiKey}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      from: process.env.DISPATCH_EMAIL_FROM ?? 'TailTribe <noreply@tailtribe.be>',
+      to,
+      subject,
+      html,
+      ...(replyTo ? { reply_to: replyTo } : {}),
+    }),
+    cache: 'no-store',
+  })
+
+  if (!res.ok) {
+    // Do not fail booking creation for email issues
+    const msg = await res.text().catch(() => '')
+    console.error('Resend email failed:', res.status, msg)
+  }
+}
+
 function validateBookingInput(body: any): { ok: true; data: BookingInput } | { ok: false; fieldErrors: Record<string, string> } {
   const fieldErrors: Record<string, string> = {}
   const allowedServices = new Set(DISPATCH_SERVICES.map((s) => s.id))
@@ -240,6 +285,71 @@ export async function POST(request: NextRequest) {
     
     // TODO: Send email notification to admin
     
+    // Fire-and-forget notifications (don't block success)
+    const appUrl = getAppUrl()
+    const adminEmail = process.env.DISPATCH_ADMIN_EMAIL ?? 'steven@tailtribe.be'
+    const serviceLabel = formatServiceLabel(booking.service)
+
+    const adminHtml = `
+      <div style="font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; line-height: 1.5; color: #111827;">
+        <h2 style="margin: 0 0 12px 0;">Nieuwe aanvraag – TailTribe Dispatch</h2>
+        <p style="margin: 0 0 12px 0;">
+          <strong>${booking.firstName} ${booking.lastName}</strong> diende een aanvraag in.
+        </p>
+        <div style="background:#F9FAFB;border:1px solid #E5E7EB;border-radius:12px;padding:14px;">
+          <p style="margin:0 0 6px 0;"><strong>Service:</strong> ${serviceLabel}</p>
+          <p style="margin:0 0 6px 0;"><strong>Datum/Tijd:</strong> ${booking.date} om ${booking.time}</p>
+          <p style="margin:0 0 6px 0;"><strong>Locatie:</strong> ${booking.city}, ${booking.postalCode}</p>
+          <p style="margin:0 0 6px 0;"><strong>Contact:</strong> ${booking.email} • ${booking.phone}</p>
+          <p style="margin:0;"><strong>Huisdier:</strong> ${booking.petName} (${booking.petType})</p>
+        </div>
+        ${
+          booking.message
+            ? `<p style="margin:12px 0 0 0;"><strong>Extra info:</strong><br/>${String(booking.message)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/\n/g, '<br/>')}</p>`
+            : ''
+        }
+        <p style="margin:16px 0 0 0;">
+          <a href="${appUrl}/admin" style="display:inline-block;background:#10B981;color:white;text-decoration:none;padding:10px 14px;border-radius:10px;font-weight:600;">
+            Open admin dashboard
+          </a>
+        </p>
+      </div>
+    `
+
+    const customerHtml = `
+      <div style="font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; line-height: 1.5; color: #111827;">
+        <h2 style="margin: 0 0 12px 0;">We hebben je aanvraag ontvangen</h2>
+        <p style="margin: 0 0 12px 0;">Hoi ${booking.firstName},</p>
+        <p style="margin: 0 0 12px 0;">
+          Bedankt voor je aanvraag bij TailTribe. We nemen binnen <strong>2 uur</strong> contact met je op om alles te bevestigen.
+        </p>
+        <div style="background:#F9FAFB;border:1px solid #E5E7EB;border-radius:12px;padding:14px;">
+          <p style="margin:0 0 6px 0;"><strong>Service:</strong> ${serviceLabel}</p>
+          <p style="margin:0 0 6px 0;"><strong>Datum/Tijd:</strong> ${booking.date} om ${booking.time}</p>
+          <p style="margin:0;"><strong>Locatie:</strong> ${booking.city}, ${booking.postalCode}</p>
+        </div>
+        <p style="margin:16px 0 0 0;">
+          Met vriendelijke groet,<br/>TailTribe
+        </p>
+      </div>
+    `
+
+    void sendEmail({
+      to: adminEmail,
+      subject: `Nieuwe aanvraag – ${serviceLabel} (${booking.city})`,
+      html: adminHtml,
+      replyTo: booking.email,
+    })
+    void sendEmail({
+      to: booking.email,
+      subject: 'Aanvraag ontvangen – TailTribe',
+      html: customerHtml,
+    })
+
     return NextResponse.json({ success: true, booking })
   } catch (error) {
     return NextResponse.json(
