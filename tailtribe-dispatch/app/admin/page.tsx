@@ -60,6 +60,7 @@ export default function AdminPage() {
   const [tab, setTab] = useState<'customers' | 'caregivers'>('customers')
   const [caregiverApps, setCaregiverApps] = useState<CaregiverApplication[]>([])
   const [selectedCaregiverId, setSelectedCaregiverId] = useState<string | null>(null)
+  const [showTeam, setShowTeam] = useState(true)
 
   const [team, setTeam] = useState<TeamMember[]>([])
   const [newTeamName, setNewTeamName] = useState('')
@@ -94,6 +95,23 @@ export default function AdminPage() {
       // ignore
     }
   }, [team])
+
+  useEffect(() => {
+    try {
+      const raw = window.localStorage.getItem('tt_dispatch_show_team')
+      if (raw === '0') setShowTeam(false)
+    } catch {
+      // ignore
+    }
+  }, [])
+
+  useEffect(() => {
+    try {
+      window.localStorage.setItem('tt_dispatch_show_team', showTeam ? '1' : '0')
+    } catch {
+      // ignore
+    }
+  }, [showTeam])
 
   const fetchBookings = async () => {
     try {
@@ -257,6 +275,37 @@ export default function AdminPage() {
           </div>
         </div>
 
+        <div className="mb-6 bg-white rounded-2xl shadow-sm border border-black/5 p-4">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div className="flex flex-wrap items-center gap-2">
+              <button
+                type="button"
+                onClick={() => setTab('customers')}
+                className={`px-4 py-2 rounded-full text-sm font-semibold ${
+                  tab === 'customers' ? 'bg-gray-900 text-white' : 'bg-gray-100 text-gray-800 hover:bg-gray-200'
+                }`}
+              >
+                Aanvragen klant ({bookings.length})
+              </button>
+              <button
+                type="button"
+                onClick={() => setTab('caregivers')}
+                className={`px-4 py-2 rounded-full text-sm font-semibold ${
+                  tab === 'caregivers' ? 'bg-gray-900 text-white' : 'bg-gray-100 text-gray-800 hover:bg-gray-200'
+                }`}
+              >
+                Aanmeldingen verzorgers ({caregiverApps.length})
+              </button>
+            </div>
+            <div className="text-sm text-gray-600">
+              Verzorgers melden zich aan via{' '}
+              <Link href="/verzorger-aanmelden" className="text-emerald-700 font-semibold hover:underline">
+                /verzorger-aanmelden
+              </Link>
+            </div>
+          </div>
+        </div>
+
         {errorMsg && (
           <div className="mb-6 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-red-800">
             {errorMsg}
@@ -308,26 +357,9 @@ export default function AdminPage() {
             <div className="lg:col-span-7">
               <div className="bg-white rounded-2xl shadow-sm border border-black/5 overflow-hidden">
                 <div className="px-5 py-4 border-b border-black/5 flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <button
-                      type="button"
-                      onClick={() => setTab('customers')}
-                      className={`px-3 py-1.5 rounded-full text-sm font-medium ${
-                        tab === 'customers' ? 'bg-gray-900 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                      }`}
-                    >
-                      Aanvragen klant
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setTab('caregivers')}
-                      className={`px-3 py-1.5 rounded-full text-sm font-medium ${
-                        tab === 'caregivers' ? 'bg-gray-900 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                      }`}
-                    >
-                      Aanmeldingen verzorgers
-                    </button>
-                  </div>
+                  <h2 className="text-lg font-semibold text-gray-900">
+                    {tab === 'customers' ? 'Aanvragen klant' : 'Aanmeldingen verzorgers'}
+                  </h2>
                   <div className="text-sm text-gray-500">Auto-refresh: 30s</div>
                 </div>
                 <div className="divide-y">
@@ -537,67 +569,89 @@ export default function AdminPage() {
 
               {/* Team column */}
               <div className="bg-white rounded-2xl shadow-sm border border-black/5 p-5 mt-6">
-                <div className="flex items-center justify-between gap-3 mb-3">
-                  <h3 className="text-lg font-semibold text-gray-900">Team / freelancers</h3>
-                  <div className="text-xs text-gray-500">{team.length} personen</div>
-                </div>
-
-                <div className="flex gap-2">
-                  <input
-                    value={newTeamName}
-                    onChange={(e) => setNewTeamName(e.target.value)}
-                    placeholder="Naam toevoegen…"
-                    className="flex-1 px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-brand"
-                  />
+                <div className="flex items-center justify-between gap-3 mb-2">
+                  <div>
+                    <h3 className="text-lg font-semibold text-gray-900">Team (optioneel)</h3>
+                    <p className="text-sm text-gray-600">
+                      Gebruik dit om aanvragen snel toe te wijzen. Dit is enkel voor jouw overzicht.
+                    </p>
+                  </div>
                   <button
                     type="button"
-                    onClick={() => {
-                      const name = newTeamName.trim()
-                      if (!name) return
-                      setTeam((prev) => [{ id: `${Date.now()}`, name }, ...prev])
-                      setNewTeamName('')
-                    }}
-                    className="px-4 py-2.5 bg-brand text-white rounded-xl hover:brightness-110 font-medium"
+                    onClick={() => setShowTeam((v) => !v)}
+                    className="text-sm font-medium text-gray-700 hover:text-gray-900"
                   >
-                    Voeg toe
+                    {showTeam ? 'Verberg' : 'Toon'}
                   </button>
                 </div>
+                <div className="text-xs text-gray-500 mb-3">{team.length} personen</div>
 
-                <div className="mt-4 space-y-2">
-                  {team.length === 0 ? (
-                    <div className="text-sm text-gray-600">Nog geen teamleden toegevoegd.</div>
-                  ) : (
-                    team.map((m) => (
-                      <div
-                        key={m.id}
-                        className="flex items-center justify-between gap-2 rounded-xl border border-black/5 bg-gray-50 px-3 py-2"
+                {showTeam ? (
+                  <>
+                    <div className="flex gap-2">
+                      <input
+                        value={newTeamName}
+                        onChange={(e) => setNewTeamName(e.target.value)}
+                        placeholder="Naam toevoegen…"
+                        className="flex-1 px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-brand"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const name = newTeamName.trim()
+                          if (!name) return
+                          setTeam((prev) => [{ id: `${Date.now()}`, name }, ...prev])
+                          setNewTeamName('')
+                        }}
+                        className="px-4 py-2.5 bg-brand text-white rounded-xl hover:brightness-110 font-medium"
                       >
-                        <button
-                          type="button"
-                          disabled={!selected || actionLoadingId === selected.id}
-                          onClick={async () => {
-                            if (!selected) return
-                            await updateBooking(selected.id, { status: 'ASSIGNED', assignedTo: m.name })
-                          }}
-                          className="text-left flex-1"
-                          title={selected ? 'Klik om toe te wijzen aan geselecteerde aanvraag' : 'Selecteer eerst een aanvraag'}
-                        >
-                          <div className="font-medium text-gray-900">{m.name}</div>
-                          <div className="text-xs text-gray-500">
-                            {selected ? 'Toewijzen aan geselecteerde aanvraag' : 'Selecteer eerst een aanvraag'}
+                        Voeg toe
+                      </button>
+                    </div>
+
+                    <div className="mt-4 space-y-2">
+                      {team.length === 0 ? (
+                        <div className="text-sm text-gray-600">Nog geen teamleden toegevoegd.</div>
+                      ) : (
+                        team.map((m) => (
+                          <div
+                            key={m.id}
+                            className="flex items-center justify-between gap-2 rounded-xl border border-black/5 bg-gray-50 px-3 py-2"
+                          >
+                            <button
+                              type="button"
+                              disabled={tab !== 'customers' || !selected || actionLoadingId === selected.id}
+                              onClick={async () => {
+                                if (!selected) return
+                                await updateBooking(selected.id, { status: 'ASSIGNED', assignedTo: m.name })
+                              }}
+                              className="text-left flex-1 disabled:opacity-60"
+                              title={
+                                tab !== 'customers'
+                                  ? 'Toewijzen kan enkel bij klant-aanvragen'
+                                  : selected
+                                    ? 'Klik om toe te wijzen aan geselecteerde aanvraag'
+                                    : 'Selecteer eerst een aanvraag'
+                              }
+                            >
+                              <div className="font-medium text-gray-900">{m.name}</div>
+                              <div className="text-xs text-gray-500">
+                                {tab === 'customers' ? 'Toewijzen aan geselecteerde aanvraag' : 'Toewijzen enkel bij aanvragen klant'}
+                              </div>
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => setTeam((prev) => prev.filter((x) => x.id !== m.id))}
+                              className="text-sm text-gray-600 hover:text-gray-900"
+                            >
+                              Verwijder
+                            </button>
                           </div>
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => setTeam((prev) => prev.filter((x) => x.id !== m.id))}
-                          className="text-sm text-gray-600 hover:text-gray-900"
-                        >
-                          Verwijder
-                        </button>
-                      </div>
-                    ))
-                  )}
-                </div>
+                        ))
+                      )}
+                    </div>
+                  </>
+                ) : null}
               </div>
             </div>
           </div>

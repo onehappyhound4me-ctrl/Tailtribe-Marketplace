@@ -112,6 +112,12 @@ export default function HomePage() {
                 </span>
                 <div className="absolute inset-0 bg-gradient-to-r from-green-400 to-blue-400 opacity-0 group-hover:opacity-10 transition-opacity"></div>
               </Link>
+              <Link
+                href="/verzorger-aanmelden"
+                className="inline-flex items-center justify-center px-7 py-4 rounded-full font-semibold bg-white/20 text-white border border-white/30 backdrop-blur hover:bg-white/30 transition shadow-lg"
+              >
+                Ik ben dierenverzorger
+              </Link>
             </div>
 
             <p className="mt-6 text-sm text-green-100">

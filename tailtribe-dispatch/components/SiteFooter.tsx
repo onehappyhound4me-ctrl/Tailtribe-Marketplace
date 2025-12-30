@@ -77,6 +77,11 @@ export function SiteFooter() {
             <h4 className="font-semibold text-white mb-2">Contact & info</h4>
             <ul className="space-y-1 text-sm">
               <li>
+                <Link href="/verzorger-aanmelden" className="text-slate-300 hover:text-white">
+                  Aanmelden als verzorger
+                </Link>
+              </li>
+              <li>
                 <Link href="/help" className="text-slate-300 hover:text-white">
                   FAQ
                 </Link>
