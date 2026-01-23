@@ -6,10 +6,17 @@ import { handlers } from '@/lib/auth'
 export const runtime = 'nodejs'
 
 function ensureAuthEnv(req: NextRequest) {
-  // Ensure NEXTAUTH_URL matches the current host (Vercel preview/prod domains, custom domains during DNS changes).
+  // Ensure URL env vars match the current host.
+  //
+  // NextAuth v5 (Auth.js) may use AUTH_URL internally; many setups still use NEXTAUTH_URL.
+  // If either is set to a different domain (custom domain vs vercel.app preview/prod),
+  // OAuth can fail with "Configuration".
   const origin = req.nextUrl.origin
   if (!process.env.NEXTAUTH_URL || process.env.NEXTAUTH_URL !== origin) {
     process.env.NEXTAUTH_URL = origin
+  }
+  if (!process.env.AUTH_URL || process.env.AUTH_URL !== origin) {
+    process.env.AUTH_URL = origin
   }
 
   // If NEXTAUTH_SECRET is missing, return a clear error instead of NextAuth's generic 500.
