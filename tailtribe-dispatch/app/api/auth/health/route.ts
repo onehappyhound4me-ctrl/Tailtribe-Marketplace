@@ -36,8 +36,7 @@ export async function GET(req: NextRequest) {
   let db = { ok: false as boolean, error: null as string | null }
   try {
     // Works for Postgres + SQLite
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const _ = await prisma.$queryRaw`SELECT 1`
+    await prisma.$queryRaw`SELECT 1`
     db.ok = true
   } catch (err: any) {
     db.ok = false
