@@ -4,6 +4,25 @@ import prisma from '@/lib/prisma'
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
 
+function getDatabaseUrlInfo() {
+  const raw = (process.env.DATABASE_URL ?? '').toString().trim()
+  if (!raw) return null
+  try {
+    const u = new URL(raw)
+    const dbName = (u.pathname || '').replace(/^\//, '') || null
+    return {
+      protocol: u.protocol.replace(':', ''),
+      host: u.hostname || null,
+      port: u.port ? Number(u.port) : null,
+      database: dbName,
+      // do NOT return username/password/query (secrets)
+    }
+  } catch {
+    // If it's not a valid URL, don't leak raw value.
+    return { protocol: null, host: null, port: null, database: null }
+  }
+}
+
 export async function GET(req: NextRequest) {
   const origin = req.nextUrl.origin
   const meta = {
@@ -33,11 +52,26 @@ export async function GET(req: NextRequest) {
   const authUrl = (process.env.AUTH_URL ?? '').toString()
   const wrongNextAuthUrl = (process.env.NEXT_AUTH_URL ?? '').toString()
 
-  let db = { ok: false as boolean, error: null as string | null }
+  const dbUrlInfo = getDatabaseUrlInfo()
+
+  let db = {
+    ok: false as boolean,
+    error: null as string | null,
+    hasUserTable: null as boolean | null,
+  }
   try {
     // Works for Postgres + SQLite
     await prisma.$queryRaw`SELECT 1`
     db.ok = true
+    // Postgres: checks if the "User" table exists (Prisma default mapping for model User).
+    try {
+      const rows = await prisma.$queryRaw<{ regclass: string | null }[]>`
+        SELECT to_regclass('public."User"') as regclass
+      `
+      db.hasUserTable = Boolean(rows?.[0]?.regclass)
+    } catch {
+      db.hasUserTable = null
+    }
   } catch (err: any) {
     db.ok = false
     db.error = (err?.message ?? String(err)).slice(0, 500)
@@ -62,6 +96,7 @@ export async function GET(req: NextRequest) {
         has_leading_or_trailing_whitespace: effectiveSecret !== effectiveSecretTrimmed,
       },
     },
+      dbUrlInfo,
     db,
     last_nextauth_error: (globalThis as any).__tt_last_nextauth_error ?? null,
       last_auth_exception: (globalThis as any).__tt_last_auth_exception ?? null,
