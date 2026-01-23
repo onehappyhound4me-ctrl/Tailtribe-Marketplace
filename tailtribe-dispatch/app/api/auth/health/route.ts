@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import prisma from '@/lib/prisma'
 
 export const runtime = 'nodejs'
+export const dynamic = 'force-dynamic'
 
 export async function GET(req: NextRequest) {
   const origin = req.nextUrl.origin
@@ -30,7 +31,8 @@ export async function GET(req: NextRequest) {
     db.error = (err?.message ?? String(err)).slice(0, 500)
   }
 
-  return NextResponse.json({
+  return NextResponse.json(
+    {
     origin,
     env: {
       NEXTAUTH_URL: nextauthUrl || null,
@@ -49,7 +51,13 @@ export async function GET(req: NextRequest) {
     },
     db,
     last_nextauth_error: (globalThis as any).__tt_last_nextauth_error ?? null,
-    last_auth_exception: (globalThis as any).__tt_last_auth_exception ?? null,
-  })
+      last_auth_exception: (globalThis as any).__tt_last_auth_exception ?? null,
+    },
+    {
+      headers: {
+        'Cache-Control': 'no-store, max-age=0',
+      },
+    }
+  )
 }
 
