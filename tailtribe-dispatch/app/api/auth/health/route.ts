@@ -24,6 +24,16 @@ function getDatabaseUrlInfo() {
 }
 
 export async function GET(req: NextRequest) {
+  // Safety: this is a diagnostics endpoint. In production, require a token.
+  // (Avoid exposing env/db details publicly.)
+  if (process.env.NODE_ENV === 'production') {
+    const expected = (process.env.AUTH_HEALTH_TOKEN ?? '').trim()
+    const provided = (req.headers.get('x-auth-health-token') ?? '').trim()
+    if (!expected || provided !== expected) {
+      return NextResponse.json({ error: 'Not Found' }, { status: 404 })
+    }
+  }
+
   const origin = req.nextUrl.origin
   const meta = {
     now: new Date().toISOString(),
