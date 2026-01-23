@@ -29,12 +29,9 @@ const getOrCreateOAuthUser = async (email: string, name?: string | null) => {
 }
 
 // Lazy init: NextAuth/Auth.js reads env vars during initialization.
-// In Vercel (custom domains, previews), we may set AUTH_URL/NEXTAUTH_URL dynamically
-// per request (see `app/api/auth/[...nextauth]/route.ts`). So we must not instantiate
-// NextAuth at module import time.
-let cached:
-  | ReturnType<typeof NextAuth>
-  | null = null
+// In Vercel (custom domains, previews), AUTH_URL/NEXTAUTH_URL can differ per request.
+// So we avoid instantiating at module import time, and we also avoid caching the
+// instance to prevent "Configuration" issues when requests arrive on different hosts.
 
 function buildAuth() {
   const isDev = process.env.NODE_ENV === 'development'
@@ -203,8 +200,7 @@ function buildAuth() {
 }
 
 export function getAuth() {
-  if (!cached) cached = buildAuth()
-  return cached
+  return buildAuth()
 }
 
 // Keep compatibility with existing imports.
