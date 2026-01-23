@@ -1,7 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { DISPATCH_SERVICES } from '@/lib/services'
+import { auth } from '@/lib/auth'
+import fs from 'fs'
+import path from 'path'
+import { sendTransactionalEmail } from '@/lib/mailer'
 
 export const dynamic = 'force-dynamic'
+
+const DATA_FILE = path.join(process.cwd(), 'data', 'caregiver-applications.json')
 
 type CaregiverApplicationInput = {
   firstName: string
@@ -10,9 +16,16 @@ type CaregiverApplicationInput = {
   phone: string
   city: string
   postalCode: string
+  companyName?: string
+  enterpriseNumber?: string
+  isSelfEmployed: boolean
+  hasLiabilityInsurance: boolean
+  liabilityInsuranceCompany?: string
+  liabilityInsurancePolicyNumber?: string
   services: string[]
   experience: string
   message?: string
+  acceptTerms?: boolean
   website?: string
 }
 
@@ -24,6 +37,12 @@ type CaregiverApplicationRecord = {
   phone: string
   city: string
   postalCode: string
+  companyName?: string
+  enterpriseNumber?: string
+  isSelfEmployed: boolean
+  hasLiabilityInsurance: boolean
+  liabilityInsuranceCompany?: string
+  liabilityInsurancePolicyNumber?: string
   services: string[]
   experience: string
   message?: string
@@ -43,6 +62,18 @@ function isValidBelgianPostalCode(postalCode: string) {
   return /^\d{4}$/.test(postalCode)
 }
 
+function isValidEnterpriseOrVatNumber(input: string) {
+  const s = input.trim().toUpperCase().replace(/\s+/g, '').replace(/\./g, '').replace(/-/g, '')
+  const digits = (s.startsWith('BE') ? s.slice(2) : s).replace(/\D/g, '')
+  return /^\d{10}$/.test(digits)
+}
+
+function normalizeEnterpriseOrVatNumber(input: string) {
+  const s = input.trim().toUpperCase().replace(/\s+/g, '').replace(/\./g, '').replace(/-/g, '')
+  const digits = (s.startsWith('BE') ? s.slice(2) : s).replace(/\D/g, '')
+  return digits ? `BE${digits}` : ''
+}
+
 function validate(body: any):
   | { ok: true; data: CaregiverApplicationInput }
   | { ok: false; fieldErrors: Record<string, string> } {
@@ -59,9 +90,17 @@ function validate(body: any):
     phone: String(body?.phone ?? ''),
     city: String(body?.city ?? ''),
     postalCode: String(body?.postalCode ?? ''),
+    companyName: typeof body?.companyName === 'string' ? body.companyName : '',
+    enterpriseNumber: body?.enterpriseNumber ? String(body.enterpriseNumber) : '',
+    isSelfEmployed: Boolean(body?.isSelfEmployed),
+    hasLiabilityInsurance: Boolean(body?.hasLiabilityInsurance),
+    liabilityInsuranceCompany: typeof body?.liabilityInsuranceCompany === 'string' ? body.liabilityInsuranceCompany : '',
+    liabilityInsurancePolicyNumber:
+      typeof body?.liabilityInsurancePolicyNumber === 'string' ? body.liabilityInsurancePolicyNumber : '',
     services,
     experience: String(body?.experience ?? ''),
     message: typeof body?.message === 'string' ? body.message : '',
+    acceptTerms: Boolean(body?.acceptTerms),
     website: typeof body?.website === 'string' ? body.website : '',
   }
 
@@ -84,14 +123,28 @@ function validate(body: any):
     fieldErrors.postalCode = 'Vul een geldige postcode in (4 cijfers).'
   }
 
+  if (data.enterpriseNumber) {
+    if (!isValidEnterpriseOrVatNumber(data.enterpriseNumber)) {
+      fieldErrors.enterpriseNumber = 'Vul een geldig ondernemingsnummer / btw-nummer in of laat leeg.'
+    } else {
+      data.enterpriseNumber = normalizeEnterpriseOrVatNumber(data.enterpriseNumber)
+    }
+  }
+
+  // Zelfstandige/BA laten we voorlopig optioneel (geen harde blokkade)
+
   const validServices = data.services.filter((s) => allowedServices.has(s as any))
   if (validServices.length === 0) {
-    fieldErrors.services = 'Selecteer minstens één service.'
+    fieldErrors.services = 'Selecteer minstens één dienst.'
   }
   data.services = validServices
 
-  if (!isNonEmptyString(data.experience) || data.experience.trim().length < 10) {
-    fieldErrors.experience = 'Geef een korte toelichting (minstens 10 tekens).'
+  if (!isNonEmptyString(data.experience) || data.experience.trim().length < 5) {
+    fieldErrors.experience = 'Geef een korte toelichting (minstens 5 tekens).'
+  }
+
+  if (!data.acceptTerms) {
+    fieldErrors.acceptTerms = 'Je moet akkoord gaan met de algemene voorwaarden.'
   }
 
   if (Object.keys(fieldErrors).length > 0) return { ok: false, fieldErrors }
@@ -121,11 +174,36 @@ function hasUpstash() {
   return Boolean(process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN)
 }
 
-let inMemoryApps: CaregiverApplicationRecord[] = []
+function readApplicationsFromFile(): CaregiverApplicationRecord[] {
+  try {
+    if (fs.existsSync(DATA_FILE)) {
+      const raw = fs.readFileSync(DATA_FILE, 'utf-8')
+      const parsed = JSON.parse(raw)
+      return Array.isArray(parsed) ? parsed : []
+    }
+  } catch (e) {
+    console.error('Failed to read caregiver applications file:', e)
+  }
+  return []
+}
+
+function writeApplicationsToFile(apps: CaregiverApplicationRecord[]) {
+  try {
+    const dir = path.dirname(DATA_FILE)
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir, { recursive: true })
+    }
+    fs.writeFileSync(DATA_FILE, JSON.stringify(apps, null, 2), 'utf-8')
+  } catch (e) {
+    console.error('Failed to write caregiver applications file:', e)
+  }
+}
 
 async function createApplication(rec: CaregiverApplicationRecord) {
   if (!hasUpstash()) {
-    inMemoryApps.push(rec)
+    const apps = readApplicationsFromFile()
+    apps.push(rec)
+    writeApplicationsToFile(apps)
     return
   }
   await upstashCmd(['SET', `tt:caregiver_app:${rec.id}`, JSON.stringify(rec)])
@@ -133,49 +211,54 @@ async function createApplication(rec: CaregiverApplicationRecord) {
   await upstashCmd(['LTRIM', 'tt:caregiver_app:ids', 0, 200])
 }
 
+export async function GET() {
+  try {
+    if (!hasUpstash()) {
+      const apps = readApplicationsFromFile()
+      return NextResponse.json(apps)
+    }
+    const ids = (await upstashCmd<string[]>(['LRANGE', 'tt:caregiver_app:ids', 0, 200])) ?? []
+    if (ids.length === 0) return NextResponse.json([])
+    const keys = ids.map((id) => `tt:caregiver_app:${id}`)
+    const raws = (await upstashCmd<(string | null)[]>(['MGET', ...keys])) ?? []
+    const parsed: CaregiverApplicationRecord[] = []
+    for (const raw of raws) {
+      if (!raw) continue
+      try {
+        parsed.push(JSON.parse(raw))
+      } catch {
+        // ignore
+      }
+    }
+    return NextResponse.json(parsed)
+  } catch (e) {
+    console.error('Failed to fetch caregiver applications:', e)
+    return NextResponse.json({ error: 'Failed to fetch caregiver applications' }, { status: 500 })
+  }
+}
+
 function formatServiceLabels(ids: string[]) {
   const map = new Map(DISPATCH_SERVICES.map((s) => [s.id, s.name]))
   return ids.map((id) => map.get(id as any) ?? id).join(', ')
 }
 
-async function sendEmail({
-  to,
-  subject,
-  html,
-  replyTo,
-}: {
-  to: string
-  subject: string
-  html: string
-  replyTo?: string
-}) {
-  const apiKey = process.env.RESEND_API_KEY
-  if (!apiKey) return
-
-  const res = await fetch('https://api.resend.com/emails', {
-    method: 'POST',
-    headers: {
-      Authorization: `Bearer ${apiKey}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      from: process.env.DISPATCH_EMAIL_FROM ?? 'TailTribe <noreply@tailtribe.be>',
-      to,
-      subject,
-      html,
-      ...(replyTo ? { reply_to: replyTo } : {}),
-    }),
-    cache: 'no-store',
-  })
-
-  if (!res.ok) {
-    const msg = await res.text().catch(() => '')
-    console.error('Resend email failed:', res.status, msg)
-  }
-}
 
 export async function POST(request: NextRequest) {
   try {
+    const session = await auth()
+    if (session?.user?.role === 'OWNER') {
+      return NextResponse.json(
+        { error: 'Je bent ingelogd als eigenaar. Log uit om je als dierenverzorger aan te melden.' },
+        { status: 403 }
+      )
+    }
+    if (session?.user?.role === 'CAREGIVER') {
+      return NextResponse.json(
+        { error: 'Je hebt al een verzorgersaccount. Gebruik je dashboard om je profiel te beheren.' },
+        { status: 403 }
+      )
+    }
+
     const body = await request.json()
     const validated = validate(body)
     if (!validated.ok) {
@@ -199,7 +282,7 @@ export async function POST(request: NextRequest) {
     const adminEmail = process.env.DISPATCH_ADMIN_EMAIL ?? 'steven@tailtribe.be'
     const services = formatServiceLabels(rec.services)
 
-    void sendEmail({
+    void sendTransactionalEmail({
       to: adminEmail,
       subject: `Nieuwe aanmelding verzorger – ${rec.firstName} ${rec.lastName}`,
       html: `
@@ -210,7 +293,30 @@ export async function POST(request: NextRequest) {
             <p style="margin:0 0 6px 0;"><strong>E-mail:</strong> ${rec.email}</p>
             <p style="margin:0 0 6px 0;"><strong>Telefoon:</strong> ${rec.phone}</p>
             <p style="margin:0 0 6px 0;"><strong>Locatie:</strong> ${rec.city}, ${rec.postalCode}</p>
-            <p style="margin:0 0 6px 0;"><strong>Services:</strong> ${services}</p>
+            ${rec.companyName ? `<p style="margin:0 0 6px 0;"><strong>Bedrijf:</strong> ${String(rec.companyName)
+              .replace(/&/g, '&amp;')
+              .replace(/</g, '&lt;')
+              .replace(/>/g, '&gt;')}</p>` : ''}
+            <p style="margin:0 0 6px 0;"><strong>Ondernemingsnummer/btw:</strong> ${rec.enterpriseNumber}</p>
+            <p style="margin:0 0 6px 0;"><strong>Zelfstandige:</strong> ${rec.isSelfEmployed ? 'Ja' : 'Nee'}</p>
+            <p style="margin:0 0 6px 0;"><strong>BA-verzekering:</strong> ${rec.hasLiabilityInsurance ? 'Ja' : 'Nee'}</p>
+            ${
+              rec.liabilityInsuranceCompany
+                ? `<p style="margin:0 0 6px 0;"><strong>Verzekeraar:</strong> ${String(rec.liabilityInsuranceCompany)
+                    .replace(/&/g, '&amp;')
+                    .replace(/</g, '&lt;')
+                    .replace(/>/g, '&gt;')}</p>`
+                : ''
+            }
+            ${
+              rec.liabilityInsurancePolicyNumber
+                ? `<p style="margin:0 0 6px 0;"><strong>Polisnummer:</strong> ${String(rec.liabilityInsurancePolicyNumber)
+                    .replace(/&/g, '&amp;')
+                    .replace(/</g, '&lt;')
+                    .replace(/>/g, '&gt;')}</p>`
+                : ''
+            }
+            <p style="margin:0 0 6px 0;"><strong>Diensten:</strong> ${services}</p>
             <p style="margin:0;"><strong>Ervaring:</strong> ${String(rec.experience)
               .replace(/&/g, '&amp;')
               .replace(/</g, '&lt;')
@@ -231,7 +337,7 @@ export async function POST(request: NextRequest) {
       replyTo: rec.email,
     })
 
-    void sendEmail({
+    void sendTransactionalEmail({
       to: rec.email,
       subject: 'Aanmelding ontvangen – TailTribe',
       html: `

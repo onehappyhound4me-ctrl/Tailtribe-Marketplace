@@ -4,26 +4,67 @@ import { SiteHeader } from '@/components/SiteHeader'
 import { SiteFooter } from '@/components/SiteFooter'
 import { PROVINCES } from '@/data/be-geo'
 
+const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://tailtribe.be'
+const canonicalUrl = `${baseUrl}/be`
+
 export const metadata: Metadata = {
   title: 'Dierenverzorging per streek in België | TailTribe',
   description:
     'Bekijk dierenverzorging per streek in België. Kies je provincie en vraag snel een offerte aan voor hondenuitlaat, dierenoppas, opvang en meer.',
+  alternates: { canonical: canonicalUrl },
+  openGraph: {
+    title: 'Dierenverzorging per streek in België | TailTribe',
+    description:
+      'Bekijk dierenverzorging per streek in België. Kies je provincie en vraag snel een offerte aan voor hondenuitlaat, dierenoppas, opvang en meer.',
+    url: canonicalUrl,
+    siteName: 'TailTribe',
+    locale: 'nl_BE',
+    type: 'website',
+  },
 }
 
 export default function BelgiumLandingPage() {
+  const breadcrumbJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Home', item: baseUrl },
+      { '@type': 'ListItem', position: 2, name: 'België', item: canonicalUrl },
+    ],
+  }
+
+  const provinceList = PROVINCES.map((province, index) => ({
+    '@type': 'ListItem',
+    position: index + 1,
+    name: province.name,
+    item: `${baseUrl}/be/${province.slug}`,
+  }))
+
+  const itemListJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'ItemList',
+    itemListElement: provinceList,
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-green-50 via-white to-blue-50">
       <SiteHeader primaryCtaHref="/boeken" primaryCtaLabel="Boek Nu" />
 
       <main className="container mx-auto px-4 py-12">
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListJsonLd) }}
+        />
         <div className="max-w-5xl mx-auto">
           <header className="text-center mb-10">
             <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
               Dierenverzorging per streek in België
             </h1>
-            <p className="text-lg md:text-xl text-gray-600 max-w-3xl mx-auto">
-              Kies je provincie en vraag eenvoudig een offerte aan. We nemen binnen 2 uur contact op.
-            </p>
+            {/* Offerte CTA tekst verwijderd op verzoek */}
           </header>
 
           <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -46,11 +87,7 @@ export default function BelgiumLandingPage() {
             ))}
           </section>
 
-          <div className="text-center mt-10">
-            <Link href="/boeken" className="btn-brand inline-block">
-              Vraag een offerte aan
-            </Link>
-          </div>
+          {/* Offerte knop verwijderd */}
         </div>
       </main>
 

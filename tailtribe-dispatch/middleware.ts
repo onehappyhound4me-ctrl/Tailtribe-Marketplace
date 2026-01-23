@@ -1,72 +1,121 @@
-import type { NextRequest } from 'next/server'
 import { NextResponse } from 'next/server'
+import type { NextRequest } from 'next/server'
+import { getToken } from 'next-auth/jwt'
 
-function unauthorized() {
-  return new NextResponse('Authentication required', {
-    status: 401,
-    headers: {
-      'WWW-Authenticate': 'Basic realm="TailTribe Admin"',
-    },
-  })
-}
+export default async function middleware(req: NextRequest) {
+  const { pathname } = req.nextUrl
+  const impersonateRole = req.cookies.get('impersonateRole')?.value
+  const impersonateUserId = req.cookies.get('impersonateUserId')?.value
 
-function timingSafeEqual(a: string, b: string) {
-  // Avoid subtle length leaks
-  if (a.length !== b.length) return false
-  let out = 0
-  for (let i = 0; i < a.length; i++) out |= a.charCodeAt(i) ^ b.charCodeAt(i)
-  return out === 0
-}
+  // Edge-safe: avoid importing Node-only modules via lib/auth.ts (bcrypt).
+  const token = await getToken({
+    req,
+    secret: process.env.NEXTAUTH_SECRET,
+  }).catch(() => null)
+  const role = (token as any)?.role as string | undefined
+  const userId = (token as any)?.id as string | undefined
+  const isAuthed = Boolean(token && userId)
 
-export function middleware(request: NextRequest) {
-  const { pathname } = request.nextUrl
-  const method = request.method
+  const isImpersonating = role === 'ADMIN' && impersonateRole && impersonateUserId
 
-  const isAdminPage = pathname.startsWith('/admin')
-  const isBookingsApi = pathname === '/api/bookings'
-
-  // Customers must be able to submit bookings
-  const needsAuth = isAdminPage || (isBookingsApi && method !== 'POST')
-  if (!needsAuth) return NextResponse.next()
-
-  const user = process.env.DISPATCH_BASIC_AUTH_USER
-  const pass = process.env.DISPATCH_BASIC_AUTH_PASS
-
-  // In dev: allow if not configured (so localhost keeps working)
-  if (process.env.NODE_ENV !== 'production' && (!user || !pass)) {
+  if (
+    pathname.startsWith('/api/auth') ||
+    pathname.startsWith('/_next') ||
+    pathname === '/favicon.ico'
+  ) {
     return NextResponse.next()
   }
 
-  if (!user || !pass) {
-    return new NextResponse('Admin auth is not configured', { status: 500 })
-  }
+  // Public routes (no auth needed)
+  const publicRoutes = [
+    '/',
+    '/login',
+    '/register',
+    '/boeken',
+    '/bedankt',
+    '/verzorger-aanmelden',
+    '/verzorger-aanmelden/bedankt',
+    '/diensten',
+    '/blog',
+    '/over-ons',
+    '/contact',
+    '/help',
+    '/privacy',
+    '/terms',
+    '/cookies',
+  ]
 
-  const header = request.headers.get('authorization') ?? ''
-  const [scheme, encoded] = header.split(' ')
-  if (scheme !== 'Basic' || !encoded) return unauthorized()
+  const isPublicRoute = publicRoutes.some((route) => pathname.startsWith(route))
+  const isPublicApi = pathname === '/api/auth/register' || pathname === '/api/bookings'
 
-  let decoded = ''
-  try {
-    decoded = atob(encoded)
-  } catch {
-    return unauthorized()
-  }
-
-  const idx = decoded.indexOf(':')
-  if (idx === -1) return unauthorized()
-
-  const u = decoded.slice(0, idx)
-  const p = decoded.slice(idx + 1)
-
-  if (timingSafeEqual(u, user) && timingSafeEqual(p, pass)) {
+  // Allow public routes
+  if (isPublicRoute || isPublicApi) {
     return NextResponse.next()
   }
 
-  return unauthorized()
+  // Admin routes: always require admin
+  if (pathname.startsWith('/admin') || pathname.startsWith('/api/admin')) {
+    if (!isAuthed || role !== 'ADMIN') {
+      const loginUrl = new URL('/login', req.url)
+      loginUrl.searchParams.set('callbackUrl', pathname)
+      return NextResponse.redirect(loginUrl)
+    }
+  }
+
+  // Protected routes - require authentication
+  if (!isAuthed) {
+    const loginUrl = new URL('/login', req.url)
+    loginUrl.searchParams.set('callbackUrl', pathname)
+    return NextResponse.redirect(loginUrl)
+  }
+
+  // Community: only CAREGIVER or ADMIN
+  if (pathname.startsWith('/community')) {
+    if (role !== 'CAREGIVER' && role !== 'ADMIN') {
+      return NextResponse.redirect(new URL('/dashboard', req.url))
+    }
+  }
+
+  // Caregiver routes - only CAREGIVER
+  if (pathname.startsWith('/dashboard/caregiver')) {
+    if (role !== 'CAREGIVER') {
+      if (isImpersonating && impersonateRole === 'CAREGIVER') {
+        return NextResponse.next()
+      }
+      return NextResponse.redirect(new URL('/dashboard', req.url))
+    }
+  }
+
+  // Owner routes - only OWNER
+  if (pathname.startsWith('/dashboard/owner')) {
+    if (role !== 'OWNER') {
+      if (isImpersonating && impersonateRole === 'OWNER') {
+        return NextResponse.next()
+      }
+      return NextResponse.redirect(new URL('/dashboard', req.url))
+    }
+  }
+
+  // Generic /dashboard - redirect based on role
+  if (pathname === '/dashboard') {
+    if (role === 'ADMIN') {
+      return NextResponse.redirect(new URL('/admin', req.url))
+    }
+    if (role === 'CAREGIVER') {
+      return NextResponse.redirect(new URL('/dashboard/caregiver', req.url))
+    }
+    if (role === 'OWNER') {
+      return NextResponse.redirect(new URL('/dashboard/owner', req.url))
+    }
+  }
+
+  return NextResponse.next()
 }
 
 export const config = {
-  matcher: ['/admin/:path*', '/api/bookings', '/api/admin/:path*'],
+  matcher: [
+    '/((?!_next/|favicon.ico|assets|api/auth).*)',
+  ],
 }
 
 

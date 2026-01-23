@@ -1,5 +1,23 @@
+import type { Metadata } from 'next'
 import { SiteHeader } from '@/components/SiteHeader'
 import { SiteFooter } from '@/components/SiteFooter'
+
+const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://tailtribe.be'
+const canonicalUrl = `${baseUrl}/contact`
+
+export const metadata: Metadata = {
+  title: 'Contact',
+  description: 'Contacteer TailTribe voor vragen over je aanvraag of dierenverzorging.',
+  alternates: { canonical: canonicalUrl },
+  openGraph: {
+    title: 'Contact',
+    description: 'Contacteer TailTribe voor vragen over je aanvraag of dierenverzorging.',
+    url: canonicalUrl,
+    siteName: 'TailTribe',
+    locale: 'nl_BE',
+    type: 'website',
+  },
+}
 
 export default function ContactPage() {
   return (
@@ -18,12 +36,6 @@ export default function ContactPage() {
               <a href="mailto:steven@tailtribe.be" className="text-emerald-700 hover:underline">
                 steven@tailtribe.be
               </a>
-            </div>
-            <div>
-              <span className="font-semibold">Onderneming:</span> Steven Van Gucht – One Happy Hound
-            </div>
-            <div>
-              <span className="font-semibold">Ondernemingsnummer:</span> BE 0695.940.752
             </div>
             <div className="text-sm text-gray-600 pt-2">
               We reageren doorgaans binnen 24 uur op werkdagen.

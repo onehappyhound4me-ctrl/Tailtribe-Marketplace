@@ -2,106 +2,74 @@
 
 import Link from 'next/link'
 import Image from 'next/image'
-import { useRef, useEffect } from 'react'
+import { useSession } from 'next-auth/react'
 import { SiteHeader } from '@/components/SiteHeader'
 import { SiteFooter } from '@/components/SiteFooter'
 import { DISPATCH_SERVICES } from '@/lib/services'
 
+// Gebruik een lokale hero-afbeelding uit /public.
+// Cache-buster query om harde refresh te forceren bij updates.
+const HERO_IMG_PRIMARY = '/assets/hero.jpg?v=2'
+const HERO_IMG_URL = encodeURI(HERO_IMG_PRIMARY)
+
 export default function HomePage() {
-  const videoRef = useRef<HTMLVideoElement | null>(null)
-
-  useEffect(() => {
-    const videoEl = videoRef.current
-    if (!videoEl) return
-
-    videoEl.muted = true
-    const tryPlay = async () => {
-      try {
-        await videoEl.play()
-      } catch {
-        const posterEl = document.querySelector<HTMLImageElement>('.hero-poster')
-        if (posterEl) {
-          posterEl.classList.remove('hidden')
-        }
-      }
-    }
-
-    void tryPlay()
-  }, [])
+  const { data: session } = useSession()
+  
+  // Smart booking link: ingelogde owners gaan naar dashboard, anderen naar publieke form
+  const bookingHref = session?.user?.role === 'OWNER' 
+    ? '/dashboard/owner/new-booking' 
+    : '/boeken'
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-green-50 via-white to-blue-50">
-      <SiteHeader primaryCtaHref="/boeken" primaryCtaLabel="Boek Nu" />
+      <SiteHeader primaryCtaHref={bookingHref} primaryCtaLabel="Boek Nu" />
 
-      {/* Hero with Video */}
-      <section className="hero-root relative w-full min-h-[85vh] md:min-h-[95vh] overflow-hidden flex items-center">
-        <video
-          ref={videoRef}
-          className="hero-video absolute inset-0 w-full h-full object-cover object-[50%_70%]"
-          poster="/assets/tail 1_1751975512369.png"
-          autoPlay
-          muted
-          loop
-          playsInline
-          preload="auto"
-          onLoadedData={() => {
-            const v = videoRef.current
-            if (!v) return
-            v.muted = true
-            v.play().then(() => {
-              const posterEl = document.querySelector<HTMLImageElement>('.hero-poster')
-              if (posterEl) posterEl.classList.add('hidden')
-            }).catch(() => {})
+      {/* Hero with Image */}
+      <section className="relative w-full min-h-[40vh] md:min-h-[50vh] overflow-hidden flex items-center">
+        <div
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+          style={{
+            backgroundImage: `url("${HERO_IMG_URL}")`,
+            backgroundPosition: '50% 30%',
+            backgroundSize: 'cover',
+            filter: 'brightness(1.12) saturate(1.05) blur(2px)',
           }}
-          onPlay={() => {
-            const posterEl = document.querySelector<HTMLImageElement>('.hero-poster')
-            if (posterEl) posterEl.classList.add('hidden')
-          }}
-        >
-          <source src="/hero.webm?v=6" type="video/webm" />
-          <source src="/hero.mp4?v=6" type="video/mp4" />
-        </video>
-        
-        <img
-          src="/assets/tail 1_1751975512369.png"
-          alt=""
-          className="hero-poster hidden absolute inset-0 w-full h-full object-cover object-[50%_70%]"
-          loading="eager"
         />
-        
+        <div className="absolute inset-0 bg-black/12" />
+
         <div className="relative z-10 container mx-auto px-4 sm:px-6 py-16 md:py-24">
-          <div className="absolute left-1/2 -translate-x-1/2 -top-10 md:top-6 z-20">
-            <button
-              onClick={() => {
-                const v = videoRef.current
-                if (v) {
-                  v.muted = true
-                  v.play().then(() => {
-                    const posterEl = document.querySelector<HTMLImageElement>('.hero-poster')
-                    if (posterEl) posterEl.classList.add('hidden')
-                  }).catch(() => {})
-                }
-              }}
-              className="hidden md:inline-flex bg-white/80 backdrop-blur text-gray-900 px-4 py-2 rounded-full shadow hover:bg-white transition"
-            >
-              Speel video
-            </button>
-          </div>
-          
           <div className="max-w-5xl mx-auto text-center">
-            <h1 className="text-4xl sm:text-5xl md:text-7xl font-bold mb-6 leading-tight animate-fade-in text-white drop-shadow-2xl">
-              Vind de perfecte <span className="text-green-300 hover:text-white hover:drop-shadow-[0_0_20px_rgba(134,239,172,0.8)] transition-all duration-300 cursor-default">dierenoppasser</span> voor je huisdier
+            <h1
+              className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold mb-6 leading-tight text-white"
+              style={{ textShadow: '0 3px 12px rgba(0,0,0,0.55)' }}
+            >
+              Vind de juiste{' '}
+              <span className="text-green-200 transition-colors duration-200 hover:text-white hover:drop-shadow-[0_0_12px_rgba(74,222,128,0.85)]">
+                dierenoppaser
+              </span>{' '}
+              voor je huisdier
             </h1>
-            <p className="text-lg sm:text-xl md:text-2xl mb-4 text-gray-100 max-w-3xl mx-auto drop-shadow-xl">
-              Hondenuitlaat, dierenoppas en dierenverzorging bij jou in de buurt
+            <p className="text-lg sm:text-xl md:text-2xl mb-4 max-w-3xl mx-auto">
+              <span
+                className="inline-block px-1.5 py-0.5 rounded bg-black/18 backdrop-blur-[3px] font-semibold"
+                style={{ color: '#eaffcc', textShadow: '0 3px 12px rgba(0,0,0,0.85)' }}
+              >
+                Hondenuitlaat, dierenoppas, dierenverzorging en meer bij jou in de buurt
+              </span>
             </p>
-            <p className="text-base sm:text-lg mb-8 text-gray-200 max-w-2xl mx-auto drop-shadow-lg">
-              ✓ Gescreende verzorgers ✓ Snelle bevestiging ✓ Direct contact
+            <p className="text-base sm:text-lg mb-6 max-w-2xl mx-auto">
+              <span
+                className="inline-block px-1.5 py-0.5 rounded bg-black/18 backdrop-blur-[3px] font-semibold"
+                style={{ color: '#eaffcc', textShadow: '0 3px 12px rgba(0,0,0,0.85)' }}
+              >
+                ✓ Gescreende dierenverzorgers ✓ Snelle bevestiging ✓ Voor en door dierenverzorgers
+              </span>
             </p>
+            {/* Removed bottom line per request */}
             
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
               <Link 
-                href="/boeken"
+                href={bookingHref}
                 className="group relative bg-white text-green-700 px-8 sm:px-10 py-4 sm:py-5 rounded-full font-bold text-lg hover:bg-green-50 transition-all duration-300 shadow-2xl hover:shadow-[0_20px_60px_-15px_rgba(255,255,255,0.5)] transform hover:-translate-y-1 hover:scale-105 overflow-hidden"
               >
                 <span className="relative z-10 flex items-center gap-2">
@@ -116,13 +84,10 @@ export default function HomePage() {
                 href="/verzorger-aanmelden"
                 className="inline-flex items-center justify-center px-7 py-4 rounded-full font-semibold bg-white/20 text-white border border-white/30 backdrop-blur hover:bg-white/30 transition shadow-lg"
               >
-                Ik ben dierenverzorger
+                Word verzorger: werk met dieren
               </Link>
             </div>
 
-            <p className="mt-6 text-sm text-green-100">
-              Aanvraag is gratis • Binnen 2 uur reactie • Geen online betaling
-            </p>
           </div>
         </div>
       </section>
@@ -135,7 +100,7 @@ export default function HomePage() {
               Ontdek onze diensten
             </h2>
             <p className="text-lg md:text-xl text-gray-600 max-w-2xl mx-auto">
-              Van wandelen tot oppassen - vind de perfecte service voor jouw huisdier
+              Van wandelen tot oppassen - vind de perfecte dienst voor jouw huisdier
             </p>
           </div>
           
@@ -143,8 +108,8 @@ export default function HomePage() {
             {DISPATCH_SERVICES.map((service) => (
               <Link 
                 key={service.id}
-                href="/boeken"
-                className="group bg-white rounded-2xl shadow-md hover:shadow-2xl transition-all duration-300 overflow-hidden border border-gray-100 hover:border-green-200 transform hover:-translate-y-1"
+                href={`/diensten/${service.slug}`}
+                className="group bg-gradient-to-br from-white via-white to-emerald-50 rounded-2xl shadow-md hover:shadow-2xl transition-all duration-300 overflow-hidden border border-emerald-100 hover:border-emerald-200 transform hover:-translate-y-1"
               >
                 <div className="relative h-40 w-full overflow-hidden bg-gradient-to-br from-green-50 to-blue-50 flex items-center justify-center p-4">
                   <Image 
@@ -155,10 +120,12 @@ export default function HomePage() {
                   />
                 </div>
                 <div className="p-6 pt-7">
-                  <h3 className="text-lg font-bold mb-3 text-gray-800 group-hover:text-green-700 transition-colors">
+                  <h3 className="text-lg font-bold mb-3 text-transparent bg-clip-text bg-gradient-to-r from-emerald-700 to-blue-700 group-hover:from-emerald-600 group-hover:to-blue-600 transition-colors">
                     {service.name}
                   </h3>
-                  <p className="text-sm text-gray-600 leading-relaxed">{service.desc}</p>
+                  <p className="text-sm text-emerald-900/90 leading-relaxed">
+                    {service.desc}
+                  </p>
                 </div>
               </Link>
             ))}
@@ -178,30 +145,35 @@ export default function HomePage() {
             </p>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto items-stretch">
             {[
               {
                 step: '1',
                 title: 'Vul je aanvraag in',
-                desc: 'Kies je service, datum en geef je gegevens door in 2 minuten'
+                desc: 'Kies je dienst en datum, vul kort je gegevens in; klaar in 2 minuten'
               },
               {
                 step: '2',
                 title: 'Wij plannen de juiste verzorger',
-                desc: 'We matchen je aanvraag met een geschikte verzorger en nemen contact op'
+                desc: 'We matchen je aanvraag, stemmen kort af en plannen de juiste verzorger'
               },
               {
                 step: '3',
                 title: 'Relax & Geniet',
-                desc: 'Na bevestiging komt de verzorger langs en jij bent gerust'
+                desc: 'Na bevestiging komt de verzorger langs; samen stemmen jullie planning en afspraken af'
               }
             ].map((item) => (
-              <div key={item.step} className="text-center">
+              <div
+                key={item.step}
+                className="text-center flex flex-col items-center h-full bg-white/70 rounded-2xl p-6 shadow-sm border border-emerald-100"
+              >
                 <div className="w-16 h-16 bg-gradient-to-br from-green-600 to-blue-600 text-white rounded-full flex items-center justify-center text-2xl font-bold mx-auto mb-4 shadow-lg">
                   {item.step}
                 </div>
                 <h3 className="text-xl font-bold mb-2 text-gray-800">{item.title}</h3>
-                <p className="text-gray-600">{item.desc}</p>
+                <p className="text-gray-600 text-center leading-relaxed px-2">
+                  {item.desc}
+                </p>
               </div>
             ))}
           </div>
@@ -216,7 +188,7 @@ export default function HomePage() {
               Waarom TailTribe?
             </h2>
             <p className="text-lg md:text-xl text-gray-600 max-w-2xl mx-auto">
-              Een dispatch-aanpak: jij vraagt aan, wij regelen de juiste verzorger
+              Jij vraagt aan, wij nemen je gemoedsrust op ons: we regelen en volgen op met zorg
             </p>
           </div>
 
@@ -228,7 +200,7 @@ export default function HomePage() {
               },
               {
                 title: 'Snelle bevestiging',
-                desc: 'Binnen 2 uur nemen we contact op om je aanvraag te bevestigen en af te stemmen'
+                desc: 'We reageren snel: we bevestigen je aanvraag en stemmen de details kort af'
               },
               {
                 title: 'Afspraak op maat',
@@ -259,16 +231,74 @@ export default function HomePage() {
             ))}
           </div>
 
-          <div className="text-center mt-12">
-            <Link 
-              href="/boeken"
-              className="group inline-flex items-center justify-center gap-2.5 bg-gradient-to-r from-green-600 to-blue-600 text-white px-8 py-4 rounded-full font-bold text-lg hover:from-green-700 hover:to-blue-700 transition-all duration-300 shadow-xl hover:shadow-2xl transform hover:-translate-y-1 hover:scale-105"
+          {/* Offerte-knop verwijderd op verzoek */}
+        </div>
+      </section>
+
+      {/* Testimonials */}
+      <section className="py-16 px-4 sm:px-6 lg:px-8">
+        <div className="container mx-auto max-w-6xl">
+          <div className="max-w-3xl mx-auto text-center mb-12">
+            <h2 className="text-4xl md:text-5xl font-bold mb-4 text-gray-800">Reviews van baasjes</h2>
+            <p className="text-lg md:text-xl text-gray-600 max-w-2xl mx-auto">
+              Rust in je hoofd: echte ervaringen van klanten die hun huisdier aan ons toevertrouwen.
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+            {[
+              {
+                name: 'Sophie Legrève',
+                rating: 5,
+                quote: 'Super professioneel en zorgzaam! Juno is dolgelukkig wanneer ze mee kan. Ik ben super blij en dankbaar voor deze oplossing.',
+              },
+              {
+                name: 'Annika Vershaeve',
+                rating: 5,
+                quote: 'Super dienst! Helpt enorm met mijn actieve Weimaraner en maakte hem echt sociaal.',
+              },
+              {
+                name: 'Ann Sourdeau',
+                rating: 5,
+                quote: 'Steven belde vrijwel meteen terug en kon snel langskomen. Hij gaf heel goede tips; onze hond is veel stabieler. Ook nadien bereikbaar voor raad!',
+              },
+            ].map((review) => (
+              <div
+                key={review.name}
+                className="group bg-white rounded-2xl p-7 shadow-md hover:shadow-2xl transition-all duration-300 border border-emerald-100 hover:border-emerald-200"
+              >
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-emerald-500 to-blue-600 text-white flex items-center justify-center font-bold shadow-md">
+                    {review.name.charAt(0)}
+                  </div>
+                  <div>
+                    <p className="font-semibold text-gray-900">{review.name}</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-1 text-amber-400 mb-3">
+                  {Array.from({ length: review.rating }).map((_, i) => (
+                    <svg key={i} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className="w-4 h-4 fill-current">
+                      <path d="M12 3.75 14.6 9l5.15.41c.36.03.5.49.23.73l-3.9 3.42 1.17 5.01c.09.36-.3.66-.62.46L12 16.98l-4.63 2.85c-.32.2-.71-.1-.62-.46l1.17-5.01-3.9-3.42a.44.44 0 0 1 .23-.73L9.4 9 12 3.75Z" />
+                    </svg>
+                  ))}
+                </div>
+                <p className="text-gray-700 leading-relaxed">{review.quote}</p>
+              </div>
+            ))}
+          </div>
+
+          <div className="text-center mt-10">
+            <a
+              href="https://www.google.com/search?sa=X&sca_esv=8e3f949f37700064&rlz=1C1GCEA_nlBE1182BE1182&sxsrf=ANbL-n7GXfUhpUSVoRCwb-PMSSbfQn8I6g:1767962687775&q=One+Happy+Hound+Reviews&rflfq=1&num=20&stick=H4sIAAAAAAAAAONgkxI2tjQxtrQwNzU1NjIzsjA3NjGz2MDI-IpR3D8vVcEjsaCgUsEjvzQvRSEotSwztbx4ESsuGQDsNANRTgAAAA&rldimm=3943987553262873468&tbm=lcl&hl=nl-NL&ved=2ahUKEwil-eufvv6RAxUth_0HHY3BLagQ9fQKegQIQhAG&cshid=1767962827872947&biw=1536&bih=695&dpr=1.25&aic=0#lkt=LocalPoiReviews"
+              target="_blank"
+              rel="noreferrer noopener"
+              className="inline-flex items-center justify-center gap-2 text-emerald-800 font-semibold hover:text-emerald-600 transition-colors"
             >
-              Vraag een offerte aan
-              <svg className="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+              Bekijk alle Google reviews
+              <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="m9 5 7 7-7 7" />
               </svg>
-            </Link>
+            </a>
           </div>
         </div>
       </section>

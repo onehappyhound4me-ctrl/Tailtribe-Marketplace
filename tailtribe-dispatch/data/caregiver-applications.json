@@ -1,0 +1,26 @@
+[
+  {
+    "id": "1768139258678-c9b600",
+    "firstName": "Steven",
+    "lastName": "Van Gucht",
+    "email": "onehappyhound4me@gmail.com",
+    "phone": "0489295045",
+    "city": "Kalmthout",
+    "postalCode": "2090",
+    "companyName": "One Happy Hound",
+    "enterpriseNumber": "BE0695940752",
+    "isSelfEmployed": true,
+    "hasLiabilityInsurance": true,
+    "liabilityInsuranceCompany": "AG",
+    "liabilityInsurancePolicyNumber": "",
+    "services": [
+      "DOG_WALKING",
+      "DOG_TRAINING",
+      "PET_BOARDING"
+    ],
+    "experience": "FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF",
+    "message": "FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF",
+    "createdAt": "2026-01-11T13:47:38.678Z",
+    "updatedAt": "2026-01-11T13:47:38.678Z"
+  }
+]

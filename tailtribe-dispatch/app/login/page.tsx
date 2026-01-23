@@ -1,0 +1,206 @@
+'use client'
+
+import { useEffect, useState } from 'react'
+import { signIn, useSession } from 'next-auth/react'
+import { useRouter, useSearchParams } from 'next/navigation'
+import Link from 'next/link'
+import { SiteHeader } from '@/components/SiteHeader'
+import { SiteFooter } from '@/components/SiteFooter'
+
+export default function LoginPage() {
+  const router = useRouter()
+  const searchParams = useSearchParams()
+  const { data: session, status } = useSession()
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [error, setError] = useState('')
+  const [loading, setLoading] = useState(false)
+  
+  const verified = searchParams.get('verified')
+  const errorParam = searchParams.get('error')
+  const oauthErrorMessage = errorParam
+    ? {
+        Configuration:
+          'De Google login is niet correct ingesteld. Controleer client ID/secret en redirect-URL.',
+        OAuthSignin: 'Inloggen via Google is mislukt. Probeer opnieuw.',
+        OAuthCallback: 'De terugkoppeling van Google faalde. Probeer opnieuw.',
+        OAuthAccountNotLinked:
+          'Dit account is al gekoppeld aan een andere loginmethode. Log in met je originele methode.',
+        OAuthCreateAccount: 'Er ging iets mis bij het aanmaken van je account. Probeer opnieuw.',
+        AccessDenied: 'Toegang geweigerd. Controleer je account of rechten.',
+        default: 'Inloggen mislukt. Probeer opnieuw.',
+      }[errorParam] ?? 'Inloggen mislukt. Probeer opnieuw.'
+    : null
+
+  const callbackUrl = searchParams.get('callbackUrl') || '/dashboard'
+
+  useEffect(() => {
+    if (status === 'authenticated' && session?.user) {
+      router.replace(callbackUrl)
+    }
+  }, [status, session, callbackUrl, router])
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setError('')
+    setLoading(true)
+
+    try {
+      const result = await signIn('credentials', {
+        email,
+        password,
+        redirect: false,
+      })
+
+      if (result?.error) {
+        setError('Ongeldig e-mailadres of wachtwoord')
+        setLoading(false)
+        return
+      }
+
+      // Redirect based on role (will be handled by middleware)
+      router.push(callbackUrl)
+      router.refresh()
+    } catch (err) {
+      setError('Er ging iets mis. Probeer opnieuw.')
+      setLoading(false)
+    }
+  }
+
+  const handleOAuth = async (provider: 'google') => {
+    setError('')
+    setLoading(true)
+    try {
+      const res = await fetch('/api/auth/providers')
+      const providers = await res.json().catch(() => ({}))
+      if (!providers?.[provider]) {
+        setError('Deze login is nog niet geconfigureerd. Controleer de env-variabelen.')
+        setLoading(false)
+        return
+      }
+      const result = await signIn(provider, { callbackUrl, redirect: false })
+      if (result?.error) {
+        setError('Inloggen via externe provider lukt niet. Probeer opnieuw.')
+        setLoading(false)
+        return
+      }
+      if (result?.url) {
+        window.location.href = result.url
+        return
+      }
+      window.location.href = `/api/auth/signin/${provider}?callbackUrl=${encodeURIComponent(callbackUrl)}`
+    } catch {
+      setError('Inloggen via externe provider lukt niet. Probeer opnieuw.')
+      setLoading(false)
+    }
+  }
+
+  return (
+    <div className="min-h-screen bg-gradient-to-b from-green-50 via-white to-blue-50">
+      <SiteHeader primaryCtaHref="/" primaryCtaLabel="Home" />
+
+      <main className="container mx-auto px-4 py-12">
+        <div className="max-w-md mx-auto">
+          <div className="bg-white rounded-2xl shadow-sm border border-black/5 p-8">
+            <h1 className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-emerald-700 to-blue-700 mb-2">
+              Inloggen
+            </h1>
+            <p className="text-gray-600 mb-6">
+              Log in om je dashboard te bekijken
+            </p>
+
+            {verified && (
+              <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-lg text-green-800 text-sm">
+                ✅ Je email is geverifieerd! Je kan nu inloggen.
+              </div>
+            )}
+
+            {errorParam === 'invalid_token' && (
+              <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-800 text-sm">
+                Ongeldige verificatie link. Probeer opnieuw te registreren.
+              </div>
+            )}
+
+            {errorParam === 'token_expired' && (
+              <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-800 text-sm">
+                Verificatie link is verlopen. Registreer opnieuw voor een nieuwe link.
+              </div>
+            )}
+
+            {oauthErrorMessage && !['invalid_token', 'token_expired'].includes(errorParam ?? '') && (
+              <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-800 text-sm">
+                {oauthErrorMessage}
+              </div>
+            )}
+
+            {error && (
+              <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-800 text-sm">
+                {error}
+              </div>
+            )}
+
+            <div className="space-y-3 mb-6">
+              <button
+                type="button"
+                onClick={() => handleOAuth('google')}
+                className="w-full px-4 py-2.5 rounded-xl border border-gray-300 bg-white text-gray-800 hover:bg-gray-50 font-semibold"
+              >
+                Inloggen met Gmail
+              </button>
+              <div className="text-center text-xs text-gray-400">of</div>
+            </div>
+
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div>
+                <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+                  E-mailadres
+                </label>
+                <input
+                  id="email"
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                  className="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                  placeholder="jouw@email.com"
+                />
+              </div>
+
+              <div>
+                <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
+                  Wachtwoord
+                </label>
+                <input
+                  id="password"
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  className="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                  placeholder="••••••••"
+                />
+              </div>
+
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full btn-brand disabled:opacity-60"
+              >
+                {loading ? 'Inloggen...' : 'Inloggen'}
+              </button>
+            </form>
+
+            <div className="mt-6 text-center text-sm text-gray-600">
+              Nog geen account?{' '}
+              <Link href="/register" className="text-emerald-700 font-semibold hover:underline">
+                Registreren
+              </Link>
+            </div>
+          </div>
+        </div>
+      </main>
+
+      <SiteFooter />
+    </div>
+  )
+}

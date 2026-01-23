@@ -1,0 +1,447 @@
+// Prisma schema voor TailTribe Dispatch (SQLite)
+//
+// NOTE: This file exists so we can switch providers per environment without
+// rewriting the schema by hand. Use:
+//   node scripts/select-prisma-schema.js sqlite
+//
+// to copy this file to `prisma/schema.prisma`.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// Role types (SQLite doesn't support enums, so we use String)
+// Possible values: "OWNER", "CAREGIVER", "ADMIN"
+
+// BookingStatus types
+// Possible values: "PENDING", "ASSIGNED", "CONFIRMED", "COMPLETED", "CANCELLED"
+
+// TimeWindow types
+// Possible values: "MORNING", "AFTERNOON", "EVENING"
+
+// Users tabel (eigenaars, verzorgers, admin)
+model User {
+  id            String   @id @default(cuid())
+  email         String   @unique
+  passwordHash  String?  // Optioneel voor OAuth users
+  role          String   // "OWNER", "CAREGIVER", "ADMIN"
+  firstName     String
+  lastName      String
+  phone         String?
+  emailVerified DateTime?
+  image         String?  // Voor OAuth profile images
+  
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  // Relaties
+  ownerProfile     OwnerProfile?
+  caregiverProfile CaregiverProfile?
+  bookingsAsOwner  Booking[] @relation("BookingOwner")
+  bookingsAsCaregiver Booking[] @relation("BookingCaregiver")
+  requestsAsOwner  OwnerRequest[] @relation("RequestOwner")
+  occurrencesAssigned BookingOccurrence[] @relation("OccurrenceAssigned")
+  adminDecisions  AdminDecision[] @relation("DecisionAdmin")
+  notifications   Notification[]
+  invoiceDrafts   InvoiceDraft[]
+  bookingOffers   BookingOffer[] @relation("BookingOfferCaregiver")
+  accounts         Account[]
+  sessions         Session[]
+  verificationTokens VerificationToken[]
+}
+
+// OAuth accounts (Google, Facebook, etc.)
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+// Sessions voor NextAuth
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+// Verification tokens voor email verificatie
+model VerificationToken {
+  id         String   @id @default(cuid())
+  identifier String   // Email address
+  token      String   @unique
+  expires    DateTime
+  userId     String?
+  user       User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([identifier, token])
+}
+
+// Eigenaar profiel (uitgebreid)
+model OwnerProfile {
+  id        String @id @default(cuid())
+  userId    String @unique
+  user      User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  address   String?
+  city      String
+  postalCode String
+  region    String?  // Provincie (Antwerpen, Vlaams-Brabant, etc.)
+  
+  // Huisdieren info (kan later uitgebreid worden)
+  petsInfo  String?  // JSON string met huisdieren details
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// Verzorger profiel (uitgebreid)
+model CaregiverProfile {
+  id        String @id @default(cuid())
+  userId    String @unique
+  user      User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  // Locatie
+  city            String
+  postalCode      String
+  region          String?  // Provincie
+  workRegions     String   // JSON array: regio's waar verzorger werkt ["Antwerpen", "Oost-Vlaanderen"]
+  maxDistance     Int      @default(20) // Max afstand in km
+  
+  // Bedrijfsinfo
+  companyName              String?
+  enterpriseNumber         String?
+  isSelfEmployed           Boolean @default(false)
+  hasLiabilityInsurance    Boolean @default(false)
+  liabilityInsuranceCompany String?
+  liabilityInsurancePolicyNumber String?
+  
+  // Diensten (JSON array van service IDs)
+  services    String  // ["DOG_WALKING", "PET_SITTING", etc.]
+
+  // Prijzen per dienst (JSON map)
+  servicePricing String? // {"DOG_WALKING":{"unit":"HOUR","priceCents":1500}}
+  
+  // Ervaring
+  experience  String
+  bio         String?
+  
+  // Status
+  isApproved  Boolean @default(false)
+  isActive    Boolean @default(true)
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  // Relaties
+  availability Availability[]
+}
+
+// Beschikbaarheid van verzorgers
+model Availability {
+  id             String @id @default(cuid())
+  caregiverId    String
+  caregiver      CaregiverProfile @relation(fields: [caregiverId], references: [id], onDelete: Cascade)
+  
+  date           DateTime  // De datum (alleen datum, tijd = 00:00)
+  timeWindow     String    // "MORNING", "AFTERNOON", "EVENING"
+  
+  isAvailable    Boolean @default(true)
+  notes          String?
+  
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  
+  @@unique([caregiverId, date, timeWindow])
+  @@index([date, timeWindow])
+}
+
+// Bookings (aanvragen)
+model Booking {
+  id           String @id @default(cuid())
+  
+  // Eigenaar
+  ownerId      String
+  owner        User   @relation("BookingOwner", fields: [ownerId], references: [id])
+  
+  // Service details
+  service      String  // Service ID (DOG_WALKING, PET_SITTING, etc.)
+  date         DateTime
+  time         String?  // Specifieke tijd als string "10:00"
+  timeWindow   String   // "MORNING", "AFTERNOON", "EVENING"
+  
+  // Locatie
+  city         String
+  postalCode   String
+  region       String?
+  address      String?
+  
+  // Huisdier info
+  petName      String
+  petType      String
+  petDetails   String?
+  
+  // Contact voorkeur
+  contactPreference String @default("email") // email, telefoon, whatsapp
+  message      String?
+  
+  // Status en toewijzing
+  status       String @default("PENDING") // "PENDING", "ASSIGNED", "CONFIRMED", "COMPLETED", "CANCELLED"
+  caregiverId  String?
+  caregiver    User? @relation("BookingCaregiver", fields: [caregiverId], references: [id])
+  
+  // Terugkerende aanvraag
+  isRecurring        Boolean @default(false)
+  recurringPattern   String?  // "DAILY", "WEEKDAYS", "WEEKEND", "WEEKLY"
+  recurringEndDate   DateTime?
+  recurringParentId  String?  // Link naar master booking
+  recurringGenerated Boolean @default(false) // True als dit een gegenereerde child booking is
+  
+  // Admin notities
+  adminNotes   String?
+  
+  // AI Match score (later)
+  matchScore   Float?
+
+  offers       BookingOffer[]
+  
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  
+  @@index([date, timeWindow])
+  @@index([status])
+  @@index([postalCode])
+}
+
+model BookingOffer {
+  id          String  @id @default(cuid())
+  bookingId   String
+  booking     Booking @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  caregiverId String
+  caregiver   User    @relation("BookingOfferCaregiver", fields: [caregiverId], references: [id], onDelete: Cascade)
+  unit        String  // HALF_HOUR | HOUR | HALF_DAY | DAY
+  priceCents  Int
+  createdAt   DateTime @default(now())
+
+  @@unique([bookingId, caregiverId])
+  @@index([bookingId])
+  @@index([caregiverId])
+}
+
+/// OwnerRequest: de administratieve container van een aanvraag
+model OwnerRequest {
+  id            String   @id @default(cuid())
+  ownerId       String
+  owner         User     @relation("RequestOwner", fields: [ownerId], references: [id], onDelete: Cascade)
+  service       String   // e.g. DOG_WALKING
+  city          String
+  postalCode    String
+  address       String?
+  region        String?  // optioneel, voorlopig tekst
+  preferredTime String?  // vrije tekst of timeWindow
+  startDate     DateTime // eerste datum van de reeks
+  recurrence    String?  // JSON of rule string (bijv. weekly)
+  status        String   @default("PENDING_ADMIN") // NEW | PENDING_ADMIN | APPROVED | REJECTED | CANCELLED
+  notes         String?
+
+  occurrences   BookingOccurrence[]
+  decisions     AdminDecision[]
+
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([status])
+  @@index([service])
+  @@index([postalCode])
+  @@index([createdAt])
+}
+
+/// BookingOccurrence: één datum/tijdslot
+model BookingOccurrence {
+  id                 String   @id @default(cuid())
+  requestId          String
+  request            OwnerRequest @relation(fields: [requestId], references: [id], onDelete: Cascade)
+  scheduledDate      DateTime
+  timeWindow         String // MORNING/AFTERNOON/EVENING/NIGHT
+  time               String? // optioneel exact tijd
+  status             String  @default("UNASSIGNED") // UNASSIGNED | ASSIGNED | CONFIRMED | COMPLETED | NO_SHOW | CANCELLED | ISSUE
+  assignedCaregiverId String?
+  assignedCaregiver   User?   @relation("OccurrenceAssigned", fields: [assignedCaregiverId], references: [id])
+  service            String
+  city               String
+  postalCode         String
+  region             String?
+  adminNotes         String?
+
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  @@index([requestId])
+  @@index([status])
+  @@index([postalCode])
+  @@index([scheduledDate, timeWindow])
+  @@index([assignedCaregiverId])
+}
+
+/// AdminDecision: wie heeft wat beslist
+model AdminDecision {
+  id          String   @id @default(cuid())
+  requestId   String
+  request     OwnerRequest @relation(fields: [requestId], references: [id], onDelete: Cascade)
+  adminId     String
+  admin       User     @relation("DecisionAdmin", fields: [adminId], references: [id], onDelete: Cascade)
+  action      String   // APPROVE / REJECT / ASSIGN / AUTO_ASSIGN / AUTO_FAIL
+  note        String?
+  createdAt   DateTime @default(now())
+
+  @@index([requestId])
+  @@index([adminId])
+}
+
+/// In-app notifications for users (caregivers, owners, admin)
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type      String
+  title     String
+  message   String
+  entityId  String?
+  readAt    DateTime?
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([readAt])
+  @@index([createdAt])
+}
+
+/// Facturatie voorbereiding (concepten voor boekhouding)
+model InvoiceDraft {
+  id                String   @id @default(cuid())
+  ownerId           String
+  owner             User     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  status            String   @default("DRAFT") // DRAFT | SENT
+  commissionPercent Int?     // percentage dat admin toevoegt
+
+  items             InvoiceDraftItem[]
+
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@index([ownerId])
+  @@index([status])
+  @@index([createdAt])
+}
+
+model InvoiceDraftItem {
+  id               String   @id @default(cuid())
+  invoiceId        String
+  invoice          InvoiceDraft @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  bookingId        String?
+  service          String
+  serviceDate      DateTime
+  quantity         Int
+  unitPriceCents   Int
+
+  createdAt        DateTime @default(now())
+
+  @@index([invoiceId])
+  @@index([bookingId])
+}
+
+/// Chat conversation per booking/occurrence
+model Conversation {
+  id          String   @id @default(cuid())
+  bookingId   String
+  ownerId     String
+  caregiverId String
+  status      String   @default("ACTIVE") // ACTIVE | LOCKED
+  createdAt   DateTime @default(now())
+
+  messages    Message[]
+
+  @@unique([bookingId])
+  @@index([ownerId])
+  @@index([caregiverId])
+  @@index([createdAt])
+}
+
+model Message {
+  id             String   @id @default(cuid())
+  conversationId String
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  senderUserId   String
+  senderRole     String   // OWNER | CAREGIVER | ADMIN
+  body           String
+  sanitizedBody  String?
+  blockedReason  String?
+  createdAt      DateTime @default(now())
+
+  moderationLogs MessageModerationLog[]
+
+  @@index([conversationId])
+  @@index([conversationId, createdAt])
+  @@index([senderUserId])
+}
+
+model MessageModerationLog {
+  id            String   @id @default(cuid())
+  messageId     String
+  message       Message  @relation(fields: [messageId], references: [id], onDelete: Cascade)
+  rule          String
+  matchedTextHash String
+  createdAt     DateTime @default(now())
+
+  @@index([messageId])
+}
+
+/// Community chat (verzorgers + admin)
+model CommunityRoom {
+  id        String   @id @default(cuid())
+  slug      String   @unique
+  name      String
+  description String?
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now())
+
+  messages  CommunityMessage[]
+
+  @@index([sortOrder])
+}
+
+model CommunityMessage {
+  id            String   @id @default(cuid())
+  roomId        String
+  room          CommunityRoom @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  senderUserId  String
+  senderRole    String   // CAREGIVER | ADMIN
+  body          String
+  sanitizedBody String?
+  blockedReason String?
+  createdAt     DateTime @default(now())
+
+  @@index([roomId])
+  @@index([roomId, createdAt])
+  @@index([senderUserId])
+  @@index([createdAt])
+}
+

@@ -1,0 +1,4 @@
+{
+  "buildCommand": "node scripts/select-prisma-schema.js postgres && npx prisma generate && next build"
+}
+

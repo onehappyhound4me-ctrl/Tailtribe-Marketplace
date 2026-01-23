@@ -15,7 +15,7 @@ Simpele dispatch site voor dierenverzorging - zonder SaaS complexiteit.
 npm run dev
 ```
 
-Dan open: `http://localhost:3002`
+Dan open: `http://localhost:3001`
 
 ## 📋 Features
 
@@ -58,15 +58,29 @@ Dan open: `http://localhost:3002`
 
 ## 🚀 Deploy naar Vercel
 
-```bash
-# Verbind met Vercel
-vercel
+Belangrijk: **SQLite is niet geschikt op Vercel** (filesystem is read-only / niet persistent).  
+Voor een werkende live site heb je **een hosted database** nodig (PostgreSQL).
 
-# Deploy production
+Zie `ENV_TEMPLATE.md` voor alle benodigde environment variables.
+
+### Snelle Vercel deploy (aanbevolen)
+
+1) Maak een Postgres DB (bv. Neon/Supabase) en kopieer je **DATABASE_URL**.  
+2) In Vercel → Project → Settings → Environment Variables:
+   - `DATABASE_URL`
+   - `NEXTAUTH_SECRET`
+   - `NEXTAUTH_URL` (bv. `https://tailtribe.be`)
+   - `NEXT_PUBLIC_APP_URL` (zelfde als je domein)
+   - (optioneel) `RESEND_API_KEY`, `EMAIL_FROM`
+
+3) Deploy:
+
+```bash
+vercel
 vercel --prod
 ```
 
-Dan koppel `tailtribe.be` domein in Vercel dashboard.
+De build gebruikt automatisch de Postgres Prisma schema via `vercel.json`.
 
 ## 📝 Notities
 

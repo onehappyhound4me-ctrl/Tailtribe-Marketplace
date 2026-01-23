@@ -1,24 +1,65 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
+import { useSession } from 'next-auth/react'
 import Image from 'next/image'
 import { SiteHeader } from '@/components/SiteHeader'
 import { SiteFooter } from '@/components/SiteFooter'
 import { DISPATCH_SERVICES } from '@/lib/services'
+import { trackEvent } from '@/lib/analytics'
 
 export default function BookingPage() {
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const { data: session, status } = useSession()
   const [step, setStep] = useState(1)
   const [loading, setLoading] = useState(false)
   const [submitError, setSubmitError] = useState<string | null>(null)
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({})
   
+  const serviceParam = searchParams.get('service')
+  const todayStr = (() => {
+    const t = new Date()
+    const yyyy = t.getFullYear()
+    const mm = String(t.getMonth() + 1).padStart(2, '0')
+    const dd = String(t.getDate()).padStart(2, '0')
+    return `${yyyy}-${mm}-${dd}`
+  })()
+  const maxBookingDateStr = (() => {
+    const t = new Date()
+    t.setDate(t.getDate() + 60)
+    const yyyy = t.getFullYear()
+    const mm = String(t.getMonth() + 1).padStart(2, '0')
+    const dd = String(t.getDate()).padStart(2, '0')
+    return `${yyyy}-${mm}-${dd}`
+  })()
+
+  // Redirect logged-in owners to their dashboard booking form
+  useEffect(() => {
+    if (status === 'authenticated' && session?.user?.role === 'OWNER') {
+      const nextUrl = serviceParam
+        ? `/dashboard/owner/new-booking?service=${encodeURIComponent(serviceParam)}`
+        : '/dashboard/owner/new-booking'
+      router.push(nextUrl)
+    }
+  }, [status, session, router, serviceParam])
+
+
+  useEffect(() => {
+    if (!serviceParam) return
+    const valid = DISPATCH_SERVICES.some((service) => service.id === serviceParam)
+    if (!valid) return
+    setFormData((prev) => ({ ...prev, service: serviceParam }))
+    setStep(2)
+  }, [serviceParam])
+
   const [formData, setFormData] = useState({
     service: '',
     date: '',
     time: '',
+    timeWindow: 'MORNING',
     firstName: '',
     lastName: '',
     email: '',
@@ -27,17 +68,37 @@ export default function BookingPage() {
     postalCode: '',
     petName: '',
     petType: '',
+    contactPreference: 'email',
     message: '',
     // Honeypot field (should stay empty)
     website: ''
   })
 
+  // Show loading while checking authentication
+  if (status === 'loading') {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-green-50 via-white to-blue-50 flex items-center justify-center">
+        <div className="text-xl text-gray-600">Laden...</div>
+      </div>
+    )
+  }
+
+  // Don't render form if owner is redirected to dashboard flow
+  if (session?.user?.role === 'OWNER') {
+    return null
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    setLoading(true)
     setSubmitError(null)
     setFieldErrors({})
-    
+
+    if (step < 4) {
+      setStep((prev) => Math.min(prev + 1, 4))
+      return
+    }
+
+    setLoading(true)
     try {
       const response = await fetch('/api/bookings', {
         method: 'POST',
@@ -46,11 +107,19 @@ export default function BookingPage() {
       })
       
       if (response.ok) {
+        trackEvent('booking_request_submitted', {
+          service: formData.service,
+          time_window: formData.timeWindow,
+        })
         router.push('/bedankt')
         return
       }
 
       const data = await response.json().catch(() => null)
+      if (response.status === 401) {
+        router.replace('/login?callbackUrl=/boeken')
+        return
+      }
       if (data?.error === 'VALIDATION_ERROR' && data?.fieldErrors) {
         setFieldErrors(data.fieldErrors)
         setSubmitError('Controleer de velden hieronder en probeer opnieuw.')
@@ -67,7 +136,7 @@ export default function BookingPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-green-50 via-white to-blue-50">
-      <SiteHeader primaryCtaHref="/#services" primaryCtaLabel="Services" />
+      <SiteHeader primaryCtaHref="/#services" primaryCtaLabel="Diensten" />
 
       {/* Booking Form */}
       <div className="container mx-auto px-4 py-12">
@@ -118,10 +187,10 @@ export default function BookingPage() {
                   />
                 </label>
               </div>
-              {/* Step 1: Service */}
+              {/* Step 1: Dienst */}
               {step === 1 && (
                 <div>
-                  <h2 className="text-3xl font-bold mb-6">Welke service heb je nodig?</h2>
+                  <h2 className="text-3xl font-bold mb-6">Welke dienst heb je nodig?</h2>
                   {fieldErrors.service && (
                     <p className="text-sm text-red-700 mb-3">{fieldErrors.service}</p>
                   )}
@@ -161,12 +230,43 @@ export default function BookingPage() {
                   <h2 className="text-3xl font-bold mb-6">Wanneer?</h2>
                   <div className="space-y-4">
                     <div>
+                      <label className="block text-sm font-medium mb-2">Voorkeur tijdsblok</label>
+                      {fieldErrors.timeWindow && <p className="text-sm text-red-700 mb-2">{fieldErrors.timeWindow}</p>}
+                      <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
+                        {[
+                          { value: 'MORNING', label: 'Ochtend', hint: '07:00 - 12:00' },
+                          { value: 'AFTERNOON', label: 'Middag', hint: '12:00 - 18:00' },
+                          { value: 'EVENING', label: 'Avond', hint: '18:00 - 22:00' },
+                          { value: 'NIGHT', label: 'Nacht', hint: '22:00 - 07:00' },
+                        ].map((slot) => (
+                          <button
+                            key={slot.value}
+                            type="button"
+                            onClick={() => setFormData({ ...formData, timeWindow: slot.value })}
+                            className={`w-full rounded-xl border-2 p-3 text-left transition ${
+                              formData.timeWindow === slot.value
+                                ? 'border-brand bg-brand/5'
+                                : 'border-gray-200 hover:border-brand/50'
+                            }`}
+                          >
+                            <div className="font-semibold text-gray-900">{slot.label}</div>
+                            <div className="text-sm text-gray-600">{slot.hint}</div>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                    <div>
                       <label className="block text-sm font-medium mb-2">Datum</label>
+                      <div className="text-xs text-gray-500 mb-2">
+                        Je kan maximaal 60 dagen vooruit boeken.
+                      </div>
                       <input
                         type="date"
                         required
                         value={formData.date}
                         onChange={(e) => setFormData({ ...formData, date: e.target.value })}
+                        min={todayStr}
+                        max={maxBookingDateStr}
                         className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-brand focus:border-transparent"
                       />
                       {fieldErrors.date && <p className="text-sm text-red-700 mt-2">{fieldErrors.date}</p>}
@@ -192,8 +292,8 @@ export default function BookingPage() {
                       Terug
                     </button>
                     <button
-                      type="button"
-                      onClick={() => setStep(3)}
+                      type="submit"
+                      formNoValidate
                       disabled={!formData.date || !formData.time}
                       className="flex-1 btn-brand disabled:opacity-50"
                     >
@@ -254,6 +354,33 @@ export default function BookingPage() {
                       />
                       {fieldErrors.phone && <p className="text-sm text-red-700 mt-2">{fieldErrors.phone}</p>}
                     </div>
+                    <div>
+                      <label className="block text-sm font-medium mb-2">Voorkeur communicatiekanaal</label>
+                      {fieldErrors.contactPreference && (
+                        <p className="text-sm text-red-700 mb-2">{fieldErrors.contactPreference}</p>
+                      )}
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        {[
+                          { value: 'email', label: 'E-mail', helper: 'We antwoorden per mail' },
+                          { value: 'telefoon', label: 'Telefoon', helper: 'We bellen je op' },
+                          { value: 'whatsapp', label: 'WhatsApp', helper: 'We sturen een bericht' },
+                        ].map((opt) => (
+                          <button
+                            key={opt.value}
+                            type="button"
+                            onClick={() => setFormData({ ...formData, contactPreference: opt.value })}
+                            className={`w-full rounded-xl border-2 p-3 text-left transition ${
+                              formData.contactPreference === opt.value
+                                ? 'border-brand bg-brand/5'
+                                : 'border-gray-200 hover:border-brand/50'
+                            }`}
+                          >
+                            <div className="font-semibold text-gray-900">{opt.label}</div>
+                            <div className="text-sm text-gray-600">{opt.helper}</div>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
                     <div className="grid md:grid-cols-2 gap-4">
                       <div>
                         <label className="block text-sm font-medium mb-2">Stad</label>
@@ -288,8 +415,8 @@ export default function BookingPage() {
                       Terug
                     </button>
                     <button
-                      type="button"
-                      onClick={() => setStep(4)}
+                      type="submit"
+                      formNoValidate
                       disabled={!formData.firstName || !formData.email || !formData.phone}
                       className="flex-1 btn-brand disabled:opacity-50"
                     >

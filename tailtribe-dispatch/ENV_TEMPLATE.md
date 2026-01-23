@@ -1,0 +1,32 @@
+# Environment variables (Template)
+
+Gebruik dit als template voor `.env.local` (development) en als referentie voor Vercel “Environment Variables” (production).
+
+## Minimal (werkt)
+
+```env
+NEXT_PUBLIC_APP_URL=http://localhost:3001
+NEXTAUTH_URL=http://localhost:3001
+NEXTAUTH_SECRET=replace_me_with_a_long_random_secret
+DATABASE_URL=file:./prisma/dev.db
+```
+
+## Production (aanbevolen)
+
+```env
+NEXT_PUBLIC_APP_URL=https://jouwdomein.be
+NEXTAUTH_URL=https://jouwdomein.be
+NEXTAUTH_SECRET=replace_me_with_a_long_random_secret
+
+# Postgres (Neon/Supabase/…)
+DATABASE_URL=postgresql://USER:PASSWORD@HOST:5432/DB?sslmode=require
+
+# Optioneel: Google OAuth
+GOOGLE_CLIENT_ID=
+GOOGLE_CLIENT_SECRET=
+
+# Optioneel: email via Resend
+RESEND_API_KEY=
+EMAIL_FROM=noreply@tailtribe.be
+```
+

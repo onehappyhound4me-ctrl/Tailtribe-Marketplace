@@ -1,5 +1,23 @@
+import type { Metadata } from 'next'
 import { SiteHeader } from '@/components/SiteHeader'
 import { SiteFooter } from '@/components/SiteFooter'
+
+const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://tailtribe.be'
+const canonicalUrl = `${baseUrl}/privacy`
+
+export const metadata: Metadata = {
+  title: 'Privacybeleid',
+  description: 'Lees hoe TailTribe omgaat met persoonsgegevens en privacy.',
+  alternates: { canonical: canonicalUrl },
+  openGraph: {
+    title: 'Privacybeleid',
+    description: 'Lees hoe TailTribe omgaat met persoonsgegevens en privacy.',
+    url: canonicalUrl,
+    siteName: 'TailTribe',
+    locale: 'nl_BE',
+    type: 'website',
+  },
+}
 
 export default function PrivacyPage() {
   return (
@@ -21,7 +39,7 @@ export default function PrivacyPage() {
               <h2 className="text-xl font-semibold text-gray-900 mb-2">1. Wie verwerkt jouw persoonsgegevens?</h2>
               <div className="space-y-1">
                 <p className="font-medium">Verwerkingsverantwoordelijke:</p>
-                <p>Uitgebaat door: Steven Van Gucht – One Happy Hound</p>
+                <p>Uitgebaat door: Steven Van Gucht</p>
                 <p>Ondernemingsnummer: BE 0695.940.752</p>
                 <p>
                   E-mailadres:{' '}

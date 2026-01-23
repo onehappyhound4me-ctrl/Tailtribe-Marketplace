@@ -1,10 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { DISPATCH_SERVICES } from '@/lib/services'
+import { assertSlotNotInPast } from '@/lib/date-utils'
+import { auth } from '@/lib/auth'
+import { buildAdminBookingReceivedEmail, buildOwnerBookingReceivedEmail } from '@/lib/email'
+import { prisma } from '@/lib/prisma'
+import { checkRateLimit } from '@/lib/rate-limit'
+import { sendTransactionalEmail } from '@/lib/mailer'
 
 export const dynamic = 'force-dynamic'
-
-// In-memory storage fallback (dev)
-let bookings: any[] = []
 
 type BookingStatus = 'PENDING' | 'ASSIGNED' | 'CONFIRMED' | 'COMPLETED'
 
@@ -12,6 +15,7 @@ type BookingInput = {
   service: string
   date: string
   time: string
+  timeWindow: string
   firstName: string
   lastName: string
   email: string
@@ -20,6 +24,7 @@ type BookingInput = {
   postalCode: string
   petName: string
   petType: string
+  contactPreference: string
   message?: string
   website?: string
 }
@@ -47,29 +52,19 @@ function isValidDate(date: string) {
   return /^\d{4}-\d{2}-\d{2}$/.test(date)
 }
 
-function isValidBelgianPostalCode(postalCode: string) {
-  return /^\d{4}$/.test(postalCode)
+function isWithinBookingWindow(date: string) {
+  if (!isValidDate(date)) return false
+  const [y, m, d] = date.split('-').map(Number)
+  const bookingDay = new Date(Date.UTC(y, m - 1, d, 0, 0, 0, 0))
+  const today = new Date()
+  today.setUTCHours(0, 0, 0, 0)
+  const maxDate = new Date(today)
+  maxDate.setUTCDate(maxDate.getUTCDate() + 60)
+  return bookingDay.getTime() <= maxDate.getTime()
 }
 
-type BookingRecord = {
-  id: string
-  service: string
-  date: string
-  time: string
-  firstName: string
-  lastName: string
-  email: string
-  phone: string
-  city: string
-  postalCode: string
-  petName: string
-  petType: string
-  message?: string
-  status: BookingStatus
-  assignedTo: string | null
-  adminNotes: string
-  createdAt: string
-  updatedAt: string
+function isValidBelgianPostalCode(postalCode: string) {
+  return /^\d{4}$/.test(postalCode)
 }
 
 function getAppUrl() {
@@ -80,51 +75,56 @@ function formatServiceLabel(serviceId: string) {
   return DISPATCH_SERVICES.find((s) => s.id === (serviceId as any))?.name ?? serviceId
 }
 
-async function sendEmail({
-  to,
-  subject,
-  html,
-  replyTo,
-}: {
-  to: string
-  subject: string
-  html: string
-  replyTo?: string
-}) {
-  const apiKey = process.env.RESEND_API_KEY
-  if (!apiKey) return
-
-  const res = await fetch('https://api.resend.com/emails', {
-    method: 'POST',
-    headers: {
-      Authorization: `Bearer ${apiKey}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      from: process.env.DISPATCH_EMAIL_FROM ?? 'TailTribe <noreply@tailtribe.be>',
-      to,
-      subject,
-      html,
-      ...(replyTo ? { reply_to: replyTo } : {}),
-    }),
-    cache: 'no-store',
-  })
-
-  if (!res.ok) {
-    // Do not fail booking creation for email issues
-    const msg = await res.text().catch(() => '')
-    console.error('Resend email failed:', res.status, msg)
-  }
+const TIME_WINDOW_MAP: Record<string, string> = {
+  ochtend: 'MORNING',
+  middag: 'AFTERNOON',
+  avond: 'EVENING',
+  nacht: 'NIGHT',
 }
+
+function normalizeTimeWindow(value: string) {
+  const trimmed = value.trim()
+  if (!trimmed) return ''
+  const lower = trimmed.toLowerCase()
+  if (TIME_WINDOW_MAP[lower]) return TIME_WINDOW_MAP[lower]
+  return trimmed.toUpperCase()
+}
+
+function formatTimeWindow(value: string) {
+  const map: Record<string, string> = {
+    MORNING: 'Ochtend (07:00 - 12:00)',
+    AFTERNOON: 'Middag (12:00 - 18:00)',
+    EVENING: 'Avond (18:00 - 22:00)',
+    NIGHT: 'Nacht (22:00 - 07:00)',
+    ochtend: 'Ochtend (07:00 - 12:00)',
+    middag: 'Middag (12:00 - 18:00)',
+    avond: 'Avond (18:00 - 22:00)',
+    nacht: 'Nacht (22:00 - 07:00)',
+  }
+  return map[value] ?? value
+}
+
+function formatContactPreference(value: string) {
+  const map: Record<string, string> = {
+    email: 'E-mail',
+    telefoon: 'Telefoon',
+    whatsapp: 'WhatsApp',
+  }
+  return map[value] ?? value
+}
+
 
 function validateBookingInput(body: any): { ok: true; data: BookingInput } | { ok: false; fieldErrors: Record<string, string> } {
   const fieldErrors: Record<string, string> = {}
   const allowedServices = new Set(DISPATCH_SERVICES.map((s) => s.id))
+  const allowedTimeWindows = new Set(['MORNING', 'AFTERNOON', 'EVENING', 'NIGHT'])
+  const allowedContactPreference = new Set(['email', 'telefoon', 'whatsapp'])
 
   const data: BookingInput = {
     service: String(body?.service ?? ''),
     date: String(body?.date ?? ''),
     time: String(body?.time ?? ''),
+    timeWindow: normalizeTimeWindow(String(body?.timeWindow ?? '')),
     firstName: String(body?.firstName ?? ''),
     lastName: String(body?.lastName ?? ''),
     email: String(body?.email ?? ''),
@@ -133,6 +133,7 @@ function validateBookingInput(body: any): { ok: true; data: BookingInput } | { o
     postalCode: String(body?.postalCode ?? ''),
     petName: String(body?.petName ?? ''),
     petType: String(body?.petType ?? ''),
+    contactPreference: String(body?.contactPreference ?? ''),
     message: typeof body?.message === 'string' ? body.message : '',
     website: typeof body?.website === 'string' ? body.website : '',
   }
@@ -146,8 +147,14 @@ function validateBookingInput(body: any): { ok: true; data: BookingInput } | { o
     fieldErrors.service = 'Selecteer een geldige service.'
   }
 
+  if (!isNonEmptyString(data.timeWindow) || !allowedTimeWindows.has(data.timeWindow)) {
+    fieldErrors.timeWindow = 'Kies een tijdsblok.'
+  }
+
   if (!isNonEmptyString(data.date) || !isValidDate(data.date)) {
     fieldErrors.date = 'Kies een geldige datum.'
+  } else if (!isWithinBookingWindow(data.date)) {
+    fieldErrors.date = 'Je kan maximaal 60 dagen vooruit boeken.'
   }
 
   if (!isNonEmptyString(data.time) || !isValidTime(data.time)) {
@@ -174,6 +181,10 @@ function validateBookingInput(body: any): { ok: true; data: BookingInput } | { o
   if (!isNonEmptyString(data.petName)) fieldErrors.petName = 'Naam van je huisdier is verplicht.'
   if (!isNonEmptyString(data.petType)) fieldErrors.petType = 'Selecteer het type huisdier.'
 
+  if (!isNonEmptyString(data.contactPreference) || !allowedContactPreference.has(data.contactPreference)) {
+    fieldErrors.contactPreference = 'Kies één kanaal voor contact.'
+  }
+
   if (!isOptionalString(body?.message)) {
     fieldErrors.message = 'Extra info moet tekst zijn.'
   }
@@ -182,88 +193,48 @@ function validateBookingInput(body: any): { ok: true; data: BookingInput } | { o
     return { ok: false, fieldErrors }
   }
 
+  try {
+    assertSlotNotInPast({ date: data.date, time: data.time, timeWindow: data.timeWindow })
+  } catch (err: any) {
+    return { ok: false, fieldErrors: { date: err.message ?? 'Datum ligt in het verleden' } }
+  }
+
   return { ok: true, data }
 }
 
-async function upstashCmd<T = any>(cmd: any[]): Promise<T> {
-  const url = process.env.UPSTASH_REDIS_REST_URL
-  const token = process.env.UPSTASH_REDIS_REST_TOKEN
-  if (!url || !token) throw new Error('Upstash not configured')
-
-  const res = await fetch(url, {
-    method: 'POST',
-    headers: {
-      Authorization: `Bearer ${token}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(cmd),
-    cache: 'no-store',
-  })
-  if (!res.ok) throw new Error(`Upstash error ${res.status}`)
-  const data = await res.json()
-  return data?.result as T
-}
-
-function hasUpstash() {
-  return Boolean(process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN)
-}
-
-async function readAllBookings(): Promise<BookingRecord[]> {
-  if (!hasUpstash()) return bookings as BookingRecord[]
-
-  const ids = (await upstashCmd<string[]>(['LRANGE', 'tt:bookings:ids', 0, 200])) ?? []
-  if (ids.length === 0) return []
-  const keys = ids.map((id) => `tt:booking:${id}`)
-  const raws = (await upstashCmd<(string | null)[]>(['MGET', ...keys])) ?? []
-  const parsed: BookingRecord[] = []
-  for (const raw of raws) {
-    if (!raw) continue
-    try {
-      parsed.push(JSON.parse(raw))
-    } catch {
-      // ignore corrupted entries
-    }
-  }
-  return parsed
-}
-
-async function createBooking(rec: BookingRecord) {
-  if (!hasUpstash()) {
-    bookings.push(rec)
-    return
-  }
-
-  await upstashCmd(['SET', `tt:booking:${rec.id}`, JSON.stringify(rec)])
-  await upstashCmd(['LPUSH', 'tt:bookings:ids', rec.id])
-  // keep list bounded
-  await upstashCmd(['LTRIM', 'tt:bookings:ids', 0, 200])
-}
-
-async function updateBooking(rec: BookingRecord) {
-  if (!hasUpstash()) {
-    const idx = bookings.findIndex((b) => String(b.id) === rec.id)
-    if (idx !== -1) bookings[idx] = rec
-    return
-  }
-  await upstashCmd(['SET', `tt:booking:${rec.id}`, JSON.stringify(rec)])
-}
-
-async function deleteBooking(id: string) {
-  if (!hasUpstash()) {
-    bookings = bookings.filter((b) => String(b.id) !== String(id))
-    return
-  }
-  await upstashCmd(['DEL', `tt:booking:${id}`])
-  await upstashCmd(['LREM', 'tt:bookings:ids', 0, id])
+function ensureAdmin(session: any) {
+  return session && session.user?.role === 'ADMIN'
 }
 
 export async function GET() {
-  const all = await readAllBookings()
-  return NextResponse.json(all)
+  const session = await auth()
+  if (!ensureAdmin(session)) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+
+  const bookings = await prisma.booking.findMany({
+    orderBy: { createdAt: 'desc' },
+  })
+  return NextResponse.json(bookings)
 }
 
 export async function POST(request: NextRequest) {
+  const session = await auth()
+  if (!session || session.user?.role !== 'OWNER') {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+
   try {
+    const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown'
+    const rateKey = session.user?.id ? `booking:${session.user.id}` : `booking:${ip}`
+    const rate = await checkRateLimit(rateKey, 10, 10 * 60 * 1000)
+    if (!rate.allowed) {
+      return NextResponse.json(
+        { error: 'Te veel aanvragen. Probeer later opnieuw.' },
+        { status: 429 }
+      )
+    }
+
     const body = await request.json()
 
     const validated = validateBookingInput(body)
@@ -277,86 +248,86 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       )
     }
-    
-    const booking: BookingRecord = {
-      id: Date.now().toString(),
-      ...validated.data,
-      status: 'PENDING' as BookingStatus,
-      assignedTo: null,
-      adminNotes: '',
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
+    let slot
+    try {
+      slot = assertSlotNotInPast({
+        date: validated.data.date,
+        time: validated.data.time,
+        timeWindow: validated.data.timeWindow,
+      })
+    } catch (err: any) {
+      return NextResponse.json(
+        { error: 'VALIDATION_ERROR', fieldErrors: { date: err.message ?? 'Datum ligt in het verleden' } },
+        { status: 400 }
+      )
     }
-    // never persist honeypot field
-    delete (booking as any).website
-    
-    await createBooking(booking)
-    
-    // TODO: Send email notification to admin
-    
+
+    const booking = await prisma.booking.create({
+      data: {
+        ownerId: session.user.id,
+        service: validated.data.service,
+        date: slot.slotStart,
+        time: validated.data.time,
+        timeWindow: validated.data.timeWindow,
+        city: validated.data.city,
+        postalCode: validated.data.postalCode,
+        region: null,
+        address: null,
+        petName: validated.data.petName,
+        petType: validated.data.petType,
+        petDetails: null,
+        contactPreference: validated.data.contactPreference || 'email',
+        message: validated.data.message?.trim() || null,
+        status: 'PENDING',
+      },
+    })
+
     // Fire-and-forget notifications (don't block success)
     const appUrl = getAppUrl()
     const adminEmail = process.env.DISPATCH_ADMIN_EMAIL ?? 'steven@tailtribe.be'
     const serviceLabel = formatServiceLabel(booking.service)
+    const timeWindowLabel = formatTimeWindow(booking.timeWindow)
+    const contactPreferenceLabel = formatContactPreference(validated.data.contactPreference)
 
-    const adminHtml = `
-      <div style="font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; line-height: 1.5; color: #111827;">
-        <h2 style="margin: 0 0 12px 0;">Nieuwe aanvraag – TailTribe Dispatch</h2>
-        <p style="margin: 0 0 12px 0;">
-          <strong>${booking.firstName} ${booking.lastName}</strong> diende een aanvraag in.
-        </p>
-        <div style="background:#F9FAFB;border:1px solid #E5E7EB;border-radius:12px;padding:14px;">
-          <p style="margin:0 0 6px 0;"><strong>Service:</strong> ${serviceLabel}</p>
-          <p style="margin:0 0 6px 0;"><strong>Datum/Tijd:</strong> ${booking.date} om ${booking.time}</p>
-          <p style="margin:0 0 6px 0;"><strong>Locatie:</strong> ${booking.city}, ${booking.postalCode}</p>
-          <p style="margin:0 0 6px 0;"><strong>Contact:</strong> ${booking.email} • ${booking.phone}</p>
-          <p style="margin:0;"><strong>Huisdier:</strong> ${booking.petName} (${booking.petType})</p>
-        </div>
-        ${
-          booking.message
-            ? `<p style="margin:12px 0 0 0;"><strong>Extra info:</strong><br/>${String(booking.message)
-                .replace(/&/g, '&amp;')
-                .replace(/</g, '&lt;')
-                .replace(/>/g, '&gt;')
-                .replace(/\n/g, '<br/>')}</p>`
-            : ''
-        }
-        <p style="margin:16px 0 0 0;">
-          <a href="${appUrl}/admin" style="display:inline-block;background:#10B981;color:white;text-decoration:none;padding:10px 14px;border-radius:10px;font-weight:600;">
-            Open admin dashboard
-          </a>
-        </p>
-      </div>
-    `
-
-    const customerHtml = `
-      <div style="font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; line-height: 1.5; color: #111827;">
-        <h2 style="margin: 0 0 12px 0;">We hebben je aanvraag ontvangen</h2>
-        <p style="margin: 0 0 12px 0;">Hoi ${booking.firstName},</p>
-        <p style="margin: 0 0 12px 0;">
-          Bedankt voor je aanvraag bij TailTribe. We nemen binnen <strong>2 uur</strong> contact met je op om alles te bevestigen.
-        </p>
-        <div style="background:#F9FAFB;border:1px solid #E5E7EB;border-radius:12px;padding:14px;">
-          <p style="margin:0 0 6px 0;"><strong>Service:</strong> ${serviceLabel}</p>
-          <p style="margin:0 0 6px 0;"><strong>Datum/Tijd:</strong> ${booking.date} om ${booking.time}</p>
-          <p style="margin:0;"><strong>Locatie:</strong> ${booking.city}, ${booking.postalCode}</p>
-        </div>
-        <p style="margin:16px 0 0 0;">
-          Met vriendelijke groet,<br/>TailTribe
-        </p>
-      </div>
-    `
-
-    void sendEmail({
-      to: adminEmail,
-      subject: `Nieuwe aanvraag – ${serviceLabel} (${booking.city})`,
-      html: adminHtml,
-      replyTo: booking.email,
+    const adminEmailPayload = buildAdminBookingReceivedEmail({
+      firstName: validated.data.firstName,
+      lastName: validated.data.lastName,
+      serviceLabel,
+      date: booking.date.toISOString(),
+      time: booking.time ?? '',
+      timeWindowLabel,
+      city: booking.city,
+      postalCode: booking.postalCode,
+      email: validated.data.email,
+      phone: validated.data.phone,
+      contactPreferenceLabel,
+      petName: booking.petName,
+      petType: booking.petType,
+      message: validated.data.message,
+      appUrl,
     })
-    void sendEmail({
-      to: booking.email,
-      subject: 'Aanvraag ontvangen – TailTribe',
-      html: customerHtml,
+
+    const ownerEmailPayload = buildOwnerBookingReceivedEmail({
+      firstName: validated.data.firstName,
+      serviceLabel,
+      date: booking.date.toISOString(),
+      time: booking.time ?? '',
+      timeWindowLabel,
+      city: booking.city,
+      postalCode: booking.postalCode,
+      contactPreferenceLabel,
+    })
+
+    void sendTransactionalEmail({
+      to: adminEmail,
+      subject: adminEmailPayload.subject,
+      html: adminEmailPayload.html,
+      replyTo: validated.data.email,
+    })
+    void sendTransactionalEmail({
+      to: validated.data.email,
+      subject: ownerEmailPayload.subject,
+      html: ownerEmailPayload.html,
     })
 
     return NextResponse.json({ success: true, booking })
@@ -369,6 +340,11 @@ export async function POST(request: NextRequest) {
 }
 
 export async function PATCH(request: NextRequest) {
+  const session = await auth()
+  if (!ensureAdmin(session)) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+
   try {
     const body = await request.json()
     const id = String(body?.id ?? '')
@@ -376,26 +352,31 @@ export async function PATCH(request: NextRequest) {
       return NextResponse.json({ error: 'Missing booking id' }, { status: 400 })
     }
 
-    const all = await readAllBookings()
-    const existing = all.find((b) => String(b.id) === id)
-    if (!existing) return NextResponse.json({ error: 'Booking not found' }, { status: 404 })
-    const next: BookingRecord = { ...existing }
-
     const allowedStatuses: BookingStatus[] = ['PENDING', 'ASSIGNED', 'CONFIRMED', 'COMPLETED']
-    if (typeof body.status === 'string' && allowedStatuses.includes(body.status as BookingStatus)) next.status = body.status
-    if (typeof body.assignedTo === 'string' || body.assignedTo === null) next.assignedTo = body.assignedTo
-    if (typeof body.adminNotes === 'string') next.adminNotes = body.adminNotes
+    const data: Record<string, any> = {}
+    if (typeof body.status === 'string' && allowedStatuses.includes(body.status as BookingStatus)) {
+      data.status = body.status
+    }
+    if (typeof body.adminNotes === 'string') data.adminNotes = body.adminNotes
+    if (typeof body.caregiverId === 'string') data.caregiverId = body.caregiverId
 
-    next.updatedAt = new Date().toISOString()
-    await updateBooking(next)
+    const updated = await prisma.booking.update({
+      where: { id },
+      data,
+    })
 
-    return NextResponse.json({ success: true, booking: next })
+    return NextResponse.json({ success: true, booking: updated })
   } catch {
     return NextResponse.json({ error: 'Failed to update booking' }, { status: 500 })
   }
 }
 
 export async function DELETE(request: NextRequest) {
+  const session = await auth()
+  if (!ensureAdmin(session)) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+
   try {
     const body = await request.json().catch(() => ({}))
     const id = String(body?.id ?? '')
@@ -403,7 +384,7 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ error: 'Missing booking id' }, { status: 400 })
     }
 
-    await deleteBooking(id)
+    await prisma.booking.delete({ where: { id } })
     return NextResponse.json({ success: true })
   } catch {
     return NextResponse.json({ error: 'Failed to delete booking' }, { status: 500 })

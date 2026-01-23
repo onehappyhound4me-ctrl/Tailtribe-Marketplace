@@ -1,5 +1,24 @@
+import type { Metadata } from 'next'
 import { SiteHeader } from '@/components/SiteHeader'
 import { SiteFooter } from '@/components/SiteFooter'
+import { CookiePreferencesButton } from '@/components/CookiePreferencesButton'
+
+const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://tailtribe.be'
+const canonicalUrl = `${baseUrl}/cookies`
+
+export const metadata: Metadata = {
+  title: 'Cookiebeleid',
+  description: 'Informatie over cookies en vergelijkbare technologieën op TailTribe.',
+  alternates: { canonical: canonicalUrl },
+  openGraph: {
+    title: 'Cookiebeleid',
+    description: 'Informatie over cookies en vergelijkbare technologieën op TailTribe.',
+    url: canonicalUrl,
+    siteName: 'TailTribe',
+    locale: 'nl_BE',
+    type: 'website',
+  },
+}
 
 export default function CookiesPage() {
   return (
@@ -41,22 +60,29 @@ export default function CookiesPage() {
               <h3 className="font-medium mt-2">b) Functionele cookies</h3>
               <p>Onthouden voorkeuren (bv. taal) indien aanwezig. Toestemming kan vereist zijn.</p>
               <h3 className="font-medium mt-2">c) Analytische cookies</h3>
-              <p>Helpen ons begrijpen hoe de website gebruikt wordt. Toestemming is vereist wanneer wetgeving dit vraagt.</p>
+              <p>
+                Helpen ons begrijpen hoe de website gebruikt wordt. We schakelen deze cookies pas in nadat je akkoord
+                gaf.
+              </p>
             </section>
 
             <section>
               <h2 className="text-xl font-semibold text-gray-900 mb-2">4. Beheer van cookies</h2>
               <p>
                 Je kan cookies beheren of verwijderen via je browserinstellingen (Chrome, Safari, Edge, Firefox). Indien
-                we in de toekomst niet-essentiële cookies gebruiken, zullen we dit vooraf melden en (waar nodig) om
-                toestemming vragen.
+                we niet-essentiële cookies gebruiken, zullen we dit vooraf melden en (waar nodig) om toestemming vragen.
               </p>
+              <p className="mt-2">
+                Je keuze wordt lokaal in je browser bewaard. Wil je je voorkeur wijzigen, dan kan je dit doen door je
+                lokale opslag of cookies te verwijderen en de pagina opnieuw te laden.
+              </p>
+              <CookiePreferencesButton />
             </section>
 
             <section>
               <h2 className="text-xl font-semibold text-gray-900 mb-2">5. Contact</h2>
               <div className="space-y-1">
-                <p>Steven Van Gucht – One Happy Hound</p>
+                <p>Steven Van Gucht</p>
                 <p>
                   E-mail:{' '}
                   <a href="mailto:steven@tailtribe.be" className="text-emerald-700 hover:underline">
