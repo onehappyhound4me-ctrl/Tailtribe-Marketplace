@@ -1,7 +1,8 @@
 'use client'
 
 import { useEffect, useState, useCallback } from 'react'
-import { getStatusLabel } from '@/lib/status-labels'
+// Use relative import to avoid path-alias resolution issues in some Vercel build configurations.
+import { getStatusLabel } from '../../../lib/status-labels'
 
 type Conversation = {
   id: string
