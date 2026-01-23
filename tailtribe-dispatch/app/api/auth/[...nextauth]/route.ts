@@ -18,6 +18,10 @@ function ensureAuthEnv(req: NextRequest) {
   if (!process.env.AUTH_URL || process.env.AUTH_URL !== origin) {
     process.env.AUTH_URL = origin
   }
+  // Extra safety for Auth.js host validation.
+  if (!process.env.AUTH_TRUST_HOST) {
+    process.env.AUTH_TRUST_HOST = 'true'
+  }
 
   // If NEXTAUTH_SECRET is missing, return a clear error instead of NextAuth's generic 500.
   if (!process.env.NEXTAUTH_SECRET && process.env.AUTH_SECRET) {
@@ -54,11 +58,33 @@ function ensureAuthEnv(req: NextRequest) {
 export async function GET(req: NextRequest) {
   const envError = ensureAuthEnv(req)
   if (envError) return envError
-  return handlers.GET(req)
+  try {
+    return await handlers.GET(req)
+  } catch (err: any) {
+    return NextResponse.json(
+      {
+        error: 'nextauth_handler_error',
+        name: err?.name ?? null,
+        message: err?.message ?? String(err),
+      },
+      { status: 500 }
+    )
+  }
 }
 
 export async function POST(req: NextRequest) {
   const envError = ensureAuthEnv(req)
   if (envError) return envError
-  return handlers.POST(req)
+  try {
+    return await handlers.POST(req)
+  } catch (err: any) {
+    return NextResponse.json(
+      {
+        error: 'nextauth_handler_error',
+        name: err?.name ?? null,
+        message: err?.message ?? String(err),
+      },
+      { status: 500 }
+    )
+  }
 }
