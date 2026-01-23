@@ -106,7 +106,7 @@ export const DISPATCH_SERVICES: DispatchService[] = [
   {
     id: 'PET_SITTING',
     name: 'Dierenoppas',
-    desc: 'Je huisdier bij de verzorger thuis',
+    desc: 'De verzorger past op je huisdier in het comfort van je eigen woonst',
     slug: 'dierenoppas',
     image: '/assets/hondenoppas.png',
     longDescription: {
@@ -115,13 +115,13 @@ export const DISPATCH_SERVICES: DispatchService[] = [
         'We stemmen verwachtingen af: routine, voeding, wandelingen en comfort.',
       ],
       whyText:
-        'Dierenoppas is de ideale oplossing wanneer je even geen opvang hebt, maar wél zekerheid wil dat je huisdier aandacht, rust en structuur krijgt. Bij deze dienst verblijft je huisdier bij de dierenverzorger thuis, meestal voor kortere periodes dan onze optie dierenopvang. We werken met duidelijke afspraken en stemmen de zorg af op het karakter en de routine van je dier.\n\nHet doel is simpel: jouw huisdier voelt zich veilig en comfortabel, en jij kan met een gerust hart weg. We houden rekening met gewoontes, energiepeil, eventuele gevoeligheden en (waar van toepassing) medicatie volgens jouw instructies.',
+        'Dierenoppas is de ideale oplossing wanneer je even geen opvang hebt, maar wél zekerheid wil dat je huisdier aandacht, rust en structuur krijgt. Bij deze dienst komt de verzorger bij jou thuis en past op je huisdier in het comfort van je eigen woonst. We werken met duidelijke afspraken en stemmen de zorg af op het karakter en de routine van je dier.\n\nHet doel is simpel: jouw huisdier voelt zich veilig en comfortabel in de eigen omgeving, en jij kan met een gerust hart weg. We houden rekening met gewoontes, energiepeil, eventuele gevoeligheden en (waar van toepassing) medicatie volgens jouw instructies.',
       includes: [
         'Afspraak op maat (dag, nacht of meerdere dagen).',
         'Duidelijke afspraken over voeding, medicatie en gewoontes.',
       ],
       includesText:
-        'We starten met een korte afstemming (telefonisch of via bericht): wie is je huisdier, wat is de routine, wat zijn de do’s & don’ts en welke momenten zijn belangrijk (voeding, wandelingen, rust, speeltijd).\n\nTijdens de oppasperiode zorgen we voor:\n- voeding en water volgens jouw schema\n- wandelingen of beweging op maat (indien nodig)\n- aandacht, rustmomenten en toezicht\n- opvolging van afspraken rond gedrag (bv. geen zetel, bench, …)\n\nIndien gewenst spreken we ook af hoe vaak je een update ontvangt (kort berichtje of foto).',
+        'We starten met een korte afstemming (telefonisch of via bericht): wie is je huisdier, wat is de routine, wat zijn de do’s & don’ts en welke momenten zijn belangrijk (voeding, wandelingen, rust, speeltijd).\n\nTijdens de oppasperiode (bij jou thuis) zorgen we voor:\n- voeding en water volgens jouw schema\n- wandelingen of beweging op maat (indien nodig)\n- aandacht, rustmomenten en toezicht\n- opvolging van afspraken rond gedrag (bv. geen zetel, bench, …)\n\nIndien gewenst spreken we ook af hoe vaak je een update ontvangt (kort berichtje of foto).',
       tips: [
         'Neem favoriete voeding/snacks mee (en vermeld eventuele allergieën).',
         'Geef duidelijke instructies rond routine en grenzen (bench, sofa, bezoek, …).',
