@@ -65,6 +65,10 @@ if (isDev) {
 }
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
+  // On Vercel (and while DNS is propagating), requests may come in on different hosts
+  // than NEXTAUTH_URL. trustHost avoids hard failures that surface as
+  // "There was a problem with the server configuration."
+  trustHost: true,
   providers: [
     CredentialsProvider({
       name: 'credentials',
