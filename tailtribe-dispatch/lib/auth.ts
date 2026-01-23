@@ -37,8 +37,14 @@ const nextAuthSecret = process.env.NEXTAUTH_SECRET
 const googleClientId = (process.env.GOOGLE_CLIENT_ID ?? process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID ?? '').trim() || undefined
 const googleClientSecret = (process.env.GOOGLE_CLIENT_SECRET ?? '').trim() || undefined
 
-if (!nextAuthSecret) {
-  throw new Error('NEXTAUTH_SECRET ontbreekt. Stel deze in in .env.local/.env.')
+// IMPORTANT:
+// Don't throw at module import time. Next.js may import route handlers during build
+// ("Collecting page data"), which would fail the whole deployment if env vars are
+// not present yet. Instead, validate lazily when auth is actually used.
+const assertNextAuthSecret = () => {
+  if (!process.env.NEXTAUTH_SECRET) {
+    throw new Error('NEXTAUTH_SECRET ontbreekt. Stel deze in in Vercel Environment Variables (Production) of .env.local.')
+  }
 }
 
 if (isDev) {
@@ -117,6 +123,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   debug: authDebug,
   callbacks: {
     async signIn({ user, account }) {
+      assertNextAuthSecret()
       if (authDebug) {
         console.log('[auth][signIn]', {
           provider: account?.provider,
@@ -127,6 +134,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       return true
     },
     async jwt({ token, user }) {
+      assertNextAuthSecret()
       if (user?.email) {
         const dbUser = await getOrCreateOAuthUser(user.email, user.name ?? null)
         token.role = dbUser.role
@@ -151,6 +159,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       return token
     },
     async session({ session, token }) {
+      assertNextAuthSecret()
       if (session.user) {
         session.user.role = token.role as string
         session.user.id = token.id as string
