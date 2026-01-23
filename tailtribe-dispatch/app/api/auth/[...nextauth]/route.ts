@@ -1,28 +1,15 @@
 import type { NextRequest } from 'next/server'
 import { NextResponse } from 'next/server'
 import { handlers } from '@/lib/auth'
+import { applyAuthBaseUrlEnv } from '@/lib/auth-base-url'
 
 // Force node runtime (bcrypt incompatible with Edge)
 export const runtime = 'nodejs'
 
-function normalizeUrl(value?: string | null) {
-  const v = String(value ?? '').trim()
-  if (!v) return null
-  // Important: avoid trailing slash differences (can cause "Configuration" in Auth.js)
-  return v.replace(/\/+$/, '')
-}
-
 function ensureAuthEnv() {
-  // Normalize URL env vars (no per-request mutation; rely on Vercel env vars).
-  const nextauthUrl = normalizeUrl(process.env.NEXTAUTH_URL)
-  const authUrl = normalizeUrl(process.env.AUTH_URL)
-  if (!nextauthUrl && authUrl) process.env.NEXTAUTH_URL = authUrl
-  if (!authUrl && nextauthUrl) process.env.AUTH_URL = nextauthUrl
-  if (process.env.NEXTAUTH_URL) process.env.NEXTAUTH_URL = normalizeUrl(process.env.NEXTAUTH_URL) ?? ''
-  if (process.env.AUTH_URL) process.env.AUTH_URL = normalizeUrl(process.env.AUTH_URL) ?? ''
-
-  // Extra safety for Auth.js host validation.
-  if (!process.env.AUTH_TRUST_HOST) process.env.AUTH_TRUST_HOST = 'true'
+  // NOTE: we intentionally validate/normalize the base URL centrally.
+  // If AUTH_URL or NEXTAUTH_URL ends with '/', we throw a clear error (prevents vague "Configuration").
+  applyAuthBaseUrlEnv()
 
   // If NEXTAUTH_SECRET is missing, return a clear error instead of NextAuth's generic 500.
   if (!process.env.NEXTAUTH_SECRET && process.env.AUTH_SECRET) {
@@ -57,12 +44,37 @@ function ensureAuthEnv() {
 }
 
 export async function GET(req: NextRequest) {
+  try {
+    // Use request origin as fallback for preview deployments when env vars are missing.
+    applyAuthBaseUrlEnv({ reqOrigin: req.nextUrl.origin })
+  } catch (err: any) {
+    return NextResponse.json(
+      {
+        error: 'Invalid AUTH_URL/NEXTAUTH_URL: must not end with \'/\'',
+        message: err?.message ?? String(err),
+        fix: 'Zet AUTH_URL en NEXTAUTH_URL zonder trailing slash. Voorbeeld: https://tailtribe-dispatch.vercel.app',
+      },
+      { status: 500 }
+    )
+  }
   const envError = ensureAuthEnv()
   if (envError) return envError
   return handlers.GET(req)
 }
 
 export async function POST(req: NextRequest) {
+  try {
+    applyAuthBaseUrlEnv({ reqOrigin: req.nextUrl.origin })
+  } catch (err: any) {
+    return NextResponse.json(
+      {
+        error: 'Invalid AUTH_URL/NEXTAUTH_URL: must not end with \'/\'',
+        message: err?.message ?? String(err),
+        fix: 'Zet AUTH_URL en NEXTAUTH_URL zonder trailing slash. Voorbeeld: https://tailtribe-dispatch.vercel.app',
+      },
+      { status: 500 }
+    )
+  }
   const envError = ensureAuthEnv()
   if (envError) return envError
   return handlers.POST(req)

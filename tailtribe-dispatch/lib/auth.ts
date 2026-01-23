@@ -3,6 +3,7 @@ import CredentialsProvider from 'next-auth/providers/credentials'
 import GoogleProvider from 'next-auth/providers/google'
 import { prisma } from './prisma'
 import bcrypt from 'bcryptjs'
+import { applyAuthBaseUrlEnv } from './auth-base-url'
 
 const splitName = (fullName?: string | null) => {
   const clean = (fullName ?? '').trim()
@@ -36,6 +37,10 @@ const getOrCreateOAuthUser = async (email: string, name?: string | null) => {
 function buildAuth() {
   const isDev = process.env.NODE_ENV === 'development'
   const authDebug = isDev && process.env.AUTH_DEBUG === 'true'
+
+  // Normalize base URL and validate trailing slashes (throws with a clear error).
+  // In serverless this effectively happens on first auth request per instance.
+  applyAuthBaseUrlEnv()
 
   const nextAuthUrl = process.env.NEXTAUTH_URL || (isDev ? 'http://localhost:3001' : undefined)
   if (isDev) {

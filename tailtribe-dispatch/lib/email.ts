@@ -1,7 +1,8 @@
 import { sendTransactionalEmail } from './mailer'
 
 export async function sendVerificationEmail(email: string, token: string) {
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? process.env.NEXTAUTH_URL ?? 'https://tailtribe.be'
+  const baseUrl =
+    process.env.NEXT_PUBLIC_APP_URL ?? process.env.AUTH_URL ?? process.env.NEXTAUTH_URL ?? 'https://tailtribe.be'
   const verificationUrl = `${baseUrl}/api/auth/verify?token=${token}`
 
   const html = `
@@ -38,7 +39,8 @@ export async function sendVerificationEmail(email: string, token: string) {
 }
 
 export async function sendWelcomeEmail(email: string, firstName: string) {
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? process.env.NEXTAUTH_URL ?? 'https://tailtribe.be'
+  const baseUrl =
+    process.env.NEXT_PUBLIC_APP_URL ?? process.env.AUTH_URL ?? process.env.NEXTAUTH_URL ?? 'https://tailtribe.be'
 
   const html = `
     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
