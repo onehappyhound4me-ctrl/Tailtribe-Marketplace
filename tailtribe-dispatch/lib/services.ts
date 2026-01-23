@@ -159,7 +159,7 @@ export const DISPATCH_SERVICES: DispatchService[] = [
   {
     id: 'HOME_CARE',
     name: 'Verzorging aan huis',
-    desc: 'Zorg in het comfort van je eigen huis',
+    desc: 'Verzorging aan huis voor je huisdier',
     slug: 'verzorging-aan-huis',
     image: '/assets/home-visit.png',
     longDescription: {
