@@ -5,23 +5,24 @@ import { handlers } from '@/lib/auth'
 // Force node runtime (bcrypt incompatible with Edge)
 export const runtime = 'nodejs'
 
-function ensureAuthEnv(req: NextRequest) {
-  // Ensure URL env vars match the current host.
-  //
-  // NextAuth v5 (Auth.js) may use AUTH_URL internally; many setups still use NEXTAUTH_URL.
-  // If either is set to a different domain (custom domain vs vercel.app preview/prod),
-  // OAuth can fail with "Configuration".
-  const origin = req.nextUrl.origin
-  if (!process.env.NEXTAUTH_URL || process.env.NEXTAUTH_URL !== origin) {
-    process.env.NEXTAUTH_URL = origin
-  }
-  if (!process.env.AUTH_URL || process.env.AUTH_URL !== origin) {
-    process.env.AUTH_URL = origin
-  }
+function normalizeUrl(value?: string | null) {
+  const v = String(value ?? '').trim()
+  if (!v) return null
+  // Important: avoid trailing slash differences (can cause "Configuration" in Auth.js)
+  return v.replace(/\/+$/, '')
+}
+
+function ensureAuthEnv() {
+  // Normalize URL env vars (no per-request mutation; rely on Vercel env vars).
+  const nextauthUrl = normalizeUrl(process.env.NEXTAUTH_URL)
+  const authUrl = normalizeUrl(process.env.AUTH_URL)
+  if (!nextauthUrl && authUrl) process.env.NEXTAUTH_URL = authUrl
+  if (!authUrl && nextauthUrl) process.env.AUTH_URL = nextauthUrl
+  if (process.env.NEXTAUTH_URL) process.env.NEXTAUTH_URL = normalizeUrl(process.env.NEXTAUTH_URL) ?? ''
+  if (process.env.AUTH_URL) process.env.AUTH_URL = normalizeUrl(process.env.AUTH_URL) ?? ''
+
   // Extra safety for Auth.js host validation.
-  if (!process.env.AUTH_TRUST_HOST) {
-    process.env.AUTH_TRUST_HOST = 'true'
-  }
+  if (!process.env.AUTH_TRUST_HOST) process.env.AUTH_TRUST_HOST = 'true'
 
   // If NEXTAUTH_SECRET is missing, return a clear error instead of NextAuth's generic 500.
   if (!process.env.NEXTAUTH_SECRET && process.env.AUTH_SECRET) {
@@ -56,35 +57,13 @@ function ensureAuthEnv(req: NextRequest) {
 }
 
 export async function GET(req: NextRequest) {
-  const envError = ensureAuthEnv(req)
+  const envError = ensureAuthEnv()
   if (envError) return envError
-  try {
-    return await handlers.GET(req)
-  } catch (err: any) {
-    return NextResponse.json(
-      {
-        error: 'nextauth_handler_error',
-        name: err?.name ?? null,
-        message: err?.message ?? String(err),
-      },
-      { status: 500 }
-    )
-  }
+  return handlers.GET(req)
 }
 
 export async function POST(req: NextRequest) {
-  const envError = ensureAuthEnv(req)
+  const envError = ensureAuthEnv()
   if (envError) return envError
-  try {
-    return await handlers.POST(req)
-  } catch (err: any) {
-    return NextResponse.json(
-      {
-        error: 'nextauth_handler_error',
-        name: err?.name ?? null,
-        message: err?.message ?? String(err),
-      },
-      { status: 500 }
-    )
-  }
+  return handlers.POST(req)
 }
