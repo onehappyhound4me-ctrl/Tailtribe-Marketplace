@@ -6,6 +6,19 @@ export const dynamic = 'force-dynamic'
 
 export async function GET(req: NextRequest) {
   const origin = req.nextUrl.origin
+  const meta = {
+    now: new Date().toISOString(),
+    health_version: '2026-01-23T14:33Z',
+    vercel: {
+      VERCEL: process.env.VERCEL ?? null,
+      VERCEL_ENV: process.env.VERCEL_ENV ?? null,
+      VERCEL_URL: process.env.VERCEL_URL ?? null,
+      VERCEL_REGION: process.env.VERCEL_REGION ?? null,
+      VERCEL_GIT_COMMIT_SHA: process.env.VERCEL_GIT_COMMIT_SHA ?? null,
+      VERCEL_GIT_COMMIT_REF: process.env.VERCEL_GIT_COMMIT_REF ?? null,
+      VERCEL_GIT_REPO_SLUG: process.env.VERCEL_GIT_REPO_SLUG ?? null,
+    },
+  }
 
   const nextauthSecretRaw = process.env.NEXTAUTH_SECRET ?? ''
   const authSecretRaw = process.env.AUTH_SECRET ?? ''
@@ -33,6 +46,7 @@ export async function GET(req: NextRequest) {
 
   return NextResponse.json(
     {
+      meta,
     origin,
     env: {
       NEXTAUTH_URL: nextauthUrl || null,
