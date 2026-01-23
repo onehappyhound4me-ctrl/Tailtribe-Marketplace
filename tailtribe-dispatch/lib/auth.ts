@@ -35,7 +35,8 @@ const nextAuthUrl =
 // Support both env var names:
 // - NEXTAUTH_SECRET (common in NextAuth setups)
 // - AUTH_SECRET (Auth.js / NextAuth v5 docs)
-const nextAuthSecret = process.env.NEXTAUTH_SECRET || process.env.AUTH_SECRET
+const nextAuthSecret =
+  (process.env.NEXTAUTH_SECRET ?? process.env.AUTH_SECRET ?? '').trim() || undefined
 
 const googleClientId = (process.env.GOOGLE_CLIENT_ID ?? process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID ?? '').trim() || undefined
 const googleClientSecret = (process.env.GOOGLE_CLIENT_SECRET ?? '').trim() || undefined

@@ -21,7 +21,7 @@ function ensureAuthEnv(req: NextRequest) {
 
   // If NEXTAUTH_SECRET is missing, return a clear error instead of NextAuth's generic 500.
   if (!process.env.NEXTAUTH_SECRET && process.env.AUTH_SECRET) {
-    process.env.NEXTAUTH_SECRET = process.env.AUTH_SECRET
+    process.env.NEXTAUTH_SECRET = process.env.AUTH_SECRET.trim()
   }
 
   if (!process.env.NEXTAUTH_SECRET) {
@@ -36,7 +36,9 @@ function ensureAuthEnv(req: NextRequest) {
 
   // Auth.js / NextAuth v5 requires a sufficiently long secret (otherwise you typically get "Configuration").
   // We surface a clear error to avoid a confusing redirect loop to /login?error=Configuration.
-  if (String(process.env.NEXTAUTH_SECRET).trim().length < 32) {
+  // Also auto-trim (users sometimes paste with spaces/newlines in Vercel).
+  process.env.NEXTAUTH_SECRET = String(process.env.NEXTAUTH_SECRET).trim()
+  if (process.env.NEXTAUTH_SECRET.length < 32) {
     return NextResponse.json(
       {
         error: 'NEXTAUTH_SECRET is te kort (minstens 32 tekens vereist)',
