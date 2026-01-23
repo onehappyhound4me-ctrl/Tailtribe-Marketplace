@@ -3,6 +3,9 @@ import { auth } from '@/lib/auth'
 import prisma from '@/lib/prisma'
 import { getImpersonationContext } from '@/lib/impersonation'
 
+export const dynamic = 'force-dynamic'
+export const runtime = 'nodejs'
+
 export async function GET() {
   try {
     const session = await auth()
