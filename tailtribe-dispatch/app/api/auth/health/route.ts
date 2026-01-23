@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import prisma from '@/lib/prisma'
 
 export const runtime = 'nodejs'
 
@@ -18,6 +19,17 @@ export async function GET(req: NextRequest) {
   const authUrl = (process.env.AUTH_URL ?? '').toString()
   const wrongNextAuthUrl = (process.env.NEXT_AUTH_URL ?? '').toString()
 
+  let db = { ok: false as boolean, error: null as string | null }
+  try {
+    // Works for Postgres + SQLite
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const _ = await prisma.$queryRaw`SELECT 1`
+    db.ok = true
+  } catch (err: any) {
+    db.ok = false
+    db.error = (err?.message ?? String(err)).slice(0, 500)
+  }
+
   return NextResponse.json({
     origin,
     env: {
@@ -35,6 +47,7 @@ export async function GET(req: NextRequest) {
         has_leading_or_trailing_whitespace: effectiveSecret !== effectiveSecretTrimmed,
       },
     },
+    db,
     last_nextauth_error: (globalThis as any).__tt_last_nextauth_error ?? null,
   })
 }

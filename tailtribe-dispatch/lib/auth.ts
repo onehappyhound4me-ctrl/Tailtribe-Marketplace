@@ -142,10 +142,21 @@ function buildAuth() {
     logger: {
       error(code, ...message) {
         try {
+          const toSafeString = (v: unknown) => {
+            if (v instanceof Error) {
+              return `${v.name}: ${v.message}\n${v.stack ?? ''}`.trim()
+            }
+            if (typeof v === 'string') return v
+            try {
+              return JSON.stringify(v)
+            } catch {
+              return String(v)
+            }
+          }
           ;(globalThis as any).__tt_last_nextauth_error = {
             at: new Date().toISOString(),
             code: String(code ?? ''),
-            message: message.map((m) => String(m)).join(' ').slice(0, 2000),
+            message: message.map(toSafeString).join(' ').slice(0, 4000),
           }
         } catch {
           // ignore
