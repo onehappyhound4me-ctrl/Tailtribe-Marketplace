@@ -32,7 +32,10 @@ const isDev = process.env.NODE_ENV === 'development'
 const authDebug = isDev && process.env.AUTH_DEBUG === 'true'
 const nextAuthUrl =
   process.env.NEXTAUTH_URL || (isDev ? 'http://localhost:3001' : undefined)
-const nextAuthSecret = process.env.NEXTAUTH_SECRET
+// Support both env var names:
+// - NEXTAUTH_SECRET (common in NextAuth setups)
+// - AUTH_SECRET (Auth.js / NextAuth v5 docs)
+const nextAuthSecret = process.env.NEXTAUTH_SECRET || process.env.AUTH_SECRET
 
 const googleClientId = (process.env.GOOGLE_CLIENT_ID ?? process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID ?? '').trim() || undefined
 const googleClientSecret = (process.env.GOOGLE_CLIENT_SECRET ?? '').trim() || undefined
@@ -42,8 +45,10 @@ const googleClientSecret = (process.env.GOOGLE_CLIENT_SECRET ?? '').trim() || un
 // ("Collecting page data"), which would fail the whole deployment if env vars are
 // not present yet. Instead, validate lazily when auth is actually used.
 const assertNextAuthSecret = () => {
-  if (!process.env.NEXTAUTH_SECRET) {
-    throw new Error('NEXTAUTH_SECRET ontbreekt. Stel deze in in Vercel Environment Variables (Production) of .env.local.')
+  if (!(process.env.NEXTAUTH_SECRET || process.env.AUTH_SECRET)) {
+    throw new Error(
+      'NEXTAUTH_SECRET ontbreekt. Stel NEXTAUTH_SECRET (of AUTH_SECRET) in in Vercel Environment Variables (Production).'
+    )
   }
 }
 
@@ -183,5 +188,5 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   session: {
     strategy: 'jwt',
   },
-  secret: process.env.NEXTAUTH_SECRET,
+  secret: nextAuthSecret,
 })

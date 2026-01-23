@@ -13,11 +13,15 @@ function ensureAuthEnv(req: NextRequest) {
   }
 
   // If NEXTAUTH_SECRET is missing, return a clear error instead of NextAuth's generic 500.
+  if (!process.env.NEXTAUTH_SECRET && process.env.AUTH_SECRET) {
+    process.env.NEXTAUTH_SECRET = process.env.AUTH_SECRET
+  }
+
   if (!process.env.NEXTAUTH_SECRET) {
     return NextResponse.json(
       {
         error: 'NEXTAUTH_SECRET ontbreekt',
-        fix: 'Zet NEXTAUTH_SECRET in Vercel Environment Variables voor Production (en redeploy).',
+        fix: 'Zet NEXTAUTH_SECRET (of AUTH_SECRET) in Vercel Environment Variables voor Production (en redeploy).',
       },
       { status: 500 }
     )
