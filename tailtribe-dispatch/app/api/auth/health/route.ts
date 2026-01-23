@@ -49,6 +49,7 @@ export async function GET(req: NextRequest) {
     },
     db,
     last_nextauth_error: (globalThis as any).__tt_last_nextauth_error ?? null,
+    last_auth_exception: (globalThis as any).__tt_last_auth_exception ?? null,
   })
 }
 

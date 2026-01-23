@@ -177,41 +177,63 @@ function buildAuth() {
       },
       async jwt({ token, user }) {
         assertNextAuthSecret()
-        if (user?.email) {
-          const dbUser = await getOrCreateOAuthUser(user.email, user.name ?? null)
-          token.role = dbUser.role
-          token.id = dbUser.id
-          token.email = dbUser.email
-        } else if (token.email && (!token.id || !token.role)) {
-          const dbUser = await prisma.user.findUnique({
-            where: { email: token.email as string },
-          })
-          if (dbUser) {
+        try {
+          if (user?.email) {
+            const dbUser = await getOrCreateOAuthUser(user.email, user.name ?? null)
             token.role = dbUser.role
             token.id = dbUser.id
+            token.email = dbUser.email
+          } else if (token.email && (!token.id || !token.role)) {
+            const dbUser = await prisma.user.findUnique({
+              where: { email: token.email as string },
+            })
+            if (dbUser) {
+              token.role = dbUser.role
+              token.id = dbUser.id
+            }
           }
+          if (authDebug) {
+            console.log('[auth][jwt]', {
+              role: token.role,
+              hasEmail: Boolean(token.email),
+              hasId: Boolean(token.id),
+            })
+          }
+          return token
+        } catch (err: any) {
+          ;(globalThis as any).__tt_last_auth_exception = {
+            at: new Date().toISOString(),
+            where: 'callbacks.jwt',
+            name: err?.name ?? null,
+            message: err?.message ?? String(err),
+            stack: String(err?.stack ?? '').slice(0, 2000) || null,
+          }
+          throw err
         }
-        if (authDebug) {
-          console.log('[auth][jwt]', {
-            role: token.role,
-            hasEmail: Boolean(token.email),
-            hasId: Boolean(token.id),
-          })
-        }
-        return token
       },
       async session({ session, token }) {
         assertNextAuthSecret()
-        if (session.user) {
-          session.user.role = token.role as string
-          session.user.id = token.id as string
+        try {
+          if (session.user) {
+            session.user.role = token.role as string
+            session.user.id = token.id as string
+          }
+          if (authDebug) {
+            console.log('[auth][session]', {
+              role: session.user?.role,
+            })
+          }
+          return session
+        } catch (err: any) {
+          ;(globalThis as any).__tt_last_auth_exception = {
+            at: new Date().toISOString(),
+            where: 'callbacks.session',
+            name: err?.name ?? null,
+            message: err?.message ?? String(err),
+            stack: String(err?.stack ?? '').slice(0, 2000) || null,
+          }
+          throw err
         }
-        if (authDebug) {
-          console.log('[auth][session]', {
-            role: session.user?.role,
-          })
-        }
-        return session
       },
     },
     pages: {
