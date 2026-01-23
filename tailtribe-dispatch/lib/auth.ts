@@ -137,6 +137,21 @@ function buildAuth() {
         : []),
     ],
     debug: authDebug,
+    // Capture server-side errors so we can diagnose "Configuration" issues on Vercel.
+    // (We only store a sanitized message; no secrets.)
+    logger: {
+      error(code, ...message) {
+        try {
+          ;(globalThis as any).__tt_last_nextauth_error = {
+            at: new Date().toISOString(),
+            code: String(code ?? ''),
+            message: message.map((m) => String(m)).join(' ').slice(0, 2000),
+          }
+        } catch {
+          // ignore
+        }
+      },
+    },
     callbacks: {
       async signIn({ user, account }) {
         assertNextAuthSecret()

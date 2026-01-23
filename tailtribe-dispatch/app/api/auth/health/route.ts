@@ -35,6 +35,7 @@ export async function GET(req: NextRequest) {
         has_leading_or_trailing_whitespace: effectiveSecret !== effectiveSecretTrimmed,
       },
     },
+    last_nextauth_error: (globalThis as any).__tt_last_nextauth_error ?? null,
   })
 }
 
