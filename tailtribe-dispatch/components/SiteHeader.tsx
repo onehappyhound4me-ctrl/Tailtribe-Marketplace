@@ -31,14 +31,15 @@ export function SiteHeader({ primaryCtaHref = '/boeken', primaryCtaLabel = 'Boek
             href="/"
             className="flex items-center hover:opacity-95 transition-all duration-300 select-none transform hover:scale-[1.02] no-underline"
           >
-            <div className="w-[210px] sm:w-[260px] md:w-[320px] lg:w-[360px] h-auto overflow-hidden relative">
+            {/* Smaller on mobile to prevent right-side overflow */}
+            <div className="w-[160px] sm:w-[220px] md:w-[320px] lg:w-[360px] h-auto overflow-hidden relative">
               <Image
                 src="/tailtribe_logo_masked_1751977129022.png"
                 alt="TailTribe Logo"
                 width={700}
                 height={700}
                 priority
-                sizes="(max-width: 480px) 210px, (max-width: 768px) 260px, (max-width: 1024px) 320px, 360px"
+                sizes="(max-width: 480px) 160px, (max-width: 768px) 220px, (max-width: 1024px) 320px, 360px"
                 className="w-full h-auto object-contain relative z-10 transition-transform duration-300 hover:scale-[1.02]"
                 style={{
                   filter: 'sepia(0.08) saturate(1.08) hue-rotate(-4deg) brightness(1.08)',
@@ -49,7 +50,7 @@ export function SiteHeader({ primaryCtaHref = '/boeken', primaryCtaLabel = 'Boek
             </div>
           </Link>
 
-          <div className="flex items-center gap-2 md:gap-4 lg:gap-6">
+          <div className="flex items-center gap-2 md:gap-4 lg:gap-6 min-w-0">
             {/* Desktop Menu - alleen zichtbaar op md en groter */}
             <Link
               href="/#services"
@@ -120,45 +121,6 @@ export function SiteHeader({ primaryCtaHref = '/boeken', primaryCtaLabel = 'Boek
                   <path d="M4 6h16v2H4V6Zm0 5h16v2H4v-2Zm0 5h16v2H4v-2Z" />
                 </svg>
               </button>
-              <Link
-                href="/blog"
-                className="inline-flex md:hidden items-center px-4 py-2.5 rounded-full border border-emerald-200 bg-white text-gray-900 hover:bg-emerald-50 text-sm font-semibold transition"
-              >
-                Blog
-              </Link>
-              {canSeeCommunity && (
-                <Link
-                  href="/community"
-                  className="inline-flex md:hidden items-center px-4 py-2.5 rounded-full border border-emerald-200 bg-white text-gray-900 hover:bg-emerald-50 text-sm font-semibold transition"
-                >
-                  Community
-                </Link>
-              )}
-              {/* Mobile Session Links - alleen op mobile */}
-              {session && (
-                <Link
-                  href="/dashboard"
-                  className="inline-flex md:hidden items-center px-4 py-2.5 rounded-full border border-blue-200 bg-white text-gray-900 hover:bg-blue-50 text-sm font-semibold transition"
-                >
-                  Dashboard
-                </Link>
-              )}
-              
-              {session ? (
-                <button
-                  onClick={handleLogout}
-                  className="inline-flex md:hidden items-center px-4 py-2.5 rounded-full border border-red-200 bg-white text-gray-900 hover:bg-red-50 text-sm font-semibold transition"
-                >
-                  Uitloggen
-                </button>
-              ) : (
-                <Link
-                  href="/login"
-                  className="inline-flex md:hidden items-center px-4 py-2.5 rounded-full border border-emerald-200 bg-white text-gray-900 hover:bg-emerald-50 text-sm font-semibold transition"
-                >
-                  Inloggen
-                </Link>
-              )}
               
               {/* Primary CTA - altijd zichtbaar */}
               <Link
