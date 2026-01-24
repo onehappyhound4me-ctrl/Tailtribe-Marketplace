@@ -5,7 +5,8 @@ import Link from 'next/link'
 import { SiteHeader } from '@/components/SiteHeader'
 import { SiteFooter } from '@/components/SiteFooter'
 import { DISPATCH_SERVICES } from '@/lib/services'
-import { getStatusLabel } from '@/lib/status-labels'
+// Use relative import to avoid path-alias resolution issues in some Vercel build configurations.
+import { getStatusLabel } from '../../../../lib/status-labels'
 
 type Booking = {
   id: string
