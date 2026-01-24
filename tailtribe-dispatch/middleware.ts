@@ -4,6 +4,18 @@ import { getToken } from 'next-auth/jwt'
 
 export default async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl
+  const host = (req.headers.get('host') ?? '').toLowerCase()
+
+  // Never show tailtribe.nl: always redirect to tailtribe.be (same path/query).
+  // This ensures users won't end up on the old NL site, and the browser URL becomes .be.
+  if (host === 'tailtribe.nl' || host === 'www.tailtribe.nl') {
+    const url = new URL(req.url)
+    url.hostname = 'tailtribe.be'
+    url.protocol = 'https:'
+    // Force canonical host (no www)
+    if (url.host === 'www.tailtribe.nl') url.host = 'tailtribe.be'
+    return NextResponse.redirect(url, 308)
+  }
   const impersonateRole = req.cookies.get('impersonateRole')?.value
   const impersonateUserId = req.cookies.get('impersonateUserId')?.value
 
@@ -28,7 +40,7 @@ export default async function middleware(req: NextRequest) {
 
   // Public routes (no auth needed)
   const publicRoutes = [
-    '/',
+    // NOTE: '/' must be handled as exact match (otherwise every pathname startsWith('/') and everything becomes public)
     '/login',
     '/register',
     '/boeken',
@@ -45,7 +57,9 @@ export default async function middleware(req: NextRequest) {
     '/cookies',
   ]
 
-  const isPublicRoute = publicRoutes.some((route) => pathname.startsWith(route))
+  const isPublicRoute =
+    pathname === '/' ||
+    publicRoutes.some((route) => pathname === route || pathname.startsWith(`${route}/`))
   const isPublicApi = pathname === '/api/auth/register' || pathname === '/api/bookings'
 
   // Allow public routes
