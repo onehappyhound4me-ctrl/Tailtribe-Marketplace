@@ -11,6 +11,13 @@ import { DISPATCH_SERVICES } from '@/lib/services'
 import { trackEvent } from '@/lib/analytics'
 import { SERVICE_ICON_FILTER, withAssetVersion } from '@/lib/service-icons'
 
+const TIME_WINDOWS = [
+  { value: 'MORNING', label: 'Ochtend', hint: '07:00 - 12:00' },
+  { value: 'AFTERNOON', label: 'Middag', hint: '12:00 - 18:00' },
+  { value: 'EVENING', label: 'Avond', hint: '18:00 - 22:00' },
+  { value: 'NIGHT', label: 'Nacht', hint: '22:00 - 07:00' },
+] as const
+
 export default function BookingPage() {
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -58,9 +65,11 @@ export default function BookingPage() {
 
   const [formData, setFormData] = useState({
     service: '',
-    date: '',
+    // Step 2 supports multiple days + multiple time blocks
+    dates: [] as string[],
+    timeWindows: ['MORNING'] as string[],
+    // Optional exact time (if empty, we use the selected time blocks)
     time: '',
-    timeWindow: 'MORNING',
     firstName: '',
     lastName: '',
     email: '',
@@ -74,6 +83,36 @@ export default function BookingPage() {
     // Honeypot field (should stay empty)
     website: ''
   })
+
+  const [dateDraft, setDateDraft] = useState('')
+
+  const addDate = () => {
+    const d = (dateDraft ?? '').trim()
+    if (!d) return
+    if (d < todayStr || d > maxBookingDateStr) return
+    setFormData((prev) => {
+      const next = Array.from(new Set([...(prev.dates ?? []), d])).sort()
+      // Keep the list reasonable
+      if (next.length > 10) return prev
+      return { ...prev, dates: next }
+    })
+    setDateDraft('')
+  }
+
+  const removeDate = (d: string) => {
+    setFormData((prev) => ({ ...prev, dates: (prev.dates ?? []).filter((x) => x !== d) }))
+  }
+
+  const toggleTimeWindow = (value: string) => {
+    setFormData((prev) => {
+      const current = prev.timeWindows ?? []
+      if (current.includes(value)) {
+        const next = current.filter((x) => x !== value)
+        return { ...prev, timeWindows: next }
+      }
+      return { ...prev, timeWindows: [...current, value] }
+    })
+  }
 
   // Show loading while checking authentication
   if (status === 'loading') {
@@ -237,52 +276,77 @@ export default function BookingPage() {
                   <h2 className="text-3xl font-bold mb-6">Wanneer?</h2>
                   <div className="space-y-4">
                     <div>
-                      <label className="block text-sm font-medium mb-2">Voorkeur tijdsblok</label>
-                      {fieldErrors.timeWindow && <p className="text-sm text-red-700 mb-2">{fieldErrors.timeWindow}</p>}
+                      <label className="block text-sm font-medium mb-2">Voorkeur tijdsblok(ken)</label>
+                      {(fieldErrors.timeWindows || fieldErrors.timeWindow) && (
+                        <p className="text-sm text-red-700 mb-2">{fieldErrors.timeWindows || fieldErrors.timeWindow}</p>
+                      )}
                       <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
-                        {[
-                          { value: 'MORNING', label: 'Ochtend', hint: '07:00 - 12:00' },
-                          { value: 'AFTERNOON', label: 'Middag', hint: '12:00 - 18:00' },
-                          { value: 'EVENING', label: 'Avond', hint: '18:00 - 22:00' },
-                          { value: 'NIGHT', label: 'Nacht', hint: '22:00 - 07:00' },
-                        ].map((slot) => (
-                          <button
-                            key={slot.value}
-                            type="button"
-                            onClick={() => setFormData({ ...formData, timeWindow: slot.value })}
-                            className={`w-full rounded-xl border-2 p-3 text-left transition ${
-                              formData.timeWindow === slot.value
-                                ? 'border-brand bg-brand/5'
-                                : 'border-gray-200 hover:border-brand/50'
-                            }`}
-                          >
-                            <div className="font-semibold text-gray-900">{slot.label}</div>
-                            <div className="text-sm text-gray-600">{slot.hint}</div>
-                          </button>
-                        ))}
+                        {TIME_WINDOWS.map((slot) => {
+                          const selected = (formData.timeWindows ?? []).includes(slot.value)
+                          return (
+                            <button
+                              key={slot.value}
+                              type="button"
+                              onClick={() => toggleTimeWindow(slot.value)}
+                              className={`w-full rounded-xl border-2 p-3 text-left transition ${
+                                selected ? 'border-brand bg-brand/5' : 'border-gray-200 hover:border-brand/50'
+                              }`}
+                            >
+                              <div className="font-semibold text-gray-900">{slot.label}</div>
+                              <div className="text-sm text-gray-600">{slot.hint}</div>
+                            </button>
+                          )
+                        })}
                       </div>
                     </div>
                     <div>
-                      <label className="block text-sm font-medium mb-2">Datum</label>
+                      <label className="block text-sm font-medium mb-2">Datum(s)</label>
                       <div className="text-xs text-gray-500 mb-2">
                         Je kan maximaal 60 dagen vooruit boeken.
                       </div>
-                      <input
-                        type="date"
-                        required
-                        value={formData.date}
-                        onChange={(e) => setFormData({ ...formData, date: e.target.value })}
-                        min={todayStr}
-                        max={maxBookingDateStr}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-brand focus:border-transparent"
-                      />
-                      {fieldErrors.date && <p className="text-sm text-red-700 mt-2">{fieldErrors.date}</p>}
+                      {(fieldErrors.dates || fieldErrors.date) && (
+                        <p className="text-sm text-red-700 mb-2">{fieldErrors.dates || fieldErrors.date}</p>
+                      )}
+                      <div className="flex gap-2">
+                        <input
+                          type="date"
+                          value={dateDraft}
+                          onChange={(e) => setDateDraft(e.target.value)}
+                          min={todayStr}
+                          max={maxBookingDateStr}
+                          className="flex-1 px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-brand focus:border-transparent"
+                        />
+                        <button
+                          type="button"
+                          onClick={addDate}
+                          className="px-4 py-3 rounded-xl border border-gray-300 bg-white font-semibold text-gray-900 hover:bg-gray-50"
+                        >
+                          Voeg toe
+                        </button>
+                      </div>
+                      <div className="mt-3 flex flex-wrap gap-2">
+                        {(formData.dates ?? []).length === 0 ? (
+                          <div className="text-sm text-gray-500">Geen dagen gekozen.</div>
+                        ) : (
+                          (formData.dates ?? []).map((d) => (
+                            <button
+                              key={d}
+                              type="button"
+                              onClick={() => removeDate(d)}
+                              className="inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-sm font-semibold text-emerald-900 hover:bg-emerald-100"
+                              aria-label={`Verwijder ${d}`}
+                            >
+                              {d}
+                              <span className="text-emerald-700">×</span>
+                            </button>
+                          ))
+                        )}
+                      </div>
                     </div>
                     <div>
-                      <label className="block text-sm font-medium mb-2">Tijd</label>
+                      <label className="block text-sm font-medium mb-2">Exact tijdstip (optioneel)</label>
                       <input
                         type="time"
-                        required
                         value={formData.time}
                         onChange={(e) => setFormData({ ...formData, time: e.target.value })}
                         className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-brand focus:border-transparent"
@@ -301,7 +365,7 @@ export default function BookingPage() {
                     <button
                       type="submit"
                       formNoValidate
-                      disabled={!formData.date || !formData.time}
+                      disabled={(formData.dates ?? []).length === 0 || (formData.timeWindows ?? []).length === 0}
                       className="flex-1 btn-brand disabled:opacity-50"
                     >
                       Volgende
@@ -354,11 +418,11 @@ export default function BookingPage() {
                       <label className="block text-sm font-medium mb-2">Telefoon</label>
                       <input
                         type="tel"
-                        required
                         value={formData.phone}
                         onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                         className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-brand"
                       />
+                      <p className="text-xs text-gray-500 mt-1">Optioneel. Als je “Telefoon” of “WhatsApp” kiest, helpt dit om sneller te contacteren.</p>
                       {fieldErrors.phone && <p className="text-sm text-red-700 mt-2">{fieldErrors.phone}</p>}
                     </div>
                     <div>
@@ -424,7 +488,7 @@ export default function BookingPage() {
                     <button
                       type="submit"
                       formNoValidate
-                      disabled={!formData.firstName || !formData.email || !formData.phone}
+                      disabled={!formData.firstName || !formData.email}
                       className="flex-1 btn-brand disabled:opacity-50"
                     >
                       Volgende
