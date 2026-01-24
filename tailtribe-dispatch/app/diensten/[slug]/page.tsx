@@ -5,6 +5,7 @@ import { notFound } from 'next/navigation'
 import { SiteHeader } from '@/components/SiteHeader'
 import { SiteFooter } from '@/components/SiteFooter'
 import { DISPATCH_SERVICES, getDispatchServiceBySlug } from '@/lib/services'
+import { SERVICE_ICON_FILTER, withAssetVersion } from '@/lib/service-icons'
 
 type Props = {
   params: { slug: string }
@@ -102,8 +103,14 @@ export default function DienstDetailPage({ params }: Props) {
           </nav>
 
           <header className="bg-white rounded-2xl shadow-sm border border-black/5 p-8 md:p-10 flex flex-col md:flex-row gap-8 items-center">
-            <div className="relative w-40 h-40 md:w-48 md:h-48 rounded-2xl overflow-hidden bg-gradient-to-br from-green-50 to-blue-50 border border-black/5 flex-shrink-0">
-              <Image src={service.image} alt={service.name} fill className="object-contain p-3" />
+            <div className="relative w-40 h-40 md:w-48 md:h-48 rounded-2xl overflow-hidden bg-gradient-to-br from-emerald-50 to-blue-50 border border-black/5 flex-shrink-0">
+              <Image
+                src={withAssetVersion(service.image)}
+                alt={service.name}
+                fill
+                className="object-contain p-3"
+                style={{ filter: SERVICE_ICON_FILTER }}
+              />
             </div>
             <div className="text-center md:text-left">
               <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-3">
@@ -367,12 +374,13 @@ export default function DienstDetailPage({ params }: Props) {
                   href={`/diensten/${s.slug}`}
                   className="group bg-white rounded-2xl shadow-sm hover:shadow-tt transition-all border border-black/5 overflow-hidden"
                 >
-                  <div className="relative h-36 w-full overflow-hidden bg-gradient-to-br from-green-50 to-blue-50 flex items-center justify-center p-5">
+                  <div className="relative h-36 w-full overflow-hidden bg-gradient-to-br from-emerald-50 to-blue-50 flex items-center justify-center p-5">
                     <Image
-                      src={s.image}
+                      src={withAssetVersion(s.image)}
                       alt={s.name}
                       fill
                       className="object-contain group-hover:scale-105 transition-transform duration-300"
+                      style={{ filter: SERVICE_ICON_FILTER }}
                     />
                   </div>
                   <div className="p-5">
