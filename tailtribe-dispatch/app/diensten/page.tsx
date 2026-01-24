@@ -4,6 +4,7 @@ import Image from 'next/image'
 import { SiteHeader } from '@/components/SiteHeader'
 import { SiteFooter } from '@/components/SiteFooter'
 import { DISPATCH_SERVICES } from '@/lib/services'
+import { SERVICE_ICON_FILTER, withAssetVersion } from '@/lib/service-icons'
 
 const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://tailtribe.be'
 const canonicalUrl = `${baseUrl}/diensten`
@@ -78,12 +79,13 @@ export default function DienstenPage() {
                 href={`/diensten/${service.slug}`}
                 className="group bg-white rounded-2xl shadow-sm hover:shadow-tt transition-all border border-black/5 overflow-hidden"
               >
-                <div className="relative h-40 w-full overflow-hidden bg-gradient-to-br from-green-50 to-blue-50 flex items-center justify-center p-4">
+                <div className="relative h-40 w-full overflow-hidden bg-gradient-to-br from-emerald-50 to-blue-50 flex items-center justify-center p-4">
                   <Image
-                    src={service.image}
+                    src={withAssetVersion(service.image)}
                     alt={service.name}
                     fill
                     className="object-contain group-hover:scale-105 transition-transform duration-300"
+                    style={{ filter: SERVICE_ICON_FILTER }}
                   />
                 </div>
                 <div className="p-6">
