@@ -207,7 +207,7 @@ export default function BookingPage() {
           </div>
 
           {/* Form Card */}
-          <div className="bg-white rounded-2xl shadow-tt p-8">
+          <div className="bg-white rounded-2xl shadow-tt p-6 sm:p-8">
             {submitError && (
               <div className="mb-6 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-red-800">
                 {submitError}
@@ -230,7 +230,7 @@ export default function BookingPage() {
               {/* Step 1: Dienst */}
               {step === 1 && (
                 <div>
-                  <h2 className="text-3xl font-bold mb-6">Welke dienst heb je nodig?</h2>
+                  <h2 className="text-2xl sm:text-3xl font-bold mb-5 sm:mb-6">Welke dienst heb je nodig?</h2>
                   {fieldErrors.service && (
                     <p className="text-sm text-red-700 mb-3">{fieldErrors.service}</p>
                   )}
@@ -243,25 +243,26 @@ export default function BookingPage() {
                           setFormData({ ...formData, service: service.id })
                           setStep(2)
                         }}
-                        className={`p-6 rounded-xl border-2 transition text-left ${
+                        className={`p-4 sm:p-6 rounded-xl border-2 transition text-left ${
                           formData.service === service.id
                             ? 'border-brand bg-brand/5'
                             : 'border-gray-200 hover:border-brand/50'
                         }`}
                       >
                         <div className="flex gap-4 items-center">
-                          <div className="relative w-16 h-16 rounded-xl overflow-hidden bg-gradient-to-br from-emerald-50 to-blue-50 border border-black/5 flex-shrink-0">
+                          <div className="relative w-14 h-14 sm:w-16 sm:h-16 rounded-xl overflow-hidden bg-gradient-to-br from-emerald-50 to-blue-50 border border-black/5 flex-shrink-0">
                             <Image
                               src={withAssetVersion(service.image)}
                               alt={service.name}
                               fill
                               className="object-contain p-2"
                               style={{ filter: SERVICE_ICON_FILTER }}
+                              sizes="64px"
                             />
                           </div>
                           <div>
                             <div className="font-semibold text-lg">{service.name}</div>
-                            <div className="text-sm text-gray-600">{service.desc}</div>
+                            <div className="text-sm text-gray-600 line-clamp-2">{service.desc}</div>
                           </div>
                         </div>
                       </button>
