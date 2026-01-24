@@ -169,7 +169,7 @@ export function SiteHeader({ primaryCtaHref = '/boeken', primaryCtaLabel = 'Boek
         {/* Sheet */}
         <div
           className={`absolute left-0 right-0 top-0 border-b border-emerald-200/70 bg-white/92 backdrop-blur shadow-xl transition-transform duration-200 ${
-            mobileMenuOpen ? 'translate-y-0' : '-translate-y-3'
+            mobileMenuOpen ? 'translate-y-0' : '-translate-y-full'
           }`}
         >
           <div className="container mx-auto px-4 sm:px-6 py-4">
