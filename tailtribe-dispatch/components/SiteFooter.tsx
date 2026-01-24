@@ -43,7 +43,8 @@ export function SiteFooter() {
                 style={{
                   filter: 'sepia(0.08) saturate(1.08) hue-rotate(-4deg) brightness(1.08)',
                   // Crop tiny artifact/smear in the bottom-right of the source image (footer-only).
-                  clipPath: 'inset(0 4% 10% 0)',
+                  // Slightly stronger than header because the dark footer background makes it more visible.
+                  clipPath: 'inset(0 7% 14% 0)',
                 }}
               />
             </div>
