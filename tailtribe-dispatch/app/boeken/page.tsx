@@ -9,6 +9,7 @@ import { SiteHeader } from '@/components/SiteHeader'
 import { SiteFooter } from '@/components/SiteFooter'
 import { DISPATCH_SERVICES } from '@/lib/services'
 import { trackEvent } from '@/lib/analytics'
+import { SERVICE_ICON_FILTER, withAssetVersion } from '@/lib/service-icons'
 
 export default function BookingPage() {
   const router = useRouter()
@@ -210,8 +211,14 @@ export default function BookingPage() {
                         }`}
                       >
                         <div className="flex gap-4 items-center">
-                          <div className="relative w-16 h-16 rounded-xl overflow-hidden bg-gradient-to-br from-green-50 to-blue-50 border border-black/5 flex-shrink-0">
-                            <Image src={service.image} alt={service.name} fill className="object-contain p-2" />
+                          <div className="relative w-16 h-16 rounded-xl overflow-hidden bg-gradient-to-br from-emerald-50 to-blue-50 border border-black/5 flex-shrink-0">
+                            <Image
+                              src={withAssetVersion(service.image)}
+                              alt={service.name}
+                              fill
+                              className="object-contain p-2"
+                              style={{ filter: SERVICE_ICON_FILTER }}
+                            />
                           </div>
                           <div>
                             <div className="font-semibold text-lg">{service.name}</div>
