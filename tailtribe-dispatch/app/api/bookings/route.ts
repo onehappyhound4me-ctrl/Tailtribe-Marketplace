@@ -72,6 +72,48 @@ function isValidBelgianPostalCode(postalCode: string) {
   return /^\d{4}$/.test(postalCode)
 }
 
+function normalizeCityLike(value: string) {
+  return value
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '') // strip accents
+    .replace(/['’.]/g, '')
+    .replace(/\s+/g, ' ')
+    .trim()
+}
+
+async function fetchWithTimeout(url: string, timeoutMs: number) {
+  const ctrl = new AbortController()
+  const t = setTimeout(() => ctrl.abort(), timeoutMs)
+  try {
+    return await fetch(url, { signal: ctrl.signal })
+  } finally {
+    clearTimeout(t)
+  }
+}
+
+async function postcodeMatchesCityBE(postalCode: string, city: string): Promise<boolean | null> {
+  // Best-effort check using a free dataset (no API key).
+  // Returns:
+  // - true/false if we could verify
+  // - null if verification failed (network, unexpected response)
+  try {
+    const res = await fetchWithTimeout(`https://api.zippopotam.us/BE/${encodeURIComponent(postalCode)}`, 2500)
+    if (!res.ok) return null
+    const json: any = await res.json().catch(() => null)
+    const places: any[] = Array.isArray(json?.places) ? json.places : []
+    if (!places.length) return null
+    const cityNorm = normalizeCityLike(city)
+    const candidates = places
+      .map((p) => normalizeCityLike(String(p?.['place name'] ?? '')))
+      .filter(Boolean)
+    if (!candidates.length) return null
+    return candidates.some((c) => c === cityNorm || c.includes(cityNorm) || cityNorm.includes(c))
+  } catch {
+    return null
+  }
+}
+
 function getAppUrl() {
   return process.env.NEXT_PUBLIC_APP_URL ?? 'https://tailtribe.be'
 }
@@ -231,6 +273,10 @@ function validateBookingInput(body: any): { ok: true; data: BookingInput } | { o
   if (!isNonEmptyString(data.contactPreference) || !allowedContactPreference.has(data.contactPreference)) {
     fieldErrors.contactPreference = 'Kies één kanaal voor contact.'
   }
+  // If they prefer phone/whatsapp, require a phone number.
+  if ((data.contactPreference === 'telefoon' || data.contactPreference === 'whatsapp') && !data.phone.trim()) {
+    fieldErrors.phone = 'Telefoonnummer is verplicht bij Telefoon/WhatsApp.'
+  }
 
   if (!isOptionalString(body?.message)) {
     fieldErrors.message = 'Extra info moet tekst zijn.'
@@ -306,6 +352,20 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       )
     }
+
+    // Best-effort postcode ↔ city check (avoid obvious mismatches)
+    const postal = validated.data.postalCode.trim()
+    const city = validated.data.city.trim()
+    if (isValidBelgianPostalCode(postal) && city) {
+      const ok = await postcodeMatchesCityBE(postal, city)
+      if (ok === false) {
+        return NextResponse.json(
+          { error: 'VALIDATION_ERROR', fieldErrors: { postalCode: 'Postcode komt niet overeen met stad/gemeente.' } },
+          { status: 400 }
+        )
+      }
+    }
+
     const timeTrimmed = (validated.data.time ?? '').trim()
     const slots = validated.data.dates.flatMap((d) =>
       validated.data.timeWindows.map((tw) => {
