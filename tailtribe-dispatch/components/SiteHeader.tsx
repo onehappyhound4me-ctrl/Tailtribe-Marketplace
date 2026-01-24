@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import Image from 'next/image'
+import { useState } from 'react'
 import { useSession, signOut } from 'next-auth/react'
 
 type Props = {
@@ -12,6 +13,7 @@ type Props = {
 export function SiteHeader({ primaryCtaHref = '/boeken', primaryCtaLabel = 'Boek Nu' }: Props) {
   const { data: session } = useSession()
   const canSeeCommunity = session?.user?.role === 'CAREGIVER' || session?.user?.role === 'ADMIN'
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
   const handleLogout = async () => {
     await signOut({ callbackUrl: '/', redirect: true })
@@ -40,6 +42,8 @@ export function SiteHeader({ primaryCtaHref = '/boeken', primaryCtaLabel = 'Boek
                 className="w-full h-auto object-contain relative z-10 transition-transform duration-300 hover:scale-[1.02]"
                 style={{
                   filter: 'sepia(0.08) saturate(1.08) hue-rotate(-4deg) brightness(1.08)',
+                  // Crop tiny artifact/smear in the bottom-right of the source image (header).
+                  clipPath: 'inset(0 4% 10% 0)',
                 }}
               />
             </div>
@@ -104,6 +108,18 @@ export function SiteHeader({ primaryCtaHref = '/boeken', primaryCtaLabel = 'Boek
             
             {/* Mobile & Shared Buttons */}
             <div className="flex items-center gap-2 md:gap-3">
+              {/* Mobile menu toggle */}
+              <button
+                type="button"
+                onClick={() => setMobileMenuOpen((v) => !v)}
+                aria-label="Menu"
+                aria-expanded={mobileMenuOpen}
+                className="inline-flex md:hidden items-center justify-center rounded-full border border-emerald-200 bg-white/80 backdrop-blur px-3 py-2 text-gray-900 hover:bg-white transition shadow-sm"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className="w-5 h-5 fill-current">
+                  <path d="M4 6h16v2H4V6Zm0 5h16v2H4v-2Zm0 5h16v2H4v-2Z" />
+                </svg>
+              </button>
               <Link
                 href="/blog"
                 className="inline-flex md:hidden items-center px-4 py-2.5 rounded-full border border-emerald-200 bg-white text-gray-900 hover:bg-emerald-50 text-sm font-semibold transition"
@@ -155,6 +171,81 @@ export function SiteHeader({ primaryCtaHref = '/boeken', primaryCtaLabel = 'Boek
           </div>
         </div>
       </nav>
+
+      {/* Mobile dropdown menu */}
+      {mobileMenuOpen && (
+        <div className="md:hidden relative z-20 border-t border-emerald-200/70 bg-white/85 backdrop-blur">
+          <div className="container mx-auto px-4 sm:px-6 py-3">
+            <div className="grid grid-cols-2 gap-2">
+              <Link
+                href="/#services"
+                onClick={() => setMobileMenuOpen(false)}
+                className="rounded-lg border border-emerald-200 bg-white px-3 py-2 text-sm font-semibold text-gray-900 hover:bg-emerald-50 transition"
+              >
+                Diensten
+              </Link>
+              <Link
+                href="/over-ons"
+                onClick={() => setMobileMenuOpen(false)}
+                className="rounded-lg border border-emerald-200 bg-white px-3 py-2 text-sm font-semibold text-gray-900 hover:bg-emerald-50 transition"
+              >
+                Over ons
+              </Link>
+              <Link
+                href="/blog"
+                onClick={() => setMobileMenuOpen(false)}
+                className="rounded-lg border border-emerald-200 bg-white px-3 py-2 text-sm font-semibold text-gray-900 hover:bg-emerald-50 transition"
+              >
+                Blog
+              </Link>
+              {canSeeCommunity ? (
+                <Link
+                  href="/community"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="rounded-lg border border-emerald-200 bg-white px-3 py-2 text-sm font-semibold text-gray-900 hover:bg-emerald-50 transition"
+                >
+                  Community
+                </Link>
+              ) : (
+                <span className="rounded-lg border border-transparent px-3 py-2 text-sm text-gray-500" />
+              )}
+
+              {session ? (
+                <>
+                  <Link
+                    href="/dashboard"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="rounded-lg border border-blue-200 bg-white px-3 py-2 text-sm font-semibold text-gray-900 hover:bg-blue-50 transition"
+                  >
+                    Dashboard
+                  </Link>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setMobileMenuOpen(false)
+                      void handleLogout()
+                    }}
+                    className="rounded-lg border border-red-200 bg-white px-3 py-2 text-sm font-semibold text-gray-900 hover:bg-red-50 transition text-left"
+                  >
+                    Uitloggen
+                  </button>
+                </>
+              ) : (
+                <>
+                  <Link
+                    href="/login"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="rounded-lg border border-emerald-200 bg-white px-3 py-2 text-sm font-semibold text-gray-900 hover:bg-emerald-50 transition"
+                  >
+                    Inloggen
+                  </Link>
+                  <span className="rounded-lg border border-transparent px-3 py-2 text-sm text-gray-500" />
+                </>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </header>
   )
 }
