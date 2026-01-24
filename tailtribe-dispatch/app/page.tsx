@@ -105,27 +105,28 @@ export default function HomePage() {
             </p>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10 md:gap-12 max-w-6xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 md:gap-10 max-w-6xl mx-auto">
             {DISPATCH_SERVICES.map((service) => (
               <Link 
                 key={service.id}
                 href={`/diensten/${service.slug}`}
                 className="group bg-gradient-to-br from-white via-white to-emerald-50 rounded-2xl shadow-md hover:shadow-2xl transition-all duration-300 overflow-hidden border border-emerald-100 hover:border-emerald-200 transform hover:-translate-y-1"
               >
-                <div className="relative h-40 w-full overflow-hidden bg-gradient-to-br from-emerald-50 to-blue-50 flex items-center justify-center p-4">
+                <div className="relative h-32 sm:h-40 w-full overflow-hidden bg-gradient-to-br from-emerald-50 to-blue-50 flex items-center justify-center p-4">
                   <Image 
                     src={withAssetVersion(service.image)} 
                     alt={service.name}
                     fill
                     className="object-contain group-hover:scale-105 transition-transform duration-300"
                     style={{ filter: SERVICE_ICON_FILTER }}
+                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                   />
                 </div>
-                <div className="p-6 pt-7">
-                  <h3 className="text-lg font-bold mb-3 text-transparent bg-clip-text bg-gradient-to-r from-emerald-700 to-blue-700 group-hover:from-emerald-600 group-hover:to-blue-600 transition-colors">
+                <div className="p-5 sm:p-6 pt-6">
+                  <h3 className="text-lg font-bold mb-2 text-transparent bg-clip-text bg-gradient-to-r from-emerald-700 to-blue-700 group-hover:from-emerald-600 group-hover:to-blue-600 transition-colors">
                     {service.name}
                   </h3>
-                  <p className="text-sm text-emerald-900/90 leading-relaxed">
+                  <p className="text-sm text-emerald-900/90 leading-relaxed line-clamp-3">
                     {service.desc}
                   </p>
                 </div>
