@@ -29,8 +29,8 @@ export function SiteFooter() {
 
   return (
     <footer className="bg-gradient-to-br from-slate-800 via-slate-900 to-gray-900 text-slate-100 border-t border-slate-700">
-      <div className="container mx-auto px-4 py-6">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-4 pb-6">
+      <div className="container mx-auto px-4 py-4 md:py-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 pt-3 md:pt-4 pb-4 md:pb-6">
           <div>
             <div className="mt-0 flex items-center mb-0 overflow-hidden rounded-lg">
               <Image
@@ -39,7 +39,7 @@ export function SiteFooter() {
                 width={700}
                 height={700}
                 sizes="(max-width: 768px) 220px, 260px"
-                className="h-auto w-[220px] md:w-[260px] object-contain object-left"
+                className="h-auto w-[180px] sm:w-[220px] md:w-[260px] object-contain object-left"
                 style={{
                   filter: 'sepia(0.08) saturate(1.08) hue-rotate(-4deg) brightness(1.08)',
                   // Crop tiny artifact/smear in the bottom-right of the source image (footer-only).
@@ -114,8 +114,8 @@ export function SiteFooter() {
           </div>
         </div>
 
-        <div className="border-t border-slate-700 pt-4 text-sm text-slate-300">
-          <div className="flex flex-wrap items-center justify-center gap-3 mb-3">
+        <div className="border-t border-slate-700 pt-3 md:pt-4 text-sm text-slate-300">
+          <div className="flex flex-wrap items-center justify-center gap-3 mb-2 md:mb-3">
             <Link href="/terms" className="hover:text-white">
               Algemene Voorwaarden
             </Link>
