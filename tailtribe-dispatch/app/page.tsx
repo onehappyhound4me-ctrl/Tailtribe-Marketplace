@@ -6,6 +6,7 @@ import { useSession } from 'next-auth/react'
 import { SiteHeader } from '@/components/SiteHeader'
 import { SiteFooter } from '@/components/SiteFooter'
 import { DISPATCH_SERVICES } from '@/lib/services'
+import { SERVICE_ICON_FILTER, withAssetVersion } from '@/lib/service-icons'
 
 // Gebruik een lokale hero-afbeelding uit /public.
 // Cache-buster query om harde refresh te forceren bij updates.
@@ -111,12 +112,13 @@ export default function HomePage() {
                 href={`/diensten/${service.slug}`}
                 className="group bg-gradient-to-br from-white via-white to-emerald-50 rounded-2xl shadow-md hover:shadow-2xl transition-all duration-300 overflow-hidden border border-emerald-100 hover:border-emerald-200 transform hover:-translate-y-1"
               >
-                <div className="relative h-40 w-full overflow-hidden bg-gradient-to-br from-green-50 to-blue-50 flex items-center justify-center p-4">
+                <div className="relative h-40 w-full overflow-hidden bg-gradient-to-br from-emerald-50 to-blue-50 flex items-center justify-center p-4">
                   <Image 
-                    src={service.image} 
+                    src={withAssetVersion(service.image)} 
                     alt={service.name}
                     fill
                     className="object-contain group-hover:scale-105 transition-transform duration-300"
+                    style={{ filter: SERVICE_ICON_FILTER }}
                   />
                 </div>
                 <div className="p-6 pt-7">
