@@ -347,13 +347,16 @@ type BookingAdminEmailInput = {
   firstName: string
   lastName: string
   serviceLabel: string
-  date: string
-  time: string
-  timeWindowLabel: string
+  // New flow: multiple requested slots (one per line)
+  slotsText?: string
+  // Backward-compatible fields
+  date?: string
+  time?: string
+  timeWindowLabel?: string
   city: string
   postalCode: string
   email: string
-  phone: string
+  phone?: string
   contactPreferenceLabel: string
   petName: string
   petType: string
@@ -364,9 +367,10 @@ type BookingAdminEmailInput = {
 type BookingOwnerEmailInput = {
   firstName: string
   serviceLabel: string
-  date: string
-  time: string
-  timeWindowLabel: string
+  slotsText?: string
+  date?: string
+  time?: string
+  timeWindowLabel?: string
   city: string
   postalCode: string
   contactPreferenceLabel: string
@@ -377,6 +381,16 @@ export function buildAdminBookingReceivedEmail(input: BookingAdminEmailInput) {
     ? `<p style="margin:12px 0 0 0;"><strong>Extra info:</strong><br/>${escapeHtml(input.message).replace(/\n/g, '<br/>')}</p>`
     : ''
 
+  const slotsBlock = input.slotsText?.trim()
+    ? `<p style="margin:0 0 6px 0;"><strong>Gekozen momenten:</strong></p>
+       <pre style="margin:0 0 6px 0;white-space:pre-wrap;background:#fff;border:1px solid #E5E7EB;border-radius:10px;padding:10px;">${escapeHtml(
+         input.slotsText
+       )}</pre>`
+    : `<p style="margin:0 0 6px 0;"><strong>Datum/Tijd:</strong> ${input.date ?? ''}${input.time ? ' om ' + input.time : ''}</p>
+       <p style="margin:0 0 6px 0;"><strong>Tijdsblok:</strong> ${input.timeWindowLabel ?? ''}</p>`
+
+  const phonePart = input.phone?.trim() ? ` • ${escapeHtml(input.phone.trim())}` : ''
+
   const subject = `Nieuwe aanvraag – ${input.serviceLabel} (${input.city})`
   const html = `
     <div style="font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; line-height: 1.5; color: #111827;">
@@ -386,10 +400,9 @@ export function buildAdminBookingReceivedEmail(input: BookingAdminEmailInput) {
       </p>
       <div style="background:#F9FAFB;border:1px solid #E5E7EB;border-radius:12px;padding:14px;">
         <p style="margin:0 0 6px 0;"><strong>Dienst:</strong> ${input.serviceLabel}</p>
-        <p style="margin:0 0 6px 0;"><strong>Datum/Tijd:</strong> ${input.date} om ${input.time}</p>
-        <p style="margin:0 0 6px 0;"><strong>Tijdsblok:</strong> ${input.timeWindowLabel}</p>
+        ${slotsBlock}
         <p style="margin:0 0 6px 0;"><strong>Locatie:</strong> ${input.city}, ${input.postalCode}</p>
-        <p style="margin:0 0 6px 0;"><strong>Contact:</strong> ${input.email} • ${input.phone}</p>
+        <p style="margin:0 0 6px 0;"><strong>Contact:</strong> ${escapeHtml(input.email)}${phonePart}</p>
         <p style="margin:0;"><strong>Voorkeur kanaal:</strong> ${input.contactPreferenceLabel}</p>
         <p style="margin:0;"><strong>Huisdier:</strong> ${input.petName} (${input.petType})</p>
       </div>
@@ -407,6 +420,15 @@ export function buildAdminBookingReceivedEmail(input: BookingAdminEmailInput) {
 
 export function buildOwnerBookingReceivedEmail(input: BookingOwnerEmailInput) {
   const subject = 'Aanvraag ontvangen – TailTribe'
+
+  const slotsBlock = input.slotsText?.trim()
+    ? `<p style="margin:0 0 6px 0;"><strong>Gekozen momenten:</strong></p>
+       <pre style="margin:0;white-space:pre-wrap;background:#fff;border:1px solid #E5E7EB;border-radius:10px;padding:10px;">${escapeHtml(
+         input.slotsText
+       )}</pre>`
+    : `<p style="margin:0 0 6px 0;"><strong>Datum/Tijd:</strong> ${input.date ?? ''}${input.time ? ' om ' + input.time : ''}</p>
+       <p style="margin:0 0 6px 0;"><strong>Tijdsblok:</strong> ${input.timeWindowLabel ?? ''}</p>`
+
   const html = `
     <div style="font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; line-height: 1.5; color: #111827;">
       <h2 style="margin: 0 0 12px 0;">We hebben je aanvraag ontvangen</h2>
@@ -416,8 +438,7 @@ export function buildOwnerBookingReceivedEmail(input: BookingOwnerEmailInput) {
       </p>
       <div style="background:#F9FAFB;border:1px solid #E5E7EB;border-radius:12px;padding:14px;">
         <p style="margin:0 0 6px 0;"><strong>Dienst:</strong> ${input.serviceLabel}</p>
-        <p style="margin:0 0 6px 0;"><strong>Datum/Tijd:</strong> ${input.date} om ${input.time}</p>
-        <p style="margin:0 0 6px 0;"><strong>Tijdsblok:</strong> ${input.timeWindowLabel}</p>
+        ${slotsBlock}
         <p style="margin:0;"><strong>Locatie:</strong> ${input.city}, ${input.postalCode}</p>
       </div>
       <p style="margin:12px 0 0 0;">We nemen contact op via <strong>${input.contactPreferenceLabel}</strong> binnen het gekozen tijdsblok.</p>
