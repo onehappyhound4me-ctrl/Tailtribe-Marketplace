@@ -59,7 +59,7 @@ export default function OverOnsPage() {
               </p>
               <div className="mt-6 bg-gradient-to-br from-emerald-50 via-white to-blue-50 border border-emerald-100 rounded-2xl p-8 text-center shadow-sm">
                 <p className="text-2xl md:text-3xl font-semibold text-emerald-900 mb-3 leading-snug">
-                  “De grootheid van een natie en haar morele vooruitgang kunnen worden beoordeeld aan de manier waarop zij haar dieren behandelt.”
+                  “The greatness of a nation and its moral progress can be judged by the way its animals are treated.”
                 </p>
                 <p className="text-gray-600 font-medium text-lg">– Mahatma Gandhi</p>
               </div>
