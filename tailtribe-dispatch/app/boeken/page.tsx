@@ -149,7 +149,9 @@ export default function BookingPage() {
       if (response.ok) {
         trackEvent('booking_request_submitted', {
           service: formData.service,
-          time_window: formData.timeWindow,
+          time_windows: formData.timeWindows,
+          dates: formData.dates,
+          has_exact_time: Boolean(formData.time?.trim()),
         })
         router.push('/bedankt')
         return
