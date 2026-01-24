@@ -13,9 +13,14 @@ type BookingStatus = 'PENDING' | 'ASSIGNED' | 'CONFIRMED' | 'COMPLETED'
 
 type BookingInput = {
   service: string
-  date: string
+  // New flow: multiple dates + multiple time blocks
+  dates: string[]
+  timeWindows: string[]
+  // Optional exact time (HH:MM). If omitted, we use the timeWindow start.
   time: string
-  timeWindow: string
+  // Backward-compatible fields (old UI / older clients)
+  date?: string
+  timeWindow?: string
   firstName: string
   lastName: string
   email: string
@@ -90,6 +95,34 @@ function normalizeTimeWindow(value: string) {
   return trimmed.toUpperCase()
 }
 
+function normalizeTimeWindows(value: any): string[] {
+  if (Array.isArray(value)) {
+    return Array.from(
+      new Set(
+        value
+          .map((v) => normalizeTimeWindow(String(v ?? '')))
+          .filter(Boolean)
+      )
+    )
+  }
+  const single = normalizeTimeWindow(String(value ?? ''))
+  return single ? [single] : []
+}
+
+function normalizeDates(value: any): string[] {
+  if (Array.isArray(value)) {
+    return Array.from(
+      new Set(
+        value
+          .map((v) => String(v ?? '').trim())
+          .filter(Boolean)
+      )
+    ).sort()
+  }
+  const single = String(value ?? '').trim()
+  return single ? [single] : []
+}
+
 function formatTimeWindow(value: string) {
   const map: Record<string, string> = {
     MORNING: 'Ochtend (07:00 - 12:00)',
@@ -122,9 +155,12 @@ function validateBookingInput(body: any): { ok: true; data: BookingInput } | { o
 
   const data: BookingInput = {
     service: String(body?.service ?? ''),
-    date: String(body?.date ?? ''),
+    dates: normalizeDates(body?.dates ?? body?.date),
+    timeWindows: normalizeTimeWindows(body?.timeWindows ?? body?.timeWindow),
     time: String(body?.time ?? ''),
-    timeWindow: normalizeTimeWindow(String(body?.timeWindow ?? '')),
+    // Backward-compatible mirrors (kept for debugging/older clients)
+    date: typeof body?.date === 'string' ? body.date : '',
+    timeWindow: typeof body?.timeWindow === 'string' ? normalizeTimeWindow(body.timeWindow) : '',
     firstName: String(body?.firstName ?? ''),
     lastName: String(body?.lastName ?? ''),
     email: String(body?.email ?? ''),
@@ -147,17 +183,27 @@ function validateBookingInput(body: any): { ok: true; data: BookingInput } | { o
     fieldErrors.service = 'Selecteer een geldige service.'
   }
 
-  if (!isNonEmptyString(data.timeWindow) || !allowedTimeWindows.has(data.timeWindow)) {
-    fieldErrors.timeWindow = 'Kies een tijdsblok.'
+  if (data.timeWindows.length === 0 || data.timeWindows.some((tw) => !allowedTimeWindows.has(tw))) {
+    fieldErrors.timeWindows = 'Kies minstens één tijdsblok.'
   }
 
-  if (!isNonEmptyString(data.date) || !isValidDate(data.date)) {
-    fieldErrors.date = 'Kies een geldige datum.'
-  } else if (!isWithinBookingWindow(data.date)) {
-    fieldErrors.date = 'Je kan maximaal 60 dagen vooruit boeken.'
+  if (data.dates.length === 0) {
+    fieldErrors.dates = 'Kies minstens één datum.'
+  } else {
+    if (data.dates.length > 10) fieldErrors.dates = 'Kies maximaal 10 datums.'
+    for (const d of data.dates) {
+      if (!isValidDate(d)) {
+        fieldErrors.dates = 'Kies geldige datums.'
+        break
+      }
+      if (!isWithinBookingWindow(d)) {
+        fieldErrors.dates = 'Je kan maximaal 60 dagen vooruit boeken.'
+        break
+      }
+    }
   }
 
-  if (!isNonEmptyString(data.time) || !isValidTime(data.time)) {
+  if (typeof data.time === 'string' && data.time.trim().length > 0 && !isValidTime(data.time)) {
     fieldErrors.time = 'Kies een geldig tijdstip.'
   }
 
@@ -168,8 +214,9 @@ function validateBookingInput(body: any): { ok: true; data: BookingInput } | { o
     fieldErrors.email = 'Vul een geldig e-mailadres in.'
   }
 
-  if (!isNonEmptyString(data.phone)) {
-    fieldErrors.phone = 'Telefoonnummer is verplicht.'
+  // Phone is optional (requested). If filled, do a light sanity check.
+  if (typeof data.phone === 'string' && data.phone.trim() && data.phone.trim().length < 6) {
+    fieldErrors.phone = 'Telefoonnummer lijkt te kort.'
   }
 
   if (!isNonEmptyString(data.city)) fieldErrors.city = 'Stad is verplicht.'
@@ -193,10 +240,21 @@ function validateBookingInput(body: any): { ok: true; data: BookingInput } | { o
     return { ok: false, fieldErrors }
   }
 
+  // Prevent explosions (dates x timeWindows)
+  const combos = data.dates.length * data.timeWindows.length
+  if (combos > 20) {
+    return { ok: false, fieldErrors: { dates: 'Te veel combinaties (max 20). Kies minder datums of tijdsblokken.' } }
+  }
+
+  // Validate each requested slot is not in the past
   try {
-    assertSlotNotInPast({ date: data.date, time: data.time, timeWindow: data.timeWindow })
+    for (const d of data.dates) {
+      for (const tw of data.timeWindows) {
+        assertSlotNotInPast({ date: d, time: data.time, timeWindow: tw })
+      }
+    }
   } catch (err: any) {
-    return { ok: false, fieldErrors: { date: err.message ?? 'Datum ligt in het verleden' } }
+    return { ok: false, fieldErrors: { dates: err.message ?? 'Datum ligt in het verleden' } }
   }
 
   return { ok: true, data }
@@ -248,61 +306,59 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       )
     }
-    let slot
-    try {
-      slot = assertSlotNotInPast({
-        date: validated.data.date,
-        time: validated.data.time,
-        timeWindow: validated.data.timeWindow,
+    const timeTrimmed = (validated.data.time ?? '').trim()
+    const slots = validated.data.dates.flatMap((d) =>
+      validated.data.timeWindows.map((tw) => {
+        const slot = assertSlotNotInPast({ date: d, time: timeTrimmed, timeWindow: tw })
+        return { date: d, timeWindow: tw, slotStart: slot.slotStart }
       })
-    } catch (err: any) {
-      return NextResponse.json(
-        { error: 'VALIDATION_ERROR', fieldErrors: { date: err.message ?? 'Datum ligt in het verleden' } },
-        { status: 400 }
-      )
-    }
+    )
 
-    const booking = await prisma.booking.create({
-      data: {
-        ownerId: session.user.id,
-        service: validated.data.service,
-        date: slot.slotStart,
-        time: validated.data.time,
-        timeWindow: validated.data.timeWindow,
-        city: validated.data.city,
-        postalCode: validated.data.postalCode,
-        region: null,
-        address: null,
-        petName: validated.data.petName,
-        petType: validated.data.petType,
-        petDetails: null,
-        contactPreference: validated.data.contactPreference || 'email',
-        message: validated.data.message?.trim() || null,
-        status: 'PENDING',
-      },
-    })
+    const bookings = await prisma.$transaction(
+      slots.map((s) =>
+        prisma.booking.create({
+          data: {
+            ownerId: session.user.id,
+            service: validated.data.service,
+            date: s.slotStart,
+            time: timeTrimmed || null,
+            timeWindow: s.timeWindow,
+            city: validated.data.city,
+            postalCode: validated.data.postalCode,
+            region: null,
+            address: null,
+            petName: validated.data.petName,
+            petType: validated.data.petType,
+            petDetails: null,
+            contactPreference: validated.data.contactPreference || 'email',
+            message: validated.data.message?.trim() || null,
+            status: 'PENDING',
+          },
+        })
+      )
+    )
 
     // Fire-and-forget notifications (don't block success)
     const appUrl = getAppUrl()
     const adminEmail = process.env.DISPATCH_ADMIN_EMAIL ?? 'steven@tailtribe.be'
-    const serviceLabel = formatServiceLabel(booking.service)
-    const timeWindowLabel = formatTimeWindow(booking.timeWindow)
+    const serviceLabel = formatServiceLabel(validated.data.service)
     const contactPreferenceLabel = formatContactPreference(validated.data.contactPreference)
+    const slotsText = slots
+      .map((s) => `${s.date} • ${formatTimeWindow(s.timeWindow)}${timeTrimmed ? ` • ${timeTrimmed}` : ''}`)
+      .join('\n')
 
     const adminEmailPayload = buildAdminBookingReceivedEmail({
       firstName: validated.data.firstName,
       lastName: validated.data.lastName,
       serviceLabel,
-      date: booking.date.toISOString(),
-      time: booking.time ?? '',
-      timeWindowLabel,
-      city: booking.city,
-      postalCode: booking.postalCode,
+      slotsText,
+      city: validated.data.city,
+      postalCode: validated.data.postalCode,
       email: validated.data.email,
       phone: validated.data.phone,
       contactPreferenceLabel,
-      petName: booking.petName,
-      petType: booking.petType,
+      petName: validated.data.petName,
+      petType: validated.data.petType,
       message: validated.data.message,
       appUrl,
     })
@@ -310,11 +366,9 @@ export async function POST(request: NextRequest) {
     const ownerEmailPayload = buildOwnerBookingReceivedEmail({
       firstName: validated.data.firstName,
       serviceLabel,
-      date: booking.date.toISOString(),
-      time: booking.time ?? '',
-      timeWindowLabel,
-      city: booking.city,
-      postalCode: booking.postalCode,
+      slotsText,
+      city: validated.data.city,
+      postalCode: validated.data.postalCode,
       contactPreferenceLabel,
     })
 
@@ -330,7 +384,7 @@ export async function POST(request: NextRequest) {
       html: ownerEmailPayload.html,
     })
 
-    return NextResponse.json({ success: true, booking })
+    return NextResponse.json({ success: true, bookings })
   } catch (error) {
     return NextResponse.json(
       { error: 'Failed to create booking' },
