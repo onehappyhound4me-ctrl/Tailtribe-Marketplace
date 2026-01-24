@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import Image from 'next/image'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useSession, signOut } from 'next-auth/react'
 
 type Props = {
@@ -18,6 +18,15 @@ export function SiteHeader({ primaryCtaHref = '/boeken', primaryCtaLabel = 'Boek
   const handleLogout = async () => {
     await signOut({ callbackUrl: '/', redirect: true })
   }
+
+  useEffect(() => {
+    if (!mobileMenuOpen) return
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setMobileMenuOpen(false)
+    }
+    window.addEventListener('keydown', onKeyDown)
+    return () => window.removeEventListener('keydown', onKeyDown)
+  }, [mobileMenuOpen])
 
   return (
     <header className="bg-gradient-to-r from-blue-200/95 via-teal-200/90 to-emerald-300/82 backdrop-blur-lg shadow-md border-b border-emerald-300/60 sticky top-0 z-[999] relative overflow-visible">
@@ -117,9 +126,15 @@ export function SiteHeader({ primaryCtaHref = '/boeken', primaryCtaLabel = 'Boek
                 aria-expanded={mobileMenuOpen}
                 className="inline-flex md:hidden items-center justify-center rounded-full border border-emerald-200 bg-white/80 backdrop-blur px-3 py-2 text-gray-900 hover:bg-white transition shadow-sm"
               >
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className="w-5 h-5 fill-current">
-                  <path d="M4 6h16v2H4V6Zm0 5h16v2H4v-2Zm0 5h16v2H4v-2Z" />
-                </svg>
+                {mobileMenuOpen ? (
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className="w-5 h-5 fill-current">
+                    <path d="M18.3 5.71 12 12l6.3 6.29-1.41 1.42L10.59 13.4 4.3 19.71 2.89 18.29 9.17 12 2.89 5.71 4.3 4.29l6.29 6.3 6.3-6.3 1.41 1.42Z" />
+                  </svg>
+                ) : (
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className="w-5 h-5 fill-current">
+                    <path d="M4 6h16v2H4V6Zm0 5h16v2H4v-2Zm0 5h16v2H4v-2Z" />
+                  </svg>
+                )}
               </button>
               
               {/* Primary CTA - altijd zichtbaar */}
@@ -135,28 +150,48 @@ export function SiteHeader({ primaryCtaHref = '/boeken', primaryCtaLabel = 'Boek
       </nav>
 
       {/* Mobile dropdown menu */}
-      {mobileMenuOpen && (
-        <div className="md:hidden relative z-20 border-t border-emerald-200/70 bg-white/85 backdrop-blur">
-          <div className="container mx-auto px-4 sm:px-6 py-3">
+      <div
+        className={`md:hidden fixed inset-0 z-[1000] transition ${
+          mobileMenuOpen ? 'pointer-events-auto' : 'pointer-events-none'
+        }`}
+        aria-hidden={!mobileMenuOpen}
+      >
+        {/* Backdrop */}
+        <button
+          type="button"
+          aria-label="Close menu"
+          onClick={() => setMobileMenuOpen(false)}
+          className={`absolute inset-0 bg-black/35 transition-opacity ${
+            mobileMenuOpen ? 'opacity-100' : 'opacity-0'
+          }`}
+        />
+
+        {/* Sheet */}
+        <div
+          className={`absolute left-0 right-0 top-0 border-b border-emerald-200/70 bg-white/92 backdrop-blur shadow-xl transition-transform duration-200 ${
+            mobileMenuOpen ? 'translate-y-0' : '-translate-y-3'
+          }`}
+        >
+          <div className="container mx-auto px-4 sm:px-6 py-4">
             <div className="grid grid-cols-2 gap-2">
               <Link
                 href="/#services"
                 onClick={() => setMobileMenuOpen(false)}
-                className="rounded-lg border border-emerald-200 bg-white px-3 py-2 text-sm font-semibold text-gray-900 hover:bg-emerald-50 transition"
+                className="rounded-xl border border-emerald-200 bg-white px-3 py-2.5 text-sm font-semibold text-gray-900 hover:bg-emerald-50 transition"
               >
                 Diensten
               </Link>
               <Link
                 href="/over-ons"
                 onClick={() => setMobileMenuOpen(false)}
-                className="rounded-lg border border-emerald-200 bg-white px-3 py-2 text-sm font-semibold text-gray-900 hover:bg-emerald-50 transition"
+                className="rounded-xl border border-emerald-200 bg-white px-3 py-2.5 text-sm font-semibold text-gray-900 hover:bg-emerald-50 transition"
               >
                 Over ons
               </Link>
               <Link
                 href="/blog"
                 onClick={() => setMobileMenuOpen(false)}
-                className="rounded-lg border border-emerald-200 bg-white px-3 py-2 text-sm font-semibold text-gray-900 hover:bg-emerald-50 transition"
+                className="rounded-xl border border-emerald-200 bg-white px-3 py-2.5 text-sm font-semibold text-gray-900 hover:bg-emerald-50 transition"
               >
                 Blog
               </Link>
@@ -164,12 +199,12 @@ export function SiteHeader({ primaryCtaHref = '/boeken', primaryCtaLabel = 'Boek
                 <Link
                   href="/community"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="rounded-lg border border-emerald-200 bg-white px-3 py-2 text-sm font-semibold text-gray-900 hover:bg-emerald-50 transition"
+                  className="rounded-xl border border-emerald-200 bg-white px-3 py-2.5 text-sm font-semibold text-gray-900 hover:bg-emerald-50 transition"
                 >
                   Community
                 </Link>
               ) : (
-                <span className="rounded-lg border border-transparent px-3 py-2 text-sm text-gray-500" />
+                <span className="rounded-xl border border-transparent px-3 py-2.5 text-sm text-transparent" />
               )}
 
               {session ? (
@@ -177,7 +212,7 @@ export function SiteHeader({ primaryCtaHref = '/boeken', primaryCtaLabel = 'Boek
                   <Link
                     href="/dashboard"
                     onClick={() => setMobileMenuOpen(false)}
-                    className="rounded-lg border border-blue-200 bg-white px-3 py-2 text-sm font-semibold text-gray-900 hover:bg-blue-50 transition"
+                    className="rounded-xl border border-blue-200 bg-white px-3 py-2.5 text-sm font-semibold text-gray-900 hover:bg-blue-50 transition"
                   >
                     Dashboard
                   </Link>
@@ -187,7 +222,7 @@ export function SiteHeader({ primaryCtaHref = '/boeken', primaryCtaLabel = 'Boek
                       setMobileMenuOpen(false)
                       void handleLogout()
                     }}
-                    className="rounded-lg border border-red-200 bg-white px-3 py-2 text-sm font-semibold text-gray-900 hover:bg-red-50 transition text-left"
+                    className="rounded-xl border border-red-200 bg-white px-3 py-2.5 text-sm font-semibold text-gray-900 hover:bg-red-50 transition text-left"
                   >
                     Uitloggen
                   </button>
@@ -197,17 +232,17 @@ export function SiteHeader({ primaryCtaHref = '/boeken', primaryCtaLabel = 'Boek
                   <Link
                     href="/login"
                     onClick={() => setMobileMenuOpen(false)}
-                    className="rounded-lg border border-emerald-200 bg-white px-3 py-2 text-sm font-semibold text-gray-900 hover:bg-emerald-50 transition"
+                    className="rounded-xl border border-emerald-200 bg-white px-3 py-2.5 text-sm font-semibold text-gray-900 hover:bg-emerald-50 transition"
                   >
                     Inloggen
                   </Link>
-                  <span className="rounded-lg border border-transparent px-3 py-2 text-sm text-gray-500" />
+                  <span className="rounded-xl border border-transparent px-3 py-2.5 text-sm text-transparent" />
                 </>
               )}
             </div>
           </div>
         </div>
-      )}
+      </div>
     </header>
   )
 }
