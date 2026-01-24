@@ -72,27 +72,28 @@ export default function DienstenPage() {
             </div>
           </header>
 
-          <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
+          <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 mb-12">
             {DISPATCH_SERVICES.map((service) => (
               <Link
                 key={service.id}
                 href={`/diensten/${service.slug}`}
                 className="group bg-white rounded-2xl shadow-sm hover:shadow-tt transition-all border border-black/5 overflow-hidden"
               >
-                <div className="relative h-40 w-full overflow-hidden bg-gradient-to-br from-emerald-50 to-blue-50 flex items-center justify-center p-4">
+                <div className="relative h-32 sm:h-40 w-full overflow-hidden bg-gradient-to-br from-emerald-50 to-blue-50 flex items-center justify-center p-4">
                   <Image
                     src={withAssetVersion(service.image)}
                     alt={service.name}
                     fill
                     className="object-contain group-hover:scale-105 transition-transform duration-300"
                     style={{ filter: SERVICE_ICON_FILTER }}
+                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                   />
                 </div>
-                <div className="p-6">
-                  <h2 className="text-lg font-bold text-gray-900 group-hover:text-green-700 transition-colors">
+                <div className="p-5 sm:p-6">
+                  <h2 className="text-lg font-bold text-gray-900 group-hover:text-green-700 transition-colors mb-2">
                     {service.name}
                   </h2>
-                  <p className="text-sm text-gray-600 mt-2">{service.desc}</p>
+                  <p className="text-sm text-gray-600 line-clamp-3">{service.desc}</p>
                   <div className="mt-4 text-sm font-semibold text-emerald-700">Meer info →</div>
                 </div>
               </Link>
