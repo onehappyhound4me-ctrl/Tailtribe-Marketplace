@@ -63,7 +63,9 @@ const nextConfig: NextConfig = {
       "img-src 'self' data: blob: https:",
       "font-src 'self' data: https:",
       "style-src 'self' 'unsafe-inline' https:",
-      `script-src 'self'${isDev ? " 'unsafe-eval'" : ""} https:`,
+      // Next.js uses some inline scripts for hydration/runtime. Without 'unsafe-inline',
+      // browsers can block JS and the UI can get stuck on "Laden...".
+      `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ""} https:`,
       "connect-src 'self' https: wss:",
     ].join("; ");
 
