@@ -13,14 +13,18 @@ export default async function middleware(req: NextRequest) {
     return NextResponse.next()
   }
 
-  // Never show tailtribe.nl: always redirect to tailtribe.be (same path/query).
-  // This ensures users won't end up on the old NL site, and the browser URL becomes .be.
-  if (host === 'tailtribe.nl' || host === 'www.tailtribe.nl') {
+  // Always redirect to the canonical host (no www).
+  // This prevents "www" from pointing at an older deployment (favicon/logo issues),
+  // and keeps a single canonical domain for SEO/caching.
+  if (
+    host === 'www.tailtribe.be' ||
+    host === 'tailtribe.nl' ||
+    host === 'www.tailtribe.nl'
+  ) {
     const url = new URL(req.url)
     url.hostname = 'tailtribe.be'
     url.protocol = 'https:'
-    // Force canonical host (no www)
-    if (url.host === 'www.tailtribe.nl') url.host = 'tailtribe.be'
+    url.host = 'tailtribe.be'
     return NextResponse.redirect(url, 308)
   }
   const impersonateRole = req.cookies.get('impersonateRole')?.value
