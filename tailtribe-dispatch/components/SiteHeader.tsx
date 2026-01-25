@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import Image from 'next/image'
 import { useEffect, useRef, useState } from 'react'
 import { usePathname, useRouter } from 'next/navigation'
 import { useSession, signOut } from 'next-auth/react'
@@ -259,14 +260,18 @@ export function SiteHeader({ primaryCtaHref = '/boeken', primaryCtaLabel = 'Boek
                   : 'w-[180px] sm:w-[220px] md:w-[320px] lg:w-[360px] h-auto overflow-hidden relative'
               }
             >
-              <img
+              <Image
                 src="/tailtribe_logo_masked_1751977129022.png"
                 alt="TailTribe Logo"
                 width={700}
                 height={700}
+                priority
+                sizes={
+                  isHome
+                    ? '(max-width: 480px) 200px, (max-width: 768px) 220px, (max-width: 1024px) 320px, 360px'
+                    : '(max-width: 480px) 180px, (max-width: 768px) 220px, (max-width: 1024px) 320px, 360px'
+                }
                 className="w-full h-auto object-contain relative z-10 transition-transform duration-300 hover:scale-[1.02]"
-                loading="eager"
-                decoding="async"
                 style={{
                   filter: 'sepia(0.08) saturate(1.08) hue-rotate(-4deg) brightness(1.08)',
                   // Crop tiny artifact/smear in the bottom-right of the source image (header).
