@@ -505,7 +505,7 @@ export default function NewBookingPage() {
             {/* Type aanvraag: single / multi */}
             <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
               <div className="text-sm font-semibold text-blue-900 mb-3">Kies type aanvraag</div>
-              <div className="grid sm:grid-cols-2 gap-3">
+              <div className="grid md:grid-cols-2 gap-3">
                 {[
                   { mode: 'single' as BookingMode, title: 'Enkele dag', desc: 'Kies 1 datum' },
                   { mode: 'multi' as BookingMode, title: 'Meerdere dagen', desc: 'Datumreeks met eigen tijdsloten' },
@@ -532,7 +532,7 @@ export default function NewBookingPage() {
 
             {/* Datums */}
             {isMultiMode ? (
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Van (startdatum) *
@@ -685,7 +685,7 @@ export default function NewBookingPage() {
                             <div className="font-medium text-gray-900 mb-2">
                               {new Date(dateStr).toLocaleDateString('nl-BE')}
                             </div>
-                            <div className="grid sm:grid-cols-2 gap-2">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                               {TIME_WINDOWS.map((window) => {
                                 const isSelected = perDaySlots.includes(window.value)
                                 return (
@@ -727,7 +727,7 @@ export default function NewBookingPage() {
             <div className="text-xs text-gray-500 mb-2">
               Deze velden zijn optioneel en enkel nodig als de dienst niet op je thuisadres is.
             </div>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Stad (optioneel)
@@ -778,7 +778,7 @@ export default function NewBookingPage() {
             </div>
 
             {/* Huisdier */}
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Naam huisdier *

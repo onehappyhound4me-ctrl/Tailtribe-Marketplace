@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import Image from 'next/image'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useSession, signOut } from 'next-auth/react'
 
 type Props = {
@@ -14,6 +14,7 @@ export function SiteHeader({ primaryCtaHref = '/boeken', primaryCtaLabel = 'Boek
   const { data: session } = useSession()
   const canSeeCommunity = session?.user?.role === 'CAREGIVER' || session?.user?.role === 'ADMIN'
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const prevBodyOverflow = useRef<string | null>(null)
 
   const handleLogout = async () => {
     await signOut({ callbackUrl: '/', redirect: true })
@@ -26,6 +27,27 @@ export function SiteHeader({ primaryCtaHref = '/boeken', primaryCtaLabel = 'Boek
     }
     window.addEventListener('keydown', onKeyDown)
     return () => window.removeEventListener('keydown', onKeyDown)
+  }, [mobileMenuOpen])
+
+  // Mobile-only UX: prevent background scroll when the mobile menu is open (important on iOS Safari).
+  useEffect(() => {
+    if (!mobileMenuOpen) {
+      if (prevBodyOverflow.current !== null) {
+        document.body.style.overflow = prevBodyOverflow.current
+        prevBodyOverflow.current = null
+      }
+      return
+    }
+
+    prevBodyOverflow.current = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+
+    return () => {
+      if (prevBodyOverflow.current !== null) {
+        document.body.style.overflow = prevBodyOverflow.current
+        prevBodyOverflow.current = null
+      }
+    }
   }, [mobileMenuOpen])
 
   return (
@@ -124,7 +146,7 @@ export function SiteHeader({ primaryCtaHref = '/boeken', primaryCtaLabel = 'Boek
                 onClick={() => setMobileMenuOpen((v) => !v)}
                 aria-label="Menu"
                 aria-expanded={mobileMenuOpen}
-                className="inline-flex md:hidden items-center justify-center rounded-full border border-emerald-200 bg-white/80 backdrop-blur px-3 py-2 text-gray-900 hover:bg-white transition shadow-sm"
+                className="inline-flex md:hidden items-center justify-center rounded-full border border-emerald-200 bg-white/80 backdrop-blur h-11 w-11 p-0 text-gray-900 hover:bg-white transition shadow-sm"
               >
                 {mobileMenuOpen ? (
                   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className="w-5 h-5 fill-current">
@@ -140,7 +162,7 @@ export function SiteHeader({ primaryCtaHref = '/boeken', primaryCtaLabel = 'Boek
               {/* Primary CTA - altijd zichtbaar */}
               <Link
                 href={primaryCtaHref}
-                className="bg-gradient-to-r from-green-600 to-blue-600 text-white px-5 py-2.5 md:px-6 rounded-full font-semibold hover:from-green-700 hover:to-blue-700 transition shadow-lg hover:shadow-xl text-sm md:text-base"
+                className="inline-flex items-center justify-center bg-gradient-to-r from-green-600 to-blue-600 text-white px-5 md:px-6 h-11 md:h-auto py-0 md:py-2.5 rounded-full font-semibold hover:from-green-700 hover:to-blue-700 transition shadow-lg hover:shadow-xl text-sm md:text-base whitespace-nowrap"
               >
                 {primaryCtaLabel}
               </Link>
@@ -168,7 +190,7 @@ export function SiteHeader({ primaryCtaHref = '/boeken', primaryCtaLabel = 'Boek
 
         {/* Sheet */}
         <div
-          className={`absolute left-0 right-0 top-0 border-b border-emerald-200/70 bg-white/92 backdrop-blur shadow-xl transition-transform duration-200 ${
+          className={`absolute left-0 right-0 top-0 border-b border-emerald-200/70 bg-white/92 backdrop-blur shadow-xl transition-transform duration-200 max-h-[100dvh] overflow-y-auto overscroll-contain pt-[env(safe-area-inset-top)] ${
             mobileMenuOpen ? 'translate-y-0' : '-translate-y-full'
           }`}
         >
@@ -177,21 +199,21 @@ export function SiteHeader({ primaryCtaHref = '/boeken', primaryCtaLabel = 'Boek
               <Link
                 href="/#services"
                 onClick={() => setMobileMenuOpen(false)}
-                className="rounded-xl border border-emerald-200 bg-white px-3 py-2.5 text-sm font-semibold text-gray-900 hover:bg-emerald-50 transition"
+                className="rounded-xl border border-emerald-200 bg-white px-3 py-2.5 text-sm font-semibold text-gray-900 hover:bg-emerald-50 transition min-h-[44px] flex items-center justify-start"
               >
                 Diensten
               </Link>
               <Link
                 href="/over-ons"
                 onClick={() => setMobileMenuOpen(false)}
-                className="rounded-xl border border-emerald-200 bg-white px-3 py-2.5 text-sm font-semibold text-gray-900 hover:bg-emerald-50 transition"
+                className="rounded-xl border border-emerald-200 bg-white px-3 py-2.5 text-sm font-semibold text-gray-900 hover:bg-emerald-50 transition min-h-[44px] flex items-center justify-start"
               >
                 Over ons
               </Link>
               <Link
                 href="/blog"
                 onClick={() => setMobileMenuOpen(false)}
-                className="rounded-xl border border-emerald-200 bg-white px-3 py-2.5 text-sm font-semibold text-gray-900 hover:bg-emerald-50 transition"
+                className="rounded-xl border border-emerald-200 bg-white px-3 py-2.5 text-sm font-semibold text-gray-900 hover:bg-emerald-50 transition min-h-[44px] flex items-center justify-start"
               >
                 Blog
               </Link>
@@ -199,7 +221,7 @@ export function SiteHeader({ primaryCtaHref = '/boeken', primaryCtaLabel = 'Boek
                 <Link
                   href="/community"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="rounded-xl border border-emerald-200 bg-white px-3 py-2.5 text-sm font-semibold text-gray-900 hover:bg-emerald-50 transition"
+                  className="rounded-xl border border-emerald-200 bg-white px-3 py-2.5 text-sm font-semibold text-gray-900 hover:bg-emerald-50 transition min-h-[44px] flex items-center justify-start"
                 >
                   Community
                 </Link>
@@ -212,7 +234,7 @@ export function SiteHeader({ primaryCtaHref = '/boeken', primaryCtaLabel = 'Boek
                   <Link
                     href="/dashboard"
                     onClick={() => setMobileMenuOpen(false)}
-                    className="rounded-xl border border-blue-200 bg-white px-3 py-2.5 text-sm font-semibold text-gray-900 hover:bg-blue-50 transition"
+                    className="rounded-xl border border-blue-200 bg-white px-3 py-2.5 text-sm font-semibold text-gray-900 hover:bg-blue-50 transition min-h-[44px] flex items-center justify-start"
                   >
                     Dashboard
                   </Link>
@@ -222,7 +244,7 @@ export function SiteHeader({ primaryCtaHref = '/boeken', primaryCtaLabel = 'Boek
                       setMobileMenuOpen(false)
                       void handleLogout()
                     }}
-                    className="rounded-xl border border-red-200 bg-white px-3 py-2.5 text-sm font-semibold text-gray-900 hover:bg-red-50 transition text-left"
+                    className="rounded-xl border border-red-200 bg-white px-3 py-2.5 text-sm font-semibold text-gray-900 hover:bg-red-50 transition text-left min-h-[44px] flex items-center justify-start"
                   >
                     Uitloggen
                   </button>
@@ -232,7 +254,7 @@ export function SiteHeader({ primaryCtaHref = '/boeken', primaryCtaLabel = 'Boek
                   <Link
                     href="/login"
                     onClick={() => setMobileMenuOpen(false)}
-                    className="rounded-xl border border-emerald-200 bg-white px-3 py-2.5 text-sm font-semibold text-gray-900 hover:bg-emerald-50 transition"
+                    className="rounded-xl border border-emerald-200 bg-white px-3 py-2.5 text-sm font-semibold text-gray-900 hover:bg-emerald-50 transition min-h-[44px] flex items-center justify-start"
                   >
                     Inloggen
                   </Link>

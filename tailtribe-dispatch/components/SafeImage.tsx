@@ -9,6 +9,7 @@ type SafeImageProps = Omit<ImageProps, 'src'> & {
 }
 
 export function SafeImage({ src, fallbackSrc, onError, ...rest }: SafeImageProps) {
+  const { alt, ...imageProps } = rest
   const resolvedFallback = useMemo(() => fallbackSrc, [fallbackSrc])
   const initialSrc = src || resolvedFallback
   const [currentSrc, setCurrentSrc] = useState(initialSrc)
@@ -21,8 +22,9 @@ export function SafeImage({ src, fallbackSrc, onError, ...rest }: SafeImageProps
 
   return (
     <Image
-      {...rest}
+      {...imageProps}
       src={currentSrc}
+      alt={typeof alt === 'string' ? alt : ''}
       onError={(event) => {
         if (!didFallback && resolvedFallback && currentSrc !== resolvedFallback) {
           setDidFallback(true)

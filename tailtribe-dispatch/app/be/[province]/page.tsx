@@ -151,7 +151,7 @@ export default function ProvinceLandingPage({ params }: Props) {
             <h2 className="text-2xl font-semibold text-gray-900 mb-4">
               Populaire steden en gemeenten in {province.name}
             </h2>
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+            <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-3">
               {places.slice(0, 16).map((place) => (
                 <Link
                   key={place.slug}

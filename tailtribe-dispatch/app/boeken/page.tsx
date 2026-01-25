@@ -149,8 +149,8 @@ export default function BookingPage() {
       if (response.ok) {
         trackEvent('booking_request_submitted', {
           service: formData.service,
-          time_windows: formData.timeWindows,
-          dates: formData.dates,
+          time_windows: JSON.stringify(formData.timeWindows ?? []),
+          dates: JSON.stringify(formData.dates ?? []),
           has_exact_time: Boolean(formData.time?.trim()),
         })
         router.push('/bedankt')
@@ -283,7 +283,7 @@ export default function BookingPage() {
                       {(fieldErrors.timeWindows || fieldErrors.timeWindow) && (
                         <p className="text-sm text-red-700 mb-2">{fieldErrors.timeWindows || fieldErrors.timeWindow}</p>
                       )}
-                      <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
+                      <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
                         {TIME_WINDOWS.map((slot) => {
                           const selected = (formData.timeWindows ?? []).includes(slot.value)
                           return (
@@ -310,19 +310,19 @@ export default function BookingPage() {
                       {(fieldErrors.dates || fieldErrors.date) && (
                         <p className="text-sm text-red-700 mb-2">{fieldErrors.dates || fieldErrors.date}</p>
                       )}
-                      <div className="flex gap-2">
+                      <div className="flex flex-col md:flex-row gap-2">
                         <input
                           type="date"
                           value={dateDraft}
                           onChange={(e) => setDateDraft(e.target.value)}
                           min={todayStr}
                           max={maxBookingDateStr}
-                          className="flex-1 px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-brand focus:border-transparent"
+                          className="flex-1 px-4 py-3 h-11 md:h-auto border border-gray-300 rounded-xl focus:ring-2 focus:ring-brand focus:border-transparent"
                         />
                         <button
                           type="button"
                           onClick={addDate}
-                          className="px-4 py-3 rounded-xl border border-gray-300 bg-white font-semibold text-gray-900 hover:bg-gray-50"
+                          className="px-4 py-3 h-11 md:h-auto rounded-xl border border-gray-300 bg-white font-semibold text-gray-900 hover:bg-gray-50 inline-flex items-center justify-center"
                         >
                           Voeg toe
                         </button>
@@ -433,7 +433,7 @@ export default function BookingPage() {
                       {fieldErrors.contactPreference && (
                         <p className="text-sm text-red-700 mb-2">{fieldErrors.contactPreference}</p>
                       )}
-                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                         {[
                           { value: 'email', label: 'E-mail', helper: 'We antwoorden per mail' },
                           { value: 'telefoon', label: 'Telefoon', helper: 'We bellen je op' },

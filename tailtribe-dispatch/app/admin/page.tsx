@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useMemo, useState, useCallback } from 'react'
+import { useEffect, useMemo, useRef, useState, useCallback } from 'react'
 import { SiteHeader } from '@/components/SiteHeader'
 import { SiteFooter } from '@/components/SiteFooter'
 import { SERVICE_LABELS } from '@/lib/services'
@@ -380,8 +380,11 @@ export default function AdminPage() {
     }
   }
 
+  // Keep initial load one-time without re-running if `load` identity changes.
+  const loadRef = useRef(load)
+  loadRef.current = load
   useEffect(() => {
-    load()
+    loadRef.current()
   }, [])
 
   const ownerItems = useMemo<OwnerItem[]>(() => {
@@ -721,13 +724,13 @@ export default function AdminPage() {
     return new Map(caregivers.map((cg) => [cg.id, cg]))
   }, [caregivers])
 
-  const getSuggestedPriceEntry = (booking: Booking) => {
+  const getSuggestedPriceEntry = useCallback((booking: Booking) => {
     if (!booking.caregiverId) return null
     const caregiver = caregiverById.get(booking.caregiverId)
     const entry = caregiver?.servicePricing?.[booking.service]
     if (!entry || !entry.priceCents) return null
     return entry
-  }
+  }, [caregiverById])
 
   const eligibleInvoiceBookings = useMemo(
     () => bookings.filter((b) => b.status === 'CONFIRMED'),

@@ -326,7 +326,7 @@ export default function CaregiverCalendarPage() {
               <div className="flex items-center justify-between">
                 <button
                   onClick={() => changeMonth(-1)}
-                  className="p-2 hover:bg-white/20 rounded-lg transition"
+                  className="p-2 hover:bg-white/20 rounded-lg transition h-11 w-11 md:h-auto md:w-auto"
                 >
                   ← Vorige
                 </button>
@@ -335,104 +335,109 @@ export default function CaregiverCalendarPage() {
                 </h2>
                 <button
                   onClick={() => changeMonth(1)}
-                  className="p-2 hover:bg-white/20 rounded-lg transition"
+                  className="p-2 hover:bg-white/20 rounded-lg transition h-11 w-11 md:h-auto md:w-auto"
                 >
                   Volgende →
                 </button>
               </div>
             </div>
 
-            {/* Weekdag headers */}
-            <div className="grid grid-cols-7 bg-gray-50 border-b">
-              {WEEKDAYS.map((day) => (
-                <div
-                  key={day}
-                  className="p-4 text-center font-semibold text-gray-700 border-r last:border-r-0"
-                >
-                  {day}
-                </div>
-              ))}
-            </div>
-
-            {/* Kalender grid */}
-            <div className="grid grid-cols-7">
-              {days.map((date, index) => {
-                if (!date) {
-                  return (
+            {/* Mobile: allow horizontal scroll for 7-column calendar */}
+            <div className="overflow-x-auto md:overflow-x-visible">
+              <div className="min-w-[720px] md:min-w-0">
+                {/* Weekdag headers */}
+                <div className="grid grid-cols-7 bg-gray-50 border-b">
+                  {WEEKDAYS.map((day) => (
                     <div
-                      key={`empty-${index}`}
-                      className="min-h-[140px] bg-gray-50 border-r border-b last:border-r-0"
-                    />
-                  )
-                }
-
-                const dayBookings = getBookingsForDate(date)
-                const dayAvailability = getAvailabilityForDate(date)
-                const today = isToday(date)
-
-                return (
-                  <div
-                    key={date.toISOString()}
-                    onClick={() => handleDayClick(date)}
-                    className={`min-h-[140px] border-r border-b last:border-r-0 p-2 cursor-pointer ${
-                      today ? 'bg-blue-50' : 'bg-white'
-                    } hover:bg-emerald-50 hover:border-emerald-300 transition`}
-                  >
-                    <div className={`text-sm font-semibold mb-2 ${
-                      today 
-                        ? 'text-blue-600 bg-blue-100 rounded-full w-7 h-7 flex items-center justify-center' 
-                        : 'text-gray-700'
-                    }`}>
-                      {date.getDate()}
+                      key={day}
+                      className="p-2 md:p-4 text-center font-semibold text-gray-700 border-r last:border-r-0"
+                    >
+                      {day}
                     </div>
+                  ))}
+                </div>
 
-                    <div className="space-y-1">
-                      {/* Beschikbaarheid */}
-                      {dayAvailability.length > 0 && (
-                        <div className="text-[10px] bg-green-50 border-l-2 border-green-400 p-1 rounded">
-                          <div className="font-medium text-green-700">✓ Beschikbaar:</div>
-                          <div className="text-green-600">
-                            {dayAvailability.map(a => TIME_WINDOW_LABELS[a.timeWindow]).join(', ')}
-                          </div>
+                {/* Kalender grid */}
+                <div className="grid grid-cols-7">
+                  {days.map((date, index) => {
+                    if (!date) {
+                      return (
+                        <div
+                          key={`empty-${index}`}
+                          className="min-h-[96px] md:min-h-[140px] bg-gray-50 border-r border-b last:border-r-0"
+                        />
+                      )
+                    }
+
+                    const dayBookings = getBookingsForDate(date)
+                    const dayAvailability = getAvailabilityForDate(date)
+                    const today = isToday(date)
+
+                    return (
+                      <div
+                        key={date.toISOString()}
+                        onClick={() => handleDayClick(date)}
+                        className={`min-h-[96px] md:min-h-[140px] border-r border-b last:border-r-0 p-2 cursor-pointer ${
+                          today ? 'bg-blue-50' : 'bg-white'
+                        } hover:bg-emerald-50 hover:border-emerald-300 transition`}
+                      >
+                        <div className={`text-sm font-semibold mb-2 ${
+                          today 
+                            ? 'text-blue-600 bg-blue-100 rounded-full w-7 h-7 flex items-center justify-center' 
+                            : 'text-gray-700'
+                        }`}>
+                          {date.getDate()}
                         </div>
-                      )}
 
-                      {/* Bookings */}
-                      {dayBookings.map((booking) => {
-                        const serviceName = DISPATCH_SERVICES.find(
-                          s => s.id === booking.service
-                        )?.name || booking.service
+                        <div className="space-y-1">
+                          {/* Beschikbaarheid */}
+                          {dayAvailability.length > 0 && (
+                            <div className="text-[10px] bg-green-50 border-l-2 border-green-400 p-1 rounded">
+                              <div className="font-medium text-green-700">✓ Beschikbaar:</div>
+                              <div className="text-green-600">
+                                {dayAvailability.map(a => TIME_WINDOW_LABELS[a.timeWindow]).join(', ')}
+                              </div>
+                            </div>
+                          )}
 
-                        return (
-                          <div
-                            key={booking.id}
-                            onClick={(e) => {
-                              e.stopPropagation()
-                              setSelectedBooking(booking)
-                              setShowBookingModal(true)
-                            }}
-                            className={`text-xs p-2 rounded-lg border-l-4 cursor-pointer hover:shadow-md transition ${
-                              STATUS_COLORS[booking.status]
-                            }`}
-                            title={`Klik voor details: ${serviceName} - ${booking.petName}`}
-                          >
-                            <div className="font-semibold truncate">
-                              {TIME_WINDOW_LABELS[booking.timeWindow]}
-                            </div>
-                            <div className="truncate text-[10px] opacity-90">
-                              {booking.petName}
-                              {booking.isRecurring && ' 🔄'}
-                            </div>
-                            <div className="truncate text-[10px] font-medium mt-1">
-                              👤 {booking.owner.firstName} {booking.owner.lastName}
-                            </div>
-                          </div>
-                        )
-                      })}
-                    </div>
-                  </div>
-                )
-              })}
+                          {/* Bookings */}
+                          {dayBookings.map((booking) => {
+                            const serviceName = DISPATCH_SERVICES.find(
+                              s => s.id === booking.service
+                            )?.name || booking.service
+
+                            return (
+                              <div
+                                key={booking.id}
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  setSelectedBooking(booking)
+                                  setShowBookingModal(true)
+                                }}
+                                className={`text-xs p-2 rounded-lg border-l-4 cursor-pointer hover:shadow-md transition ${
+                                  STATUS_COLORS[booking.status]
+                                }`}
+                                title={`Klik voor details: ${serviceName} - ${booking.petName}`}
+                              >
+                                <div className="font-semibold truncate">
+                                  {TIME_WINDOW_LABELS[booking.timeWindow]}
+                                </div>
+                                <div className="truncate text-[10px] opacity-90">
+                                  {booking.petName}
+                                  {booking.isRecurring && ' 🔄'}
+                                </div>
+                                <div className="truncate text-[10px] font-medium mt-1">
+                                  👤 {booking.owner.firstName} {booking.owner.lastName}
+                                </div>
+                              </div>
+                            )
+                          })}
+                        </div>
+                      </div>
+                    )
+                  })}
+                </div>
+              </div>
             </div>
           </div>
 
@@ -496,7 +501,7 @@ export default function CaregiverCalendarPage() {
       {/* Modal voor beschikbaarheid bewerken */}
       {showModal && selectedDate && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[9999] p-4">
-          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 max-h-[90dvh] md:max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-2xl font-bold text-gray-900">
                 {selectedDate.toLocaleDateString('nl-BE', { 
@@ -592,7 +597,7 @@ export default function CaregiverCalendarPage() {
       {/* Modal voor booking details */}
       {showBookingModal && selectedBooking && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[9999] p-4">
-          <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full p-6 max-h-[90vh] overflow-y-auto">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full p-6 max-h-[90dvh] md:max-h-[90vh] overflow-y-auto">
             <div className="flex items-start justify-between mb-6">
               <div>
                 <h2 className="text-2xl font-bold text-gray-900 mb-2">

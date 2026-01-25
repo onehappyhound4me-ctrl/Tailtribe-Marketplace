@@ -209,7 +209,7 @@ export default function CaregiverProfilePage() {
             <div className="bg-white rounded-2xl shadow-sm border border-black/5 p-6">
               <h2 className="text-xl font-semibold text-gray-900 mb-4">Locatie</h2>
 
-              <div className="grid grid-cols-2 gap-4 mb-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     Stad / gemeente *
@@ -259,7 +259,7 @@ export default function CaregiverProfilePage() {
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Werkgebieden *
                 </label>
-                <div className="grid grid-cols-2 gap-2">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                   {BELGIAN_REGIONS.map((region) => (
                     <label
                       key={region}
@@ -297,7 +297,7 @@ export default function CaregiverProfilePage() {
             {/* Diensten */}
             <div className="bg-white rounded-2xl shadow-sm border border-black/5 p-6">
               <h2 className="text-xl font-semibold text-gray-900 mb-4">Diensten *</h2>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 {DISPATCH_SERVICES.map((service) => {
                   const isGroupWalk = service.id === 'GROUP_DOG_WALKING'
                   return (

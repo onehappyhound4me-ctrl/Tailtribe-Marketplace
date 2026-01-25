@@ -361,7 +361,7 @@ const maxBookingDateStr = (() => {
                   </div>
                 )}
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   {DISPATCH_SERVICES.map((service) => {
                     const isAllowed = services.includes(service.id)
                     const checked = selectedServices.includes(service.id)
