@@ -6,10 +6,16 @@ export default async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl
   const host = (req.headers.get('host') ?? '').toLowerCase()
 
+  // Always allow Next internals/API first.
+  // IMPORTANT: if we redirect these to another host, module scripts can be blocked (CORS) and the page "keeps loading".
+  if (pathname.startsWith('/_next') || pathname.startsWith('/api')) {
+    return NextResponse.next()
+  }
+
   // Always allow static files (images, videos, source maps, etc.).
   // Otherwise middleware may redirect asset requests to /login (e.g. /tailtribe_logo_*.png),
   // which makes images "disappear" on mobile Safari.
-  if (/\.(?:png|jpg|jpeg|gif|webp|svg|ico|txt|xml|json|map|mp4|webm)$/i.test(pathname)) {
+  if (/\.(?:png|jpg|jpeg|gif|webp|svg|ico|txt|xml|json|map|mp4|webm|css|js|mjs|woff2?|ttf|eot)$/i.test(pathname)) {
     return NextResponse.next()
   }
 
@@ -43,7 +49,6 @@ export default async function middleware(req: NextRequest) {
 
   if (
     pathname.startsWith('/api/auth') ||
-    pathname.startsWith('/_next') ||
     pathname === '/favicon.ico'
   ) {
     return NextResponse.next()
