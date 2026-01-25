@@ -42,15 +42,9 @@ function buildAuth() {
   // In serverless this effectively happens on first auth request per instance.
   applyAuthBaseUrlEnv()
 
-  const nextAuthUrl = process.env.NEXTAUTH_URL || (isDev ? 'http://localhost:3001' : undefined)
-  if (isDev) {
-    if (!process.env.NEXTAUTH_URL && nextAuthUrl) {
-      process.env.NEXTAUTH_URL = nextAuthUrl
-    }
-    if (nextAuthUrl !== 'http://localhost:3001') {
-      throw new Error('NEXTAUTH_URL moet in development exact http://localhost:3001 zijn.')
-    }
-  }
+  // In development (including testing over LAN on iPhone), we do NOT enforce a fixed NEXTAUTH_URL.
+  // The auth route sets AUTH_URL/NEXTAUTH_URL from the request origin when env vars are missing.
+  const nextAuthUrl = process.env.NEXTAUTH_URL || process.env.AUTH_URL || undefined
 
   // Support both env var names:
   // - NEXTAUTH_SECRET (common in NextAuth setups)

@@ -15,6 +15,11 @@ export const metadata: Metadata = {
     template: '%s | TailTribe',
   },
   description: 'Vraag betrouwbare dierenverzorging aan in België. Hondenuitlaat, dierenoppas, opvang en meer.',
+  icons: {
+    // Make favicon explicit so browsers don't fall back to Vercel's default.
+    icon: ['/tailtribe_logo_masked_1751977129022.png'],
+    shortcut: ['/tailtribe_logo_masked_1751977129022.png'],
+  },
   alternates: {
     canonical: '/',
     languages: {

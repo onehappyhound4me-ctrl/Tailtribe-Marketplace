@@ -12,6 +12,7 @@ import { SERVICE_ICON_FILTER, withAssetVersion } from '@/lib/service-icons'
 // Cache-buster query om harde refresh te forceren bij updates.
 const HERO_IMG_PRIMARY = '/assets/hero.jpg?v=2'
 const HERO_IMG_URL = encodeURI(HERO_IMG_PRIMARY)
+const isDev = process.env.NODE_ENV === 'development'
 
 export default function HomePage() {
   const { data: session } = useSession()
@@ -112,15 +113,24 @@ export default function HomePage() {
                 href={`/diensten/${service.slug}`}
                 className="group bg-gradient-to-br from-white via-white to-emerald-50 rounded-2xl shadow-md hover:shadow-2xl transition-all duration-300 overflow-hidden border border-emerald-100 hover:border-emerald-200 transform hover:-translate-y-1"
               >
-                <div className="relative h-32 sm:h-40 w-full overflow-hidden bg-gradient-to-br from-emerald-50 to-blue-50 flex items-center justify-center p-4">
-                  <Image 
-                    src={withAssetVersion(service.image)} 
-                    alt={service.name}
-                    fill
-                    className="object-contain group-hover:scale-105 transition-transform duration-300"
-                    style={{ filter: SERVICE_ICON_FILTER }}
-                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                  />
+                <div className="relative h-36 sm:h-40 w-full overflow-hidden bg-gradient-to-br from-emerald-50 to-blue-50 flex items-center justify-center p-3 sm:p-4">
+                  {isDev ? (
+                    <img
+                      src={withAssetVersion(service.image)}
+                      alt={service.name}
+                      className="block h-full w-full max-w-full object-contain md:group-hover:scale-105 md:transition-transform md:duration-300 md:[filter:hue-rotate(28deg)_saturate(0.62)_brightness(0.98)_contrast(1.08)]"
+                    />
+                  ) : (
+                    <Image 
+                      src={withAssetVersion(service.image)} 
+                      alt={service.name}
+                      fill
+                      unoptimized={isDev}
+                      className="object-contain md:group-hover:scale-105 md:transition-transform md:duration-300 md:[filter:hue-rotate(28deg)_saturate(0.62)_brightness(0.98)_contrast(1.08)]"
+                      style={{}}
+                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                    />
+                  )}
                 </div>
                 <div className="p-5 sm:p-6 pt-6">
                   <h3 className="text-lg font-bold mb-2 text-transparent bg-clip-text bg-gradient-to-r from-emerald-700 to-blue-700 group-hover:from-emerald-600 group-hover:to-blue-600 transition-colors">

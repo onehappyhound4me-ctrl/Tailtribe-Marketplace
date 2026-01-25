@@ -8,16 +8,21 @@ type ConsentValue = 'accepted' | 'declined'
 
 export function CookieConsent() {
   const [consent, setConsent] = useState<ConsentValue | null>(null)
+  const [ready, setReady] = useState(false)
 
   useEffect(() => {
     const stored = window.localStorage.getItem(COOKIE_CONSENT_STORAGE_KEY)
     if (stored === 'accepted' || stored === 'declined') {
       setConsent(stored)
+      setReady(true)
       return
     }
     setConsent(null)
+    setReady(true)
   }, [])
 
+  // Avoid "flash": don't render until we've checked localStorage on the client.
+  if (!ready) return null
   if (consent) return null
 
   const handleChoice = (value: ConsentValue) => {

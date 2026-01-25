@@ -10,6 +10,11 @@ const nextConfig: NextConfig = {
     ignoreDuringBuilds: true,
   },
   images: {
+    // Local dev (incl. iPhone testing over LAN) can fail to serve `/_next/image`
+    // depending on environment/binaries. When unoptimized, Next/Image uses the
+    // original asset URL (e.g. /assets/...) which is much more reliable locally.
+    // Keep optimization enabled in production (Vercel).
+    unoptimized: isDev,
     remotePatterns: [
       {
         protocol: "https",
@@ -24,6 +29,30 @@ const nextConfig: NextConfig = {
         hostname: "source.unsplash.com",
       },
     ],
+  },
+  // Allow accessing dev server from LAN devices (iPhone Safari).
+  // This avoids warnings for cross-origin requests to /_next/* in newer Next versions.
+  ...(isDev
+    ? {
+        allowedDevOrigins: [
+          // NOTE: Next expects hostnames here (no scheme).
+          'localhost',
+          '127.0.0.1',
+          '0.0.0.0',
+          // LAN (iPhone testing). If your IP changes, update this value.
+          '192.168.1.5',
+        ],
+      }
+    : {}),
+  async redirects() {
+    return [
+      // Ensure /favicon.ico never shows the default Vercel icon.
+      {
+        source: "/favicon.ico",
+        destination: "/tailtribe_logo_masked_1751977129022.png",
+        permanent: true,
+      },
+    ];
   },
   async headers() {
     const csp = [

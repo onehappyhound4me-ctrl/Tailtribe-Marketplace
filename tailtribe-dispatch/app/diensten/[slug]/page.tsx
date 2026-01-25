@@ -11,6 +11,8 @@ type Props = {
   params: { slug: string }
 }
 
+const isDev = process.env.NODE_ENV === 'development'
+
 export function generateStaticParams() {
   return DISPATCH_SERVICES.map((s) => ({ slug: s.slug }))
 }
@@ -43,6 +45,55 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default function DienstDetailPage({ params }: Props) {
   const service = getDispatchServiceBySlug(params.slug)
   if (!service) notFound()
+
+  const renderTextWithAutoBullets = (text: string) => {
+    const lines = text
+      .split(/\r?\n/)
+      .map((l) => l.trim())
+      .filter(Boolean)
+
+    const bullets: string[] = []
+    const paragraphs: string[] = []
+
+    for (const line of lines) {
+      const m = line.match(/^[-*•]\s+(.*)$/)
+      if (m && m[1]) bullets.push(m[1].trim())
+      else paragraphs.push(line)
+    }
+
+    // If it contains any explicit bullet lines, prefer rendering them as true bulletpoints.
+    if (bullets.length > 0) {
+      return (
+        <div className="space-y-3">
+          {paragraphs.length > 0 ? (
+            <div className="space-y-3">
+              {paragraphs.map((p, idx) => (
+                <p
+                  key={`${p}-${idx}`}
+                  className="text-emerald-900/90 text-[15px] leading-7 md:text-base md:leading-relaxed"
+                >
+                  {p}
+                </p>
+              ))}
+            </div>
+          ) : null}
+
+          <ul className="list-disc pl-5 space-y-3 md:space-y-2 text-emerald-900/90 text-[15px] md:text-base marker:text-emerald-600/80">
+            {bullets.map((b) => (
+              <li key={b}>{b}</li>
+            ))}
+          </ul>
+        </div>
+      )
+    }
+
+    // Otherwise: render as paragraphs (keeps existing whitespace-pre-line behavior).
+    return (
+      <p className="text-emerald-900/90 text-[15px] leading-7 md:text-base md:leading-relaxed whitespace-pre-line">
+        {text}
+      </p>
+    )
+  }
 
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://tailtribe.be'
   const canonicalUrl = `${baseUrl}/diensten/${service.slug}`
@@ -104,19 +155,30 @@ export default function DienstDetailPage({ params }: Props) {
 
           <header className="bg-white rounded-2xl shadow-sm border border-black/5 p-8 md:p-10 flex flex-col md:flex-row gap-8 items-center">
             <div className="relative w-40 h-40 md:w-48 md:h-48 rounded-2xl overflow-hidden bg-gradient-to-br from-emerald-50 to-blue-50 border border-black/5 flex-shrink-0">
-              <Image
-                src={withAssetVersion(service.image)}
-                alt={service.name}
-                fill
-                className="object-contain p-3"
-                style={{ filter: SERVICE_ICON_FILTER }}
-              />
+              {isDev ? (
+                <img
+                  src={withAssetVersion(service.image)}
+                  alt={service.name}
+                  className="h-full w-full object-contain p-3 md:[filter:hue-rotate(28deg)_saturate(0.62)_brightness(0.98)_contrast(1.08)]"
+                />
+              ) : (
+                <Image
+                  src={withAssetVersion(service.image)}
+                  alt={service.name}
+                  fill
+                  unoptimized={isDev}
+                  className="object-contain p-3 md:[filter:hue-rotate(28deg)_saturate(0.62)_brightness(0.98)_contrast(1.08)]"
+                  style={{}}
+                />
+              )}
             </div>
             <div className="text-center md:text-left">
               <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-3">
                 {service.detailTitle ?? service.name}
               </h1>
-              <p className="text-lg text-gray-600 max-w-2xl">{service.desc}</p>
+              <p className="text-base leading-7 md:text-lg md:leading-normal text-gray-600 max-w-2xl">
+                {service.desc}
+              </p>
               <div className="mt-6 flex flex-col sm:flex-row gap-3 justify-center md:justify-start">
                 <Link href={`/boeken?service=${service.id}`} className="btn-brand inline-block">
                   Aanvraag indienen
@@ -131,17 +193,15 @@ export default function DienstDetailPage({ params }: Props) {
             </div>
           </header>
 
-          <section className="mt-10 space-y-8">
-            <div className="bg-white rounded-2xl shadow-sm border border-black/5 p-7 md:p-8">
+          <section className="mt-8 md:mt-10 space-y-6 md:space-y-8">
+            <div className="bg-white rounded-2xl shadow-sm border border-black/5 p-6 md:p-8">
               <h2 className="text-2xl md:text-3xl font-semibold text-transparent bg-clip-text bg-gradient-to-r from-emerald-700 to-blue-700 mb-4">
                 Waarom deze dienst?
               </h2>
               {service.longDescription?.whyText ? (
-                <p className="text-emerald-900/90 text-base leading-relaxed whitespace-pre-line">
-                  {service.longDescription.whyText}
-                </p>
+                renderTextWithAutoBullets(service.longDescription.whyText)
               ) : (
-                <ul className="list-disc pl-5 space-y-2 text-emerald-900/90 text-base">
+                <ul className="list-disc pl-5 space-y-3 md:space-y-2 text-emerald-900/90 text-[15px] md:text-base marker:text-emerald-600/80">
                   {(service.longDescription?.why ?? [
                     'We stemmen de details persoonlijk met je af.',
                     'Duidelijke afspraken vooraf, geen online betaling.',
@@ -157,15 +217,24 @@ export default function DienstDetailPage({ params }: Props) {
               <div className="flex justify-end">
                 <div className="bg-gradient-to-br from-green-500 via-emerald-400 to-blue-500 p-[3px] rounded-3xl shadow-[0_10px_30px_rgba(16,185,129,0.18)]">
                   <div className="relative w-full sm:w-[65vw] md:w-[38vw] lg:w-[26vw] aspect-[4/3] bg-white rounded-[calc(1.5rem-3px)] overflow-hidden border border-white/60">
-                    <Image
-                      src="/assets/groepsuitlaat-hero.jpg"
-                      alt="Groepsuitlaat in actie"
-                      fill
-                      priority
-                      className="object-cover"
-                      style={{ filter: 'brightness(1.08)' }}
-                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 65vw, (max-width: 1280px) 38vw, 26vw"
-                    />
+                    {isDev ? (
+                      <img
+                        src="/assets/groepsuitlaat-hero.jpg"
+                        alt="Groepsuitlaat in actie"
+                        className="h-full w-full object-cover md:[filter:brightness(1.08)]"
+                      />
+                    ) : (
+                      <Image
+                        src="/assets/groepsuitlaat-hero.jpg"
+                        alt="Groepsuitlaat in actie"
+                        fill
+                        priority
+                        unoptimized={isDev}
+                        className="object-cover md:[filter:brightness(1.08)]"
+                        style={{}}
+                        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 65vw, (max-width: 1280px) 38vw, 26vw"
+                      />
+                    )}
                   </div>
                 </div>
               </div>
@@ -174,15 +243,24 @@ export default function DienstDetailPage({ params }: Props) {
               <div className="flex justify-end">
                 <div className="bg-gradient-to-br from-green-500 via-emerald-400 to-blue-500 p-[3px] rounded-3xl shadow-[0_10px_30px_rgba(16,185,129,0.18)]">
                   <div className="relative w-full sm:w-[65vw] md:w-[38vw] lg:w-[26vw] aspect-[4/3] bg-white rounded-[calc(1.5rem-3px)] overflow-hidden border border-white/60">
-                    <Image
-                      src="/assets/hondenuitlaat-hero.jpg"
-                      alt="Hondenuitlaat in actie"
-                      fill
-                      priority
-                      className="object-cover"
-                      style={{ filter: 'brightness(1.08)' }}
-                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 65vw, (max-width: 1280px) 38vw, 26vw"
-                    />
+                    {isDev ? (
+                      <img
+                        src="/assets/hondenuitlaat-hero.jpg"
+                        alt="Hondenuitlaat in actie"
+                        className="h-full w-full object-cover md:[filter:brightness(1.08)]"
+                      />
+                    ) : (
+                      <Image
+                        src="/assets/hondenuitlaat-hero.jpg"
+                        alt="Hondenuitlaat in actie"
+                        fill
+                        priority
+                        unoptimized={isDev}
+                        className="object-cover md:[filter:brightness(1.08)]"
+                        style={{}}
+                        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 65vw, (max-width: 1280px) 38vw, 26vw"
+                      />
+                    )}
                   </div>
                 </div>
               </div>
@@ -191,15 +269,24 @@ export default function DienstDetailPage({ params }: Props) {
               <div className="flex justify-end">
                 <div className="bg-gradient-to-br from-green-500 via-emerald-400 to-blue-500 p-[3px] rounded-3xl shadow-[0_10px_30px_rgba(16,185,129,0.18)]">
                   <div className="relative w-full sm:w-[65vw] md:w-[38vw] lg:w-[26vw] aspect-[4/3] bg-white rounded-[calc(1.5rem-3px)] overflow-hidden border border-white/60">
-                    <Image
-                      src="/assets/dog-training-hero.jpg"
-                      alt="Hondentraining in actie"
-                      fill
-                      priority
-                      className="object-cover"
-                      style={{ filter: 'brightness(1.08)' }}
-                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 65vw, (max-width: 1280px) 38vw, 26vw"
-                    />
+                    {isDev ? (
+                      <img
+                        src="/assets/dog-training-hero.jpg"
+                        alt="Hondentraining in actie"
+                        className="h-full w-full object-cover md:[filter:brightness(1.08)]"
+                      />
+                    ) : (
+                      <Image
+                        src="/assets/dog-training-hero.jpg"
+                        alt="Hondentraining in actie"
+                        fill
+                        priority
+                        unoptimized={isDev}
+                        className="object-cover md:[filter:brightness(1.08)]"
+                        style={{}}
+                        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 65vw, (max-width: 1280px) 38vw, 26vw"
+                      />
+                    )}
                   </div>
                 </div>
               </div>
@@ -208,15 +295,24 @@ export default function DienstDetailPage({ params }: Props) {
               <div className="flex justify-end">
                 <div className="bg-gradient-to-br from-green-500 via-emerald-400 to-blue-500 p-[3px] rounded-3xl shadow-[0_10px_30px_rgba(16,185,129,0.18)]">
                   <div className="relative w-full sm:w-[65vw] md:w-[38vw] lg:w-[26vw] aspect-[4/3] bg-white rounded-[calc(1.5rem-3px)] overflow-hidden border border-white/60">
-                    <Image
-                      src="/assets/kat-hero.jpg"
-                      alt="Dierenoppas in actie"
-                      fill
-                      priority
-                      className="object-cover"
-                      style={{ filter: 'brightness(1.08)' }}
-                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 65vw, (max-width: 1280px) 38vw, 26vw"
-                    />
+                    {isDev ? (
+                      <img
+                        src="/assets/kat-hero.jpg"
+                        alt="Dierenoppas in actie"
+                        className="h-full w-full object-cover md:[filter:brightness(1.08)]"
+                      />
+                    ) : (
+                      <Image
+                        src="/assets/kat-hero.jpg"
+                        alt="Dierenoppas in actie"
+                        fill
+                        priority
+                        unoptimized={isDev}
+                        className="object-cover md:[filter:brightness(1.08)]"
+                        style={{}}
+                        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 65vw, (max-width: 1280px) 38vw, 26vw"
+                      />
+                    )}
                   </div>
                 </div>
               </div>
@@ -225,15 +321,24 @@ export default function DienstDetailPage({ params }: Props) {
               <div className="flex justify-end">
                 <div className="bg-gradient-to-br from-green-500 via-emerald-400 to-blue-500 p-[3px] rounded-3xl shadow-[0_10px_30px_rgba(16,185,129,0.18)]">
                   <div className="relative w-full sm:w-[65vw] md:w-[38vw] lg:w-[26vw] aspect-[4/3] bg-white rounded-[calc(1.5rem-3px)] overflow-hidden border border-white/60">
-                    <Image
-                      src="/assets/cavia-hero.jpg"
-                      alt="Dierenopvang in actie"
-                      fill
-                      priority
-                      className="object-cover"
-                      style={{ filter: 'brightness(1.08)' }}
-                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 65vw, (max-width: 1280px) 38vw, 26vw"
-                    />
+                    {isDev ? (
+                      <img
+                        src="/assets/cavia-hero.jpg"
+                        alt="Dierenopvang in actie"
+                        className="h-full w-full object-cover md:[filter:brightness(1.08)]"
+                      />
+                    ) : (
+                      <Image
+                        src="/assets/cavia-hero.jpg"
+                        alt="Dierenopvang in actie"
+                        fill
+                        priority
+                        unoptimized={isDev}
+                        className="object-cover md:[filter:brightness(1.08)]"
+                        style={{}}
+                        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 65vw, (max-width: 1280px) 38vw, 26vw"
+                      />
+                    )}
                   </div>
                 </div>
               </div>
@@ -242,15 +347,24 @@ export default function DienstDetailPage({ params }: Props) {
               <div className="flex justify-end">
                 <div className="bg-gradient-to-br from-green-500 via-emerald-400 to-blue-500 p-[3px] rounded-3xl shadow-[0_10px_30px_rgba(16,185,129,0.18)]">
                   <div className="relative w-full sm:w-[65vw] md:w-[38vw] lg:w-[26vw] aspect-[4/3] bg-white rounded-[calc(1.5rem-3px)] overflow-hidden border border-white/60">
-                    <Image
-                      src="/assets/rabbit-hero.jpg"
-                      alt="Verzorging aan huis"
-                      fill
-                      priority
-                      className="object-cover"
-                      style={{ filter: 'brightness(1.08)' }}
-                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 65vw, (max-width: 1280px) 38vw, 26vw"
-                    />
+                    {isDev ? (
+                      <img
+                        src="/assets/rabbit-hero.jpg"
+                        alt="Verzorging aan huis"
+                        className="h-full w-full object-cover md:[filter:brightness(1.08)]"
+                      />
+                    ) : (
+                      <Image
+                        src="/assets/rabbit-hero.jpg"
+                        alt="Verzorging aan huis"
+                        fill
+                        priority
+                        unoptimized={isDev}
+                        className="object-cover md:[filter:brightness(1.08)]"
+                        style={{}}
+                        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 65vw, (max-width: 1280px) 38vw, 26vw"
+                      />
+                    )}
                   </div>
                 </div>
               </div>
@@ -259,15 +373,24 @@ export default function DienstDetailPage({ params }: Props) {
               <div className="flex justify-end">
                 <div className="bg-gradient-to-br from-green-500 via-emerald-400 to-blue-500 p-[3px] rounded-3xl shadow-[0_10px_30px_rgba(16,185,129,0.18)]">
                   <div className="relative w-full sm:w-[65vw] md:w-[38vw] lg:w-[26vw] aspect-[4/3] bg-white rounded-[calc(1.5rem-3px)] overflow-hidden border border-white/60">
-                    <Image
-                      src="/assets/cat-eye-hero.jpg"
-                      alt="Transport huisdieren"
-                      fill
-                      priority
-                      className="object-cover"
-                      style={{ filter: 'brightness(1.08)' }}
-                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 65vw, (max-width: 1280px) 38vw, 26vw"
-                    />
+                    {isDev ? (
+                      <img
+                        src="/assets/cat-eye-hero.jpg"
+                        alt="Transport huisdieren"
+                        className="h-full w-full object-cover md:[filter:brightness(1.08)]"
+                      />
+                    ) : (
+                      <Image
+                        src="/assets/cat-eye-hero.jpg"
+                        alt="Transport huisdieren"
+                        fill
+                        priority
+                        unoptimized={isDev}
+                        className="object-cover md:[filter:brightness(1.08)]"
+                        style={{}}
+                        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 65vw, (max-width: 1280px) 38vw, 26vw"
+                      />
+                    )}
                   </div>
                 </div>
               </div>
@@ -276,15 +399,24 @@ export default function DienstDetailPage({ params }: Props) {
               <div className="flex justify-end">
                 <div className="bg-gradient-to-br from-green-500 via-emerald-400 to-blue-500 p-[3px] rounded-3xl shadow-[0_10px_30px_rgba(16,185,129,0.18)]">
                   <div className="relative w-full sm:w-[65vw] md:w-[38vw] lg:w-[26vw] aspect-[4/3] bg-white rounded-[calc(1.5rem-3px)] overflow-hidden border border-white/60">
-                    <Image
-                      src="/assets/horse-hero.jpg"
-                      alt="Verzorging van boerderijdieren"
-                      fill
-                      priority
-                      className="object-cover"
-                      style={{ filter: 'brightness(1.08)' }}
-                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 65vw, (max-width: 1280px) 38vw, 26vw"
-                    />
+                    {isDev ? (
+                      <img
+                        src="/assets/horse-hero.jpg"
+                        alt="Verzorging van boerderijdieren"
+                        className="h-full w-full object-cover md:[filter:brightness(1.08)]"
+                      />
+                    ) : (
+                      <Image
+                        src="/assets/horse-hero.jpg"
+                        alt="Verzorging van boerderijdieren"
+                        fill
+                        priority
+                        unoptimized={isDev}
+                        className="object-cover md:[filter:brightness(1.08)]"
+                        style={{}}
+                        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 65vw, (max-width: 1280px) 38vw, 26vw"
+                      />
+                    )}
                   </div>
                 </div>
               </div>
@@ -293,30 +425,38 @@ export default function DienstDetailPage({ params }: Props) {
               <div className="flex justify-end">
                 <div className="bg-gradient-to-br from-green-500 via-emerald-400 to-blue-500 p-[3px] rounded-3xl shadow-[0_10px_30px_rgba(16,185,129,0.18)]">
                   <div className="relative w-full sm:w-[40vw] md:w-[22vw] lg:w-[16vw] aspect-[3/4] bg-white rounded-[calc(1.5rem-3px)] overflow-hidden border border-white/60">
-                    <Image
-                      src="/assets/wedding-hero.jpg"
-                      alt="Begeleiding events"
-                      fill
-                      priority
-                      className="object-cover"
-                      style={{ filter: 'brightness(1.08)', objectPosition: '50% 20%' }}
-                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 65vw, (max-width: 1280px) 38vw, 26vw"
-                    />
+                    {isDev ? (
+                      <img
+                        src="/assets/wedding-hero.jpg"
+                        alt="Begeleiding events"
+                        className="h-full w-full object-cover md:[filter:brightness(1.08)]"
+                        style={{ objectPosition: '50% 20%' }}
+                      />
+                    ) : (
+                      <Image
+                        src="/assets/wedding-hero.jpg"
+                        alt="Begeleiding events"
+                        fill
+                        priority
+                        unoptimized={isDev}
+                        className="object-cover md:[filter:brightness(1.08)]"
+                        style={{ objectPosition: '50% 20%' }}
+                        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 65vw, (max-width: 1280px) 38vw, 26vw"
+                      />
+                    )}
                   </div>
                 </div>
               </div>
             )}
 
-            <div className="bg-white rounded-2xl shadow-sm border border-black/5 p-7 md:p-8 mt-6">
+            <div className="bg-white rounded-2xl shadow-sm border border-black/5 p-6 md:p-8 mt-6">
               <h2 className="text-2xl md:text-3xl font-semibold text-transparent bg-clip-text bg-gradient-to-r from-emerald-700 to-blue-700 mb-4">
                 Wat houdt het in?
               </h2>
               {service.longDescription?.includesText ? (
-                <p className="text-emerald-900/90 text-base leading-relaxed whitespace-pre-line">
-                  {service.longDescription.includesText}
-                </p>
+                renderTextWithAutoBullets(service.longDescription.includesText)
               ) : (
-                <ul className="list-disc pl-5 space-y-2 text-emerald-900/90 text-base">
+                <ul className="list-disc pl-5 space-y-3 md:space-y-2 text-emerald-900/90 text-[15px] md:text-base marker:text-emerald-600/80">
                   {(service.longDescription?.includes ?? [
                     'We nemen je aanvraag door en stemmen de planning af.',
                     'We zoeken een passende verzorger en bevestigen de afspraak.',
@@ -328,11 +468,11 @@ export default function DienstDetailPage({ params }: Props) {
             </div>
 
             {service.longDescription?.tips?.length ? (
-              <div className="bg-white rounded-2xl shadow-sm border border-black/5 p-7 md:p-8">
+              <div className="bg-white rounded-2xl shadow-sm border border-black/5 p-6 md:p-8">
                 <h2 className="text-2xl md:text-3xl font-semibold text-transparent bg-clip-text bg-gradient-to-r from-emerald-700 to-blue-700 mb-4">
                   Praktische info
                 </h2>
-                <ul className="list-disc pl-5 space-y-2 text-emerald-900/90 text-base">
+                <ul className="list-disc pl-5 space-y-3 md:space-y-2 text-emerald-900/90 text-[15px] md:text-base marker:text-emerald-600/80">
                   {service.longDescription.tips.map((t) => (
                     <li key={t}>{t}</li>
                   ))}
@@ -379,6 +519,7 @@ export default function DienstDetailPage({ params }: Props) {
                       src={withAssetVersion(s.image)}
                       alt={s.name}
                       fill
+                      unoptimized={isDev}
                       className="object-contain group-hover:scale-105 transition-transform duration-300"
                       style={{ filter: SERVICE_ICON_FILTER }}
                     />

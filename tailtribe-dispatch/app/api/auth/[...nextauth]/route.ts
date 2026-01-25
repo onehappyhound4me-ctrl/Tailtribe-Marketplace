@@ -7,9 +7,29 @@ import { applyAuthBaseUrlEnv } from '@/lib/auth-base-url'
 export const runtime = 'nodejs'
 
 function ensureAuthEnv() {
+  const isDev = process.env.NODE_ENV === 'development'
+
   // NOTE: we intentionally validate/normalize the base URL centrally.
   // If AUTH_URL or NEXTAUTH_URL ends with '/', we throw a clear error (prevents vague "Configuration").
   applyAuthBaseUrlEnv()
+
+  // Development convenience:
+  // For local + iPhone testing we don't want /api/auth/session to hard-fail.
+  // If no secret is set (or it's too short), use a dev-only fallback.
+  if (isDev) {
+    const fallbackSecret = 'dev-only-nextauth-secret-please-change-32chars-minimum'
+    if (!process.env.NEXTAUTH_SECRET && process.env.AUTH_SECRET) {
+      process.env.NEXTAUTH_SECRET = process.env.AUTH_SECRET.trim()
+    }
+    if (!process.env.NEXTAUTH_SECRET) {
+      process.env.NEXTAUTH_SECRET = fallbackSecret
+    }
+    process.env.NEXTAUTH_SECRET = String(process.env.NEXTAUTH_SECRET).trim()
+    if (process.env.NEXTAUTH_SECRET.length < 32) {
+      process.env.NEXTAUTH_SECRET = fallbackSecret
+    }
+    return null
+  }
 
   // If NEXTAUTH_SECRET is missing, return a clear error instead of NextAuth's generic 500.
   if (!process.env.NEXTAUTH_SECRET && process.env.AUTH_SECRET) {

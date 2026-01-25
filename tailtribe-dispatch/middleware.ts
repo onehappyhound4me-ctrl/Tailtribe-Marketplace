@@ -6,6 +6,13 @@ export default async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl
   const host = (req.headers.get('host') ?? '').toLowerCase()
 
+  // Always allow static files (images, videos, source maps, etc.).
+  // Otherwise middleware may redirect asset requests to /login (e.g. /tailtribe_logo_*.png),
+  // which makes images "disappear" on mobile Safari.
+  if (/\.(?:png|jpg|jpeg|gif|webp|svg|ico|txt|xml|json|map|mp4|webm)$/i.test(pathname)) {
+    return NextResponse.next()
+  }
+
   // Never show tailtribe.nl: always redirect to tailtribe.be (same path/query).
   // This ensures users won't end up on the old NL site, and the browser URL becomes .be.
   if (host === 'tailtribe.nl' || host === 'www.tailtribe.nl') {
@@ -128,7 +135,7 @@ export default async function middleware(req: NextRequest) {
 
 export const config = {
   matcher: [
-    '/((?!_next/|favicon.ico|assets|api/auth).*)',
+    '/((?!_next/|favicon.ico|assets/|api/auth|.*\\.(?:png|jpg|jpeg|gif|webp|svg|ico|txt|xml|json|map|mp4|webm)$).*)',
   ],
 }
 
