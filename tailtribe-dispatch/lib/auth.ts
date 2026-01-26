@@ -16,7 +16,22 @@ const splitName = (fullName?: string | null) => {
 
 const getOrCreateOAuthUser = async (email: string, name?: string | null) => {
   const existing = await prisma.user.findUnique({ where: { email } })
-  if (existing) return existing
+  if (existing) {
+    // If the user signs in via Google, we can safely mark the email as verified.
+    // (Google only returns verified emails for standard OAuth flows.)
+    if (!existing.emailVerified) {
+      try {
+        return await prisma.user.update({
+          where: { id: existing.id },
+          data: { emailVerified: new Date() },
+        })
+      } catch {
+        // If update fails for any reason, still allow login.
+        return existing
+      }
+    }
+    return existing
+  }
   const { firstName, lastName } = splitName(name)
   return prisma.user.create({
     data: {
@@ -25,6 +40,7 @@ const getOrCreateOAuthUser = async (email: string, name?: string | null) => {
       firstName,
       lastName,
       passwordHash: null,
+      emailVerified: new Date(),
     },
   })
 }
@@ -131,6 +147,10 @@ function buildAuth() {
             GoogleProvider({
               clientId: googleClientId,
               clientSecret: googleClientSecret,
+              // Allow logging in with Google when a user already exists with the same email
+              // (common when users first register with email/password and later try Google).
+              // Google emails are verified, but we still keep the login policy in our own DB.
+              allowDangerousEmailAccountLinking: true,
             }),
           ]
         : []),
