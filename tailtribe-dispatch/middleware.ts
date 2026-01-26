@@ -38,7 +38,10 @@ export default async function middleware(req: NextRequest) {
   // Edge-safe: avoid importing Node-only modules via lib/auth.ts (bcrypt).
   const token = await getToken({
     req,
-    secret: process.env.NEXTAUTH_SECRET,
+    // Support both env var names:
+    // - NEXTAUTH_SECRET (common in NextAuth setups)
+    // - AUTH_SECRET (Auth.js / NextAuth v5 docs)
+    secret: (process.env.NEXTAUTH_SECRET ?? process.env.AUTH_SECRET) as string | undefined,
   }).catch(() => null)
   const role = (token as any)?.role as string | undefined
   const userId = (token as any)?.id as string | undefined
