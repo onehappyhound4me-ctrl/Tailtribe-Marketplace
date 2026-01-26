@@ -57,6 +57,7 @@ export default async function middleware(req: NextRequest) {
   const publicRoutes = [
     // NOTE: '/' must be handled as exact match (otherwise every pathname startsWith('/') and everything becomes public)
     '/login',
+    '/logout',
     '/register',
     '/boeken',
     '/bedankt',
