@@ -1,0 +1,58 @@
+name: Mobile E2E (Playwright)
+
+on:
+  pull_request:
+    paths:
+      - "tailtribe-dispatch/**"
+  push:
+    branches: ["main"]
+    paths:
+      - "tailtribe-dispatch/**"
+
+jobs:
+  mobile-e2e:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: tailtribe-dispatch
+    env:
+      # Use a local SQLite DB for deterministic auth/session in CI.
+      DATABASE_URL: file:./prisma/dev.db
+      NEXTAUTH_SECRET: ci-nextauth-secret-please-change-32chars-minimum
+      NEXTAUTH_URL: http://127.0.0.1:3000
+      NEXT_PUBLIC_APP_URL: http://127.0.0.1:3000
+      # Ensure Playwright uses build+start parity mode in CI.
+      PW_SERVER: prod
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: tailtribe-dispatch/package-lock.json
+
+      - name: Install deps
+        run: npm ci
+
+      - name: Select Prisma schema (sqlite) + generate + db push
+        run: |
+          node scripts/select-prisma-schema.js sqlite
+          npx prisma generate --schema prisma/schema.prisma
+          npx prisma db push --schema prisma/schema.prisma
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps
+
+      - name: Run mobile E2E tests
+        run: npm run test:e2e
+
+      - name: Upload Playwright report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: tailtribe-dispatch/playwright-report
+
