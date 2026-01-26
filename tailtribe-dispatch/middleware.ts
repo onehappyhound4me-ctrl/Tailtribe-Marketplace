@@ -5,6 +5,7 @@ import { getToken } from 'next-auth/jwt'
 export default async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl
   const host = (req.headers.get('host') ?? '').toLowerCase()
+  const pathWithQuery = `${req.nextUrl.pathname}${req.nextUrl.search}`
 
   // Always allow Next internals/API first.
   // IMPORTANT: if we redirect these to another host, module scripts can be blocked (CORS) and the page "keeps loading".
@@ -65,7 +66,6 @@ export default async function middleware(req: NextRequest) {
     '/login',
     '/logout',
     '/register',
-    '/boeken',
     '/bedankt',
     '/verzorger-aanmelden',
     '/verzorger-aanmelden/bedankt',
@@ -91,11 +91,29 @@ export default async function middleware(req: NextRequest) {
     return NextResponse.next()
   }
 
+  // Booking flow: only OWNER can use /boeken, everyone else must go via auth/dashboard.
+  if (pathname === '/boeken') {
+    if (!isAuthed) {
+      const loginUrl = new URL('/login', req.url)
+      loginUrl.searchParams.set('callbackUrl', pathWithQuery)
+      return NextResponse.redirect(loginUrl)
+    }
+
+    if (role === 'OWNER') {
+      const url = new URL('/dashboard/owner/new-booking', req.url)
+      const service = req.nextUrl.searchParams.get('service')
+      if (service) url.searchParams.set('service', service)
+      return NextResponse.redirect(url)
+    }
+
+    return NextResponse.redirect(new URL('/dashboard', req.url))
+  }
+
   // Admin routes: always require admin
   if (pathname.startsWith('/admin') || pathname.startsWith('/api/admin')) {
     if (!isAuthed || role !== 'ADMIN') {
       const loginUrl = new URL('/login', req.url)
-      loginUrl.searchParams.set('callbackUrl', pathname)
+      loginUrl.searchParams.set('callbackUrl', pathWithQuery)
       return NextResponse.redirect(loginUrl)
     }
   }
@@ -103,7 +121,7 @@ export default async function middleware(req: NextRequest) {
   // Protected routes - require authentication
   if (!isAuthed) {
     const loginUrl = new URL('/login', req.url)
-    loginUrl.searchParams.set('callbackUrl', pathname)
+    loginUrl.searchParams.set('callbackUrl', pathWithQuery)
     return NextResponse.redirect(loginUrl)
   }
 
