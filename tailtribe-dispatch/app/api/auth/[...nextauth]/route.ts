@@ -65,14 +65,20 @@ function ensureAuthEnv() {
 
 export async function GET(req: NextRequest) {
   try {
-    // Use request origin as fallback for preview deployments when env vars are missing.
-    applyAuthBaseUrlEnv({ reqOrigin: req.nextUrl.origin })
+    // Use the *real* public origin as fallback (important on Vercel custom domains).
+    // nextUrl.origin can still reflect the internal *.vercel.app host in some setups.
+    const forwardedProto = (req.headers.get('x-forwarded-proto') ?? '').split(',')[0]?.trim()
+    const forwardedHost = (req.headers.get('x-forwarded-host') ?? '').split(',')[0]?.trim()
+    const host = forwardedHost || req.headers.get('host') || req.nextUrl.host
+    const proto = forwardedProto || req.nextUrl.protocol.replace(':', '') || 'https'
+    const reqOrigin = host ? `${proto}://${host}` : req.nextUrl.origin
+    applyAuthBaseUrlEnv({ reqOrigin })
   } catch (err: any) {
     return NextResponse.json(
       {
         error: 'Invalid AUTH_URL/NEXTAUTH_URL: must not end with \'/\'',
         message: err?.message ?? String(err),
-        fix: 'Zet AUTH_URL en NEXTAUTH_URL zonder trailing slash. Voorbeeld: https://tailtribe-dispatch.vercel.app',
+        fix: 'Zet AUTH_URL en NEXTAUTH_URL zonder trailing slash. Voorbeeld: https://tailtribe.be',
       },
       { status: 500 }
     )
@@ -84,13 +90,18 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
-    applyAuthBaseUrlEnv({ reqOrigin: req.nextUrl.origin })
+    const forwardedProto = (req.headers.get('x-forwarded-proto') ?? '').split(',')[0]?.trim()
+    const forwardedHost = (req.headers.get('x-forwarded-host') ?? '').split(',')[0]?.trim()
+    const host = forwardedHost || req.headers.get('host') || req.nextUrl.host
+    const proto = forwardedProto || req.nextUrl.protocol.replace(':', '') || 'https'
+    const reqOrigin = host ? `${proto}://${host}` : req.nextUrl.origin
+    applyAuthBaseUrlEnv({ reqOrigin })
   } catch (err: any) {
     return NextResponse.json(
       {
         error: 'Invalid AUTH_URL/NEXTAUTH_URL: must not end with \'/\'',
         message: err?.message ?? String(err),
-        fix: 'Zet AUTH_URL en NEXTAUTH_URL zonder trailing slash. Voorbeeld: https://tailtribe-dispatch.vercel.app',
+        fix: 'Zet AUTH_URL en NEXTAUTH_URL zonder trailing slash. Voorbeeld: https://tailtribe.be',
       },
       { status: 500 }
     )

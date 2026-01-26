@@ -25,13 +25,33 @@ export function getAuthBaseUrl(input: BaseUrlInput = {}) {
   const nextAuthUrl = assertNoTrailingSlash('NEXTAUTH_URL', process.env.NEXTAUTH_URL)
 
   const fromEnv = authUrl || nextAuthUrl
-  if (fromEnv) return normalizeNoTrailingSlash(fromEnv)
-
   const origin = (input.reqOrigin ?? '').trim()
+  // If we have BOTH an env URL and a request origin, prefer the request origin when the env URL
+  // is still the Vercel preview domain (e.g. tailtribe-dispatch.vercel.app) but the request came
+  // in on the custom domain (e.g. tailtribe.be). This prevents OAuth "Configuration" errors where
+  // NextAuth generates callback URLs on the wrong host.
+  if (fromEnv && origin) {
+    const envHost = safeHost(fromEnv)
+    const reqHost = safeHost(origin)
+    if (envHost?.endsWith('.vercel.app') && reqHost && !reqHost.endsWith('.vercel.app')) {
+      return normalizeNoTrailingSlash(origin)
+    }
+    return normalizeNoTrailingSlash(fromEnv)
+  }
+
+  if (fromEnv) return normalizeNoTrailingSlash(fromEnv)
   if (origin) return normalizeNoTrailingSlash(origin)
 
   // No base URL available; leave empty and let Auth.js handle it (will likely error).
   return ''
+}
+
+function safeHost(url: string) {
+  try {
+    return new URL(url).hostname.toLowerCase()
+  } catch {
+    return null
+  }
 }
 
 export function applyAuthBaseUrlEnv(input: BaseUrlInput = {}) {
