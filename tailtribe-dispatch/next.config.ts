@@ -3,6 +3,24 @@ import type { NextConfig } from "next";
 const isDev = process.env.NODE_ENV !== "production";
 const isProd = !isDev;
 
+function assertNoTrailingSlashEnv(name: string) {
+  const v = String(process.env[name] ?? "").trim();
+  if (!v) return;
+  if (v.endsWith("/")) {
+    throw new Error(`[env] Invalid ${name}: must not end with '/'. Example: https://tailtribe.be`);
+  }
+}
+
+// Production parity checks at build time (fail fast, avoid "works in dev, breaks in prod").
+if (isProd) {
+  if (!process.env.NEXT_PUBLIC_APP_URL) {
+    throw new Error("[env] NEXT_PUBLIC_APP_URL ontbreekt. Zet dit in Vercel (Production) en redeploy.");
+  }
+  assertNoTrailingSlashEnv("NEXT_PUBLIC_APP_URL");
+  assertNoTrailingSlashEnv("AUTH_URL");
+  assertNoTrailingSlashEnv("NEXTAUTH_URL");
+}
+
 const nextConfig: NextConfig = {
   // Vercel builds in a monorepo can accidentally pick up the repo-root .eslintrc.json.
   // We still keep `npm run lint` for local/CI, but we don't fail production builds on ESLint config resolution.

@@ -17,6 +17,48 @@ npm run dev
 
 Dan open: `http://localhost:3001`
 
+## ✅ Mobile validatie in 2 minuten (zonder handmatig iPhone testen)
+
+Deze repo heeft **Playwright mobile regression tests** (Chromium Android + WebKit iPhone) met screenshots.
+
+1) Eenmalig browsers installeren:
+
+```bash
+npx playwright install
+```
+
+2) Run mobile tests (snel, dev server):
+
+```bash
+npm run test:e2e
+```
+
+3) Run “production parity” (build + start, meest betrouwbaar):
+
+```bash
+PW_SERVER=prod npm run test:e2e
+```
+
+PowerShell:
+
+```powershell
+$env:PW_SERVER="prod"; npm run test:e2e
+```
+
+Wat dit afdekt:
+- Home laadt zonder console/page errors
+- Hamburger menu open/close/navigatie
+- Key pages: Diensten / Over ons / Contact / Login / Boeken→Login
+- Geen horizontale overflow op mobile
+- Images zijn aanwezig (minimaal 1 zichtbaar waar verwacht)
+- Screenshot diffs per page/project
+
+Rapport:
+
+```bash
+npm run test:e2e:report
+```
+
 ## 📋 Features
 
 ✅ **TailTribe design** - Zelfde kleuren, fonts, stijl

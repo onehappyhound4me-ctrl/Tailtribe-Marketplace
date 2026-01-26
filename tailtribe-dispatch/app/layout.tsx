@@ -3,8 +3,9 @@ import './globals.css'
 import { SessionProvider } from '@/components/SessionProvider'
 import { BackButtonFloating } from '@/components/BackButtonFloating'
 import { CookieConsent } from '@/components/CookieConsent'
+import { getPublicAppUrl } from '@/lib/env'
 
-const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://tailtribe.be'
+const appUrl = getPublicAppUrl()
 const ogImageUrl = `${appUrl}/assets/hero.jpg`
 const orgLogoUrl = `${appUrl}/tailtribe_logo_masked_1751977129022.png`
 
