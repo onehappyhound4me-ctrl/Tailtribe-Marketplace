@@ -22,9 +22,9 @@ export default function GoogleReviewsRedirectPage() {
   }, [])
 
   const googleMapsAppUrl = useMemo(() => {
-    // iOS URL scheme (Google Maps app). If the app is installed, this should open it.
-    // Using `q=cid:` targets the place by CID.
-    return `comgooglemaps://?q=cid:${GOOGLE_MAPS_CID}`
+    // iOS Google Maps scheme that opens a desktop Maps URL inside the Google Maps app.
+    // This reliably opens the place by CID (instead of searching for "cid:...").
+    return `comgooglemapsurl://maps.google.com/?cid=${GOOGLE_MAPS_CID}&hl=nl&gl=BE`
   }, [])
 
   const openGoogleMapsApp = useCallback(() => {
