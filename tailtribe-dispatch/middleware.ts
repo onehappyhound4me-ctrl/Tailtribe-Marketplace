@@ -63,6 +63,7 @@ export default async function middleware(req: NextRequest) {
     '/verzorger-aanmelden',
     '/verzorger-aanmelden/bedankt',
     '/diensten',
+    '/be',
     '/blog',
     '/over-ons',
     '/contact',

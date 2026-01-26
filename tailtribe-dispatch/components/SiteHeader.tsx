@@ -121,6 +121,38 @@ export function SiteHeader({ primaryCtaHref = '/boeken', primaryCtaLabel = 'Boek
 
         {/* Content */}
         <div className="flex-1 overflow-y-auto overscroll-contain px-4 sm:px-6 py-4 pb-[calc(env(safe-area-inset-bottom)+1rem)] space-y-2">
+          {/* Primary actions (mobile-only) */}
+          <div className="pb-2 space-y-2">
+            <a
+              href="/boeken"
+              onClick={onMobileNavClick('/boeken')}
+              className="rounded-xl bg-gradient-to-r from-green-600 to-blue-600 text-white px-4 py-3 text-sm font-semibold transition min-h-[44px] flex items-center justify-between shadow-md hover:from-green-700 hover:to-blue-700"
+            >
+              Boek een oppasser
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" className="w-4 h-4 text-white/90">
+                <path
+                  fillRule="evenodd"
+                  d="M8.47 3.47a.75.75 0 0 1 1.06 0l5 5a.75.75 0 0 1 0 1.06l-5 5a.75.75 0 1 1-1.06-1.06L12.94 9 8.47 4.53a.75.75 0 0 1 0-1.06Z"
+                  clipRule="evenodd"
+                />
+              </svg>
+            </a>
+            <a
+              href="/verzorger-aanmelden"
+              onClick={onMobileNavClick('/verzorger-aanmelden')}
+              className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-semibold text-amber-900 hover:bg-amber-100 transition min-h-[44px] flex items-center justify-between"
+            >
+              Word dierenoppas
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" className="w-4 h-4 text-amber-700/80">
+                <path
+                  fillRule="evenodd"
+                  d="M8.47 3.47a.75.75 0 0 1 1.06 0l5 5a.75.75 0 0 1 0 1.06l-5 5a.75.75 0 1 1-1.06-1.06L12.94 9 8.47 4.53a.75.75 0 0 1 0-1.06Z"
+                  clipRule="evenodd"
+                />
+              </svg>
+            </a>
+          </div>
+
           <a
             href="/#services"
             onClick={onMobileNavClick('/#services')}
