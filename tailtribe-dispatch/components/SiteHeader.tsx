@@ -16,7 +16,18 @@ export function SiteHeader({ primaryCtaHref = '/boeken', primaryCtaLabel = 'Boek
   const { data: session } = useSession()
   const canSeeCommunity = session?.user?.role === 'CAREGIVER' || session?.user?.role === 'ADMIN'
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
-  const prevBodyOverflow = useRef<string | null>(null)
+  const prevBodyStyle = useRef<{
+    overflow: string
+    position: string
+    top: string
+    left: string
+    right: string
+    width: string
+  } | null>(null)
+  const lockedScrollY = useRef<number>(0)
+  const mobileMenuToggleRef = useRef<HTMLButtonElement | null>(null)
+  const mobileMenuCloseRef = useRef<HTMLButtonElement | null>(null)
+  const prevMobileMenuOpen = useRef<boolean | null>(null)
   const router = useRouter()
   const pathname = usePathname()
   const isHome = pathname === '/'
@@ -66,22 +77,70 @@ export function SiteHeader({ primaryCtaHref = '/boeken', primaryCtaLabel = 'Boek
   // Mobile-only UX: prevent background scroll when the mobile menu is open (important on iOS Safari).
   useEffect(() => {
     if (!mobileMenuOpen) {
-      if (prevBodyOverflow.current !== null) {
-        document.body.style.overflow = prevBodyOverflow.current
-        prevBodyOverflow.current = null
+      if (prevBodyStyle.current) {
+        const prev = prevBodyStyle.current
+        prevBodyStyle.current = null
+        document.body.style.overflow = prev.overflow
+        document.body.style.position = prev.position
+        document.body.style.top = prev.top
+        document.body.style.left = prev.left
+        document.body.style.right = prev.right
+        document.body.style.width = prev.width
+        window.scrollTo(0, lockedScrollY.current || 0)
+        lockedScrollY.current = 0
       }
       return
     }
 
-    prevBodyOverflow.current = document.body.style.overflow
-    document.body.style.overflow = 'hidden'
-
-    return () => {
-      if (prevBodyOverflow.current !== null) {
-        document.body.style.overflow = prevBodyOverflow.current
-        prevBodyOverflow.current = null
+    // iOS Safari needs a stronger scroll lock than overflow:hidden.
+    if (!prevBodyStyle.current) {
+      prevBodyStyle.current = {
+        overflow: document.body.style.overflow,
+        position: document.body.style.position,
+        top: document.body.style.top,
+        left: document.body.style.left,
+        right: document.body.style.right,
+        width: document.body.style.width,
       }
     }
+    lockedScrollY.current = window.scrollY
+    document.body.style.overflow = 'hidden'
+    document.body.style.position = 'fixed'
+    document.body.style.top = `-${lockedScrollY.current}px`
+    document.body.style.left = '0'
+    document.body.style.right = '0'
+    document.body.style.width = '100%'
+
+    return () => {
+      if (prevBodyStyle.current) {
+        const prev = prevBodyStyle.current
+        prevBodyStyle.current = null
+        document.body.style.overflow = prev.overflow
+        document.body.style.position = prev.position
+        document.body.style.top = prev.top
+        document.body.style.left = prev.left
+        document.body.style.right = prev.right
+        document.body.style.width = prev.width
+        window.scrollTo(0, lockedScrollY.current || 0)
+        lockedScrollY.current = 0
+      }
+    }
+  }, [mobileMenuOpen])
+
+  // Reasonable focus management: focus the close button when opened, restore focus to toggle when closed.
+  useEffect(() => {
+    // Don't steal focus on first mount (avoids mobile Safari focus/scroll quirks).
+    if (prevMobileMenuOpen.current === null) {
+      prevMobileMenuOpen.current = mobileMenuOpen
+      return
+    }
+
+    prevMobileMenuOpen.current = mobileMenuOpen
+    if (mobileMenuOpen) {
+      window.setTimeout(() => mobileMenuCloseRef.current?.focus(), 0)
+      return
+    }
+    window.setTimeout(() => mobileMenuToggleRef.current?.focus(), 0)
   }, [mobileMenuOpen])
 
   const mobileMenu = mobileMenuOpen ? (
@@ -114,6 +173,7 @@ export function SiteHeader({ primaryCtaHref = '/boeken', primaryCtaLabel = 'Boek
               className="inline-flex items-center justify-center h-11 w-11 rounded-full border border-emerald-200 bg-white hover:bg-emerald-50 transition"
               aria-label="Sluit menu"
               data-testid="mobile-menu-close"
+              ref={mobileMenuCloseRef}
             >
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className="w-5 h-5 fill-current">
                 <path d="M18.3 5.71 12 12l6.3 6.29-1.41 1.42L10.59 13.4 4.3 19.71 2.89 18.29 9.17 12 2.89 5.71 4.3 4.29l6.29 6.3 6.3-6.3 1.41 1.42Z" />
@@ -383,6 +443,7 @@ export function SiteHeader({ primaryCtaHref = '/boeken', primaryCtaLabel = 'Boek
                 aria-controls="mobile-menu-drawer"
                 aria-expanded={mobileMenuOpen}
                 data-testid="mobile-menu-toggle"
+                ref={mobileMenuToggleRef}
                 className="inline-flex md:hidden items-center justify-center rounded-full border border-emerald-200 bg-white/80 backdrop-blur h-11 w-11 p-0 text-gray-900 hover:bg-white transition shadow-sm"
               >
                 {mobileMenuOpen ? (

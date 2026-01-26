@@ -5,6 +5,7 @@ import {
   assertSomeImagesHealthy,
   attachConsoleGuards,
   openMobileMenu,
+  seedCookieConsentAccepted,
 } from './utils'
 
 const PAGES = [
@@ -19,6 +20,7 @@ const PAGES = [
 test.describe('mobile regression', () => {
   test('home loads, no console errors, no overflow, screenshots', async ({ page }, testInfo) => {
     const guard = attachConsoleGuards(page, testInfo)
+    await seedCookieConsentAccepted(page)
     await page.goto('/')
     await acceptCookiesIfPresent(page)
 
@@ -32,6 +34,7 @@ test.describe('mobile regression', () => {
 
   test('hamburger menu opens/closes and navigates', async ({ page }, testInfo) => {
     const guard = attachConsoleGuards(page, testInfo)
+    await seedCookieConsentAccepted(page)
     await page.goto('/')
     await acceptCookiesIfPresent(page)
 
@@ -64,6 +67,7 @@ test.describe('mobile regression', () => {
   for (const p of PAGES) {
     test(`page: ${p.name}`, async ({ page }, testInfo) => {
       const guard = attachConsoleGuards(page, testInfo)
+      await seedCookieConsentAccepted(page)
       await page.goto(p.path)
       await acceptCookiesIfPresent(page)
 
@@ -78,6 +82,7 @@ test.describe('mobile regression', () => {
 
   test('boeken requires auth (redirects to login)', async ({ page }, testInfo) => {
     const guard = attachConsoleGuards(page, testInfo)
+    await seedCookieConsentAccepted(page)
     await page.goto('/boeken')
     await acceptCookiesIfPresent(page)
     await expect(page).toHaveURL(/\/login/)

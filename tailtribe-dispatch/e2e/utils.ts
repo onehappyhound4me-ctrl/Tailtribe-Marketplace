@@ -44,6 +44,17 @@ export async function acceptCookiesIfPresent(page: Page) {
   }
 }
 
+export async function seedCookieConsentAccepted(page: Page) {
+  // Deterministic tests: avoid cookie banner affecting clicks/screenshots.
+  await page.addInitScript(({ key }) => {
+    try {
+      window.localStorage.setItem(key, 'accepted')
+    } catch {
+      // ignore
+    }
+  }, { key: 'tailtribe_cookie_consent' })
+}
+
 export async function openMobileMenu(page: Page) {
   const toggle = page.getByTestId('mobile-menu-toggle')
   await expect(toggle).toBeVisible()
