@@ -25,12 +25,25 @@ async function upstashCmd<T = any>(cmd: any[]): Promise<T> {
 
 export async function checkRateLimit(key: string, limit: number, windowMs: number) {
   if (hasUpstash()) {
-    const windowSeconds = Math.ceil(windowMs / 1000)
-    const count = await upstashCmd<number>(['INCR', key])
-    if (count === 1) {
-      await upstashCmd(['EXPIRE', key, windowSeconds])
+    try {
+      const windowSeconds = Math.ceil(windowMs / 1000)
+      const count = await upstashCmd<number>(['INCR', key])
+      if (count === 1) {
+        await upstashCmd(['EXPIRE', key, windowSeconds])
+      }
+      return { allowed: count <= limit, remaining: Math.max(0, limit - count) }
+    } catch (err) {
+      // If Upstash is misconfigured/unavailable, we must not break critical flows
+      // like registration/login. Fall back to the in-memory limiter.
+      try {
+        console.error('[rate-limit] Upstash unavailable, falling back to memory', {
+          key,
+          message: (err as any)?.message ?? String(err),
+        })
+      } catch {
+        // ignore
+      }
     }
-    return { allowed: count <= limit, remaining: Math.max(0, limit - count) }
   }
 
   const now = Date.now()
