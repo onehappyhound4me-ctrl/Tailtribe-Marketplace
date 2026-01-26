@@ -324,10 +324,10 @@ export default function HomePage() {
                 const ua = window.navigator?.userAgent ?? ''
                 const isIOS = /iPad|iPhone|iPod/i.test(ua)
                 // If the user requested "desktop site" on iPhone, CSS may show the desktop link.
-                // Still force the iOS-safe short Maps link.
+                // Still route via our iOS-safe internal page (avoids white Google page).
                 if (isIOS) {
                   e.preventDefault()
-                  window.location.href = GOOGLE_REVIEWS_MOBILE_URL
+                  window.location.href = '/google-reviews'
                 }
               }}
             >
