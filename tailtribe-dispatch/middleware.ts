@@ -36,13 +36,16 @@ export default async function middleware(req: NextRequest) {
   const impersonateUserId = req.cookies.get('impersonateUserId')?.value
 
   // Edge-safe: avoid importing Node-only modules via lib/auth.ts (bcrypt).
-  const token = await getToken({
-    req,
-    // Support both env var names:
-    // - NEXTAUTH_SECRET (common in NextAuth setups)
-    // - AUTH_SECRET (Auth.js / NextAuth v5 docs)
-    secret: (process.env.NEXTAUTH_SECRET ?? process.env.AUTH_SECRET) as string | undefined,
-  }).catch(() => null)
+  // NextAuth v5 / Auth.js uses different cookie names than older NextAuth versions.
+  // If middleware can't read the cookie, protected routes will incorrectly redirect to /login
+  // even though /api/auth/session works.
+  const jwtSecret = (process.env.NEXTAUTH_SECRET ?? process.env.AUTH_SECRET) as string | undefined
+  const token =
+    (await getToken({ req, secret: jwtSecret, cookieName: '__Secure-authjs.session-token' }).catch(() => null)) ??
+    (await getToken({ req, secret: jwtSecret, cookieName: 'authjs.session-token' }).catch(() => null)) ??
+    (await getToken({ req, secret: jwtSecret, cookieName: '__Secure-next-auth.session-token' }).catch(() => null)) ??
+    (await getToken({ req, secret: jwtSecret, cookieName: 'next-auth.session-token' }).catch(() => null)) ??
+    (await getToken({ req, secret: jwtSecret }).catch(() => null))
   const role = (token as any)?.role as string | undefined
   const userId = (token as any)?.id as string | undefined
   const isAuthed = Boolean(token && userId)
