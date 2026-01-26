@@ -3,6 +3,7 @@ import { defineConfig, devices } from '@playwright/test'
 const PORT = Number(process.env.PW_PORT ?? process.env.PORT ?? 3000)
 const baseURL = process.env.PW_BASE_URL ?? `http://127.0.0.1:${PORT}`
 const serverMode = process.env.PW_SERVER ?? (process.env.CI ? 'prod' : 'dev')
+const useWebServer = !process.env.PW_BASE_URL
 
 const webServerCommand =
   serverMode === 'prod'
@@ -31,14 +32,16 @@ export default defineConfig({
     video: 'retain-on-failure',
   },
 
-  webServer: {
-    command: webServerCommand,
-    url: baseURL,
-    reuseExistingServer: !process.env.CI,
-    timeout: 120_000,
-    stdout: 'pipe',
-    stderr: 'pipe',
-  },
+  webServer: useWebServer
+    ? {
+        command: webServerCommand,
+        url: baseURL,
+        reuseExistingServer: !process.env.CI,
+        timeout: 120_000,
+        stdout: 'pipe',
+        stderr: 'pipe',
+      }
+    : undefined,
 
   projects: [
     {

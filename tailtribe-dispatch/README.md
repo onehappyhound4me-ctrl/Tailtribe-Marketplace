@@ -45,6 +45,12 @@ PowerShell:
 $env:PW_SERVER="prod"; npm run test:e2e
 ```
 
+4) Run tegen live site (snelle sanity check zonder lokale server):
+
+```bash
+PW_BASE_URL=https://www.tailtribe.be npm run test:e2e
+```
+
 Wat dit afdekt:
 - Home laadt zonder console/page errors
 - Hamburger menu open/close/navigatie
