@@ -89,6 +89,12 @@ De build gebruikt automatisch de Postgres Prisma schema via `vercel.json`.
 - Focus op simpelheid & snelheid
 - Makkelijk uit te breiden later
 
+### Google reviews link (iPhone fix)
+
+Op iPhone Safari kan Google Maps/Reviews soms een witte pagina tonen (vooral bij Google account sessies).
+Daarom routeert de homepage link “Bekijk alle Google reviews” altijd via `"/google-reviews"`, waar de gebruiker
+een paar betrouwbare opties krijgt (Google Maps app / Chrome / browser).
+
 ---
 
 **Made with 🐾 by TailTribe**

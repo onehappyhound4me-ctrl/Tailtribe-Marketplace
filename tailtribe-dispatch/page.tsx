@@ -21,12 +21,6 @@ export default function HomePage() {
     ? '/dashboard/owner/new-booking' 
     : '/boeken'
 
-  // iOS Safari can sometimes show a blank page for long Google "search" URLs opened in a new tab.
-  // Use a short Google Maps CID link on mobile for reliability (desktop keeps the existing behavior).
-  const GOOGLE_REVIEWS_MOBILE_URL = 'https://www.google.com/maps?cid=3943987553262873468&hl=nl&gl=BE'
-  const GOOGLE_REVIEWS_DESKTOP_URL =
-    'https://www.google.com/search?sa=X&sca_esv=8e3f949f37700064&rlz=1C1GCEA_nlBE1182BE1182&sxsrf=ANbL-n7GXfUhpUSVoRCwb-PMSSbfQn8I6g:1767962687775&q=One+Happy+Hound+Reviews&rflfq=1&num=20&stick=H4sIAAAAAAAAAONgkxI2tjQxtrQwNzU1NjIzsjA3NjGz2MDI-IpR3D8vVcEjsaCgUsEjvzQvRSEotSwztbx4ESsuGQDsNANRTgAAAA&rldimm=3943987553262873468&tbm=lcl&hl=nl-NL&ved=2ahUKEwil-eufvv6RAxUth_0HHY3BLagQ9fQKegQIQhAG&cshid=1767962827872947&biw=1536&bih=695&dpr=1.25&aic=0#lkt=LocalPoiReviews'
-
   return (
     <div className="min-h-screen bg-gradient-to-b from-green-50 via-white to-blue-50">
       <SiteHeader primaryCtaHref={bookingHref} primaryCtaLabel="Boek Nu" />
@@ -296,10 +290,10 @@ export default function HomePage() {
           </div>
 
           <div className="text-center mt-10">
-            {/* Mobile-only: route via internal page for iOS reliability */}
+            {/* Always route via internal page for reliability (avoids iOS Safari white Google page). */}
             <Link
               href="/google-reviews"
-              className="inline-flex md:hidden items-center justify-center gap-2 text-emerald-800 font-semibold hover:text-emerald-600 transition-colors"
+              className="inline-flex items-center justify-center gap-2 text-emerald-800 font-semibold hover:text-emerald-600 transition-colors"
             >
               Bekijk alle Google reviews
               <svg
@@ -312,36 +306,6 @@ export default function HomePage() {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="m9 5 7 7-7 7" />
               </svg>
             </Link>
-
-            {/* Desktop-only: keep existing long URL/behavior */}
-            <a
-              href={GOOGLE_REVIEWS_DESKTOP_URL}
-              target="_blank"
-              rel="noreferrer noopener"
-              className="hidden md:inline-flex items-center justify-center gap-2 text-emerald-800 font-semibold hover:text-emerald-600 transition-colors"
-              onClick={(e) => {
-                if (typeof window === 'undefined') return
-                const ua = window.navigator?.userAgent ?? ''
-                const isIOS = /iPad|iPhone|iPod/i.test(ua)
-                // If the user requested "desktop site" on iPhone, CSS may show the desktop link.
-                // Still route via our iOS-safe internal page (avoids white Google page).
-                if (isIOS) {
-                  e.preventDefault()
-                  window.location.href = '/google-reviews'
-                }
-              }}
-            >
-              Bekijk alle Google reviews
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="w-4 h-4"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="m9 5 7 7-7 7" />
-              </svg>
-            </a>
           </div>
         </div>
       </section>

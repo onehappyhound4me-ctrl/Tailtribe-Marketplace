@@ -301,17 +301,16 @@ export default function HomePage() {
           </div>
 
           <div className="text-center mt-10">
-            <a
-              href="https://www.google.com/search?sa=X&sca_esv=8e3f949f37700064&rlz=1C1GCEA_nlBE1182BE1182&sxsrf=ANbL-n7GXfUhpUSVoRCwb-PMSSbfQn8I6g:1767962687775&q=One+Happy+Hound+Reviews&rflfq=1&num=20&stick=H4sIAAAAAAAAAONgkxI2tjQxtrQwNzU1NjIzsjA3NjGz2MDI-IpR3D8vVcEjsaCgUsEjvzQvRSEotSwztbx4ESsuGQDsNANRTgAAAA&rldimm=3943987553262873468&tbm=lcl&hl=nl-NL&ved=2ahUKEwil-eufvv6RAxUth_0HHY3BLagQ9fQKegQIQhAG&cshid=1767962827872947&biw=1536&bih=695&dpr=1.25&aic=0#lkt=LocalPoiReviews"
-              target="_blank"
-              rel="noreferrer noopener"
+            {/* Always route via internal page for reliability (avoids iOS Safari white Google page). */}
+            <Link
+              href="/google-reviews"
               className="inline-flex items-center justify-center gap-2 text-emerald-800 font-semibold hover:text-emerald-600 transition-colors"
             >
               Bekijk alle Google reviews
               <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="m9 5 7 7-7 7" />
               </svg>
-            </a>
+            </Link>
           </div>
         </div>
       </section>
