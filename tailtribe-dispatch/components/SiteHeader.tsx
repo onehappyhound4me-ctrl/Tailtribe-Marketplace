@@ -289,7 +289,7 @@ export function SiteHeader({ primaryCtaHref = '/boeken', primaryCtaLabel = 'Boek
               className={
                 isHome
                   ? 'w-[200px] max-w-[58vw] sm:w-[220px] md:w-[320px] lg:w-[360px] h-auto overflow-hidden relative'
-                  : 'w-[180px] sm:w-[220px] md:w-[320px] lg:w-[360px] h-auto overflow-hidden relative'
+                  : 'w-[200px] max-w-[58vw] sm:w-[220px] md:w-[320px] lg:w-[360px] h-auto overflow-hidden relative'
               }
             >
               <Image
@@ -301,7 +301,7 @@ export function SiteHeader({ primaryCtaHref = '/boeken', primaryCtaLabel = 'Boek
                 sizes={
                   isHome
                     ? '(max-width: 480px) 200px, (max-width: 768px) 220px, (max-width: 1024px) 320px, 360px'
-                    : '(max-width: 480px) 180px, (max-width: 768px) 220px, (max-width: 1024px) 320px, 360px'
+                    : '(max-width: 480px) 200px, (max-width: 768px) 220px, (max-width: 1024px) 320px, 360px'
                 }
                 className="w-full h-auto object-contain relative z-10 transition-transform duration-300 hover:scale-[1.02]"
                 style={{

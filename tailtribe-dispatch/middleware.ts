@@ -70,6 +70,7 @@ export default async function middleware(req: NextRequest) {
     '/verzorger-aanmelden',
     '/verzorger-aanmelden/bedankt',
     '/diensten',
+    '/google-reviews',
     '/be',
     '/blog',
     '/over-ons',
