@@ -27,16 +27,32 @@ loadEnvFile(path.join(root, '.env'))
 
 async function main() {
   const email = process.argv[2]
-  if (!email) {
-    console.log('Usage: node scripts/inspect-user.js <email>')
-    return
+  const role = (process.argv[3] || '').toUpperCase()
+  if (!email || !role) {
+    console.log('Usage: node scripts/set-user-role.js <email> <ADMIN|CAREGIVER|OWNER>')
+    process.exit(1)
   }
+
   const user = await prisma.user.findUnique({ where: { email } })
-  console.log(user)
+  if (!user) {
+    console.error('User not found:', email)
+    process.exit(1)
+  }
+
+  const updated = await prisma.user.update({
+    where: { id: user.id },
+    data: { role },
+  })
+
+  console.log('Updated role:', { email: updated.email, role: updated.role })
 }
 
 main()
-  .catch((e) => console.error(e))
+  .catch((e) => {
+    console.error(e)
+    process.exit(1)
+  })
   .finally(async () => {
     await prisma.$disconnect()
   })
+

@@ -30,3 +30,11 @@ RESEND_API_KEY=
 EMAIL_FROM=noreply@tailtribe.be
 ```
 
+## Local iPhone testing (Google OAuth)
+
+Als je lokaal test op iPhone via je LAN IP (bv. `http://192.168.1.5:3000`), voeg dan ook deze redirect URI toe in Google Cloud:
+
+- `http://192.168.1.5:3000/api/auth/callback/google`
+
+En zorg dat je lokale `.env.local` dezelfde host gebruikt voor `NEXT_PUBLIC_APP_URL` en `NEXTAUTH_URL`.
+
