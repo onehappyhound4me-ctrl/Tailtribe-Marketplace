@@ -15,6 +15,7 @@ export default function LoginPage() {
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
+  const [googleEnabled, setGoogleEnabled] = useState<boolean | null>(null)
   
   const verified = searchParams.get('verified')
   const errorParam = searchParams.get('error')
@@ -32,7 +33,30 @@ export default function LoginPage() {
       }[errorParam] ?? 'Inloggen mislukt. Probeer opnieuw.'
     : null
 
-  const callbackUrl = searchParams.get('callbackUrl') || '/dashboard'
+  // SECURITY: never allow external callbackUrl redirects (prevents phishing/open-redirect issues).
+  const rawCallbackUrl = searchParams.get('callbackUrl')
+  const callbackUrl =
+    rawCallbackUrl && rawCallbackUrl.startsWith('/') && !rawCallbackUrl.startsWith('//')
+      ? rawCallbackUrl
+      : '/dashboard'
+
+  // Prefetch available providers so we can disable the Google button when not configured on THIS server (local dev).
+  useEffect(() => {
+    let cancelled = false
+    fetch('/api/auth/providers')
+      .then((r) => r.json())
+      .then((providers) => {
+        if (cancelled) return
+        setGoogleEnabled(Boolean(providers?.google))
+      })
+      .catch(() => {
+        if (cancelled) return
+        setGoogleEnabled(false)
+      })
+    return () => {
+      cancelled = true
+    }
+  }, [])
 
   useEffect(() => {
     if (status === 'authenticated' && session?.user) {
@@ -50,6 +74,7 @@ export default function LoginPage() {
         email,
         password,
         redirect: false,
+        callbackUrl,
       })
 
       if (result?.error) {
@@ -71,6 +96,13 @@ export default function LoginPage() {
     setError('')
     setLoading(true)
     try {
+      if (provider === 'google' && googleEnabled === false) {
+        setError(
+          'Google login is op deze server nog niet geconfigureerd. Zet GOOGLE_CLIENT_ID en GOOGLE_CLIENT_SECRET in tailtribe-dispatch/.env.local en herstart de dev server.'
+        )
+        setLoading(false)
+        return
+      }
       const res = await fetch('/api/auth/providers')
       const providers = await res.json().catch(() => ({}))
       if (!providers?.[provider]) {
@@ -143,10 +175,22 @@ export default function LoginPage() {
               <button
                 type="button"
                 onClick={() => handleOAuth('google')}
-                className="w-full px-4 py-2.5 rounded-xl border border-gray-300 bg-white text-gray-800 hover:bg-gray-50 font-semibold"
+                disabled={googleEnabled === false || loading}
+                className={`w-full px-4 py-2.5 rounded-xl border font-semibold transition ${
+                  googleEnabled === false || loading
+                    ? 'border-gray-200 bg-gray-100 text-gray-400 cursor-not-allowed'
+                    : 'border-gray-300 bg-white text-gray-800 hover:bg-gray-50'
+                }`}
               >
                 Inloggen met Gmail
               </button>
+              {googleEnabled === false && (
+                <div className="text-xs text-gray-500">
+                  Google login is nog niet geconfigureerd voor deze server (lokaal). Vul{' '}
+                  <span className="font-mono">GOOGLE_CLIENT_ID</span> en <span className="font-mono">GOOGLE_CLIENT_SECRET</span>{' '}
+                  in <span className="font-mono">tailtribe-dispatch/.env.local</span> en herstart.
+                </div>
+              )}
               <div className="text-center text-xs text-gray-400">of</div>
             </div>
 
