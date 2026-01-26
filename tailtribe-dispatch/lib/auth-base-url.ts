@@ -26,6 +26,23 @@ export function getAuthBaseUrl(input: BaseUrlInput = {}) {
 
   const fromEnv = authUrl || nextAuthUrl
   const origin = (input.reqOrigin ?? '').trim()
+
+  // Production safety net:
+  // If AUTH_URL/NEXTAUTH_URL (or the request) still point to a *.vercel.app host, but the app is served
+  // on a custom domain, force the custom domain using NEXT_PUBLIC_APP_URL (used throughout the app).
+  // This avoids OAuth "Configuration" errors caused by callback URLs being generated on the wrong host.
+  const isProd = process.env.NODE_ENV === 'production'
+  const publicAppUrlRaw = (process.env.NEXT_PUBLIC_APP_URL ?? '').toString().trim()
+  const publicAppUrl = publicAppUrlRaw ? normalizeNoTrailingSlash(publicAppUrlRaw) : ''
+  if (isProd && publicAppUrl) {
+    const publicHost = safeHost(publicAppUrl)
+    const envHost = fromEnv ? safeHost(fromEnv) : null
+    const reqHost = origin ? safeHost(origin) : null
+    if (publicHost && !publicHost.endsWith('.vercel.app') && (envHost?.endsWith('.vercel.app') || reqHost?.endsWith('.vercel.app'))) {
+      return publicAppUrl
+    }
+  }
+
   // If we have BOTH an env URL and a request origin, prefer the request origin when the env URL
   // is still the Vercel preview domain (e.g. tailtribe-dispatch.vercel.app) but the request came
   // in on the custom domain (e.g. tailtribe.be). This prevents OAuth "Configuration" errors where
