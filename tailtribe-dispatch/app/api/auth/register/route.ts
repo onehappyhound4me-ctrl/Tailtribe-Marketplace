@@ -5,6 +5,27 @@ import crypto from 'crypto'
 import { sendVerificationEmail } from '@/lib/email'
 import { checkRateLimit } from '@/lib/rate-limit'
 
+function normalizeEmail(value: unknown) {
+  return String(value ?? '')
+    .trim()
+    .toLowerCase()
+}
+
+function toSafeErrorResponse(err: any) {
+  const code = typeof err?.code === 'string' ? err.code : undefined
+  // Keep messages user-friendly and avoid leaking internals.
+  // We *do* include a short code so you can quickly diagnose production issues.
+  const mapped: Record<string, string> = {
+    P2002: 'Dit e-mailadres is al geregistreerd.',
+    P2021: 'Database probleem (tabel ontbreekt). Probeer later opnieuw.',
+    P2022: 'Database probleem (kolom ontbreekt). Probeer later opnieuw.',
+    P1001: 'Database is niet bereikbaar. Probeer later opnieuw.',
+    P1002: 'Database timeout. Probeer later opnieuw.',
+  }
+  const message = code ? mapped[code] ?? 'Er ging iets mis bij de registratie.' : 'Er ging iets mis bij de registratie.'
+  return { message, code }
+}
+
 export async function POST(request: NextRequest) {
   try {
     const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown'
@@ -18,9 +39,10 @@ export async function POST(request: NextRequest) {
 
     const body = await request.json()
     const { email, password, firstName, lastName, phone, role, address, city, postalCode, region, acceptTerms } = body
+    const emailNormalized = normalizeEmail(email)
 
     // Validatie
-    if (!email || !password || !firstName || !lastName || !role) {
+    if (!emailNormalized || !password || !firstName || !lastName || !role) {
       return NextResponse.json(
         { error: 'Vul alle verplichte velden in' },
         { status: 400 }
@@ -57,9 +79,11 @@ export async function POST(request: NextRequest) {
     }
 
     // Check if user already exists
-    const existingUser = await prisma.user.findUnique({
-      where: { email },
-    })
+    const existingUser = await prisma.user.findUnique({ where: { email: emailNormalized } })
+      .catch(() => null)
+      ?? (await prisma.user.findFirst({
+          where: { email: { equals: emailNormalized } },
+        }))
 
     if (existingUser) {
       return NextResponse.json(
@@ -71,48 +95,51 @@ export async function POST(request: NextRequest) {
     // Hash password
     const passwordHash = await bcrypt.hash(password, 10)
 
-    // Create user
-    const user = await prisma.user.create({
-      data: {
-        email,
-        passwordHash,
-        firstName,
-        lastName,
-        phone: phone || null,
-        role,
-        emailVerified: null, // Not verified yet
-      },
-    })
-
-    if (role === 'OWNER') {
-      await prisma.ownerProfile.create({
-        data: {
-          userId: user.id,
-          city: String(city).trim(),
-          postalCode: String(postalCode).trim(),
-          region: region ? String(region).trim() : null,
-          address: String(address).trim(),
-        },
-      })
-    }
-
-    // Create verification token
     const token = crypto.randomBytes(32).toString('hex')
     const expires = new Date()
     expires.setHours(expires.getHours() + 24) // Valid for 24 hours
 
-    await prisma.verificationToken.create({
-      data: {
-        identifier: email,
-        token,
-        expires,
-        userId: user.id,
-      },
+    // Create user/profile/token atomically (prevents "half registered" users).
+    const user = await prisma.$transaction(async (tx) => {
+      const createdUser = await tx.user.create({
+        data: {
+          email: emailNormalized,
+          passwordHash,
+          firstName: String(firstName).trim(),
+          lastName: String(lastName).trim(),
+          phone: phone ? String(phone).trim() : null,
+          role,
+          emailVerified: null, // Not verified yet
+        },
+      })
+
+      if (role === 'OWNER') {
+        await tx.ownerProfile.create({
+          data: {
+            userId: createdUser.id,
+            city: String(city).trim(),
+            postalCode: String(postalCode).trim(),
+            region: region ? String(region).trim() : null,
+            address: String(address).trim(),
+          },
+        })
+      }
+
+      await tx.verificationToken.create({
+        data: {
+          identifier: emailNormalized,
+          token,
+          expires,
+          userId: createdUser.id,
+        },
+      })
+
+      return createdUser
     })
 
     // Send verification email
     try {
-      await sendVerificationEmail(email, token)
+      await sendVerificationEmail(emailNormalized, token)
     } catch (emailError) {
       console.error('Failed to send verification email:', emailError)
       // Continue even if email fails
@@ -124,9 +151,24 @@ export async function POST(request: NextRequest) {
       message: 'Controleer je email voor verificatie',
     })
   } catch (error) {
+    try {
+      ;(globalThis as any).__tt_last_register_error = {
+        at: new Date().toISOString(),
+        name: (error as any)?.name ?? null,
+        code: (error as any)?.code ?? null,
+        message: (error as any)?.message ?? String(error),
+        // keep it short
+        stack: String((error as any)?.stack ?? '').slice(0, 1500) || null,
+      }
+    } catch {
+      // ignore
+    }
     console.error('Registration error:', error)
+    const safe = toSafeErrorResponse(error)
     return NextResponse.json(
-      { error: 'Er ging iets mis bij de registratie' },
+      {
+        error: safe.code ? `${safe.message} (code: ${safe.code})` : safe.message,
+      },
       { status: 500 }
     )
   }
