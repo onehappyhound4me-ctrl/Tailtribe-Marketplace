@@ -85,17 +85,19 @@ export function SiteHeader({ primaryCtaHref = '/boeken', primaryCtaLabel = 'Boek
   }, [mobileMenuOpen])
 
   const mobileMenu = mobileMenuOpen ? (
-    <div className="md:hidden fixed inset-0 z-[2000]" role="presentation">
+    <div className="md:hidden fixed inset-0 z-[2000] h-[100dvh]" role="presentation" data-testid="mobile-menu-root">
       {/* Backdrop */}
       <div
         className="absolute inset-0 bg-black/35"
         onClick={() => setMobileMenuOpen(false)}
         aria-hidden="true"
+        data-testid="mobile-menu-backdrop"
       />
 
       {/* Drawer */}
       <aside
         id="mobile-menu-drawer"
+        data-testid="mobile-menu-drawer"
         className="absolute top-0 bottom-0 right-0 z-[2001] w-[88vw] max-w-sm border-l border-emerald-200/70 bg-white shadow-2xl rounded-l-2xl overflow-hidden flex flex-col"
         role="dialog"
         aria-modal="true"
@@ -111,6 +113,7 @@ export function SiteHeader({ primaryCtaHref = '/boeken', primaryCtaLabel = 'Boek
               onClick={() => setMobileMenuOpen(false)}
               className="inline-flex items-center justify-center h-11 w-11 rounded-full border border-emerald-200 bg-white hover:bg-emerald-50 transition"
               aria-label="Sluit menu"
+              data-testid="mobile-menu-close"
             >
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className="w-5 h-5 fill-current">
                 <path d="M18.3 5.71 12 12l6.3 6.29-1.41 1.42L10.59 13.4 4.3 19.71 2.89 18.29 9.17 12 2.89 5.71 4.3 4.29l6.29 6.3 6.3-6.3 1.41 1.42Z" />
@@ -379,6 +382,7 @@ export function SiteHeader({ primaryCtaHref = '/boeken', primaryCtaLabel = 'Boek
                 aria-label="Menu"
                 aria-controls="mobile-menu-drawer"
                 aria-expanded={mobileMenuOpen}
+                data-testid="mobile-menu-toggle"
                 className="inline-flex md:hidden items-center justify-center rounded-full border border-emerald-200 bg-white/80 backdrop-blur h-11 w-11 p-0 text-gray-900 hover:bg-white transition shadow-sm"
               >
                 {mobileMenuOpen ? (
