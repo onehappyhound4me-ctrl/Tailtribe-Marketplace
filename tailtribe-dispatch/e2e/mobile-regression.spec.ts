@@ -8,6 +8,8 @@ import {
   seedCookieConsentAccepted,
 } from './utils'
 
+const isExternalBaseUrl = Boolean(process.env.PW_BASE_URL)
+
 const PAGES = [
   // Home hero uses a CSS background image, so we only require the logo (and/or service icons) to be present.
   { path: '/', name: 'home', minImages: 1 },
@@ -28,7 +30,9 @@ test.describe('mobile regression', () => {
     await assertNoHorizontalOverflow(page)
     await assertSomeImagesHealthy(page, 1)
 
-    await expect(page).toHaveScreenshot('home.png', { fullPage: true })
+    if (!isExternalBaseUrl) {
+      await expect(page).toHaveScreenshot('home.png', { fullPage: true })
+    }
     await guard.expectNoIssues()
   })
 
@@ -66,7 +70,11 @@ test.describe('mobile regression', () => {
 
   for (const p of PAGES) {
     test(`page: ${p.name}`, async ({ page }, testInfo) => {
-      const guard = attachConsoleGuards(page, testInfo)
+      const guard = attachConsoleGuards(page, testInfo, {
+        // WebKit can inject inline styles into inputs before hydration, which shows up as a React hydration warning.
+        // We keep this scoped to the login page to avoid masking real issues elsewhere.
+        ignoreConsoleErrors: p.name === 'login' ? [/Extra attributes from the server:.*style/i] : [],
+      })
       await seedCookieConsentAccepted(page)
       await page.goto(p.path)
       await acceptCookiesIfPresent(page)
@@ -75,7 +83,9 @@ test.describe('mobile regression', () => {
       await assertNoHorizontalOverflow(page)
       if (p.minImages > 0) await assertSomeImagesHealthy(page, p.minImages)
 
-      await expect(page).toHaveScreenshot(`${p.name}.png`, { fullPage: true })
+      if (!isExternalBaseUrl) {
+        await expect(page).toHaveScreenshot(`${p.name}.png`, { fullPage: true })
+      }
       await guard.expectNoIssues()
     })
   }

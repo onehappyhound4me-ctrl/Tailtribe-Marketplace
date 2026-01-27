@@ -27,6 +27,16 @@ Deze repo heeft **Playwright mobile regression tests** (Chromium Android + WebKi
 npx playwright install
 ```
 
+Windows tip (aanbevolen): Playwright browsers in project-cache (stabieler op OneDrive/AV):
+
+```bat
+set PLAYWRIGHT_BROWSERS_PATH=0&& npx playwright install
+```
+
+```powershell
+$env:PLAYWRIGHT_BROWSERS_PATH="0"; npx playwright install
+```
+
 2) Run mobile tests (snel, dev server):
 
 ```bash
@@ -50,6 +60,8 @@ $env:PW_SERVER="prod"; npm run test:e2e
 ```bash
 PW_BASE_URL=https://www.tailtribe.be npm run test:e2e
 ```
+
+Let op: bij `PW_BASE_URL` worden **screenshot diffs automatisch overgeslagen** (live en lokaal verschillen altijd).
 
 Wat dit afdekt:
 - Home laadt zonder console/page errors

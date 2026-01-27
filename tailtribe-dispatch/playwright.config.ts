@@ -1,9 +1,20 @@
 import { defineConfig, devices } from '@playwright/test'
+import path from 'node:path'
+
+// Make browser installs stable on Windows/Cursor by using the project cache
+// instead of a temp per-run path.
+process.env.PLAYWRIGHT_BROWSERS_PATH = '0'
 
 const PORT = Number(process.env.PW_PORT ?? process.env.PORT ?? 3000)
 const baseURL = process.env.PW_BASE_URL ?? `http://127.0.0.1:${PORT}`
 const serverMode = process.env.PW_SERVER ?? (process.env.CI ? 'prod' : 'dev')
 const useWebServer = !process.env.PW_BASE_URL
+
+// Windows (and sometimes OneDrive/AV) can block deletion of prior run artifacts (e.g. `.last-run.json`).
+// Avoid deleting by writing each run's artifacts to a fresh folder.
+const runId = process.env.PW_RUN_ID ?? new Date().toISOString().replace(/[:.]/g, '-')
+const outputDir = path.join('test-results', runId)
+const reportDir = path.join('playwright-report', runId)
 
 const webServerCommand =
   serverMode === 'prod'
@@ -15,7 +26,8 @@ export default defineConfig({
   timeout: 60_000,
   fullyParallel: true,
   retries: process.env.CI ? 2 : 0,
-  reporter: [['list'], ['html', { open: 'never' }]],
+  outputDir,
+  reporter: [['list'], ['html', { open: 'never', outputFolder: reportDir }]],
 
   expect: {
     timeout: 10_000,

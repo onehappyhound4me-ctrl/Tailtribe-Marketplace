@@ -2,7 +2,17 @@ import { expect, type Page, type TestInfo } from '@playwright/test'
 
 type CollectedIssue = { type: string; message: string }
 
-export function attachConsoleGuards(page: Page, testInfo: TestInfo) {
+type ConsoleGuardOptions = {
+  ignoreConsoleErrors?: Array<string | RegExp>
+}
+
+function shouldIgnoreConsoleError(message: string, opts?: ConsoleGuardOptions) {
+  const rules = opts?.ignoreConsoleErrors ?? []
+  if (!rules.length) return false
+  return rules.some((r) => (typeof r === 'string' ? message.includes(r) : r.test(message)))
+}
+
+export function attachConsoleGuards(page: Page, testInfo: TestInfo, opts?: ConsoleGuardOptions) {
   const issues: CollectedIssue[] = []
 
   page.on('pageerror', (err) => {
@@ -12,7 +22,9 @@ export function attachConsoleGuards(page: Page, testInfo: TestInfo) {
   page.on('console', (msg) => {
     // Keep this strict: console errors are almost always a bug (hydration, runtime, etc).
     if (msg.type() === 'error') {
-      issues.push({ type: 'console.error', message: msg.text() })
+      const text = msg.text()
+      if (shouldIgnoreConsoleError(text, opts)) return
+      issues.push({ type: 'console.error', message: text })
     }
   })
 
