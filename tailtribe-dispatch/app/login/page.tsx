@@ -225,8 +225,8 @@ export default function LoginPage() {
                 />
                 <div className="mt-2 text-xs text-gray-500">
                   Wachtwoord vergeten?{' '}
-                  <Link href="/contact" className="text-emerald-700 font-semibold hover:underline">
-                    Contacteer ons
+                  <Link href="/forgot-password" className="text-emerald-700 font-semibold hover:underline">
+                    Reset je wachtwoord
                   </Link>
                   .
                 </div>
