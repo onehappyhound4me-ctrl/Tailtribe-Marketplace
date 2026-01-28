@@ -1,9 +1,8 @@
 'use client'
 
 import Link from 'next/link'
-import Image from 'next/image'
 import { useEffect, useRef, useState } from 'react'
-import { usePathname, useRouter } from 'next/navigation'
+import { usePathname } from 'next/navigation'
 import { useSession, signOut } from 'next-auth/react'
 import { createPortal } from 'react-dom'
 
@@ -28,10 +27,30 @@ export function SiteHeader({ primaryCtaHref = '/boeken', primaryCtaLabel = 'Boek
   const mobileMenuToggleRef = useRef<HTMLButtonElement | null>(null)
   const mobileMenuCloseRef = useRef<HTMLButtonElement | null>(null)
   const prevMobileMenuOpen = useRef<boolean | null>(null)
-  const router = useRouter()
   const pathname = usePathname()
   const isHome = pathname === '/'
   const [mounted, setMounted] = useState(false)
+
+  const unlockBodyScroll = () => {
+    if (!prevBodyStyle.current) return
+    const prev = prevBodyStyle.current
+    prevBodyStyle.current = null
+    document.body.style.overflow = prev.overflow
+    document.body.style.position = prev.position
+    document.body.style.top = prev.top
+    document.body.style.left = prev.left
+    document.body.style.right = prev.right
+    document.body.style.width = prev.width
+    window.scrollTo(0, lockedScrollY.current || 0)
+    lockedScrollY.current = 0
+  }
+
+  const closeMobileMenu = () => {
+    // Critical: unlock synchronously so iOS Safari can't get "stuck"
+    // if navigation happens before React effects flush.
+    unlockBodyScroll()
+    setMobileMenuOpen(false)
+  }
 
   const handleLogout = async () => {
     await signOut({ callbackUrl: '/', redirect: true })
@@ -40,7 +59,7 @@ export function SiteHeader({ primaryCtaHref = '/boeken', primaryCtaLabel = 'Boek
   useEffect(() => {
     if (!mobileMenuOpen) return
     const onKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') setMobileMenuOpen(false)
+      if (e.key === 'Escape') closeMobileMenu()
     }
     window.addEventListener('keydown', onKeyDown)
     return () => window.removeEventListener('keydown', onKeyDown)
@@ -51,25 +70,23 @@ export function SiteHeader({ primaryCtaHref = '/boeken', primaryCtaLabel = 'Boek
   }, [])
 
   const onMobileNavClick = (href: string) => (e: React.MouseEvent<HTMLAnchorElement>) => {
-    // iOS Safari can occasionally register a "ghost click" after closing an overlay.
-    // We prevent default navigation, push the route ourselves, then close the menu.
-    e.preventDefault()
+    // Hotfix: let the browser handle navigation (most reliable across iPhone/Android),
+    // and just close the menu immediately.
     e.stopPropagation()
-    router.push(href)
-    window.setTimeout(() => setMobileMenuOpen(false), 0)
+    closeMobileMenu()
   }
 
   // Close menu after navigation (mobile Safari can drop link-clicks when we close inside onClick handlers).
   useEffect(() => {
     if (!mobileMenuOpen) return
-    setMobileMenuOpen(false)
+    closeMobileMenu()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pathname])
 
   // Also close on hash navigation (e.g. "/#services").
   useEffect(() => {
     if (!mobileMenuOpen) return
-    const onHashChange = () => setMobileMenuOpen(false)
+    const onHashChange = () => closeMobileMenu()
     window.addEventListener('hashchange', onHashChange)
     return () => window.removeEventListener('hashchange', onHashChange)
   }, [mobileMenuOpen])
@@ -77,18 +94,7 @@ export function SiteHeader({ primaryCtaHref = '/boeken', primaryCtaLabel = 'Boek
   // Mobile-only UX: prevent background scroll when the mobile menu is open (important on iOS Safari).
   useEffect(() => {
     if (!mobileMenuOpen) {
-      if (prevBodyStyle.current) {
-        const prev = prevBodyStyle.current
-        prevBodyStyle.current = null
-        document.body.style.overflow = prev.overflow
-        document.body.style.position = prev.position
-        document.body.style.top = prev.top
-        document.body.style.left = prev.left
-        document.body.style.right = prev.right
-        document.body.style.width = prev.width
-        window.scrollTo(0, lockedScrollY.current || 0)
-        lockedScrollY.current = 0
-      }
+      unlockBodyScroll()
       return
     }
 
@@ -112,18 +118,7 @@ export function SiteHeader({ primaryCtaHref = '/boeken', primaryCtaLabel = 'Boek
     document.body.style.width = '100%'
 
     return () => {
-      if (prevBodyStyle.current) {
-        const prev = prevBodyStyle.current
-        prevBodyStyle.current = null
-        document.body.style.overflow = prev.overflow
-        document.body.style.position = prev.position
-        document.body.style.top = prev.top
-        document.body.style.left = prev.left
-        document.body.style.right = prev.right
-        document.body.style.width = prev.width
-        window.scrollTo(0, lockedScrollY.current || 0)
-        lockedScrollY.current = 0
-      }
+      unlockBodyScroll()
     }
   }, [mobileMenuOpen])
 
@@ -148,7 +143,7 @@ export function SiteHeader({ primaryCtaHref = '/boeken', primaryCtaLabel = 'Boek
       {/* Backdrop */}
       <div
         className="absolute inset-0 bg-black/35"
-        onClick={() => setMobileMenuOpen(false)}
+        onClick={closeMobileMenu}
         aria-hidden="true"
         data-testid="mobile-menu-backdrop"
       />
@@ -169,7 +164,7 @@ export function SiteHeader({ primaryCtaHref = '/boeken', primaryCtaLabel = 'Boek
             <div className="text-sm font-semibold text-gray-900">Navigatie</div>
             <button
               type="button"
-              onClick={() => setMobileMenuOpen(false)}
+              onClick={closeMobileMenu}
               className="inline-flex items-center justify-center h-11 w-11 rounded-full border border-emerald-200 bg-white hover:bg-emerald-50 transition"
               aria-label="Sluit menu"
               data-testid="mobile-menu-close"
@@ -296,7 +291,7 @@ export function SiteHeader({ primaryCtaHref = '/boeken', primaryCtaLabel = 'Boek
                 <button
                   type="button"
                   onClick={() => {
-                    setMobileMenuOpen(false)
+                    closeMobileMenu()
                     void handleLogout()
                   }}
                   className="w-full rounded-xl border border-red-200 bg-white px-4 py-3 text-sm font-semibold text-gray-900 hover:bg-red-50 transition text-left min-h-[44px] flex items-center justify-between"
@@ -355,17 +350,14 @@ export function SiteHeader({ primaryCtaHref = '/boeken', primaryCtaLabel = 'Boek
                   : 'w-[200px] max-w-[58vw] sm:w-[220px] md:w-[320px] lg:w-[360px] h-auto overflow-hidden relative'
               }
             >
-              <Image
+              {/* Hotfix: use <img> for local public/ asset (bypasses Next/Image optimizer issues on mobile Safari). */}
+              <img
                 src="/tailtribe_logo_masked_1751977129022.png"
                 alt="TailTribe Logo"
                 width={700}
                 height={700}
-                priority
-                sizes={
-                  isHome
-                    ? '(max-width: 480px) 200px, (max-width: 768px) 220px, (max-width: 1024px) 320px, 360px'
-                    : '(max-width: 480px) 200px, (max-width: 768px) 220px, (max-width: 1024px) 320px, 360px'
-                }
+                loading="eager"
+                decoding="async"
                 className="w-full h-auto object-contain relative z-10 transition-transform duration-300 hover:scale-[1.02]"
                 style={{
                   filter: 'sepia(0.08) saturate(1.08) hue-rotate(-4deg) brightness(1.08)',
@@ -438,7 +430,10 @@ export function SiteHeader({ primaryCtaHref = '/boeken', primaryCtaLabel = 'Boek
               {/* Mobile menu toggle */}
               <button
                 type="button"
-                onClick={() => setMobileMenuOpen((v) => !v)}
+                onClick={() => {
+                  if (mobileMenuOpen) closeMobileMenu()
+                  else setMobileMenuOpen(true)
+                }}
                 aria-label="Menu"
                 aria-controls="mobile-menu-drawer"
                 aria-expanded={mobileMenuOpen}

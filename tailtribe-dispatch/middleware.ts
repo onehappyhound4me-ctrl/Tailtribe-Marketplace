@@ -24,6 +24,7 @@ export default async function middleware(req: NextRequest) {
   // This prevents "www" from pointing at an older deployment (favicon/logo issues),
   // and keeps a single canonical domain for SEO/caching.
   if (
+    host === 'www.tailtribe.be' ||
     host === 'tailtribe.nl' ||
     host === 'www.tailtribe.nl'
   ) {
