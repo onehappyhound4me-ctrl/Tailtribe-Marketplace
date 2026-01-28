@@ -1,12 +1,11 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import Image from 'next/image'
 import { SiteHeader } from '@/components/SiteHeader'
 import { SiteFooter } from '@/components/SiteFooter'
+import { withAssetVersion } from '@/lib/service-icons'
 
 const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://tailtribe.be'
 const canonicalUrl = `${baseUrl}/over-ons`
-const isDev = process.env.NODE_ENV === 'development'
 
 export const metadata: Metadata = {
   title: 'Over ons',
@@ -148,26 +147,16 @@ export default function OverOnsPage() {
             </p>
             <div className="flex justify-end items-start mb-6">
               <div className="bg-gradient-to-br from-green-500 via-emerald-400 to-blue-500 p-[3px] rounded-3xl shadow-[0_10px_30px_rgba(16,185,129,0.18)]">
-                <div className="relative w-full sm:w-[36vw] md:w-[24vw] lg:w-[16vw] aspect-[3/4] bg-white rounded-[calc(1.5rem-3px)] overflow-hidden border border-white/60">
-                  {isDev ? (
-                    <img
-                      src="/assets/bezieler.jpg"
-                      alt="Bezieler TailTribe"
-                      className="h-full w-full object-cover md:[filter:brightness(1.08)_contrast(0.92)_saturate(0.85)_blur(0.4px)]"
-                      style={{ objectPosition: '20% 72%' }}
-                    />
-                  ) : (
-                    <Image
-                      src="/assets/bezieler.jpg"
-                      alt="Bezieler TailTribe"
-                      fill
-                      priority
-                      unoptimized={isDev}
-                      className="object-cover md:[filter:brightness(1.08)_contrast(0.92)_saturate(0.85)_blur(0.4px)]"
-                      style={{ objectPosition: '20% 72%' }}
-                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 36vw, (max-width: 1280px) 24vw, 16vw"
-                    />
-                  )}
+                <div className="relative w-[72vw] max-w-[360px] sm:w-[36vw] md:w-[24vw] lg:w-[16vw] aspect-[3/4] bg-white rounded-[calc(1.5rem-3px)] overflow-hidden border border-white/60">
+                  {/* Use plain <img> for local /assets images: more reliable on mobile Safari than Next/Image optimizer. */}
+                  <img
+                    src={withAssetVersion('/assets/bezieler.jpg')}
+                    alt="Bezieler TailTribe"
+                    loading="eager"
+                    decoding="async"
+                    className="h-full w-full object-cover md:[filter:brightness(1.08)_contrast(0.92)_saturate(0.85)_blur(0.4px)]"
+                    style={{ objectPosition: '20% 72%' }}
+                  />
                 </div>
               </div>
             </div>
