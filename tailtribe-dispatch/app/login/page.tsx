@@ -223,6 +223,13 @@ export default function LoginPage() {
                   className="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
                   placeholder="••••••••"
                 />
+                <div className="mt-2 text-xs text-gray-500">
+                  Wachtwoord vergeten?{' '}
+                  <Link href="/contact" className="text-emerald-700 font-semibold hover:underline">
+                    Contacteer ons
+                  </Link>
+                  .
+                </div>
               </div>
 
               <button
