@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import bcrypt from 'bcryptjs'
+import crypto from 'crypto'
+import { sendVerificationEmail } from '@/lib/email'
 import { checkRateLimit } from '@/lib/rate-limit'
 
 function normalizeEmail(value: unknown) {
@@ -90,8 +92,25 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    const emailConfigured =
+      Boolean((process.env.RESEND_API_KEY ?? '').trim()) ||
+      (Boolean(process.env.SMTP_HOST) && Boolean(process.env.SMTP_USER))
+
+    // Product requirement: registration requires email verification.
+    // If email sending isn't configured, fail fast to avoid "account exists but no email" lockouts.
+    if (!emailConfigured) {
+      return NextResponse.json(
+        { error: 'E-mail verzending is niet geconfigureerd. Registratie is tijdelijk niet mogelijk.' },
+        { status: 500 }
+      )
+    }
+
     // Hash password
     const passwordHash = await bcrypt.hash(password, 10)
+
+    const token = crypto.randomBytes(32).toString('hex')
+    const expires = new Date()
+    expires.setHours(expires.getHours() + 24) // Valid for 24 hours
 
     // Create user/profile/token atomically (prevents "half registered" users).
     const user = await prisma.$transaction(async (tx) => {
@@ -103,9 +122,7 @@ export async function POST(request: NextRequest) {
           lastName: String(lastName).trim(),
           phone: phone ? String(phone).trim() : null,
           role,
-          // Production hotfix: don't require email verification to use the product.
-          // Email delivery can be flaky/misconfigured; registration must stay usable.
-          emailVerified: new Date(),
+          emailVerified: null, // Not verified yet
         },
       })
 
@@ -121,13 +138,39 @@ export async function POST(request: NextRequest) {
         })
       }
 
+      await tx.verificationToken.create({
+        data: {
+          identifier: emailNormalized,
+          token,
+          expires,
+          userId: createdUser.id,
+        },
+      })
+
       return createdUser
     })
+
+    // Send verification email (required). If sending fails, cleanup the created user
+    // so the same email can retry registration.
+    try {
+      await sendVerificationEmail(emailNormalized, token)
+    } catch (emailError) {
+      console.error('Failed to send verification email:', emailError)
+      try {
+        await prisma.user.delete({ where: { id: user.id } })
+      } catch (cleanupError) {
+        console.error('Failed to cleanup user after email send failure:', cleanupError)
+      }
+      return NextResponse.json(
+        { error: 'Kon geen verificatiemail versturen. Probeer later opnieuw.' },
+        { status: 500 }
+      )
+    }
 
     return NextResponse.json({
       success: true,
       userId: user.id,
-      message: 'Account aangemaakt. Je kan nu meteen inloggen.',
+      message: 'Controleer je email voor verificatie',
     })
   } catch (error) {
     try {

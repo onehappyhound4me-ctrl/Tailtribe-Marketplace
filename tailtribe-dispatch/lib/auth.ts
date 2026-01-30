@@ -116,8 +116,13 @@ function buildAuth() {
             return null
           }
 
+          // Require email verification for credentials users.
           const hashToCheck = user.passwordHash || (user as any).password
           if (!hashToCheck) {
+            return null
+          }
+
+          if (user.passwordHash && !user.emailVerified) {
             return null
           }
 
@@ -125,19 +130,6 @@ function buildAuth() {
 
           if (!passwordMatch) {
             return null
-          }
-
-          // Production hotfix: don't block login on email verification.
-          // Some environments can't reliably send verification emails; credentials login should still work.
-          if (!user.emailVerified) {
-            try {
-              await prisma.user.update({
-                where: { id: user.id },
-                data: { emailVerified: new Date() },
-              })
-            } catch {
-              // ignore (still allow login)
-            }
           }
 
           return {

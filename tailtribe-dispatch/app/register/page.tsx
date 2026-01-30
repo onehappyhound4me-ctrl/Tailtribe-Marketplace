@@ -77,13 +77,13 @@ export default function RegisterPage() {
       }
 
       // Show success message
-      setSuccess('✅ Account aangemaakt! Je kan nu meteen inloggen.')
+      setSuccess('✅ Account aangemaakt! Controleer je e-mail voor verificatie.')
       setLoading(false)
       
       // Redirect to login after a short delay
       setTimeout(() => {
         router.push('/login')
-      }, 1500)
+      }, 4000)
     } catch (err) {
       setError('Er ging iets mis. Probeer opnieuw.')
       setLoading(false)
