@@ -28,7 +28,7 @@ type MyCaregiver = {
   lastBookingDate: string
 }
 
-type BookingMode = 'single' | 'multi'
+type BookingMode = 'single' | 'multi' | 'weekly'
 
 export default function NewBookingPage() {
   const router = useRouter()
@@ -39,12 +39,14 @@ export default function NewBookingPage() {
   const [selectedTimeWindows, setSelectedTimeWindows] = useState<string[]>([])
   const [perDayTimeWindows, setPerDayTimeWindows] = useState<Record<string, string[]>>({})
   const isMultiMode = bookingMode === 'multi'
+  const isWeeklyMode = bookingMode === 'weekly'
   const [useDirect, setUseDirect] = useState(false)
   const [myCaregivers, setMyCaregivers] = useState<MyCaregiver[]>([])
   const [selectedCaregiver, setSelectedCaregiver] = useState<string>('')
   const [homeAddress, setHomeAddress] = useState('')
   const [homeCity, setHomeCity] = useState('')
   const [homePostalCode, setHomePostalCode] = useState('')
+  const [selectedWeekdays, setSelectedWeekdays] = useState<number[]>([])
   
   const [formData, setFormData] = useState({
     service: '',
@@ -166,6 +168,12 @@ export default function NewBookingPage() {
     )
   }
 
+  const toggleWeekday = (weekday: number) => {
+    setSelectedWeekdays((prev) =>
+      prev.includes(weekday) ? prev.filter((d) => d !== weekday) : [...prev, weekday].sort((a, b) => a - b)
+    )
+  }
+
   // Reset form functie
   const resetForm = () => {
     setSelectedTimeWindows([])
@@ -173,12 +181,16 @@ export default function NewBookingPage() {
     setPerDayTimeWindows({})
     setUseDirect(false)
     setSelectedCaregiver('')
+    setSelectedWeekdays([])
   }
 
   const setMode = (mode: BookingMode) => {
     setBookingMode(mode)
-    if (mode !== 'multi') {
+    if (mode === 'single') {
       setFormData((prev) => ({ ...prev, endDate: '' }))
+    }
+    if (mode !== 'weekly') {
+      setSelectedWeekdays([])
     }
   }
 
@@ -226,10 +238,21 @@ export default function NewBookingPage() {
     const maxDate = new Date(today)
     maxDate.setUTCDate(maxDate.getUTCDate() + 60)
 
-    // Basis check: single vereist minstens 1 tijdslot
+    // Basis check: single/weekly vereist minstens 1 tijdslot
     if (!isMultiMode && selectedTimeWindows.length === 0) {
       setError('Selecteer minimaal één tijdsblok')
       return
+    }
+
+    if (isWeeklyMode) {
+      if (!formData.startDate || !formData.endDate) {
+        setError('Kies een start- en einddatum')
+        return
+      }
+      if (selectedWeekdays.length === 0) {
+        setError('Selecteer minstens één weekdag')
+        return
+      }
     }
 
     if (useDirect && !selectedCaregiver) {
@@ -245,13 +268,16 @@ export default function NewBookingPage() {
 
       // Bepaal datums
       const dates: string[] = []
-      if (isMultiMode && formData.endDate) {
+      if ((isMultiMode || isWeeklyMode) && formData.endDate) {
         const [startYear, startMonth, startDay] = formData.startDate.split('-').map(Number)
         const [endYear, endMonth, endDay] = formData.endDate.split('-').map(Number)
         const start = new Date(startYear, startMonth - 1, startDay)
         const end = new Date(endYear, endMonth - 1, endDay)
 
         for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
+          if (isWeeklyMode && selectedWeekdays.length > 0) {
+            if (!selectedWeekdays.includes(d.getDay())) continue
+          }
           const year = d.getFullYear()
           const month = String(d.getMonth() + 1).padStart(2, '0')
           const day = String(d.getDate()).padStart(2, '0')
@@ -294,23 +320,30 @@ export default function NewBookingPage() {
           }
         }
       } else {
+        if (isWeeklyMode && dates.length === 0) {
+          setError('Geen dagen gevonden binnen deze periode. Kies een andere periode of weekdag.')
+          setLoading(false)
+          return
+        }
         if (selectedTimeWindows.length === 0) {
           setError('Selecteer minimaal één tijdsblok')
           setLoading(false)
           return
         }
-        const dateObj = new Date(formData.startDate)
-        if (dateObj.getTime() > maxDate.getTime()) {
-          setError('Je kan maximaal 60 dagen vooruit boeken')
-          setLoading(false)
-          return
-        }
-        for (const window of selectedTimeWindows) {
-          const notPast = validateNotInPast({ date: formData.startDate, timeWindow: window })
-          if (!notPast.ok) {
-            setError('Datum mag niet in het verleden liggen')
+        for (const date of dates) {
+          const dateObj = new Date(date)
+          if (dateObj.getTime() > maxDate.getTime()) {
+            setError('Je kan maximaal 60 dagen vooruit boeken')
             setLoading(false)
             return
+          }
+          for (const window of selectedTimeWindows) {
+            const notPast = validateNotInPast({ date, timeWindow: window })
+            if (!notPast.ok) {
+              setError('Datum mag niet in het verleden liggen')
+              setLoading(false)
+              return
+            }
           }
         }
       }
@@ -505,10 +538,11 @@ export default function NewBookingPage() {
             {/* Type aanvraag: single / multi */}
             <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
               <div className="text-sm font-semibold text-blue-900 mb-3">Kies type aanvraag</div>
-              <div className="grid md:grid-cols-2 gap-3">
+              <div className="grid md:grid-cols-3 gap-3">
                 {[
                   { mode: 'single' as BookingMode, title: 'Enkele dag', desc: 'Kies 1 datum' },
                   { mode: 'multi' as BookingMode, title: 'Meerdere dagen', desc: 'Datumreeks met eigen tijdsloten' },
+                  { mode: 'weekly' as BookingMode, title: 'Wekelijks (bv. elke dinsdag)', desc: 'Kies weekdag(en) binnen een periode' },
                 ].map((option) => {
                   const active = bookingMode === option.mode
                   return (
@@ -531,7 +565,7 @@ export default function NewBookingPage() {
             </div>
 
             {/* Datums */}
-            {isMultiMode ? (
+            {isMultiMode || isWeeklyMode ? (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -588,7 +622,46 @@ export default function NewBookingPage() {
               </div>
             )}
 
-            {/* Tijdsblokken (basisselectie) - alleen bij Enkele dag */}
+            {/* Weekdagen (alleen bij Wekelijks) */}
+            {isWeeklyMode && (
+              <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
+                <div className="text-sm font-semibold text-amber-900 mb-3">
+                  Selecteer weekdag(en) *
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {[
+                    { d: 1, label: 'Ma' },
+                    { d: 2, label: 'Di' },
+                    { d: 3, label: 'Wo' },
+                    { d: 4, label: 'Do' },
+                    { d: 5, label: 'Vr' },
+                    { d: 6, label: 'Za' },
+                    { d: 0, label: 'Zo' },
+                  ].map((w) => {
+                    const active = selectedWeekdays.includes(w.d)
+                    return (
+                      <button
+                        key={w.d}
+                        type="button"
+                        onClick={() => toggleWeekday(w.d)}
+                        className={`px-3 py-2 rounded-full border text-sm font-semibold transition ${
+                          active ? 'bg-amber-200 border-amber-400 text-amber-950' : 'bg-white border-amber-200 text-gray-900 hover:bg-amber-100'
+                        }`}
+                      >
+                        {w.label}
+                      </button>
+                    )
+                  })}
+                </div>
+                {selectedWeekdays.length === 0 && (
+                  <div className="mt-2 text-xs text-amber-900/80">
+                    Tip: selecteer bv. <strong>Di</strong> voor “elke dinsdag”.
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Tijdsblokken (basisselectie) - bij Enkele dag of Wekelijks */}
             {!isMultiMode && (
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-3">
@@ -843,9 +916,14 @@ export default function NewBookingPage() {
               <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-4">
                 <div className="font-medium text-emerald-900 mb-2">📋 Samenvatting:</div>
                 <div className="text-sm text-emerald-800 space-y-1">
-                  {isMultiMode && formData.endDate ? (
+                  {(isMultiMode || isWeeklyMode) && formData.endDate ? (
                     <>
                       <div>• Periode: {new Date(formData.startDate).toLocaleDateString('nl-BE')} tot {new Date(formData.endDate).toLocaleDateString('nl-BE')}</div>
+                      {isWeeklyMode && (
+                        <div className="text-sm">
+                          • Weekdagen: {selectedWeekdays.length ? selectedWeekdays.map((d) => ['Zo','Ma','Di','Wo','Do','Vr','Za'][d]).join(', ') : '—'}
+                        </div>
+                      )}
                       <div className="space-y-1 text-xs text-gray-700">
                         {(() => {
                           const rows: JSX.Element[] = []
@@ -855,11 +933,14 @@ export default function NewBookingPage() {
                           const end = new Date(endYear, endMonth - 1, endDay)
                           let total = 0
                           for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
+                            if (isWeeklyMode && selectedWeekdays.length > 0) {
+                              if (!selectedWeekdays.includes(d.getDay())) continue
+                            }
                             const year = d.getFullYear()
                             const month = String(d.getMonth() + 1).padStart(2, '0')
                             const day = String(d.getDate()).padStart(2, '0')
                             const dateStr = `${year}-${month}-${day}`
-                            const slots = perDayTimeWindows[dateStr] || []
+                            const slots = isMultiMode ? (perDayTimeWindows[dateStr] || []) : selectedTimeWindows
                             total += slots.length
                             rows.push(
                               <div key={dateStr}>
