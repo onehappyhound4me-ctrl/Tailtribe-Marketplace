@@ -21,10 +21,6 @@ export async function sendVerificationEmail(email: string, token: string) {
           Verifieer E-mail
         </a>
       </div>
-      <p style="color: #666; font-size: 14px;">
-        Of kopieer deze link in je browser:<br>
-        <a href="${verificationUrl}">${verificationUrl}</a>
-      </p>
       <p style="color: #666; font-size: 12px; margin-top: 30px;">
         Deze link is 24 uur geldig. Als je dit niet hebt aangevraagd, negeer deze email dan.
       </p>
