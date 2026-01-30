@@ -119,26 +119,78 @@ export async function assertNoHorizontalOverflow(page: Page) {
 }
 
 export async function assertSomeImagesHealthy(page: Page, minCount: number) {
-  const healthy = await page.evaluate(() => {
-    const imgs = Array.from(document.querySelectorAll<HTMLImageElement>('img'))
-    const visible = imgs.filter((img) => {
-      const r = img.getBoundingClientRect()
-      const style = window.getComputedStyle(img)
-      if (style.display === 'none' || style.visibility === 'hidden' || style.opacity === '0') return false
-      return r.width >= 24 && r.height >= 24 && r.bottom >= 0 && r.right >= 0 && r.top <= window.innerHeight && r.left <= window.innerWidth
+  const deadline = Date.now() + 8_000
+  // Wait for images to either load or error. If we check too early, Playwright may pass even though images never load.
+  while (true) {
+    const healthy = await page.evaluate(() => {
+      const imgs = Array.from(document.querySelectorAll<HTMLImageElement>('img'))
+      const visible = imgs.filter((img) => {
+        const r = img.getBoundingClientRect()
+        const style = window.getComputedStyle(img)
+        if (style.display === 'none' || style.visibility === 'hidden' || style.opacity === '0') return false
+        return (
+          r.width >= 24 &&
+          r.height >= 24 &&
+          r.bottom >= 0 &&
+          r.right >= 0 &&
+          r.top <= window.innerHeight &&
+          r.left <= window.innerWidth
+        )
+      })
+
+      const pending = visible.filter((img) => !img.complete).slice(0, 10).map((img) => img.currentSrc || img.src)
+      const ok = visible.filter((img) => img.complete && img.naturalWidth > 0)
+      const broken = visible
+        .filter((img) => img.complete && img.naturalWidth === 0)
+        .slice(0, 10)
+        .map((img) => img.currentSrc || img.src)
+
+      return { visibleCount: visible.length, okCount: ok.length, broken, pending }
     })
-    const ok = visible.filter((img) => (img.complete ? img.naturalWidth > 0 : true))
-    const broken = visible
-      .filter((img) => img.complete && img.naturalWidth === 0)
-      .slice(0, 10)
-      .map((img) => img.currentSrc || img.src)
 
-    return { visibleCount: visible.length, okCount: ok.length, broken }
-  })
+    if (healthy.okCount >= minCount) return
+    if (Date.now() > deadline) {
+      expect(
+        healthy.okCount,
+        `Expected at least ${minCount} visible loaded images; got ${healthy.okCount}.\nPending: ${healthy.pending.join(', ')}\nBroken: ${healthy.broken.join(', ')}`
+      ).toBeGreaterThanOrEqual(minCount)
+      return
+    }
 
-  expect(
-    healthy.okCount,
-    `Expected at least ${minCount} visible non-broken images; got ${healthy.okCount}. Broken: ${healthy.broken.join(', ')}`
-  ).toBeGreaterThanOrEqual(minCount)
+    await page.waitForTimeout(250)
+  }
+}
+
+export async function assertImagesBySrcHealthy(page: Page, opts: { srcIncludes: string; minCount: number }) {
+  const deadline = Date.now() + 8_000
+  while (true) {
+    const res = await page.evaluate(({ srcIncludes }) => {
+      const imgs = Array.from(document.querySelectorAll<HTMLImageElement>('img')).filter((img) =>
+        (img.currentSrc || img.src || '').includes(srcIncludes)
+      )
+
+      const ok = imgs.filter((img) => img.complete && img.naturalWidth > 0)
+      const pending = imgs.filter((img) => !img.complete).slice(0, 10).map((img) => img.currentSrc || img.src)
+      const broken = imgs
+        .filter((img) => img.complete && img.naturalWidth === 0)
+        .slice(0, 10)
+        .map((img) => img.currentSrc || img.src)
+
+      return { totalCount: imgs.length, okCount: ok.length, pending, broken }
+    }, { srcIncludes: opts.srcIncludes })
+
+    if (res.okCount >= opts.minCount) return
+    if (Date.now() > deadline) {
+      expect(
+        res.okCount,
+        `Expected at least ${opts.minCount} loaded images whose src includes "${opts.srcIncludes}". Got ${res.okCount}/${res.totalCount}.\nPending: ${res.pending.join(
+          ', '
+        )}\nBroken: ${res.broken.join(', ')}`
+      ).toBeGreaterThanOrEqual(opts.minCount)
+      return
+    }
+
+    await page.waitForTimeout(250)
+  }
 }
 

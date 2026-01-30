@@ -7,7 +7,7 @@ export const SERVICE_ICON_FILTER =
   'hue-rotate(28deg) saturate(0.62) brightness(0.98) contrast(1.08)'
 
 // Bump this when icon assets change or when mobile Safari cache gets "stuck".
-const ICON_ASSET_VERSION = '2026-01-25-1'
+const ICON_ASSET_VERSION = '2026-01-27-1'
 
 export function withAssetVersion(src: string) {
   if (!src) return src

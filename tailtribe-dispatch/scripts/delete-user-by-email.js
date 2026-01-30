@@ -15,9 +15,65 @@
  */
 
 const { PrismaClient } = require('@prisma/client')
+const fs = require('fs')
+const path = require('path')
 
 function normalizeEmail(v) {
   return String(v || '').trim().toLowerCase()
+}
+
+function loadEnvFile(filePath) {
+  if (!fs.existsSync(filePath)) return {}
+  const raw = fs.readFileSync(filePath, 'utf8')
+  const out = {}
+  for (const line of raw.split(/\r?\n/)) {
+    const trimmed = line.trim()
+    if (!trimmed || trimmed.startsWith('#')) continue
+    const idx = trimmed.indexOf('=')
+    if (idx === -1) continue
+    const key = trimmed.slice(0, idx).trim()
+    let val = trimmed.slice(idx + 1).trim()
+    if ((val.startsWith('"') && val.endsWith('"')) || (val.startsWith("'") && val.endsWith("'"))) {
+      val = val.slice(1, -1)
+    }
+    out[key] = val
+  }
+  return out
+}
+
+function sanitizeDatabaseUrl(value) {
+  let v = String(value || '')
+
+  // Trim and remove common invisible characters that break URL parsing when copy/pasted.
+  // (e.g. zero-width space, BOM)
+  v = v.replace(/[\u200B-\u200D\uFEFF]/g, '').trim()
+
+  // strip wrapping quotes
+  if ((v.startsWith('"') && v.endsWith('"')) || (v.startsWith("'") && v.endsWith("'"))) {
+    v = v.slice(1, -1).trim()
+  }
+
+  return v
+}
+
+function ensureDatabaseUrl() {
+  // Prefer explicit env var, else fall back to .env.local/.env (same convention as other scripts).
+  if (process.env.DATABASE_URL) {
+    const current = sanitizeDatabaseUrl(process.env.DATABASE_URL)
+    // Only treat it as valid if it looks like a Postgres URL.
+    // This avoids accidentally using a leftover SQLite `file:` URL from another script/shell.
+    if (current && (current.startsWith('postgresql://') || current.startsWith('postgres://'))) {
+      process.env.DATABASE_URL = current
+      return
+    }
+  }
+  const root = path.join(__dirname, '..')
+  const envLocal = loadEnvFile(path.join(root, '.env.local'))
+  const env = loadEnvFile(path.join(root, '.env'))
+  const databaseUrl = sanitizeDatabaseUrl(envLocal.DATABASE_URL || env.DATABASE_URL || '')
+  if (databaseUrl) {
+    process.env.DATABASE_URL = databaseUrl
+  }
 }
 
 async function main() {
@@ -28,6 +84,14 @@ async function main() {
     console.error('Usage: node scripts/delete-user-by-email.js <email> [--force]')
     process.exit(1)
   }
+
+  ensureDatabaseUrl()
+  if (!process.env.DATABASE_URL || !sanitizeDatabaseUrl(process.env.DATABASE_URL)) {
+    console.error('DATABASE_URL is missing. Set it as an env var or in tailtribe-dispatch/.env.local')
+    process.exit(1)
+  }
+
+  process.env.DATABASE_URL = sanitizeDatabaseUrl(process.env.DATABASE_URL)
 
   const prisma = new PrismaClient()
 

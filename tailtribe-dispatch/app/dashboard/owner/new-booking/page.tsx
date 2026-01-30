@@ -28,31 +28,23 @@ type MyCaregiver = {
   lastBookingDate: string
 }
 
-type BookingMode = 'calendar'
-
 export default function NewBookingPage() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
-  const [bookingMode, setBookingMode] = useState<BookingMode>('calendar')
   const [selectedTimeWindows, setSelectedTimeWindows] = useState<string[]>([])
-  const [perDayTimeWindows, setPerDayTimeWindows] = useState<Record<string, string[]>>({})
-  const isCalendarMode = bookingMode === 'calendar'
+  const [selectedDates, setSelectedDates] = useState<string[]>([])
   const [useDirect, setUseDirect] = useState(false)
   const [myCaregivers, setMyCaregivers] = useState<MyCaregiver[]>([])
   const [selectedCaregiver, setSelectedCaregiver] = useState<string>('')
   const [homeAddress, setHomeAddress] = useState('')
   const [homeCity, setHomeCity] = useState('')
   const [homePostalCode, setHomePostalCode] = useState('')
-  const [weekdayFilter, setWeekdayFilter] = useState<number[]>([])
-  const [excludedDates, setExcludedDates] = useState<Record<string, boolean>>({})
-  const [usePerDaySlots, setUsePerDaySlots] = useState(false)
+  const [calendarMonth, setCalendarMonth] = useState<Date | null>(null)
   
   const [formData, setFormData] = useState({
     service: '',
-    startDate: '',
-    endDate: '',
     city: '',
     postalCode: '',
     address: '',
@@ -123,61 +115,11 @@ export default function NewBookingPage() {
     return `${year}-${month}-${day}`
   }
 
-  const getRangeDates = (startYmd: string, endYmd: string) => {
-    const start = parseYmd(startYmd)
-    const end = parseYmd(endYmd)
-    const out: string[] = []
-    for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
-      out.push(formatYmd(d))
-    }
-    return out
-  }
-
-  const filteredDates = (() => {
-    if (!formData.startDate) return []
-    const end = formData.endDate || formData.startDate
-    const all = getRangeDates(formData.startDate, end)
-    const filtered =
-      weekdayFilter.length > 0 ? all.filter((ymd) => weekdayFilter.includes(parseYmd(ymd).getDay())) : all
-    return filtered.filter((ymd) => !excludedDates[ymd])
-  })()
-
-  const toggleWeekday = (weekday: number) => {
-    setWeekdayFilter((prev) =>
-      prev.includes(weekday) ? prev.filter((d) => d !== weekday) : [...prev, weekday].sort((a, b) => a - b)
-    )
-  }
-
-  const toggleDateExcluded = (ymd: string) => {
-    setExcludedDates((prev) => ({ ...prev, [ymd]: !prev[ymd] }))
-  }
-
-  // Keep per-day time slots in sync with the currently selected date set.
   useEffect(() => {
-    if (!usePerDaySlots) {
-      setPerDayTimeWindows({})
-      return
-    }
-    if (!formData.startDate) return
-    if (!filteredDates.length) return
-
-    setPerDayTimeWindows((prev) => {
-      const next: Record<string, string[]> = { ...prev }
-      // Add new dates with default (current global selection)
-      filteredDates.forEach((date) => {
-        if (!next[date]) {
-          next[date] = selectedTimeWindows.length ? [...selectedTimeWindows] : []
-        }
-      })
-      // Remove dates that are no longer selected
-      Object.keys(next).forEach((key) => {
-        if (!filteredDates.includes(key)) {
-          delete next[key]
-        }
-      })
-      return next
-    })
-  }, [formData.startDate, formData.endDate, selectedTimeWindows, weekdayFilter, excludedDates, usePerDaySlots])
+    if (calendarMonth) return
+    const today = parseYmd(todayStr)
+    setCalendarMonth(new Date(today.getFullYear(), today.getMonth(), 1))
+  }, [calendarMonth, todayStr])
 
   const fetchMyCaregivers = async () => {
     try {
@@ -199,56 +141,23 @@ export default function NewBookingPage() {
     )
   }
 
+  const toggleSelectedDate = (ymd: string) => {
+    setSelectedDates((prev) => {
+      const exists = prev.includes(ymd)
+      const next = exists ? prev.filter((d) => d !== ymd) : [...prev, ymd]
+      next.sort()
+      return next
+    })
+  }
+
+  const clearSelectedDates = () => setSelectedDates([])
+
   // Reset form functie
   const resetForm = () => {
     setSelectedTimeWindows([])
-    setBookingMode('calendar')
-    setPerDayTimeWindows({})
+    setSelectedDates([])
     setUseDirect(false)
     setSelectedCaregiver('')
-    setWeekdayFilter([])
-    setExcludedDates({})
-    setUsePerDaySlots(false)
-  }
-
-  const setMode = (mode: BookingMode) => {
-    setBookingMode(mode)
-    void mode
-  }
-
-  const togglePerDayTimeWindow = (date: string, window: string) => {
-    setPerDayTimeWindows((prev) => {
-      const current = prev[date] || []
-      const exists = current.includes(window)
-      const next = exists ? current.filter((w) => w !== window) : [...current, window]
-      return { ...prev, [date]: next }
-    })
-  }
-
-  const applyFirstDayToAll = () => {
-    if (!formData.startDate || !formData.endDate) return
-    const first = perDayTimeWindows[formData.startDate] || []
-    if (!first.length) return
-
-    const dates: string[] = []
-    const [startYear, startMonth, startDay] = formData.startDate.split('-').map(Number)
-    const [endYear, endMonth, endDay] = formData.endDate.split('-').map(Number)
-    const start = new Date(startYear, startMonth - 1, startDay)
-    const end = new Date(endYear, endMonth - 1, endDay)
-    for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
-      const year = d.getFullYear()
-      const month = String(d.getMonth() + 1).padStart(2, '0')
-      const day = String(d.getDate()).padStart(2, '0')
-      dates.push(`${year}-${month}-${day}`)
-    }
-
-    setPerDayTimeWindows((prev) => {
-      const next: Record<string, string[]> = { ...prev }
-      dates.forEach((date) => {
-        next[date] = [...first]
-      })
-      return next
-    })
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -266,8 +175,8 @@ export default function NewBookingPage() {
       return
     }
 
-    if (!formData.startDate) {
-      setError('Kies een datum')
+    if (selectedDates.length === 0) {
+      setError('Kies minimaal één dag')
       return
     }
 
@@ -282,36 +191,27 @@ export default function NewBookingPage() {
       // BOOKINGS
       const bookings: any[] = []
 
-      const dates = filteredDates.length ? filteredDates : [formData.startDate]
+      const dates = [...selectedDates].sort()
 
       // Valideer tijdslots + geen verleden (in Brussels tijd)
-      if (formData.endDate) {
-        const endDate = parseYmd(formData.endDate)
-        if (endDate.getTime() > maxDate.getTime()) {
-          setError('Je kan maximaal 60 dagen vooruit boeken')
-          setLoading(false)
-          return
-        }
-      }
       if (!dates.length) {
         setError('Geen dagen geselecteerd')
         setLoading(false)
         return
       }
       for (const date of dates) {
+        if (date < todayStr) {
+          setError('Datum mag niet in het verleden liggen')
+          setLoading(false)
+          return
+        }
         const dateObj = parseYmd(date)
         if (dateObj.getTime() > maxDate.getTime()) {
           setError('Je kan maximaal 60 dagen vooruit boeken')
           setLoading(false)
           return
         }
-        const slots = usePerDaySlots ? perDayTimeWindows[date] || [] : selectedTimeWindows
-        if (!slots.length) {
-          setError(usePerDaySlots ? 'Kies minimaal één tijdsblok per geselecteerde dag' : 'Selecteer minimaal één tijdsblok')
-          setLoading(false)
-          return
-        }
-        for (const window of slots) {
+        for (const window of selectedTimeWindows) {
           const notPast = validateNotInPast({ date, timeWindow: window })
           if (!notPast.ok) {
             setError('Datum mag niet in het verleden liggen')
@@ -323,9 +223,8 @@ export default function NewBookingPage() {
 
       // Maak booking voor elke datum + elk tijdsblok
       for (const date of dates) {
-        const slotsForDay = usePerDaySlots ? perDayTimeWindows[date] || [] : selectedTimeWindows
         const bookingAddress = formData.address.trim() || homeAddress
-        for (const timeWindow of slotsForDay) {
+        for (const timeWindow of selectedTimeWindows) {
           bookings.push({
             service: formData.service,
             date,
@@ -512,104 +411,139 @@ export default function NewBookingPage() {
             <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
               <div className="text-sm font-semibold text-blue-900 mb-1">Kies dagen in één flow</div>
               <div className="text-xs text-gray-600">
-                Kies een datum of periode. Optioneel: filter op weekdag (bv. elke dinsdag) en klik dagen aan/uit.
+                Klik één of meerdere dagen aan in de kalender. De geselecteerde tijdsblokken gelden voor alle gekozen dagen.
               </div>
             </div>
 
-            {/* Datums */}
-            {isCalendarMode ? (
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Van (startdatum) *
-                  </label>
-                  <div className="text-xs text-gray-500 mb-2">
-                    Je kan maximaal 60 dagen vooruit boeken.
-                  </div>
-                  <input
-                    type="date"
-                    value={formData.startDate}
-                    onChange={(e) => setFormData({ ...formData, startDate: e.target.value })}
-                    min={todayStr}
-                    max={maxBookingDateStr}
-                    required
-                    className="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Tot (einddatum) (optioneel)
-                  </label>
-                  <div className="text-xs text-gray-500 mb-2">
-                    Je kan maximaal 60 dagen vooruit boeken.
-                  </div>
-                  <input
-                    type="date"
-                    value={formData.endDate}
-                    onChange={(e) => setFormData({ ...formData, endDate: e.target.value })}
-                    min={formData.startDate || todayStr}
-                    max={maxBookingDateStr}
-                    className="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
-                  />
-                </div>
-                {formData.startDate && formData.endDate && (
-                  <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
-                    <div className="text-sm font-semibold text-amber-900 mb-3">
-                      Filter op weekdag (optioneel)
-                    </div>
-                    <div className="flex flex-wrap gap-2">
-                      {[
-                        { d: 1, label: 'Ma' },
-                        { d: 2, label: 'Di' },
-                        { d: 3, label: 'Wo' },
-                        { d: 4, label: 'Do' },
-                        { d: 5, label: 'Vr' },
-                        { d: 6, label: 'Za' },
-                        { d: 0, label: 'Zo' },
-                      ].map((w) => {
-                        const active = weekdayFilter.includes(w.d)
-                        return (
-                          <button
-                            key={w.d}
-                            type="button"
-                            onClick={() => toggleWeekday(w.d)}
-                            className={`px-3 py-2 rounded-full border text-sm font-semibold transition ${
-                              active ? 'bg-amber-200 border-amber-400 text-amber-950' : 'bg-white border-amber-200 text-gray-900 hover:bg-amber-100'
-                            }`}
-                          >
-                            {w.label}
-                          </button>
-                        )
-                      })}
-                    </div>
-                    <div className="mt-3 text-xs text-gray-700">
-                      Geselecteerde dagen: <strong>{filteredDates.length}</strong>
-                    </div>
-                    {filteredDates.length > 0 && (
-                      <div className="mt-2 flex flex-wrap gap-2">
-                        {filteredDates.map((d) => (
-                          <button
-                            key={d}
-                            type="button"
-                            onClick={() => toggleDateExcluded(d)}
-                            className="px-2 py-1 rounded-lg border border-amber-200 bg-white text-xs hover:bg-amber-100 transition"
-                            title="Klik om uit te sluiten"
-                          >
-                            {new Date(d).toLocaleDateString('nl-BE', { day: '2-digit', month: '2-digit' })}
-                          </button>
-                        ))}
+            {/* Kalender: multi-select */}
+            <div className="space-y-3">
+              <label className="block text-sm font-medium text-gray-700">
+                Dagen * <span className="text-gray-500 text-xs">(klik om te selecteren)</span>
+              </label>
+              <div className="text-xs text-gray-500">
+                Je kan maximaal 60 dagen vooruit boeken.
+              </div>
+
+              <div className="border border-gray-200 rounded-2xl p-4 bg-white">
+                {calendarMonth ? (
+                  <>
+                    <div className="flex items-center justify-between mb-3">
+                      <button
+                        type="button"
+                        onClick={() => setCalendarMonth(new Date(calendarMonth.getFullYear(), calendarMonth.getMonth() - 1, 1))}
+                        className="px-3 py-2 rounded-xl border border-gray-200 text-sm font-semibold hover:bg-gray-50"
+                        aria-label="Vorige maand"
+                        disabled={
+                          (() => {
+                            const min = parseYmd(todayStr)
+                            const minMonth = new Date(min.getFullYear(), min.getMonth(), 1)
+                            return calendarMonth.getTime() <= minMonth.getTime()
+                          })()
+                        }
+                      >
+                        ‹
+                      </button>
+                      <div className="text-sm font-bold text-gray-900">
+                        {calendarMonth.toLocaleDateString('nl-BE', { month: 'long', year: 'numeric' })}
                       </div>
-                    )}
-                    <div className="mt-2 text-xs text-gray-500">
-                      Tip: klik een dag hierboven om hem uit te sluiten (voor losse uitzonderingen).
+                      <button
+                        type="button"
+                        onClick={() => setCalendarMonth(new Date(calendarMonth.getFullYear(), calendarMonth.getMonth() + 1, 1))}
+                        className="px-3 py-2 rounded-xl border border-gray-200 text-sm font-semibold hover:bg-gray-50"
+                        aria-label="Volgende maand"
+                        disabled={
+                          (() => {
+                            const max = parseYmd(maxBookingDateStr)
+                            const maxMonth = new Date(max.getFullYear(), max.getMonth(), 1)
+                            return calendarMonth.getTime() >= maxMonth.getTime()
+                          })()
+                        }
+                      >
+                        ›
+                      </button>
                     </div>
-                  </div>
+
+                    <div className="grid grid-cols-7 gap-1 text-xs font-semibold text-gray-500 mb-2">
+                      {['Ma', 'Di', 'Wo', 'Do', 'Vr', 'Za', 'Zo'].map((d) => (
+                        <div key={d} className="text-center py-1">{d}</div>
+                      ))}
+                    </div>
+
+                    <div className="grid grid-cols-7 gap-1">
+                      {(() => {
+                        const year = calendarMonth.getFullYear()
+                        const month = calendarMonth.getMonth()
+                        const first = new Date(year, month, 1)
+                        const mondayFirstIndex = (first.getDay() + 6) % 7
+                        const daysInMonth = new Date(year, month + 1, 0).getDate()
+
+                        const cells: JSX.Element[] = []
+                        for (let i = 0; i < mondayFirstIndex; i++) {
+                          cells.push(<div key={`empty-${i}`} className="h-10" />)
+                        }
+                        for (let day = 1; day <= daysInMonth; day++) {
+                          const ymd = formatYmd(new Date(year, month, day))
+                          const isSelected = selectedDates.includes(ymd)
+                          const isDisabled = ymd < todayStr || ymd > maxBookingDateStr
+                          cells.push(
+                            <button
+                              key={ymd}
+                              type="button"
+                              disabled={isDisabled}
+                              onClick={() => toggleSelectedDate(ymd)}
+                              className={[
+                                'h-10 rounded-xl border text-sm font-semibold transition',
+                                isDisabled ? 'bg-gray-50 border-gray-100 text-gray-300 cursor-not-allowed' : 'bg-white border-gray-200 hover:border-emerald-300 hover:bg-emerald-50',
+                                isSelected ? 'bg-emerald-600 border-emerald-600 text-white hover:bg-emerald-600' : '',
+                              ].join(' ')}
+                              aria-pressed={isSelected}
+                              aria-label={`Selecteer ${new Date(ymd).toLocaleDateString('nl-BE')}`}
+                            >
+                              {day}
+                            </button>
+                          )
+                        }
+                        return cells
+                      })()}
+                    </div>
+                  </>
+                ) : null}
+              </div>
+
+              <div className="flex items-center justify-between gap-3">
+                <div className="text-xs text-gray-600">
+                  Geselecteerd: <strong>{selectedDates.length}</strong>
+                </div>
+                {selectedDates.length > 0 && (
+                  <button
+                    type="button"
+                    onClick={clearSelectedDates}
+                    className="text-xs font-semibold text-gray-700 hover:text-gray-900 underline"
+                  >
+                    Wis selectie
+                  </button>
                 )}
               </div>
-            ) : null}
+
+              {selectedDates.length > 0 && (
+                <div className="flex flex-wrap gap-2">
+                  {selectedDates.slice().sort().map((d) => (
+                    <button
+                      key={d}
+                      type="button"
+                      onClick={() => toggleSelectedDate(d)}
+                      className="px-2.5 py-1.5 rounded-xl border border-emerald-200 bg-emerald-50 text-xs font-semibold text-emerald-900 hover:bg-emerald-100 transition"
+                      title="Klik om te verwijderen"
+                    >
+                      {new Date(d).toLocaleDateString('nl-BE', { day: '2-digit', month: '2-digit' })} ×
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
 
             {/* Tijdsblokken (basisselectie) */}
-            {isCalendarMode && (
+            <div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-3">
                   Tijdsblokken * <span className="text-gray-500 text-xs">(selecteer 1 of meer)</span>
@@ -625,7 +559,7 @@ export default function NewBookingPage() {
                         className={`flex items-center justify-between p-4 rounded-xl border-2 transition ${
                           isSelected
                             ? 'bg-emerald-50 border-emerald-500 shadow-sm'
-                            : 'bg-white border-gray-200 hover-border-emerald-300'
+                            : 'bg-white border-gray-200 hover:border-emerald-300'
                         }`}
                       >
                         <div className="flex items-center gap-3">
@@ -661,81 +595,7 @@ export default function NewBookingPage() {
                   })}
                 </div>
               </div>
-            )}
-
-            {/* Per-dag tijdsloten (optioneel) */}
-            {isCalendarMode && formData.startDate && (formData.endDate && filteredDates.length > 1) && (
-              <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 space-y-3">
-                <div className="flex items-center justify-between gap-3">
-                  <div>
-                    <div className="font-semibold text-blue-900">Per dag tijdsblokken (optioneel)</div>
-                    <div className="text-xs text-gray-600">
-                      Zet aan als je per dag andere blokken wilt. Anders gebruiken we je globale selectie.
-                    </div>
-                  </div>
-                  <label className="inline-flex items-center gap-2 text-xs font-semibold text-blue-900">
-                    <input
-                      type="checkbox"
-                      checked={usePerDaySlots}
-                      onChange={(e) => setUsePerDaySlots(e.target.checked)}
-                      className="h-4 w-4 rounded border-blue-300 text-blue-600 focus:ring-blue-500"
-                    />
-                    Per dag instellen
-                  </label>
-                </div>
-
-                {!usePerDaySlots ? (
-                  <div className="text-sm text-gray-600">
-                    Globale tijdsblokken worden gebruikt voor alle dagen.
-                  </div>
-                ) : (
-                  <div className="space-y-2">
-                    {(() => {
-                      const items: JSX.Element[] = []
-                      for (const dateStr of filteredDates) {
-                        const perDaySlots = perDayTimeWindows[dateStr] || []
-                        items.push(
-                          <div key={dateStr} className="bg-white border border-blue-100 rounded-lg p-3">
-                            <div className="font-medium text-gray-900 mb-2">
-                              {new Date(dateStr).toLocaleDateString('nl-BE')}
-                            </div>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                              {TIME_WINDOWS.map((window) => {
-                                const isSelected = perDaySlots.includes(window.value)
-                                return (
-                                  <button
-                                    key={window.value}
-                                    type="button"
-                                    onClick={() => togglePerDayTimeWindow(dateStr, window.value)}
-                                    className={`flex items-center justify-between p-3 rounded-lg border-2 transition text-left ${
-                                      isSelected
-                                        ? 'bg-emerald-50 border-emerald-500 shadow-sm'
-                                        : 'bg-white border-gray-200 hover:border-emerald-300'
-                                    }`}
-                                  >
-                                    <div>
-                                      <div className={`font-semibold ${isSelected ? 'text-emerald-900' : 'text-gray-900'}`}>
-                                        {window.label}
-                                      </div>
-                                      <div className="text-xs text-gray-500">{window.time}</div>
-                                    </div>
-                                    {isSelected && <div className="text-emerald-600 font-bold">✓</div>}
-                                  </button>
-                                )
-                              })}
-                            </div>
-                            {perDaySlots.length === 0 && (
-                              <div className="mt-2 text-xs text-red-600">Selecteer minstens 1 blok voor deze dag.</div>
-                            )}
-                          </div>
-                        )
-                      }
-                      return items
-                    })()}
-                  </div>
-                )}
-              </div>
-            )}
+            </div>
 
             {/* Locatie */}
             <div className="text-xs text-gray-500 mb-2">
@@ -853,55 +713,19 @@ export default function NewBookingPage() {
             </div>
 
             {/* Samenvatting */}
-            {formData.startDate && (
+            {selectedDates.length > 0 && (
               <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-4">
                 <div className="font-medium text-emerald-900 mb-2">📋 Samenvatting:</div>
                 <div className="text-sm text-emerald-800 space-y-1">
-                  {formData.endDate ? (
-                    <>
-                      <div>
-                        • Periode: {new Date(formData.startDate).toLocaleDateString('nl-BE')} tot{' '}
-                        {new Date(formData.endDate).toLocaleDateString('nl-BE')}
-                      </div>
-                      {weekdayFilter.length > 0 ? (
-                        <div>
-                          • Weekdag filter:{' '}
-                          {weekdayFilter
-                            .map((d: number) => ['Zo', 'Ma', 'Di', 'Wo', 'Do', 'Vr', 'Za'][d])
-                            .join(', ')}
-                        </div>
-                      ) : null}
-                      <div>
-                        • Dagen geselecteerd: <strong>{filteredDates.length}</strong>
-                      </div>
-                      <div className="space-y-1 text-xs text-gray-700">
-                        {(() => {
-                          const rows: JSX.Element[] = []
-                          let total = 0
-                          for (const dateStr of filteredDates) {
-                            const slots = usePerDaySlots ? perDayTimeWindows[dateStr] || [] : selectedTimeWindows
-                            total += slots.length || 0
-                            rows.push(
-                              <div key={dateStr}>
-                                • {new Date(dateStr).toLocaleDateString('nl-BE')}: {slots.length} blok(ken)
-                              </div>
-                            )
-                          }
-                          rows.push(
-                            <div key="total" className="font-semibold text-emerald-800 mt-1">
-                              Totaal: {total}
-                            </div>
-                          )
-                          return rows
-                        })()}
-                      </div>
-                    </>
-                  ) : (
-                    <>
-                      <div>• Datum: {new Date(formData.startDate).toLocaleDateString('nl-BE')}</div>
-                      <div>• <strong>Totaal aantal aanvragen: {selectedTimeWindows.length}</strong></div>
-                    </>
-                  )}
+                  <div>
+                    • Dagen geselecteerd: <strong>{selectedDates.length}</strong>
+                  </div>
+                  <div>
+                    • Tijdsblokken geselecteerd: <strong>{selectedTimeWindows.length}</strong>
+                  </div>
+                  <div>
+                    • <strong>Totaal aantal aanvragen: {selectedDates.length * selectedTimeWindows.length}</strong>
+                  </div>
                 </div>
               </div>
             )}

@@ -2,6 +2,7 @@ import { test, expect } from '@playwright/test'
 import {
   acceptCookiesIfPresent,
   assertNoHorizontalOverflow,
+  assertImagesBySrcHealthy,
   assertSomeImagesHealthy,
   attachConsoleGuards,
   openMobileMenu,
@@ -36,7 +37,18 @@ test.describe('mobile regression', () => {
     await guard.expectNoIssues()
   })
 
-  test('hamburger menu opens/closes and navigates', async ({ page }, testInfo) => {
+  test('diensten icons load on mobile (no green-dot placeholders)', async ({ page }, testInfo) => {
+    const guard = attachConsoleGuards(page, testInfo)
+    await seedCookieConsentAccepted(page)
+    await page.goto('/diensten')
+    await acceptCookiesIfPresent(page)
+
+    // Service cards use /assets/*.png icons; ensure several are actually loaded.
+    await assertImagesBySrcHealthy(page, { srcIncludes: '/assets/', minCount: 6 })
+    await guard.expectNoIssues()
+  })
+
+  test('hamburger menu opens, closes and navigates', async ({ page }, testInfo) => {
     const guard = attachConsoleGuards(page, testInfo)
     await seedCookieConsentAccepted(page)
     await page.goto('/')
@@ -61,8 +73,9 @@ test.describe('mobile regression', () => {
 
     // Navigate via menu link
     await openMobileMenu(page)
-    await page.getByRole('link', { name: 'Over ons' }).click()
-    await expect(page).toHaveURL(/\/over-ons/)
+    const drawer = page.getByTestId('mobile-menu-drawer')
+    await drawer.getByRole('link', { name: 'Over ons' }).click()
+    await expect(page).toHaveURL(/\/over-ons/, { timeout: 20_000 })
     await expect(page.getByTestId('mobile-menu-drawer')).toBeHidden()
 
     await guard.expectNoIssues()

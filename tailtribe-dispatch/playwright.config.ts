@@ -1,9 +1,10 @@
 import { defineConfig, devices } from '@playwright/test'
 import path from 'node:path'
 
-// Make browser installs stable on Windows/Cursor by using the project cache
-// instead of a temp per-run path.
-process.env.PLAYWRIGHT_BROWSERS_PATH = '0'
+// Note: we intentionally do NOT force PLAYWRIGHT_BROWSERS_PATH here.
+// In some environments (Cursor sandbox / OneDrive), forcing it to '0' can make
+// Playwright look for browsers under `node_modules/playwright-core/.local-browsers`
+// even when the browsers were installed to the default cache location.
 
 const PORT = Number(process.env.PW_PORT ?? process.env.PORT ?? 3000)
 const baseURL = process.env.PW_BASE_URL ?? `http://127.0.0.1:${PORT}`

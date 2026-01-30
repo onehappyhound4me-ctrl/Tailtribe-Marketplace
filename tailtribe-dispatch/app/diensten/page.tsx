@@ -1,6 +1,5 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import Image from 'next/image'
 import { SiteHeader } from '@/components/SiteHeader'
 import { SiteFooter } from '@/components/SiteFooter'
 import { DISPATCH_SERVICES } from '@/lib/services'
@@ -8,8 +7,6 @@ import { SERVICE_ICON_FILTER, withAssetVersion } from '@/lib/service-icons'
 
 const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://tailtribe.be'
 const canonicalUrl = `${baseUrl}/diensten`
-const isDev = process.env.NODE_ENV === 'development'
-
 export const metadata: Metadata = {
   title: 'Diensten',
   description:
@@ -81,23 +78,14 @@ export default function DienstenPage() {
                 className="group bg-white rounded-2xl shadow-sm hover:shadow-tt transition-all border border-black/5 overflow-hidden"
               >
                 <div className="relative h-36 sm:h-40 w-full overflow-hidden bg-gradient-to-br from-emerald-50 to-blue-50 flex items-center justify-center p-3 sm:p-4">
-                  {isDev ? (
-                    <img
-                      src={withAssetVersion(service.image)}
-                      alt={service.name}
-                      className="block h-full w-full max-w-full object-contain md:group-hover:scale-105 md:transition-transform md:duration-300 md:[filter:hue-rotate(28deg)_saturate(0.62)_brightness(0.98)_contrast(1.08)]"
-                    />
-                  ) : (
-                    <Image
-                      src={withAssetVersion(service.image)}
-                      alt={service.name}
-                      fill
-                      unoptimized={isDev}
-                      className="object-contain md:group-hover:scale-105 md:transition-transform md:duration-300 md:[filter:hue-rotate(28deg)_saturate(0.62)_brightness(0.98)_contrast(1.08)]"
-                      style={{}}
-                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                    />
-                  )}
+                  {/* Use plain <img> for local /assets icons: more reliable on mobile Safari than Next/Image optimizer. */}
+                  <img
+                    src={withAssetVersion(service.image)}
+                    alt={service.name}
+                    loading="eager"
+                    decoding="async"
+                    className="block h-full w-full max-w-full object-contain md:group-hover:scale-105 md:transition-transform md:duration-300 md:[filter:hue-rotate(28deg)_saturate(0.62)_brightness(0.98)_contrast(1.08)]"
+                  />
                 </div>
                 <div className="p-5 sm:p-6">
                   <h2 className="text-lg font-bold text-gray-900 group-hover:text-green-700 transition-colors mb-2">

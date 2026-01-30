@@ -1,7 +1,6 @@
 'use client'
 
 import Link from 'next/link'
-import Image from 'next/image'
 import { useSession } from 'next-auth/react'
 import { SiteHeader } from '@/components/SiteHeader'
 import { SiteFooter } from '@/components/SiteFooter'
@@ -12,8 +11,6 @@ import { SERVICE_ICON_FILTER, withAssetVersion } from '@/lib/service-icons'
 // Cache-buster query om harde refresh te forceren bij updates.
 const HERO_IMG_PRIMARY = '/assets/hero.jpg?v=2'
 const HERO_IMG_URL = encodeURI(HERO_IMG_PRIMARY)
-const isDev = process.env.NODE_ENV === 'development'
-
 export default function HomePage() {
   const { data: session } = useSession()
   
@@ -39,15 +36,15 @@ export default function HomePage() {
         />
         <div className="absolute inset-0 bg-black/12" />
 
-        <div className="relative z-10 container mx-auto px-4 sm:px-6 py-16 md:py-24">
+        <div className="relative z-10 container mx-auto px-4 sm:px-6 py-12 sm:py-16 md:py-24">
           <div className="max-w-5xl mx-auto text-center">
             <h1
-              className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold mb-6 leading-tight text-white"
+              className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-bold mb-5 sm:mb-6 leading-tight text-white"
               style={{ textShadow: '0 3px 12px rgba(0,0,0,0.55)' }}
             >
               Vind de juiste{' '}
               <span className="text-green-200 transition-colors duration-200 hover:text-white hover:drop-shadow-[0_0_12px_rgba(74,222,128,0.85)]">
-                dierenoppaser
+                dierenoppasser
               </span>{' '}
               voor je huisdier
             </h1>
@@ -114,23 +111,14 @@ export default function HomePage() {
                 className="group bg-gradient-to-br from-white via-white to-emerald-50 rounded-2xl shadow-md hover:shadow-2xl transition-all duration-300 overflow-hidden border border-emerald-100 hover:border-emerald-200 transform hover:-translate-y-1"
               >
                 <div className="relative h-36 sm:h-40 w-full overflow-hidden bg-gradient-to-br from-emerald-50 to-blue-50 flex items-center justify-center p-3 sm:p-4">
-                  {isDev ? (
-                    <img
-                      src={withAssetVersion(service.image)}
-                      alt={service.name}
-                      className="block h-full w-full max-w-full object-contain md:group-hover:scale-105 md:transition-transform md:duration-300 md:[filter:hue-rotate(28deg)_saturate(0.62)_brightness(0.98)_contrast(1.08)]"
-                    />
-                  ) : (
-                    <Image 
-                      src={withAssetVersion(service.image)} 
-                      alt={service.name}
-                      fill
-                      unoptimized={isDev}
-                      className="object-contain md:group-hover:scale-105 md:transition-transform md:duration-300 md:[filter:hue-rotate(28deg)_saturate(0.62)_brightness(0.98)_contrast(1.08)]"
-                      style={{}}
-                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                    />
-                  )}
+                  {/* Use plain <img> for local /assets icons: more reliable on mobile Safari than Next/Image optimizer. */}
+                  <img
+                    src={withAssetVersion(service.image)}
+                    alt={service.name}
+                    loading="eager"
+                    decoding="async"
+                    className="block h-full w-full max-w-full object-contain md:group-hover:scale-105 md:transition-transform md:duration-300 md:[filter:hue-rotate(28deg)_saturate(0.62)_brightness(0.98)_contrast(1.08)]"
+                  />
                 </div>
                 <div className="p-5 sm:p-6 pt-6">
                   <h3 className="text-lg font-bold mb-2 text-transparent bg-clip-text bg-gradient-to-r from-emerald-700 to-blue-700 group-hover:from-emerald-600 group-hover:to-blue-600 transition-colors">
