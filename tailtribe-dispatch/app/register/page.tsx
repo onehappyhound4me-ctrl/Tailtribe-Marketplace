@@ -26,6 +26,20 @@ export default function RegisterPage() {
   const [success, setSuccess] = useState('')
   const [loading, setLoading] = useState(false)
   const [resendLoading, setResendLoading] = useState(false)
+  const countryName = 'België'
+  const callingCode = '+32'
+
+  const normalizePhone = (raw: string) => {
+    const trimmed = raw.trim()
+    if (!trimmed) return ''
+    const compact = trimmed.replace(/[^\d+]/g, '')
+    if (!compact) return ''
+    if (compact.startsWith('+')) return compact
+    if (compact.startsWith('00')) return `+${compact.slice(2)}`
+    if (compact.startsWith('32')) return `+${compact}`
+    if (compact.startsWith('0')) return `${callingCode}${compact.slice(1)}`
+    return `${callingCode}${compact}`
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -60,11 +74,13 @@ export default function RegisterPage() {
     setLoading(true)
 
     try {
+      const phoneNormalized = normalizePhone(formData.phone)
       const response = await fetch('/api/auth/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           ...formData,
+          phone: phoneNormalized || '',
           role,
         }),
       })
@@ -200,6 +216,19 @@ export default function RegisterPage() {
                 </div>
               </div>
 
+              {/* Explicit country field to prevent iOS/Chrome guessing UK */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Land</label>
+                <input
+                  type="text"
+                  value={countryName}
+                  readOnly
+                  name="country"
+                  autoComplete="country-name"
+                  className="w-full px-4 py-2.5 border border-gray-200 rounded-xl bg-gray-50 text-gray-900"
+                />
+              </div>
+
               <div>
                 <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
                   E-mailadres
@@ -221,52 +250,34 @@ export default function RegisterPage() {
                 <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-1">
                   Telefoonnummer (optioneel)
                 </label>
-                <input
-                  id="phone"
-                  name="tel"
-                  type="tel"
-                  value={formData.phone}
-                  onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                  autoComplete="tel"
-                  inputMode="tel"
-                  className="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
-                  placeholder="0489 12 34 56"
-                />
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    value={callingCode}
+                    readOnly
+                    name="tel-country-code"
+                    autoComplete="tel-country-code"
+                    className="w-[86px] px-3 py-2.5 border border-gray-200 rounded-xl bg-gray-50 text-gray-900 text-center"
+                  />
+                  <input
+                    id="phone"
+                    name="tel-national"
+                    type="tel"
+                    value={formData.phone}
+                    onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                    autoComplete="tel-national"
+                    inputMode="tel"
+                    className="flex-1 px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                    placeholder="489 12 34 56 (zonder +32)"
+                  />
+                </div>
+                <div className="mt-1 text-xs text-gray-500">
+                  We bewaren je nummer als {callingCode}… (bijv. <span className="font-mono">{callingCode}489123456</span>).
+                </div>
               </div>
 
               {role === 'OWNER' && (
                 <>
-                  {/* Autofill hints: keep country/phone region stable (prevents iOS suggesting UK/+44). */}
-                  <input
-                    type="text"
-                    name="country"
-                    value="BE"
-                    readOnly
-                    autoComplete="country"
-                    tabIndex={-1}
-                    aria-hidden="true"
-                    className="hidden"
-                  />
-                  <input
-                    type="text"
-                    name="country-name"
-                    value="België"
-                    readOnly
-                    autoComplete="country-name"
-                    tabIndex={-1}
-                    aria-hidden="true"
-                    className="hidden"
-                  />
-                  <input
-                    type="text"
-                    name="tel-country-code"
-                    value="+32"
-                    readOnly
-                    autoComplete="tel-country-code"
-                    tabIndex={-1}
-                    aria-hidden="true"
-                    className="hidden"
-                  />
                   <div>
                     <label htmlFor="address" className="block text-sm font-medium text-gray-700 mb-1">
                       Thuisadres *
