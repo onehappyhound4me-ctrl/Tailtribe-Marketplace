@@ -25,6 +25,7 @@ export default function RegisterPage() {
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
   const [loading, setLoading] = useState(false)
+  const [resendLoading, setResendLoading] = useState(false)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -79,14 +80,32 @@ export default function RegisterPage() {
       // Show success message
       setSuccess('✅ Account aangemaakt! Controleer je e-mail voor verificatie.')
       setLoading(false)
-      
-      // Redirect to login after a short delay
-      setTimeout(() => {
-        router.push('/login')
-      }, 4000)
     } catch (err) {
       setError('Er ging iets mis. Probeer opnieuw.')
       setLoading(false)
+    }
+  }
+
+  const resendVerification = async () => {
+    setError('')
+    setResendLoading(true)
+    try {
+      const res = await fetch('/api/auth/resend-verification', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: formData.email }),
+      })
+      const data = await res.json().catch(() => ({}))
+      if (!res.ok) {
+        setError(data?.error ?? 'Kon geen e-mail opnieuw sturen. Probeer later opnieuw.')
+        setResendLoading(false)
+        return
+      }
+      setSuccess(data?.message ?? '✅ Verificatie e-mail opnieuw verstuurd. Controleer ook je spam.')
+      setResendLoading(false)
+    } catch {
+      setError('Kon geen e-mail opnieuw sturen. Probeer later opnieuw.')
+      setResendLoading(false)
     }
   }
 
@@ -363,6 +382,25 @@ export default function RegisterPage() {
                 {loading ? 'Account aanmaken...' : 'Account aanmaken'}
               </button>
             </form>
+
+            {success && formData.email.trim() ? (
+              <div className="mt-4 space-y-2">
+                <button
+                  type="button"
+                  onClick={resendVerification}
+                  disabled={resendLoading}
+                  className="w-full rounded-xl border border-emerald-200 bg-white px-4 py-3 text-sm font-semibold text-gray-900 hover:bg-emerald-50 transition disabled:opacity-60"
+                >
+                  {resendLoading ? 'Opnieuw sturen...' : 'Verificatie e-mail opnieuw sturen'}
+                </button>
+                <div className="text-center text-sm text-gray-600">
+                  Al geverifieerd?{' '}
+                  <Link href="/login" className="text-emerald-700 font-semibold hover:underline">
+                    Ga naar inloggen
+                  </Link>
+                </div>
+              </div>
+            ) : null}
 
             <div className="mt-6 text-center text-sm text-gray-600">
               Heb je al een account?{' '}
