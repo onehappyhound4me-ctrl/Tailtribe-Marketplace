@@ -19,6 +19,10 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Te veel aanvragen. Probeer later opnieuw.' }, { status: 429 })
   }
 
+  const emailConfigured =
+    Boolean((process.env.RESEND_API_KEY ?? '').trim()) ||
+    (Boolean(process.env.SMTP_HOST) && Boolean(process.env.SMTP_USER))
+
   const body = await req.json().catch(() => ({}))
   const email = normalizeEmail(body?.email)
   if (!email) {
@@ -29,7 +33,18 @@ export async function POST(req: NextRequest) {
   const genericOk = NextResponse.json({
     success: true,
     message: 'Als dit e-mailadres bestaat, sturen we een reset-link. Controleer ook je spam.',
+    emailConfigured,
   })
+
+  // If email delivery isn't configured, tell the user (still doesn't leak if the email exists).
+  if (!emailConfigured) {
+    return NextResponse.json({
+      success: true,
+      message:
+        'Reset link kon niet automatisch verstuurd worden (e-mail niet geconfigureerd). Contacteer ons via /contact en vermeld je e-mailadres.',
+      emailConfigured: false,
+    })
+  }
 
   const user = await prisma.user.findUnique({ where: { email } }).catch(() => null)
   if (!user) return genericOk
@@ -57,19 +72,6 @@ export async function POST(req: NextRequest) {
   const baseUrl =
     process.env.NEXT_PUBLIC_APP_URL ?? process.env.AUTH_URL ?? process.env.NEXTAUTH_URL ?? 'https://tailtribe.be'
   const resetUrl = `${baseUrl}/forgot-password?token=${token}`
-
-  const emailConfigured =
-    Boolean((process.env.RESEND_API_KEY ?? '').trim()) ||
-    (Boolean(process.env.SMTP_HOST) && Boolean(process.env.SMTP_USER))
-
-  if (!emailConfigured) {
-    // Still return OK (don’t leak). But provide a better message for real users.
-    return NextResponse.json({
-      success: true,
-      message:
-        'Reset link kon niet automatisch verstuurd worden (e-mail niet geconfigureerd). Contacteer ons via /contact en vermeld je e-mailadres.',
-    })
-  }
 
   const html = `
     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
