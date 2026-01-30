@@ -1,13 +1,15 @@
 'use client'
 
-import { useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useEffect, useMemo, useState } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { SiteHeader } from '@/components/SiteHeader'
 import { SiteFooter } from '@/components/SiteFooter'
 
 export default function RegisterPage() {
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const debug = useMemo(() => searchParams.get('debug') === '1', [searchParams])
   const [role, setRole] = useState<'OWNER' | 'CAREGIVER'>('OWNER')
   const [formData, setFormData] = useState({
     email: '',
@@ -26,8 +28,27 @@ export default function RegisterPage() {
   const [success, setSuccess] = useState('')
   const [loading, setLoading] = useState(false)
   const [resendLoading, setResendLoading] = useState(false)
-  const countryName = 'België'
-  const callingCode = '+32'
+
+  const debugLog = (...args: unknown[]) => {
+    if (!debug) return
+    // eslint-disable-next-line no-console
+    console.log('[register][debug]', ...args)
+  }
+
+  useEffect(() => {
+    if (!debug) return
+    try {
+      debugLog('boot', {
+        ua: navigator.userAgent,
+        language: navigator.language,
+        languages: navigator.languages,
+        resolved: Intl.DateTimeFormat().resolvedOptions(),
+      })
+    } catch {
+      debugLog('boot (no navigator)')
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [debug])
 
   const normalizePhone = (raw: string) => {
     const trimmed = raw.trim()
@@ -37,37 +58,51 @@ export default function RegisterPage() {
     if (compact.startsWith('+')) return compact
     if (compact.startsWith('00')) return `+${compact.slice(2)}`
     if (compact.startsWith('32')) return `+${compact}`
-    if (compact.startsWith('0')) return `${callingCode}${compact.slice(1)}`
-    return `${callingCode}${compact}`
+    // Default to BE (+32) for national numbers.
+    if (compact.startsWith('0')) return `+32${compact.slice(1)}`
+    return `+32${compact}`
+  }
+
+  const onFocusDebug = (field: string) => () => {
+    debugLog('focus', { field })
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
+    debugLog('submit:start', {
+      role,
+      hasAddressFields: role === 'OWNER',
+    })
 
     if (formData.password !== formData.confirmPassword) {
       setError('Wachtwoorden komen niet overeen')
+      debugLog('submit:blocked', { reason: 'password_mismatch' })
       return
     }
 
     if (formData.password.length < 6) {
       setError('Wachtwoord moet minimaal 6 karakters lang zijn')
+      debugLog('submit:blocked', { reason: 'password_too_short' })
       return
     }
 
     if (role === 'OWNER') {
       if (!formData.address.trim() || !formData.city.trim() || !formData.postalCode.trim()) {
         setError('Vul je volledige thuisadres in')
+        debugLog('submit:blocked', { reason: 'missing_address_fields' })
         return
       }
       if (!/^\d{4}$/.test(formData.postalCode.trim())) {
         setError('Vul een geldige Belgische postcode (4 cijfers) in')
+        debugLog('submit:blocked', { reason: 'invalid_postal_code' })
         return
       }
     }
 
     if (!formData.acceptTerms) {
       setError('Je moet akkoord gaan met de algemene voorwaarden')
+      debugLog('submit:blocked', { reason: 'terms_not_accepted' })
       return
     }
 
@@ -75,6 +110,9 @@ export default function RegisterPage() {
 
     try {
       const phoneNormalized = normalizePhone(formData.phone)
+      debugLog('submit:request', {
+        phoneNormalizedPrefix: phoneNormalized ? phoneNormalized.slice(0, 3) : '',
+      })
       const response = await fetch('/api/auth/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -86,6 +124,11 @@ export default function RegisterPage() {
       })
 
       const data = await response.json()
+      debugLog('submit:response', {
+        status: response.status,
+        ok: response.ok,
+        keys: data && typeof data === 'object' ? Object.keys(data) : null,
+      })
 
       if (!response.ok) {
         setError(data.error || 'Registratie mislukt')
@@ -99,6 +142,7 @@ export default function RegisterPage() {
     } catch (err) {
       setError('Er ging iets mis. Probeer opnieuw.')
       setLoading(false)
+      debugLog('submit:error', String(err))
     }
   }
 
@@ -216,19 +260,6 @@ export default function RegisterPage() {
                 </div>
               </div>
 
-              {/* Explicit country field to prevent iOS/Chrome guessing UK */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Land</label>
-                <input
-                  type="text"
-                  value={countryName}
-                  readOnly
-                  name="country"
-                  autoComplete="country-name"
-                  className="w-full px-4 py-2.5 border border-gray-200 rounded-xl bg-gray-50 text-gray-900"
-                />
-              </div>
-
               <div>
                 <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
                   E-mailadres
@@ -243,6 +274,7 @@ export default function RegisterPage() {
                   autoComplete="email"
                   className="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
                   placeholder="jouw@email.com"
+                  onFocus={onFocusDebug('email')}
                 />
               </div>
 
@@ -250,84 +282,71 @@ export default function RegisterPage() {
                 <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-1">
                   Telefoonnummer (optioneel)
                 </label>
-                <div className="flex gap-2">
-                  <input
-                    type="text"
-                    value={callingCode}
-                    readOnly
-                    name="tel-country-code"
-                    autoComplete="tel-country-code"
-                    className="w-[86px] px-3 py-2.5 border border-gray-200 rounded-xl bg-gray-50 text-gray-900 text-center"
-                  />
-                  <input
-                    id="phone"
-                    name="tel-national"
-                    type="tel"
-                    value={formData.phone}
-                    onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                    autoComplete="tel-national"
-                    inputMode="tel"
-                    className="flex-1 px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
-                    placeholder="489 12 34 56 (zonder +32)"
-                  />
-                </div>
-                <div className="mt-1 text-xs text-gray-500">
-                  We bewaren je nummer als {callingCode}… (bijv. <span className="font-mono">{callingCode}489123456</span>).
-                </div>
+                <input
+                  id="phone"
+                  name="tel"
+                  type="tel"
+                  value={formData.phone}
+                  onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                  autoComplete="tel"
+                  inputMode="tel"
+                  className="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                  onFocus={onFocusDebug('phone')}
+                />
               </div>
 
               {role === 'OWNER' && (
                 <>
                   <div>
-                    <label htmlFor="address" className="block text-sm font-medium text-gray-700 mb-1">
+                    <label htmlFor="homeLine" className="block text-sm font-medium text-gray-700 mb-1">
                       Thuisadres *
                     </label>
                     <input
-                      id="address"
-                      name="street-address"
+                      id="homeLine"
+                      name="homeLine"
                       type="text"
                       value={formData.address}
                       onChange={(e) => setFormData({ ...formData, address: e.target.value })}
                       required
-                      autoComplete="street-address"
+                      autoComplete="off"
                       className="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
-                      placeholder="Straat en huisnummer"
+                      onFocus={onFocusDebug('homeLine')}
                     />
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                     <div>
-                      <label htmlFor="city" className="block text-sm font-medium text-gray-700 mb-1">
+                      <label htmlFor="homeCity" className="block text-sm font-medium text-gray-700 mb-1">
                         Stad / gemeente *
                       </label>
                       <input
-                        id="city"
-                        name="address-level2"
+                        id="homeCity"
+                        name="homeCity"
                         type="text"
                         value={formData.city}
                         onChange={(e) => setFormData({ ...formData, city: e.target.value })}
                         required
-                        autoComplete="address-level2"
+                        autoComplete="off"
                         className="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
-                        placeholder="Bijv. Antwerpen"
+                        onFocus={onFocusDebug('homeCity')}
                       />
                     </div>
                     <div>
-                      <label htmlFor="postalCode" className="block text-sm font-medium text-gray-700 mb-1">
+                      <label htmlFor="homePostal" className="block text-sm font-medium text-gray-700 mb-1">
                         Postcode *
                       </label>
                       <input
-                        id="postalCode"
-                        name="postal-code"
+                        id="homePostal"
+                        name="homePostal"
                         type="text"
                         value={formData.postalCode}
                         onChange={(e) => setFormData({ ...formData, postalCode: e.target.value })}
                         required
                         maxLength={4}
                         inputMode="numeric"
-                        autoComplete="postal-code"
+                        autoComplete="off"
                         className="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
-                        placeholder="2000"
+                        onFocus={onFocusDebug('homePostal')}
                       />
                     </div>
                   </div>
@@ -348,6 +367,7 @@ export default function RegisterPage() {
                   autoComplete="new-password"
                   className="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
                   placeholder="Minimaal 6 karakters"
+                  onFocus={onFocusDebug('password')}
                 />
               </div>
 
@@ -365,6 +385,7 @@ export default function RegisterPage() {
                   autoComplete="new-password"
                   className="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
                   placeholder="Herhaal wachtwoord"
+                  onFocus={onFocusDebug('confirmPassword')}
                 />
               </div>
 
