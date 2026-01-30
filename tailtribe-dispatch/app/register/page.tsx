@@ -155,6 +155,7 @@ export default function RegisterPage() {
                   </label>
                   <input
                     id="firstName"
+                    name="given-name"
                     type="text"
                     value={formData.firstName}
                     onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
@@ -169,6 +170,7 @@ export default function RegisterPage() {
                   </label>
                   <input
                     id="lastName"
+                    name="family-name"
                     type="text"
                     value={formData.lastName}
                     onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
@@ -185,6 +187,7 @@ export default function RegisterPage() {
                 </label>
                 <input
                   id="email"
+                  name="email"
                   type="email"
                   value={formData.email}
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
@@ -201,10 +204,11 @@ export default function RegisterPage() {
                 </label>
                 <input
                   id="phone"
+                  name="tel"
                   type="tel"
                   value={formData.phone}
                   onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                  autoComplete="tel-national"
+                  autoComplete="tel"
                   inputMode="tel"
                   className="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
                   placeholder="0489 12 34 56"
@@ -213,13 +217,33 @@ export default function RegisterPage() {
 
               {role === 'OWNER' && (
                 <>
-                  {/* Autofill hint: keep country stable (prevents iOS suggesting UK address formatting) */}
+                  {/* Autofill hints: keep country/phone region stable (prevents iOS suggesting UK/+44). */}
                   <input
                     type="text"
                     name="country"
+                    value="BE"
+                    readOnly
+                    autoComplete="country"
+                    tabIndex={-1}
+                    aria-hidden="true"
+                    className="hidden"
+                  />
+                  <input
+                    type="text"
+                    name="country-name"
                     value="België"
                     readOnly
                     autoComplete="country-name"
+                    tabIndex={-1}
+                    aria-hidden="true"
+                    className="hidden"
+                  />
+                  <input
+                    type="text"
+                    name="tel-country-code"
+                    value="+32"
+                    readOnly
+                    autoComplete="tel-country-code"
                     tabIndex={-1}
                     aria-hidden="true"
                     className="hidden"
@@ -230,6 +254,7 @@ export default function RegisterPage() {
                     </label>
                     <input
                       id="address"
+                      name="street-address"
                       type="text"
                       value={formData.address}
                       onChange={(e) => setFormData({ ...formData, address: e.target.value })}
@@ -247,6 +272,7 @@ export default function RegisterPage() {
                       </label>
                       <input
                         id="city"
+                        name="address-level2"
                         type="text"
                         value={formData.city}
                         onChange={(e) => setFormData({ ...formData, city: e.target.value })}
@@ -262,6 +288,7 @@ export default function RegisterPage() {
                       </label>
                       <input
                         id="postalCode"
+                        name="postal-code"
                         type="text"
                         value={formData.postalCode}
                         onChange={(e) => setFormData({ ...formData, postalCode: e.target.value })}
@@ -283,6 +310,7 @@ export default function RegisterPage() {
                 </label>
                 <input
                   id="password"
+                  name="new-password"
                   type="password"
                   value={formData.password}
                   onChange={(e) => setFormData({ ...formData, password: e.target.value })}
@@ -299,6 +327,7 @@ export default function RegisterPage() {
                 </label>
                 <input
                   id="confirmPassword"
+                  name="new-password-confirm"
                   type="password"
                   value={formData.confirmPassword}
                   onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
