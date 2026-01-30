@@ -159,6 +159,7 @@ export default function RegisterPage() {
                     value={formData.firstName}
                     onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
                     required
+                    autoComplete="given-name"
                     className="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
                   />
                 </div>
@@ -172,6 +173,7 @@ export default function RegisterPage() {
                     value={formData.lastName}
                     onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
                     required
+                    autoComplete="family-name"
                     className="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
                   />
                 </div>
@@ -187,6 +189,7 @@ export default function RegisterPage() {
                   value={formData.email}
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                   required
+                  autoComplete="email"
                   className="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
                   placeholder="jouw@email.com"
                 />
@@ -201,6 +204,8 @@ export default function RegisterPage() {
                   type="tel"
                   value={formData.phone}
                   onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                  autoComplete="tel-national"
+                  inputMode="tel"
                   className="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
                   placeholder="0489 12 34 56"
                 />
@@ -208,6 +213,17 @@ export default function RegisterPage() {
 
               {role === 'OWNER' && (
                 <>
+                  {/* Autofill hint: keep country stable (prevents iOS suggesting UK address formatting) */}
+                  <input
+                    type="text"
+                    name="country"
+                    value="België"
+                    readOnly
+                    autoComplete="country-name"
+                    tabIndex={-1}
+                    aria-hidden="true"
+                    className="hidden"
+                  />
                   <div>
                     <label htmlFor="address" className="block text-sm font-medium text-gray-700 mb-1">
                       Thuisadres *
@@ -218,6 +234,7 @@ export default function RegisterPage() {
                       value={formData.address}
                       onChange={(e) => setFormData({ ...formData, address: e.target.value })}
                       required
+                      autoComplete="street-address"
                       className="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
                       placeholder="Straat en huisnummer"
                     />
@@ -234,6 +251,7 @@ export default function RegisterPage() {
                         value={formData.city}
                         onChange={(e) => setFormData({ ...formData, city: e.target.value })}
                         required
+                        autoComplete="address-level2"
                         className="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
                         placeholder="Bijv. Antwerpen"
                       />
@@ -249,6 +267,8 @@ export default function RegisterPage() {
                         onChange={(e) => setFormData({ ...formData, postalCode: e.target.value })}
                         required
                         maxLength={4}
+                        inputMode="numeric"
+                        autoComplete="postal-code"
                         className="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
                         placeholder="2000"
                       />
@@ -267,6 +287,7 @@ export default function RegisterPage() {
                   value={formData.password}
                   onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                   required
+                  autoComplete="new-password"
                   className="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
                   placeholder="Minimaal 6 karakters"
                 />
@@ -282,6 +303,7 @@ export default function RegisterPage() {
                   value={formData.confirmPassword}
                   onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
                   required
+                  autoComplete="new-password"
                   className="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
                   placeholder="Herhaal wachtwoord"
                 />
