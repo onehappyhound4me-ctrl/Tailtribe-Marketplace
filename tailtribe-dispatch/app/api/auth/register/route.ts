@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import bcrypt from 'bcryptjs'
-import crypto from 'crypto'
-import { sendVerificationEmail } from '@/lib/email'
 import { checkRateLimit } from '@/lib/rate-limit'
 
 function normalizeEmail(value: unknown) {
@@ -95,10 +93,6 @@ export async function POST(request: NextRequest) {
     // Hash password
     const passwordHash = await bcrypt.hash(password, 10)
 
-    const token = crypto.randomBytes(32).toString('hex')
-    const expires = new Date()
-    expires.setHours(expires.getHours() + 24) // Valid for 24 hours
-
     // Create user/profile/token atomically (prevents "half registered" users).
     const user = await prisma.$transaction(async (tx) => {
       const createdUser = await tx.user.create({
@@ -109,7 +103,9 @@ export async function POST(request: NextRequest) {
           lastName: String(lastName).trim(),
           phone: phone ? String(phone).trim() : null,
           role,
-          emailVerified: null, // Not verified yet
+          // Production hotfix: don't require email verification to use the product.
+          // Email delivery can be flaky/misconfigured; registration must stay usable.
+          emailVerified: new Date(),
         },
       })
 
@@ -125,30 +121,13 @@ export async function POST(request: NextRequest) {
         })
       }
 
-      await tx.verificationToken.create({
-        data: {
-          identifier: emailNormalized,
-          token,
-          expires,
-          userId: createdUser.id,
-        },
-      })
-
       return createdUser
     })
-
-    // Send verification email
-    try {
-      await sendVerificationEmail(emailNormalized, token)
-    } catch (emailError) {
-      console.error('Failed to send verification email:', emailError)
-      // Continue even if email fails
-    }
 
     return NextResponse.json({
       success: true,
       userId: user.id,
-      message: 'Controleer je email voor verificatie',
+      message: 'Account aangemaakt. Je kan nu meteen inloggen.',
     })
   } catch (error) {
     try {
