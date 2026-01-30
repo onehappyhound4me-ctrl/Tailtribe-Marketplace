@@ -606,7 +606,7 @@ export default function NewBookingPage() {
                   </div>
                 )}
               </div>
-            )}
+            ) : null}
 
             {/* Tijdsblokken (basisselectie) */}
             {isCalendarMode && (
@@ -857,39 +857,41 @@ export default function NewBookingPage() {
               <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-4">
                 <div className="font-medium text-emerald-900 mb-2">📋 Samenvatting:</div>
                 <div className="text-sm text-emerald-800 space-y-1">
-                  {(isMultiMode || isWeeklyMode) && formData.endDate ? (
+                  {formData.endDate ? (
                     <>
-                      <div>• Periode: {new Date(formData.startDate).toLocaleDateString('nl-BE')} tot {new Date(formData.endDate).toLocaleDateString('nl-BE')}</div>
-                      {isWeeklyMode && (
-                        <div className="text-sm">
-                          • Weekdagen: {selectedWeekdays.length ? selectedWeekdays.map((d) => ['Zo','Ma','Di','Wo','Do','Vr','Za'][d]).join(', ') : '—'}
+                      <div>
+                        • Periode: {new Date(formData.startDate).toLocaleDateString('nl-BE')} tot{' '}
+                        {new Date(formData.endDate).toLocaleDateString('nl-BE')}
+                      </div>
+                      {weekdayFilter.length > 0 ? (
+                        <div>
+                          • Weekdag filter:{' '}
+                          {weekdayFilter
+                            .map((d: number) => ['Zo', 'Ma', 'Di', 'Wo', 'Do', 'Vr', 'Za'][d])
+                            .join(', ')}
                         </div>
-                      )}
+                      ) : null}
+                      <div>
+                        • Dagen geselecteerd: <strong>{filteredDates.length}</strong>
+                      </div>
                       <div className="space-y-1 text-xs text-gray-700">
                         {(() => {
                           const rows: JSX.Element[] = []
-                          const [startYear, startMonth, startDay] = formData.startDate.split('-').map(Number)
-                          const [endYear, endMonth, endDay] = formData.endDate.split('-').map(Number)
-                          const start = new Date(startYear, startMonth - 1, startDay)
-                          const end = new Date(endYear, endMonth - 1, endDay)
                           let total = 0
-                          for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
-                            if (isWeeklyMode && selectedWeekdays.length > 0) {
-                              if (!selectedWeekdays.includes(d.getDay())) continue
-                            }
-                            const year = d.getFullYear()
-                            const month = String(d.getMonth() + 1).padStart(2, '0')
-                            const day = String(d.getDate()).padStart(2, '0')
-                            const dateStr = `${year}-${month}-${day}`
-                            const slots = isMultiMode ? (perDayTimeWindows[dateStr] || []) : selectedTimeWindows
-                            total += slots.length
+                          for (const dateStr of filteredDates) {
+                            const slots = usePerDaySlots ? perDayTimeWindows[dateStr] || [] : selectedTimeWindows
+                            total += slots.length || 0
                             rows.push(
                               <div key={dateStr}>
                                 • {new Date(dateStr).toLocaleDateString('nl-BE')}: {slots.length} blok(ken)
                               </div>
                             )
                           }
-                          rows.push(<div key="total" className="font-semibold text-emerald-800 mt-1">Totaal: {total}</div>)
+                          rows.push(
+                            <div key="total" className="font-semibold text-emerald-800 mt-1">
+                              Totaal: {total}
+                            </div>
+                          )
                           return rows
                         })()}
                       </div>
