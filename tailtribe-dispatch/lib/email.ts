@@ -35,6 +35,7 @@ export async function sendVerificationEmail(email: string, token: string) {
     to: email,
     subject: 'Verifieer je TailTribe account',
     html,
+    required: true,
   })
 }
 

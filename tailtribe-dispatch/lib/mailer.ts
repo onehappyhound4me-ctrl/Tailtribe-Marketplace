@@ -5,9 +5,14 @@ type SendEmailInput = {
   subject: string
   html: string
   replyTo?: string
+  /**
+   * If true, throw on any send failure (used for critical flows like email verification).
+   * If false/omitted, log and return (best-effort).
+   */
+  required?: boolean
 }
 
-export async function sendTransactionalEmail({ to, subject, html, replyTo }: SendEmailInput) {
+export async function sendTransactionalEmail({ to, subject, html, replyTo, required }: SendEmailInput) {
   const from = process.env.DISPATCH_EMAIL_FROM ?? 'TailTribe <noreply@tailtribe.be>'
   const finalReplyTo = replyTo ?? process.env.DISPATCH_EMAIL_REPLY_TO
   const resendKey = (process.env.RESEND_API_KEY ?? '').trim()
@@ -32,16 +37,23 @@ export async function sendTransactionalEmail({ to, subject, html, replyTo }: Sen
       if (!res.ok) {
         const msg = await res.text().catch(() => '')
         console.error('Resend email failed:', res.status, msg)
+        if (required) {
+          throw new Error(`Resend email failed (${res.status}): ${msg}`.slice(0, 2000))
+        }
       }
       return
     } catch (error) {
       console.error('Resend email failed:', error)
+      if (required) throw error
       return
     }
   }
 
   if (!process.env.SMTP_HOST || !process.env.SMTP_USER) {
     console.log('📧 Email not configured:', { to, subject })
+    if (required) {
+      throw new Error('Email not configured (missing RESEND_API_KEY or SMTP_HOST/SMTP_USER)')
+    }
     return
   }
 
@@ -55,11 +67,16 @@ export async function sendTransactionalEmail({ to, subject, html, replyTo }: Sen
     },
   })
 
-  await transporter.sendMail({
-    from: process.env.SMTP_FROM || from,
-    to,
-    subject,
-    html,
-    ...(finalReplyTo ? { replyTo: finalReplyTo } : {}),
-  })
+  try {
+    await transporter.sendMail({
+      from: process.env.SMTP_FROM || from,
+      to,
+      subject,
+      html,
+      ...(finalReplyTo ? { replyTo: finalReplyTo } : {}),
+    })
+  } catch (error) {
+    console.error('SMTP email failed:', error)
+    if (required) throw error
+  }
 }
