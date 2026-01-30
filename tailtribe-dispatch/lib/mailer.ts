@@ -18,7 +18,7 @@ export async function sendTransactionalEmail({ to, subject, html, replyTo, requi
   const resendKey = (process.env.RESEND_API_KEY ?? '').trim()
 
   if (resendKey) {
-    try {
+    const sendViaResend = async (fromOverride: string) => {
       const res = await fetch('https://api.resend.com/emails', {
         method: 'POST',
         headers: {
@@ -26,7 +26,7 @@ export async function sendTransactionalEmail({ to, subject, html, replyTo, requi
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          from,
+          from: fromOverride,
           to,
           subject,
           html,
@@ -36,14 +36,28 @@ export async function sendTransactionalEmail({ to, subject, html, replyTo, requi
       })
       if (!res.ok) {
         const msg = await res.text().catch(() => '')
-        console.error('Resend email failed:', res.status, msg)
-        if (required) {
-          throw new Error(`Resend email failed (${res.status}): ${msg}`.slice(0, 2000))
-        }
+        throw new Error(`Resend email failed (${res.status}) from="${fromOverride}": ${msg}`.slice(0, 2000))
       }
+    }
+
+    try {
+      await sendViaResend(from)
       return
     } catch (error) {
       console.error('Resend email failed:', error)
+
+      // Safety fallback: if a custom domain sender is not verified, Resend can reject.
+      // Retry once with Resend's verified onboarding sender to keep verification emails working.
+      const fallbackFrom = 'TailTribe <onboarding@resend.dev>'
+      if (from !== fallbackFrom) {
+        try {
+          await sendViaResend(fallbackFrom)
+          return
+        } catch (fallbackError) {
+          console.error('Resend fallback sender failed:', fallbackError)
+        }
+      }
+
       if (required) throw error
       return
     }
