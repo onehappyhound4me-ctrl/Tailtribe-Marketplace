@@ -41,15 +41,33 @@ const root = path.join(__dirname, '..')
 const envLocal = loadEnvFile(path.join(root, '.env.local'))
 const env = loadEnvFile(path.join(root, '.env'))
 
-const databaseUrl = envLocal.DATABASE_URL || env.DATABASE_URL || ''
+// Prefer explicit env var (safer for one-off production maintenance),
+// then fall back to .env.local/.env.
+let databaseUrl = process.env.DATABASE_URL || envLocal.DATABASE_URL || env.DATABASE_URL || ''
+
+databaseUrl = String(databaseUrl || '').trim()
+// strip wrapping quotes
+if (
+  (databaseUrl.startsWith('"') && databaseUrl.endsWith('"')) ||
+  (databaseUrl.startsWith("'") && databaseUrl.endsWith("'"))
+) {
+  databaseUrl = databaseUrl.slice(1, -1).trim()
+}
+
+const acceptDataLoss =
+  process.argv.includes('--accept-data-loss') || String(process.env.DB_PUSH_ACCEPT_DATA_LOSS || '').toLowerCase() === 'true'
 
 if (!databaseUrl) {
-  console.error('[db:push:pg] DATABASE_URL not found in .env.local or .env')
+  console.error('[db:push:pg] DATABASE_URL not found (env var, .env.local, or .env)')
   process.exit(1)
 }
 
 if (!(databaseUrl.startsWith('postgresql://') || databaseUrl.startsWith('postgres://'))) {
-  console.error('[db:push:pg] DATABASE_URL must start with postgresql:// or postgres://')
+  console.error(
+    '[db:push:pg] DATABASE_URL must start with postgresql:// or postgres:// (current scheme: ' +
+      (databaseUrl.split(':')[0] || 'unknown') +
+      ')'
+  )
   process.exit(1)
 }
 
@@ -59,7 +77,11 @@ run('node', ['scripts/select-prisma-schema.js', 'postgres'], { cwd: root })
 // Ensure Prisma uses the right DATABASE_URL regardless of which env file it loads.
 const childEnv = { ...process.env, DATABASE_URL: databaseUrl }
 
-run('npx', ['prisma', 'db', 'push', '--schema', 'prisma/schema.prisma'], { cwd: root, env: childEnv })
+run(
+  'npx',
+  ['prisma', 'db', 'push', '--schema', 'prisma/schema.prisma', ...(acceptDataLoss ? ['--accept-data-loss'] : [])],
+  { cwd: root, env: childEnv }
+)
 
 console.log('[db:push:pg] Done.')
 
