@@ -35,6 +35,7 @@ export default function CommunityPage() {
   const [input, setInput] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
+  const [messagesLoading, setMessagesLoading] = useState(false)
   const [view, setView] = useState<'overview' | 'chat'>('overview')
   const [isVisible, setIsVisible] = useState(true)
 
@@ -80,14 +81,10 @@ export default function CommunityPage() {
 
   const loadMessages = useCallback(async (force = false) => {
     if (!activeRoom) {
-      setLoading(false)
       return
     }
     setError(null)
-    const shouldBlockUI = messages.length === 0
-    if (shouldBlockUI) {
-      setLoading(true)
-    }
+    setMessagesLoading(true)
     try {
       const sinceParam = !force && lastMessageAt ? `?since=${encodeURIComponent(lastMessageAt)}` : ''
       const res = await fetch(`/api/community/rooms/${activeRoom.slug}/messages${sinceParam}`, { cache: 'no-store' })
@@ -116,9 +113,7 @@ export default function CommunityPage() {
     } catch (e) {
       setError('Fout bij laden van berichten.')
     } finally {
-      if (shouldBlockUI) {
-        setLoading(false)
-      }
+      setMessagesLoading(false)
     }
   }, [activeRoom, lastMessageAt, messages.length])
 
@@ -141,7 +136,7 @@ export default function CommunityPage() {
       setLoading(false)
     }
     return undefined
-  }, [status, canAccess, loadMessages, loadRooms, loadMembers])
+  }, [status, canAccess, loadRooms, loadMembers])
 
   useEffect(() => {
     if (status === 'authenticated' && canAccess && view === 'chat' && isVisible) {
@@ -351,6 +346,11 @@ export default function CommunityPage() {
               </div>
 
               {error && <div className="px-4 py-2 text-sm text-red-600 border-b bg-red-50">{error}</div>}
+              {messagesLoading && (
+                <div className="px-4 py-2 text-xs text-gray-500 border-b bg-white">
+                  Laden...
+                </div>
+              )}
 
               <div className="h-[26rem] overflow-y-auto px-4 py-3 space-y-4">
                 {messages.length === 0 && <div className="text-sm text-gray-500">Nog geen berichten.</div>}
