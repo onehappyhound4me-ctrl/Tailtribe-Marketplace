@@ -405,16 +405,16 @@ export default function NewBookingPage() {
                 Je kan maximaal 60 dagen vooruit boeken.
               </div>
 
-              <div className="border border-gray-200 rounded-2xl p-4 bg-white">
+              <div className="border border-gray-200 rounded-2xl p-3 sm:p-4 bg-white overflow-hidden">
                 {calendarMonth ? (
                   <>
-                    <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-center justify-between gap-2 mb-3">
                       <button
                         type="button"
                         onClick={() =>
                           setCalendarMonth(new Date(calendarMonth.getFullYear(), calendarMonth.getMonth() - 1, 1))
                         }
-                        className="px-3 py-2 rounded-xl border border-gray-200 text-sm font-semibold hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="p-2 sm:px-3 sm:py-2 rounded-xl border border-gray-200 text-sm font-semibold hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
                         aria-label="Vorige maand"
                         disabled={(() => {
                           const min = parseYmd(todayStr)
@@ -424,7 +424,7 @@ export default function NewBookingPage() {
                       >
                         ‹
                       </button>
-                      <div className="text-sm font-bold text-gray-900">
+                      <div className="min-w-0 flex-1 text-center text-sm font-bold text-gray-900 truncate">
                         {calendarMonth.toLocaleDateString('nl-BE', { month: 'long', year: 'numeric' })}
                       </div>
                       <button
@@ -432,7 +432,7 @@ export default function NewBookingPage() {
                         onClick={() =>
                           setCalendarMonth(new Date(calendarMonth.getFullYear(), calendarMonth.getMonth() + 1, 1))
                         }
-                        className="px-3 py-2 rounded-xl border border-gray-200 text-sm font-semibold hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="p-2 sm:px-3 sm:py-2 rounded-xl border border-gray-200 text-sm font-semibold hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
                         aria-label="Volgende maand"
                         disabled={(() => {
                           const max = parseYmd(maxBookingDateStr)
@@ -444,7 +444,7 @@ export default function NewBookingPage() {
                       </button>
                     </div>
 
-                    <div className="grid grid-cols-7 gap-1 text-xs font-semibold text-gray-500 mb-2">
+                    <div className="grid grid-cols-7 gap-1 text-[11px] sm:text-xs font-semibold text-gray-500 mb-2">
                       {['Ma', 'Di', 'Wo', 'Do', 'Vr', 'Za', 'Zo'].map((d) => (
                         <div key={d} className="text-center py-1">
                           {d}
@@ -452,7 +452,7 @@ export default function NewBookingPage() {
                       ))}
                     </div>
 
-                    <div className="grid grid-cols-7 gap-1">
+                    <div className="grid grid-cols-7 gap-1 w-full">
                       {(() => {
                         const year = calendarMonth.getFullYear()
                         const month = calendarMonth.getMonth()
@@ -462,7 +462,7 @@ export default function NewBookingPage() {
 
                         const cells: JSX.Element[] = []
                         for (let i = 0; i < mondayFirstIndex; i++) {
-                          cells.push(<div key={`empty-${i}`} className="h-10" />)
+                          cells.push(<div key={`empty-${i}`} className="aspect-square w-full" />)
                         }
                         for (let day = 1; day <= daysInMonth; day++) {
                           const ymd = formatYmd(new Date(year, month, day))
@@ -475,7 +475,7 @@ export default function NewBookingPage() {
                               disabled={isDisabled}
                               onClick={() => toggleSelectedDate(ymd)}
                               className={[
-                                'h-10 rounded-xl border text-sm font-semibold transition',
+                                'aspect-square w-full rounded-xl border text-sm font-semibold transition',
                                 isDisabled
                                   ? 'bg-gray-50 border-gray-100 text-gray-300 cursor-not-allowed'
                                   : 'bg-white border-gray-200 hover:border-emerald-300 hover:bg-emerald-50',
