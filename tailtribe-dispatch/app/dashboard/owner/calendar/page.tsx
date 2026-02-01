@@ -5,6 +5,8 @@ import { SiteHeader } from '@/components/SiteHeader'
 import { SiteFooter } from '@/components/SiteFooter'
 import { DISPATCH_SERVICES } from '@/lib/services'
 
+const DEFAULT_TZ = 'Europe/Brussels'
+
 type Booking = {
   id: string
   service: string
@@ -43,6 +45,20 @@ const MONTHS = [
   'Januari', 'Februari', 'Maart', 'April', 'Mei', 'Juni',
   'Juli', 'Augustus', 'September', 'Oktober', 'November', 'December'
 ]
+
+const ymdInZone = (date: Date, timeZone = DEFAULT_TZ) => {
+  const fmt = new Intl.DateTimeFormat('en-US', {
+    timeZone,
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  })
+  const parts = fmt.formatToParts(date)
+  const yyyy = parts.find((p) => p.type === 'year')?.value ?? '0000'
+  const mm = parts.find((p) => p.type === 'month')?.value ?? '00'
+  const dd = parts.find((p) => p.type === 'day')?.value ?? '00'
+  return `${yyyy}-${mm}-${dd}`
+}
 
 export default function OwnerCalendarPage() {
   const [bookings, setBookings] = useState<Booking[]>([])
@@ -93,15 +109,8 @@ export default function OwnerCalendarPage() {
   }
 
   const getBookingsForDate = (date: Date) => {
-    return bookings.filter(booking => {
-      const bookingDate = new Date(booking.date)
-      // Use UTC to avoid timezone issues
-      return (
-        bookingDate.getUTCDate() === date.getDate() &&
-        bookingDate.getUTCMonth() === date.getMonth() &&
-        bookingDate.getUTCFullYear() === date.getFullYear()
-      )
-    })
+    const target = ymdInZone(date)
+    return bookings.filter((booking) => ymdInZone(new Date(booking.date)) === target)
   }
 
   const changeMonth = (direction: number) => {
@@ -122,12 +131,7 @@ export default function OwnerCalendarPage() {
   }
 
   const isToday = (date: Date) => {
-    const today = new Date()
-    return (
-      date.getDate() === today.getDate() &&
-      date.getMonth() === today.getMonth() &&
-      date.getFullYear() === today.getFullYear()
-    )
+    return ymdInZone(date) === ymdInZone(new Date())
   }
 
   if (loading) {

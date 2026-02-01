@@ -157,10 +157,9 @@ export default function OwnerDashboardPage() {
                   Wat moet je doen?
                 </h2>
                 <ol className="list-decimal pl-5 space-y-1 text-sm text-gray-700">
-                  <li>Controleer je profiel en vul je thuisadres in bij Profiel.</li>
-                  <li>Maak een nieuwe aanvraag aan en kies dienst, datum en tijdsblok.</li>
+                  <li>Maak een nieuwe aanvraag aan en kies dienst + dagen.</li>
                   <li>Geef je huisdierinfo mee bij de aanvraag.</li>
-                  <li>Wacht op toewijzing of bevestiging van de verzorger.</li>
+                  <li>Wacht op toewijzing of bevestiging van de verzorger (tijdstip in overleg via chat).</li>
                 </ol>
               </div>
 

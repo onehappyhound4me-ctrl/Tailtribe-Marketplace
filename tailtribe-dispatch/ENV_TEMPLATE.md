@@ -9,6 +9,10 @@ NEXT_PUBLIC_APP_URL=http://localhost:3001
 NEXTAUTH_URL=http://localhost:3001
 NEXTAUTH_SECRET=replace_me_with_a_long_random_secret
 DATABASE_URL=file:./prisma/dev.db
+
+# Optioneel maar handig: always-works admin login (credentials)
+ADMIN_LOGIN_EMAIL=admin@test.nl
+ADMIN_LOGIN_PASSWORD=change_me
 ```
 
 ## Production (aanbevolen)
@@ -20,6 +24,10 @@ NEXTAUTH_SECRET=replace_me_with_a_long_random_secret
 
 # Postgres (Neon/Supabase/…)
 DATABASE_URL=postgresql://USER:PASSWORD@HOST:5432/DB?sslmode=require
+
+# Optioneel maar handig: always-works admin login (credentials)
+ADMIN_LOGIN_EMAIL=admin@test.nl
+ADMIN_LOGIN_PASSWORD=change_me
 
 # Optioneel: Google OAuth
 GOOGLE_CLIENT_ID=

@@ -12,7 +12,6 @@ import { trackEvent } from '@/lib/analytics'
 // This page intentionally hides time selection; time is discussed via chat.
 // We therefore submit a placeholder time window that keeps the API happy.
 const BOOKING_TIME_WINDOW_PLACEHOLDER = 'MORNING'
-const BOOKING_TIME_PLACEHOLDER = '00:00'
 
 type MyCaregiver = {
   id: string
@@ -210,7 +209,6 @@ export default function NewBookingPage() {
           service: formData.service,
           date,
           timeWindow: BOOKING_TIME_WINDOW_PLACEHOLDER,
-          time: BOOKING_TIME_PLACEHOLDER,
           city: formData.city.trim() || homeCity,
           postalCode: formData.postalCode.trim() || homePostalCode,
           address: bookingAddress,

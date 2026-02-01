@@ -5,6 +5,15 @@ import { prisma } from './prisma'
 import bcrypt from 'bcryptjs'
 import { applyAuthBaseUrlEnv } from './auth-base-url'
 
+const normalizeEmail = (value?: string | null) => String(value ?? '').trim().toLowerCase()
+
+function getEnvAdminCredentials() {
+  const email = normalizeEmail(process.env.ADMIN_LOGIN_EMAIL)
+  const password = String(process.env.ADMIN_LOGIN_PASSWORD ?? '').trim()
+  if (!email || !password) return null
+  return { email, password }
+}
+
 const splitName = (fullName?: string | null) => {
   const clean = (fullName ?? '').trim()
   if (!clean) return { firstName: 'Gebruiker', lastName: '' }
@@ -108,8 +117,24 @@ function buildAuth() {
             return null
           }
 
+          // Emergency/admin login via env vars (works in every environment).
+          // This avoids DB/email verification bootstrapping issues.
+          const envAdmin = getEnvAdminCredentials()
+          if (
+            envAdmin &&
+            normalizeEmail(credentials.email as string) === envAdmin.email &&
+            String(credentials.password ?? '').trim() === envAdmin.password
+          ) {
+            return {
+              id: 'env-admin',
+              email: envAdmin.email,
+              name: 'Admin',
+              role: 'ADMIN',
+            }
+          }
+
           const user = await prisma.user.findUnique({
-            where: { email: credentials.email as string },
+            where: { email: normalizeEmail(credentials.email as string) },
           })
 
           if (!user) {
@@ -198,6 +223,14 @@ function buildAuth() {
       async jwt({ token, user }) {
         assertNextAuthSecret()
         try {
+          // Preserve env-admin role without DB lookups/auto-creation.
+          if ((user as any)?.id === 'env-admin' && user?.email) {
+            token.role = 'ADMIN'
+            token.id = 'env-admin'
+            token.email = user.email
+            return token
+          }
+
           if (user?.email) {
             const dbUser = await getOrCreateOAuthUser(user.email, user.name ?? null)
             token.role = dbUser.role
