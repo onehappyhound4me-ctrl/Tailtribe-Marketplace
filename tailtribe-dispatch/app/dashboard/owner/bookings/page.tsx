@@ -81,6 +81,12 @@ export default function OwnerBookingsPage() {
   const [isDirect, setIsDirect] = useState(false)
   const [actionLoadingId, setActionLoadingId] = useState<string | null>(null)
 
+  const dismissSuccess = () => {
+    window.history.replaceState({}, '', '/dashboard/owner/bookings')
+    setSuccessCount(null)
+    setIsDirect(false)
+  }
+
   useEffect(() => {
     fetchBookings()
     
@@ -91,12 +97,8 @@ export default function OwnerBookingsPage() {
     if (count) {
       setSuccessCount(parseInt(count))
       setIsDirect(direct === 'true')
-      // Verwijder parameter na 6 seconden
-      setTimeout(() => {
-        window.history.replaceState({}, '', '/dashboard/owner/bookings')
-        setSuccessCount(null)
-        setIsDirect(false)
-      }, 6000)
+      // Keep banner visible until user closes it, but clean up the URL immediately.
+      window.history.replaceState({}, '', '/dashboard/owner/bookings')
     }
   }, [])
 
@@ -166,13 +168,14 @@ export default function OwnerBookingsPage() {
 
       <main className="container mx-auto px-4" style={{ paddingTop: '3rem', paddingBottom: '5rem' }}>
         <div className="max-w-5xl mx-auto">
-          {successCount && (
+          {successCount !== null && (
             <div className={`mb-6 p-4 rounded-xl border ${
               isDirect 
                 ? 'bg-purple-50 border-purple-200' 
                 : 'bg-green-50 border-green-200'
             }`}>
-              <div className={isDirect ? 'text-purple-900' : 'text-green-800'}>
+              <div className="flex items-start justify-between gap-4">
+                <div className={isDirect ? 'text-purple-900' : 'text-green-800'}>
                 {isDirect ? (
                   <>
                     <div className="font-bold text-lg mb-1">⚡ Direct Toegewezen!</div>
@@ -190,6 +193,20 @@ export default function OwnerBookingsPage() {
                     </div>
                   </>
                 )}
+                </div>
+
+                <button
+                  type="button"
+                  onClick={dismissSuccess}
+                  className={`shrink-0 px-3 py-1.5 rounded-lg border text-sm font-semibold ${
+                    isDirect
+                      ? 'border-purple-200 text-purple-900 hover:bg-purple-100'
+                      : 'border-green-200 text-green-900 hover:bg-green-100'
+                  }`}
+                  aria-label="Sluit melding"
+                >
+                  Sluiten
+                </button>
               </div>
             </div>
           )}
