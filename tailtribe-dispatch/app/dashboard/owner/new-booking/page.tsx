@@ -39,7 +39,7 @@ export default function NewBookingPage() {
   const [homeAddress, setHomeAddress] = useState('')
   const [homeCity, setHomeCity] = useState('')
   const [homePostalCode, setHomePostalCode] = useState('')
-  const [dateToAdd, setDateToAdd] = useState<string>('')
+  const [calendarMonth, setCalendarMonth] = useState<Date | null>(null)
   
   const [formData, setFormData] = useState({
     service: '',
@@ -114,9 +114,10 @@ export default function NewBookingPage() {
   }
 
   useEffect(() => {
-    if (dateToAdd) return
-    setDateToAdd(todayStr)
-  }, [dateToAdd, todayStr])
+    if (calendarMonth) return
+    const today = parseYmd(todayStr)
+    setCalendarMonth(new Date(today.getFullYear(), today.getMonth(), 1))
+  }, [calendarMonth, todayStr])
 
   const fetchMyCaregivers = async () => {
     try {
@@ -130,27 +131,15 @@ export default function NewBookingPage() {
     }
   }
 
-  const removeSelectedDate = (ymd: string) => {
-    setSelectedDates((prev) => prev.filter((d) => d !== ymd))
-  }
-
-  const addSelectedDate = (ymd: string) => {
+  const toggleSelectedDate = (ymd: string) => {
     if (!ymd) return
     if (ymd < todayStr || ymd > maxBookingDateStr) return
     setSelectedDates((prev) => {
-      if (prev.includes(ymd)) return prev
-      const next = [...prev, ymd]
+      const exists = prev.includes(ymd)
+      const next = exists ? prev.filter((d) => d !== ymd) : [...prev, ymd]
       next.sort()
       return next
     })
-
-    // Convenience: advance to next day for faster multi-add.
-    const d = parseYmd(ymd)
-    d.setDate(d.getDate() + 1)
-    const next = formatYmd(d)
-    if (next >= todayStr && next <= maxBookingDateStr) {
-      setDateToAdd(next)
-    }
   }
 
   const clearSelectedDates = () => {
@@ -407,32 +396,103 @@ export default function NewBookingPage() {
               </div>
             </div>
 
-            {/* Dagen: multi-select (simpel) */}
+            {/* Kalender: multi-select */}
             <div className="space-y-3">
               <label className="block text-sm font-medium text-gray-700">
-                Dagen * <span className="text-gray-500 text-xs">(voeg dagen toe)</span>
+                Dagen * <span className="text-gray-500 text-xs">(klik om te selecteren)</span>
               </label>
               <div className="text-xs text-gray-500">
                 Je kan maximaal 60 dagen vooruit boeken.
               </div>
 
-              <div className="flex flex-col md:flex-row gap-3">
-                <input
-                  type="date"
-                  value={dateToAdd}
-                  onChange={(e) => setDateToAdd(e.target.value)}
-                  min={todayStr}
-                  max={maxBookingDateStr}
-                  className="w-full md:flex-1 px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
-                />
-                <button
-                  type="button"
-                  onClick={() => addSelectedDate(dateToAdd)}
-                  disabled={!dateToAdd || dateToAdd < todayStr || dateToAdd > maxBookingDateStr}
-                  className="px-4 py-2.5 rounded-xl border border-emerald-200 bg-emerald-50 text-emerald-900 font-semibold hover:bg-emerald-100 disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  Voeg dag toe
-                </button>
+              <div className="border border-gray-200 rounded-2xl p-4 bg-white">
+                {calendarMonth ? (
+                  <>
+                    <div className="flex items-center justify-between mb-3">
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setCalendarMonth(new Date(calendarMonth.getFullYear(), calendarMonth.getMonth() - 1, 1))
+                        }
+                        className="px-3 py-2 rounded-xl border border-gray-200 text-sm font-semibold hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                        aria-label="Vorige maand"
+                        disabled={(() => {
+                          const min = parseYmd(todayStr)
+                          const minMonth = new Date(min.getFullYear(), min.getMonth(), 1)
+                          return calendarMonth.getTime() <= minMonth.getTime()
+                        })()}
+                      >
+                        ‹
+                      </button>
+                      <div className="text-sm font-bold text-gray-900">
+                        {calendarMonth.toLocaleDateString('nl-BE', { month: 'long', year: 'numeric' })}
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setCalendarMonth(new Date(calendarMonth.getFullYear(), calendarMonth.getMonth() + 1, 1))
+                        }
+                        className="px-3 py-2 rounded-xl border border-gray-200 text-sm font-semibold hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                        aria-label="Volgende maand"
+                        disabled={(() => {
+                          const max = parseYmd(maxBookingDateStr)
+                          const maxMonth = new Date(max.getFullYear(), max.getMonth(), 1)
+                          return calendarMonth.getTime() >= maxMonth.getTime()
+                        })()}
+                      >
+                        ›
+                      </button>
+                    </div>
+
+                    <div className="grid grid-cols-7 gap-1 text-xs font-semibold text-gray-500 mb-2">
+                      {['Ma', 'Di', 'Wo', 'Do', 'Vr', 'Za', 'Zo'].map((d) => (
+                        <div key={d} className="text-center py-1">
+                          {d}
+                        </div>
+                      ))}
+                    </div>
+
+                    <div className="grid grid-cols-7 gap-1">
+                      {(() => {
+                        const year = calendarMonth.getFullYear()
+                        const month = calendarMonth.getMonth()
+                        const first = new Date(year, month, 1)
+                        const mondayFirstIndex = (first.getDay() + 6) % 7
+                        const daysInMonth = new Date(year, month + 1, 0).getDate()
+
+                        const cells: JSX.Element[] = []
+                        for (let i = 0; i < mondayFirstIndex; i++) {
+                          cells.push(<div key={`empty-${i}`} className="h-10" />)
+                        }
+                        for (let day = 1; day <= daysInMonth; day++) {
+                          const ymd = formatYmd(new Date(year, month, day))
+                          const isSelected = selectedDates.includes(ymd)
+                          const isDisabled = ymd < todayStr || ymd > maxBookingDateStr
+                          cells.push(
+                            <button
+                              key={ymd}
+                              type="button"
+                              disabled={isDisabled}
+                              onClick={() => toggleSelectedDate(ymd)}
+                              className={[
+                                'h-10 rounded-xl border text-sm font-semibold transition',
+                                isDisabled
+                                  ? 'bg-gray-50 border-gray-100 text-gray-300 cursor-not-allowed'
+                                  : 'bg-white border-gray-200 hover:border-emerald-300 hover:bg-emerald-50',
+                                isSelected ? 'bg-emerald-600 border-emerald-600 text-white hover:bg-emerald-600' : '',
+                              ].join(' ')}
+                              aria-pressed={isSelected}
+                              aria-label={`Selecteer ${new Date(ymd).toLocaleDateString('nl-BE')}`}
+                            >
+                              {day}
+                            </button>
+                          )
+                        }
+                        return cells
+                      })()}
+                    </div>
+                  </>
+                ) : null}
               </div>
 
               <div className="flex items-center justify-between gap-3">
@@ -456,7 +516,7 @@ export default function NewBookingPage() {
                     <button
                       key={d}
                       type="button"
-                      onClick={() => removeSelectedDate(d)}
+                      onClick={() => toggleSelectedDate(d)}
                       className="px-2.5 py-1.5 rounded-xl border border-emerald-200 bg-emerald-50 text-xs font-semibold text-emerald-900 hover:bg-emerald-100 transition"
                       title="Klik om te verwijderen"
                     >
