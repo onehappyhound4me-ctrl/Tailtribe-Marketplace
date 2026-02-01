@@ -35,13 +35,14 @@ export default function NewBookingPage() {
   const [error, setError] = useState('')
   const [selectedTimeWindows, setSelectedTimeWindows] = useState<string[]>([])
   const [selectedDates, setSelectedDates] = useState<string[]>([])
+  const [perDayTimeWindows, setPerDayTimeWindows] = useState<Record<string, string[]>>({})
   const [useDirect, setUseDirect] = useState(false)
   const [myCaregivers, setMyCaregivers] = useState<MyCaregiver[]>([])
   const [selectedCaregiver, setSelectedCaregiver] = useState<string>('')
   const [homeAddress, setHomeAddress] = useState('')
   const [homeCity, setHomeCity] = useState('')
   const [homePostalCode, setHomePostalCode] = useState('')
-  const [calendarMonth, setCalendarMonth] = useState<Date | null>(null)
+  const [dateToAdd, setDateToAdd] = useState<string>('')
   
   const [formData, setFormData] = useState({
     service: '',
@@ -116,10 +117,9 @@ export default function NewBookingPage() {
   }
 
   useEffect(() => {
-    if (calendarMonth) return
-    const today = parseYmd(todayStr)
-    setCalendarMonth(new Date(today.getFullYear(), today.getMonth(), 1))
-  }, [calendarMonth, todayStr])
+    if (dateToAdd) return
+    setDateToAdd(todayStr)
+  }, [dateToAdd, todayStr])
 
   const fetchMyCaregivers = async () => {
     try {
@@ -141,21 +141,73 @@ export default function NewBookingPage() {
     )
   }
 
-  const toggleSelectedDate = (ymd: string) => {
-    setSelectedDates((prev) => {
-      const exists = prev.includes(ymd)
-      const next = exists ? prev.filter((d) => d !== ymd) : [...prev, ymd]
-      next.sort()
+  const removeSelectedDate = (ymd: string) => {
+    setSelectedDates((prev) => prev.filter((d) => d !== ymd))
+    setPerDayTimeWindows((prev) => {
+      if (!prev[ymd]) return prev
+      const next = { ...prev }
+      delete next[ymd]
       return next
     })
   }
 
-  const clearSelectedDates = () => setSelectedDates([])
+  const addSelectedDate = (ymd: string) => {
+    if (!ymd) return
+    if (ymd < todayStr || ymd > maxBookingDateStr) return
+    setSelectedDates((prev) => {
+      if (prev.includes(ymd)) return prev
+      const next = [...prev, ymd]
+      next.sort()
+      return next
+    })
+    setPerDayTimeWindows((prev) => {
+      if (prev[ymd]) return prev
+      return { ...prev, [ymd]: selectedTimeWindows.length ? [...selectedTimeWindows] : [] }
+    })
+  }
+
+  const clearSelectedDates = () => {
+    setSelectedDates([])
+    setPerDayTimeWindows({})
+  }
+
+  const togglePerDayTimeWindow = (date: string, window: string) => {
+    setPerDayTimeWindows((prev) => {
+      const current = prev[date] || []
+      const exists = current.includes(window)
+      const next = exists ? current.filter((w) => w !== window) : [...current, window]
+      return { ...prev, [date]: next }
+    })
+  }
+
+  const applyTemplateToAllDays = () => {
+    if (!selectedDates.length) return
+    if (!selectedTimeWindows.length) return
+    setPerDayTimeWindows((prev) => {
+      const next: Record<string, string[]> = { ...prev }
+      selectedDates.forEach((d) => {
+        next[d] = [...selectedTimeWindows]
+      })
+      return next
+    })
+  }
+
+  // Keep per-day slots in sync with selectedDates (remove deleted days).
+  useEffect(() => {
+    setPerDayTimeWindows((prev) => {
+      const next: Record<string, string[]> = { ...prev }
+      Object.keys(next).forEach((d) => {
+        if (!selectedDates.includes(d)) delete next[d]
+      })
+      return next
+    })
+  }, [selectedDates])
 
   // Reset form functie
   const resetForm = () => {
     setSelectedTimeWindows([])
     setSelectedDates([])
+    setPerDayTimeWindows({})
     setUseDirect(false)
     setSelectedCaregiver('')
   }
@@ -168,12 +220,6 @@ export default function NewBookingPage() {
     today.setUTCHours(0, 0, 0, 0)
     const maxDate = new Date(today)
     maxDate.setUTCDate(maxDate.getUTCDate() + 60)
-
-    // Base check: at least one time window
-    if (selectedTimeWindows.length === 0) {
-      setError('Selecteer minimaal één tijdsblok')
-      return
-    }
 
     if (selectedDates.length === 0) {
       setError('Kies minimaal één dag')
@@ -211,7 +257,13 @@ export default function NewBookingPage() {
           setLoading(false)
           return
         }
-        for (const window of selectedTimeWindows) {
+        const slots = perDayTimeWindows[date] || []
+        if (!slots.length) {
+          setError('Kies minimaal één tijdsblok per geselecteerde dag')
+          setLoading(false)
+          return
+        }
+        for (const window of slots) {
           const notPast = validateNotInPast({ date, timeWindow: window })
           if (!notPast.ok) {
             setError('Datum mag niet in het verleden liggen')
@@ -224,7 +276,8 @@ export default function NewBookingPage() {
       // Maak booking voor elke datum + elk tijdsblok
       for (const date of dates) {
         const bookingAddress = formData.address.trim() || homeAddress
-        for (const timeWindow of selectedTimeWindows) {
+        const slots = perDayTimeWindows[date] || []
+        for (const timeWindow of slots) {
           bookings.push({
             service: formData.service,
             date,
@@ -411,103 +464,36 @@ export default function NewBookingPage() {
             <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
               <div className="text-sm font-semibold text-blue-900 mb-1">Kies dagen in één flow</div>
               <div className="text-xs text-gray-600">
-                Klik één of meerdere dagen aan in de kalender. De geselecteerde tijdsblokken gelden voor alle gekozen dagen.
+                Kies één of meerdere dagen. De geselecteerde tijdsblokken gelden voor alle gekozen dagen.
               </div>
             </div>
 
-            {/* Kalender: multi-select */}
+            {/* Dagen: multi-select (simpel) */}
             <div className="space-y-3">
               <label className="block text-sm font-medium text-gray-700">
-                Dagen * <span className="text-gray-500 text-xs">(klik om te selecteren)</span>
+                Dagen * <span className="text-gray-500 text-xs">(voeg dagen toe)</span>
               </label>
               <div className="text-xs text-gray-500">
                 Je kan maximaal 60 dagen vooruit boeken.
               </div>
 
-              <div className="border border-gray-200 rounded-2xl p-4 bg-white">
-                {calendarMonth ? (
-                  <>
-                    <div className="flex items-center justify-between mb-3">
-                      <button
-                        type="button"
-                        onClick={() => setCalendarMonth(new Date(calendarMonth.getFullYear(), calendarMonth.getMonth() - 1, 1))}
-                        className="px-3 py-2 rounded-xl border border-gray-200 text-sm font-semibold hover:bg-gray-50"
-                        aria-label="Vorige maand"
-                        disabled={
-                          (() => {
-                            const min = parseYmd(todayStr)
-                            const minMonth = new Date(min.getFullYear(), min.getMonth(), 1)
-                            return calendarMonth.getTime() <= minMonth.getTime()
-                          })()
-                        }
-                      >
-                        ‹
-                      </button>
-                      <div className="text-sm font-bold text-gray-900">
-                        {calendarMonth.toLocaleDateString('nl-BE', { month: 'long', year: 'numeric' })}
-                      </div>
-                      <button
-                        type="button"
-                        onClick={() => setCalendarMonth(new Date(calendarMonth.getFullYear(), calendarMonth.getMonth() + 1, 1))}
-                        className="px-3 py-2 rounded-xl border border-gray-200 text-sm font-semibold hover:bg-gray-50"
-                        aria-label="Volgende maand"
-                        disabled={
-                          (() => {
-                            const max = parseYmd(maxBookingDateStr)
-                            const maxMonth = new Date(max.getFullYear(), max.getMonth(), 1)
-                            return calendarMonth.getTime() >= maxMonth.getTime()
-                          })()
-                        }
-                      >
-                        ›
-                      </button>
-                    </div>
-
-                    <div className="grid grid-cols-7 gap-1 text-xs font-semibold text-gray-500 mb-2">
-                      {['Ma', 'Di', 'Wo', 'Do', 'Vr', 'Za', 'Zo'].map((d) => (
-                        <div key={d} className="text-center py-1">{d}</div>
-                      ))}
-                    </div>
-
-                    <div className="grid grid-cols-7 gap-1">
-                      {(() => {
-                        const year = calendarMonth.getFullYear()
-                        const month = calendarMonth.getMonth()
-                        const first = new Date(year, month, 1)
-                        const mondayFirstIndex = (first.getDay() + 6) % 7
-                        const daysInMonth = new Date(year, month + 1, 0).getDate()
-
-                        const cells: JSX.Element[] = []
-                        for (let i = 0; i < mondayFirstIndex; i++) {
-                          cells.push(<div key={`empty-${i}`} className="h-10" />)
-                        }
-                        for (let day = 1; day <= daysInMonth; day++) {
-                          const ymd = formatYmd(new Date(year, month, day))
-                          const isSelected = selectedDates.includes(ymd)
-                          const isDisabled = ymd < todayStr || ymd > maxBookingDateStr
-                          cells.push(
-                            <button
-                              key={ymd}
-                              type="button"
-                              disabled={isDisabled}
-                              onClick={() => toggleSelectedDate(ymd)}
-                              className={[
-                                'h-10 rounded-xl border text-sm font-semibold transition',
-                                isDisabled ? 'bg-gray-50 border-gray-100 text-gray-300 cursor-not-allowed' : 'bg-white border-gray-200 hover:border-emerald-300 hover:bg-emerald-50',
-                                isSelected ? 'bg-emerald-600 border-emerald-600 text-white hover:bg-emerald-600' : '',
-                              ].join(' ')}
-                              aria-pressed={isSelected}
-                              aria-label={`Selecteer ${new Date(ymd).toLocaleDateString('nl-BE')}`}
-                            >
-                              {day}
-                            </button>
-                          )
-                        }
-                        return cells
-                      })()}
-                    </div>
-                  </>
-                ) : null}
+              <div className="flex flex-col md:flex-row gap-3">
+                <input
+                  type="date"
+                  value={dateToAdd}
+                  onChange={(e) => setDateToAdd(e.target.value)}
+                  min={todayStr}
+                  max={maxBookingDateStr}
+                  className="w-full md:flex-1 px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                />
+                <button
+                  type="button"
+                  onClick={() => addSelectedDate(dateToAdd)}
+                  disabled={!dateToAdd || dateToAdd < todayStr || dateToAdd > maxBookingDateStr}
+                  className="px-4 py-2.5 rounded-xl border border-emerald-200 bg-emerald-50 text-emerald-900 font-semibold hover:bg-emerald-100 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  Voeg dag toe
+                </button>
               </div>
 
               <div className="flex items-center justify-between gap-3">
@@ -531,7 +517,7 @@ export default function NewBookingPage() {
                     <button
                       key={d}
                       type="button"
-                      onClick={() => toggleSelectedDate(d)}
+                      onClick={() => removeSelectedDate(d)}
                       className="px-2.5 py-1.5 rounded-xl border border-emerald-200 bg-emerald-50 text-xs font-semibold text-emerald-900 hover:bg-emerald-100 transition"
                       title="Klik om te verwijderen"
                     >
@@ -542,60 +528,118 @@ export default function NewBookingPage() {
               )}
             </div>
 
-            {/* Tijdsblokken (basisselectie) */}
-            <div>
+            {/* Snelselectie (optioneel) */}
+            <div className="bg-gray-50 border border-gray-200 rounded-xl p-4 space-y-3">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-3">
-                  Tijdsblokken * <span className="text-gray-500 text-xs">(selecteer 1 of meer)</span>
-                </label>
-                <div className="grid gap-3">
-                  {TIME_WINDOWS.map((window) => {
-                    const isSelected = selectedTimeWindows.includes(window.value)
-                    return (
-                      <button
-                        key={window.value}
-                        type="button"
-                        onClick={() => toggleTimeWindow(window.value)}
-                        className={`flex items-center justify-between p-4 rounded-xl border-2 transition ${
-                          isSelected
-                            ? 'bg-emerald-50 border-emerald-500 shadow-sm'
-                            : 'bg-white border-gray-200 hover:border-emerald-300'
-                        }`}
-                      >
-                        <div className="flex items-center gap-3">
-                          <div
-                            className={`w-5 h-5 rounded border-2 flex items-center justify-center ${
-                              isSelected
-                                ? 'bg-emerald-600 border-emerald-600'
-                                : 'border-gray-300'
-                            }`}
-                          >
-                            {isSelected && (
-                              <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
-                                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                              </svg>
-                            )}
-                          </div>
-                          <div className="text-left">
-                            <div className={`font-semibold ${isSelected ? 'text-emerald-900' : 'text-gray-900'}`}>
-                              {window.label}
-                            </div>
-                            <div className="text-sm text-gray-500">
-                              {window.time}
-                            </div>
-                          </div>
+                <div className="font-semibold text-gray-900">Snelselectie (optioneel)</div>
+                <div className="text-xs text-gray-600">
+                  Selecteer tijdsblokken en kopieer ze naar alle dagen. Daarna kan je per dag nog aanpassen.
+                </div>
+              </div>
+              <div className="grid gap-3">
+                {TIME_WINDOWS.map((window) => {
+                  const isSelected = selectedTimeWindows.includes(window.value)
+                  return (
+                    <button
+                      key={window.value}
+                      type="button"
+                      onClick={() => toggleTimeWindow(window.value)}
+                      className={`flex items-center justify-between p-4 rounded-xl border-2 transition ${
+                        isSelected
+                          ? 'bg-emerald-50 border-emerald-500 shadow-sm'
+                          : 'bg-white border-gray-200 hover:border-emerald-300'
+                      }`}
+                    >
+                      <div className="flex items-center gap-3">
+                        <div
+                          className={`w-5 h-5 rounded border-2 flex items-center justify-center ${
+                            isSelected ? 'bg-emerald-600 border-emerald-600' : 'border-gray-300'
+                          }`}
+                        >
+                          {isSelected && (
+                            <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                              <path
+                                fillRule="evenodd"
+                                d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                                clipRule="evenodd"
+                              />
+                            </svg>
+                          )}
                         </div>
-                        {isSelected && (
-                          <span className="text-emerald-600 text-sm font-medium">
-                            ✓ Geselecteerd
-                          </span>
+                        <div className="text-left">
+                          <div className={`font-semibold ${isSelected ? 'text-emerald-900' : 'text-gray-900'}`}>
+                            {window.label}
+                          </div>
+                          <div className="text-sm text-gray-500">{window.time}</div>
+                        </div>
+                      </div>
+                      {isSelected && <span className="text-emerald-600 text-sm font-medium">✓ Geselecteerd</span>}
+                    </button>
+                  )
+                })}
+              </div>
+              <div className="flex items-center justify-end">
+                <button
+                  type="button"
+                  onClick={applyTemplateToAllDays}
+                  disabled={!selectedDates.length || !selectedTimeWindows.length}
+                  className="px-4 py-2 rounded-xl border border-gray-300 bg-white text-sm font-semibold hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  Pas toe op alle dagen
+                </button>
+              </div>
+            </div>
+
+            {/* Per dag tijdsblokken (verplicht) */}
+            {selectedDates.length > 0 && (
+              <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 space-y-3">
+                <div>
+                  <div className="font-semibold text-blue-900">Tijdsblokken per dag *</div>
+                  <div className="text-xs text-gray-600">Selecteer minstens 1 tijdsblok per geselecteerde dag.</div>
+                </div>
+
+                <div className="space-y-2">
+                  {selectedDates.slice().sort().map((dateStr) => {
+                    const slots = perDayTimeWindows[dateStr] || []
+                    return (
+                      <div key={dateStr} className="bg-white border border-blue-100 rounded-lg p-3">
+                        <div className="font-medium text-gray-900 mb-2">
+                          {new Date(dateStr).toLocaleDateString('nl-BE')}
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                          {TIME_WINDOWS.map((window) => {
+                            const isSelected = slots.includes(window.value)
+                            return (
+                              <button
+                                key={window.value}
+                                type="button"
+                                onClick={() => togglePerDayTimeWindow(dateStr, window.value)}
+                                className={`flex items-center justify-between p-3 rounded-lg border-2 transition text-left ${
+                                  isSelected
+                                    ? 'bg-emerald-50 border-emerald-500 shadow-sm'
+                                    : 'bg-white border-gray-200 hover:border-emerald-300'
+                                }`}
+                              >
+                                <div>
+                                  <div className={`font-semibold ${isSelected ? 'text-emerald-900' : 'text-gray-900'}`}>
+                                    {window.label}
+                                  </div>
+                                  <div className="text-xs text-gray-500">{window.time}</div>
+                                </div>
+                                {isSelected && <div className="text-emerald-600 font-bold">✓</div>}
+                              </button>
+                            )
+                          })}
+                        </div>
+                        {slots.length === 0 && (
+                          <div className="mt-2 text-xs text-red-600">Selecteer minstens 1 blok voor deze dag.</div>
                         )}
-                      </button>
+                      </div>
                     )
                   })}
                 </div>
               </div>
-            </div>
+            )}
 
             {/* Locatie */}
             <div className="text-xs text-gray-500 mb-2">
@@ -721,10 +765,17 @@ export default function NewBookingPage() {
                     • Dagen geselecteerd: <strong>{selectedDates.length}</strong>
                   </div>
                   <div>
-                    • Tijdsblokken geselecteerd: <strong>{selectedTimeWindows.length}</strong>
+                    • <strong>
+                        Totaal aantal aanvragen:{' '}
+                        {selectedDates.reduce((sum, d) => sum + (perDayTimeWindows[d]?.length || 0), 0)}
+                      </strong>
                   </div>
-                  <div>
-                    • <strong>Totaal aantal aanvragen: {selectedDates.length * selectedTimeWindows.length}</strong>
+                  <div className="space-y-1 text-xs text-gray-700">
+                    {selectedDates.slice().sort().map((d) => (
+                      <div key={d}>
+                        • {new Date(d).toLocaleDateString('nl-BE')}: {(perDayTimeWindows[d]?.length || 0)} blok(ken)
+                      </div>
+                    ))}
                   </div>
                 </div>
               </div>
