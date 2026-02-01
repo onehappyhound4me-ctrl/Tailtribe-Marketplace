@@ -5,15 +5,14 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { SiteHeader } from '@/components/SiteHeader'
 import { SiteFooter } from '@/components/SiteFooter'
 import { DISPATCH_SERVICES } from '@/lib/services'
-import { getTodayStringInZone, validateNotInPast } from '@/lib/date-utils'
+import { getTodayStringInZone } from '@/lib/date-utils'
 import { trackEvent } from '@/lib/analytics'
 
-const TIME_WINDOWS = [
-  { value: 'MORNING', label: 'Ochtend', time: '07:00-12:00' },
-  { value: 'AFTERNOON', label: 'Middag', time: '12:00-18:00' },
-  { value: 'EVENING', label: 'Avond', time: '18:00-22:00' },
-  { value: 'NIGHT', label: 'Nacht', time: '22:00-07:00' },
-]
+// NOTE: The backend currently requires `timeWindow` for bookings.
+// This page intentionally hides time selection; time is discussed via chat.
+// We therefore submit a placeholder time window that keeps the API happy.
+const BOOKING_TIME_WINDOW_PLACEHOLDER = 'MORNING'
+const BOOKING_TIME_PLACEHOLDER = '00:00'
 
 type MyCaregiver = {
   id: string
@@ -33,9 +32,7 @@ export default function NewBookingPage() {
   const searchParams = useSearchParams()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
-  const [selectedTimeWindows, setSelectedTimeWindows] = useState<string[]>([])
   const [selectedDates, setSelectedDates] = useState<string[]>([])
-  const [perDayTimeWindows, setPerDayTimeWindows] = useState<Record<string, string[]>>({})
   const [useDirect, setUseDirect] = useState(false)
   const [myCaregivers, setMyCaregivers] = useState<MyCaregiver[]>([])
   const [selectedCaregiver, setSelectedCaregiver] = useState<string>('')
@@ -133,22 +130,8 @@ export default function NewBookingPage() {
     }
   }
 
-  const toggleTimeWindow = (window: string) => {
-    setSelectedTimeWindows(prev =>
-      prev.includes(window)
-        ? prev.filter(w => w !== window)
-        : [...prev, window]
-    )
-  }
-
   const removeSelectedDate = (ymd: string) => {
     setSelectedDates((prev) => prev.filter((d) => d !== ymd))
-    setPerDayTimeWindows((prev) => {
-      if (!prev[ymd]) return prev
-      const next = { ...prev }
-      delete next[ymd]
-      return next
-    })
   }
 
   const addSelectedDate = (ymd: string) => {
@@ -160,54 +143,23 @@ export default function NewBookingPage() {
       next.sort()
       return next
     })
-    setPerDayTimeWindows((prev) => {
-      if (prev[ymd]) return prev
-      return { ...prev, [ymd]: selectedTimeWindows.length ? [...selectedTimeWindows] : [] }
-    })
+
+    // Convenience: advance to next day for faster multi-add.
+    const d = parseYmd(ymd)
+    d.setDate(d.getDate() + 1)
+    const next = formatYmd(d)
+    if (next >= todayStr && next <= maxBookingDateStr) {
+      setDateToAdd(next)
+    }
   }
 
   const clearSelectedDates = () => {
     setSelectedDates([])
-    setPerDayTimeWindows({})
   }
-
-  const togglePerDayTimeWindow = (date: string, window: string) => {
-    setPerDayTimeWindows((prev) => {
-      const current = prev[date] || []
-      const exists = current.includes(window)
-      const next = exists ? current.filter((w) => w !== window) : [...current, window]
-      return { ...prev, [date]: next }
-    })
-  }
-
-  const applyTemplateToAllDays = () => {
-    if (!selectedDates.length) return
-    if (!selectedTimeWindows.length) return
-    setPerDayTimeWindows((prev) => {
-      const next: Record<string, string[]> = { ...prev }
-      selectedDates.forEach((d) => {
-        next[d] = [...selectedTimeWindows]
-      })
-      return next
-    })
-  }
-
-  // Keep per-day slots in sync with selectedDates (remove deleted days).
-  useEffect(() => {
-    setPerDayTimeWindows((prev) => {
-      const next: Record<string, string[]> = { ...prev }
-      Object.keys(next).forEach((d) => {
-        if (!selectedDates.includes(d)) delete next[d]
-      })
-      return next
-    })
-  }, [selectedDates])
 
   // Reset form functie
   const resetForm = () => {
-    setSelectedTimeWindows([])
     setSelectedDates([])
-    setPerDayTimeWindows({})
     setUseDirect(false)
     setSelectedCaregiver('')
   }
@@ -257,41 +209,28 @@ export default function NewBookingPage() {
           setLoading(false)
           return
         }
-        const slots = perDayTimeWindows[date] || []
-        if (!slots.length) {
-          setError('Kies minimaal één tijdsblok per geselecteerde dag')
-          setLoading(false)
-          return
-        }
-        for (const window of slots) {
-          const notPast = validateNotInPast({ date, timeWindow: window })
-          if (!notPast.ok) {
-            setError('Datum mag niet in het verleden liggen')
-            setLoading(false)
-            return
-          }
-        }
       }
 
-      // Maak booking voor elke datum + elk tijdsblok
+      // Maak booking voor elke geselecteerde dag (tijd in overleg via chat)
       for (const date of dates) {
         const bookingAddress = formData.address.trim() || homeAddress
-        const slots = perDayTimeWindows[date] || []
-        for (const timeWindow of slots) {
-          bookings.push({
-            service: formData.service,
-            date,
-            timeWindow,
-            city: formData.city.trim() || homeCity,
-            postalCode: formData.postalCode.trim() || homePostalCode,
-            address: bookingAddress,
-            petName: formData.petName,
-            petType: formData.petType,
-            petDetails: formData.petDetails,
-            message: formData.message,
-            isRecurring: false
-          })
-        }
+        const baseMessage = String(formData.message || '').trim()
+        const message = baseMessage ? `Tijdstip: in overleg via chat.\n\n${baseMessage}` : 'Tijdstip: in overleg via chat.'
+
+        bookings.push({
+          service: formData.service,
+          date,
+          timeWindow: BOOKING_TIME_WINDOW_PLACEHOLDER,
+          time: BOOKING_TIME_PLACEHOLDER,
+          city: formData.city.trim() || homeCity,
+          postalCode: formData.postalCode.trim() || homePostalCode,
+          address: bookingAddress,
+          petName: formData.petName,
+          petType: formData.petType,
+          petDetails: formData.petDetails,
+          message,
+          isRecurring: false,
+        })
       }
 
       // Als direct naar verzorger: voeg caregiverId en status toe
@@ -464,7 +403,7 @@ export default function NewBookingPage() {
             <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
               <div className="text-sm font-semibold text-blue-900 mb-1">Kies dagen in één flow</div>
               <div className="text-xs text-gray-600">
-                Kies één of meerdere dagen. De geselecteerde tijdsblokken gelden voor alle gekozen dagen.
+                Kies één of meerdere dagen. Het tijdstip spreken jullie af via chat.
               </div>
             </div>
 
@@ -527,119 +466,6 @@ export default function NewBookingPage() {
                 </div>
               )}
             </div>
-
-            {/* Snelselectie (optioneel) */}
-            <div className="bg-gray-50 border border-gray-200 rounded-xl p-4 space-y-3">
-              <div>
-                <div className="font-semibold text-gray-900">Snelselectie (optioneel)</div>
-                <div className="text-xs text-gray-600">
-                  Selecteer tijdsblokken en kopieer ze naar alle dagen. Daarna kan je per dag nog aanpassen.
-                </div>
-              </div>
-              <div className="grid gap-3">
-                {TIME_WINDOWS.map((window) => {
-                  const isSelected = selectedTimeWindows.includes(window.value)
-                  return (
-                    <button
-                      key={window.value}
-                      type="button"
-                      onClick={() => toggleTimeWindow(window.value)}
-                      className={`flex items-center justify-between p-4 rounded-xl border-2 transition ${
-                        isSelected
-                          ? 'bg-emerald-50 border-emerald-500 shadow-sm'
-                          : 'bg-white border-gray-200 hover:border-emerald-300'
-                      }`}
-                    >
-                      <div className="flex items-center gap-3">
-                        <div
-                          className={`w-5 h-5 rounded border-2 flex items-center justify-center ${
-                            isSelected ? 'bg-emerald-600 border-emerald-600' : 'border-gray-300'
-                          }`}
-                        >
-                          {isSelected && (
-                            <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
-                              <path
-                                fillRule="evenodd"
-                                d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                                clipRule="evenodd"
-                              />
-                            </svg>
-                          )}
-                        </div>
-                        <div className="text-left">
-                          <div className={`font-semibold ${isSelected ? 'text-emerald-900' : 'text-gray-900'}`}>
-                            {window.label}
-                          </div>
-                          <div className="text-sm text-gray-500">{window.time}</div>
-                        </div>
-                      </div>
-                      {isSelected && <span className="text-emerald-600 text-sm font-medium">✓ Geselecteerd</span>}
-                    </button>
-                  )
-                })}
-              </div>
-              <div className="flex items-center justify-end">
-                <button
-                  type="button"
-                  onClick={applyTemplateToAllDays}
-                  disabled={!selectedDates.length || !selectedTimeWindows.length}
-                  className="px-4 py-2 rounded-xl border border-gray-300 bg-white text-sm font-semibold hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  Pas toe op alle dagen
-                </button>
-              </div>
-            </div>
-
-            {/* Per dag tijdsblokken (verplicht) */}
-            {selectedDates.length > 0 && (
-              <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 space-y-3">
-                <div>
-                  <div className="font-semibold text-blue-900">Tijdsblokken per dag *</div>
-                  <div className="text-xs text-gray-600">Selecteer minstens 1 tijdsblok per geselecteerde dag.</div>
-                </div>
-
-                <div className="space-y-2">
-                  {selectedDates.slice().sort().map((dateStr) => {
-                    const slots = perDayTimeWindows[dateStr] || []
-                    return (
-                      <div key={dateStr} className="bg-white border border-blue-100 rounded-lg p-3">
-                        <div className="font-medium text-gray-900 mb-2">
-                          {new Date(dateStr).toLocaleDateString('nl-BE')}
-                        </div>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                          {TIME_WINDOWS.map((window) => {
-                            const isSelected = slots.includes(window.value)
-                            return (
-                              <button
-                                key={window.value}
-                                type="button"
-                                onClick={() => togglePerDayTimeWindow(dateStr, window.value)}
-                                className={`flex items-center justify-between p-3 rounded-lg border-2 transition text-left ${
-                                  isSelected
-                                    ? 'bg-emerald-50 border-emerald-500 shadow-sm'
-                                    : 'bg-white border-gray-200 hover:border-emerald-300'
-                                }`}
-                              >
-                                <div>
-                                  <div className={`font-semibold ${isSelected ? 'text-emerald-900' : 'text-gray-900'}`}>
-                                    {window.label}
-                                  </div>
-                                  <div className="text-xs text-gray-500">{window.time}</div>
-                                </div>
-                                {isSelected && <div className="text-emerald-600 font-bold">✓</div>}
-                              </button>
-                            )
-                          })}
-                        </div>
-                        {slots.length === 0 && (
-                          <div className="mt-2 text-xs text-red-600">Selecteer minstens 1 blok voor deze dag.</div>
-                        )}
-                      </div>
-                    )
-                  })}
-                </div>
-              </div>
-            )}
 
             {/* Locatie */}
             <div className="text-xs text-gray-500 mb-2">
@@ -765,17 +591,7 @@ export default function NewBookingPage() {
                     • Dagen geselecteerd: <strong>{selectedDates.length}</strong>
                   </div>
                   <div>
-                    • <strong>
-                        Totaal aantal aanvragen:{' '}
-                        {selectedDates.reduce((sum, d) => sum + (perDayTimeWindows[d]?.length || 0), 0)}
-                      </strong>
-                  </div>
-                  <div className="space-y-1 text-xs text-gray-700">
-                    {selectedDates.slice().sort().map((d) => (
-                      <div key={d}>
-                        • {new Date(d).toLocaleDateString('nl-BE')}: {(perDayTimeWindows[d]?.length || 0)} blok(ken)
-                      </div>
-                    ))}
+                    • <strong>Totaal aantal aanvragen: {selectedDates.length}</strong>
                   </div>
                 </div>
               </div>
