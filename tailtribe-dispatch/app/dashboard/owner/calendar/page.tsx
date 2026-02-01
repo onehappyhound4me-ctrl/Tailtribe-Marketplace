@@ -164,111 +164,107 @@ export default function OwnerCalendarPage() {
               <div className="flex items-center justify-between">
                 <button
                   onClick={() => changeMonth(-1)}
-                  className="p-2 hover:bg-white/20 rounded-lg transition h-11 w-11 md:h-auto md:w-auto"
+                  className="p-2 hover:bg-white/20 rounded-lg transition"
                 >
-                  ← Vorige
+                  <span className="sm:hidden" aria-hidden>
+                    ←
+                  </span>
+                  <span className="hidden sm:inline">← Vorige</span>
                 </button>
-                <h2 className="text-2xl font-bold">
+                <h2 className="text-lg sm:text-2xl font-bold text-center flex-1 px-2 truncate">
                   {MONTHS[currentDate.getMonth()]} {currentDate.getFullYear()}
                 </h2>
                 <button
                   onClick={() => changeMonth(1)}
-                  className="p-2 hover:bg-white/20 rounded-lg transition h-11 w-11 md:h-auto md:w-auto"
+                  className="p-2 hover:bg-white/20 rounded-lg transition"
                 >
-                  Volgende →
+                  <span className="sm:hidden" aria-hidden>
+                    →
+                  </span>
+                  <span className="hidden sm:inline">Volgende →</span>
                 </button>
               </div>
             </div>
 
-            {/* Mobile: allow horizontal scroll for 7-column calendar */}
-            <div className="overflow-x-auto md:overflow-x-visible">
-              <div className="min-w-[720px] md:min-w-0">
-                {/* Weekdag headers */}
-                <div className="grid grid-cols-7 bg-gray-50 border-b">
-                  {WEEKDAYS.map((day) => (
+            {/* Weekdag headers */}
+            <div className="grid grid-cols-7 bg-gray-50 border-b">
+              {WEEKDAYS.map((day) => (
+                <div
+                  key={day}
+                  className="p-1.5 sm:p-4 text-center text-[11px] sm:text-base font-semibold text-gray-700 border-r last:border-r-0"
+                >
+                  {day}
+                </div>
+              ))}
+            </div>
+
+            {/* Kalender grid (no horizontal scroll on mobile) */}
+            <div className="grid grid-cols-7">
+              {days.map((date, index) => {
+                if (!date) {
+                  return (
                     <div
-                      key={day}
-                      className="p-2 md:p-4 text-center font-semibold text-gray-700 border-r last:border-r-0"
+                      key={`empty-${index}`}
+                      className="min-h-[72px] sm:min-h-[120px] bg-gray-50 border-r border-b last:border-r-0"
+                    />
+                  )
+                }
+
+                const dayBookings = getBookingsForDate(date)
+                const today = isToday(date)
+
+                return (
+                  <div
+                    key={date.toISOString()}
+                    className={`min-h-[72px] sm:min-h-[120px] border-r border-b last:border-r-0 p-1.5 sm:p-2 ${
+                      today ? 'bg-blue-50' : 'bg-white'
+                    } hover:bg-gray-50 transition`}
+                  >
+                    <div
+                      className={`text-xs sm:text-sm font-semibold mb-1.5 sm:mb-2 ${
+                        today
+                          ? 'text-blue-600 bg-blue-100 rounded-full w-6 h-6 sm:w-7 sm:h-7 flex items-center justify-center'
+                          : 'text-gray-700'
+                      }`}
                     >
-                      {day}
+                      {date.getDate()}
                     </div>
-                  ))}
-                </div>
 
-                {/* Kalender grid */}
-                <div className="grid grid-cols-7">
-                  {days.map((date, index) => {
-                    if (!date) {
-                      return (
-                        <div
-                          key={`empty-${index}`}
-                          className="min-h-[96px] md:min-h-[120px] bg-gray-50 border-r border-b last:border-r-0"
-                        />
-                      )
-                    }
+                    <div className="space-y-1">
+                      {dayBookings.map((booking) => {
+                        const serviceName =
+                          DISPATCH_SERVICES.find((service) => service.id === booking.service)?.name || booking.service
 
-                    const dayBookings = getBookingsForDate(date)
-                    const today = isToday(date)
-
-                    return (
-                      <div
-                        key={date.toISOString()}
-                        className={`min-h-[96px] md:min-h-[120px] border-r border-b last:border-r-0 p-2 ${
-                          today ? 'bg-blue-50' : 'bg-white'
-                        } hover:bg-gray-50 transition`}
-                      >
-                        <div className={`text-sm font-semibold mb-2 ${
-                          today 
-                            ? 'text-blue-600 bg-blue-100 rounded-full w-7 h-7 flex items-center justify-center' 
-                            : 'text-gray-700'
-                        }`}>
-                          {date.getDate()}
-                        </div>
-
-                        <div className="space-y-1">
-                          {dayBookings.map((booking) => {
-                            const serviceName =
-                              DISPATCH_SERVICES.find((service) => service.id === booking.service)
-                                ?.name || booking.service
-
-                            return (
-                              <div
-                                key={booking.id}
-                                onClick={() => {
-                                  setSelectedBooking(booking)
-                                  setShowBookingModal(true)
-                                }}
-                                className={`text-xs p-2 rounded-lg border-l-4 cursor-pointer hover:shadow-md transition ${
-                                  STATUS_COLORS[booking.status]
-                                }`}
-                                title={`Klik voor details: ${serviceName} - ${booking.petName}`}
-                              >
-                                <div className="font-semibold truncate">
-                                  {TIME_WINDOW_LABELS[booking.timeWindow]}
-                                </div>
-                                <div className="truncate text-[10px] opacity-80">
-                                  {booking.petName}
-                                  {booking.isRecurring && ' 🔄'}
-                                </div>
-                                {booking.caregiver && (
-                                  <div className="truncate text-[10px] font-medium mt-1">
-                                    👤 {booking.caregiver.firstName}
-                                  </div>
-                                )}
-                                {!booking.caregiver && booking.status === 'PENDING' && (
-                                  <div className="truncate text-[10px] text-yellow-700 mt-1">
-                                    ⏳ Wacht op toewijzing
-                                  </div>
-                                )}
-                              </div>
-                            )
-                          })}
-                        </div>
-                      </div>
-                    )
-                  })}
-                </div>
-              </div>
+                        return (
+                          <div
+                            key={booking.id}
+                            onClick={() => {
+                              setSelectedBooking(booking)
+                              setShowBookingModal(true)
+                            }}
+                            className={`text-[10px] sm:text-xs p-1.5 sm:p-2 rounded-lg border-l-4 cursor-pointer hover:shadow-md transition ${
+                              STATUS_COLORS[booking.status]
+                            }`}
+                            title={`Klik voor details: ${serviceName} - ${booking.petName}`}
+                          >
+                            <div className="font-semibold truncate">{TIME_WINDOW_LABELS[booking.timeWindow]}</div>
+                            <div className="truncate text-[10px] opacity-80">
+                              {booking.petName}
+                              {booking.isRecurring && ' 🔄'}
+                            </div>
+                            {booking.caregiver && (
+                              <div className="truncate text-[10px] font-medium mt-1">👤 {booking.caregiver.firstName}</div>
+                            )}
+                            {!booking.caregiver && booking.status === 'PENDING' && (
+                              <div className="truncate text-[10px] text-yellow-700 mt-1">⏳ Wacht op toewijzing</div>
+                            )}
+                          </div>
+                        )
+                      })}
+                    </div>
+                  </div>
+                )
+              })}
             </div>
           </div>
 
