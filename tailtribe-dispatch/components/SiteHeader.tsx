@@ -27,6 +27,7 @@ export function SiteHeader({ primaryCtaHref = '/boeken', primaryCtaLabel = 'Boek
   const mobileMenuToggleRef = useRef<HTMLButtonElement | null>(null)
   const mobileMenuCloseRef = useRef<HTMLButtonElement | null>(null)
   const prevMobileMenuOpen = useRef<boolean | null>(null)
+  const prevPathnameRef = useRef<string | null>(null)
   const pathname = usePathname()
   const isHome = pathname === '/'
   const [mounted, setMounted] = useState(false)
@@ -78,8 +79,17 @@ export function SiteHeader({ primaryCtaHref = '/boeken', primaryCtaLabel = 'Boek
 
   // Close menu after navigation (mobile Safari can drop link-clicks when we close inside onClick handlers).
   useEffect(() => {
-    if (!mobileMenuOpen) return
-    closeMobileMenu()
+    // Don't run on first mount.
+    if (prevPathnameRef.current === null) {
+      prevPathnameRef.current = pathname
+      return
+    }
+
+    const changed = prevPathnameRef.current !== pathname
+    prevPathnameRef.current = pathname
+    if (changed && mobileMenuOpen) {
+      closeMobileMenu()
+    }
   }, [pathname, mobileMenuOpen, closeMobileMenu])
 
   // Also close on hash navigation (e.g. "/#services").
