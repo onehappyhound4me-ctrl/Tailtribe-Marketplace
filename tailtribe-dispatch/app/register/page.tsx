@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { SiteHeader } from '@/components/SiteHeader'
 import { SiteFooter } from '@/components/SiteFooter'
+import { CaregiverApplicationForm } from '@/components/CaregiverApplicationForm'
 
 export default function RegisterPage() {
   const router = useRouter()
@@ -184,13 +185,15 @@ export default function RegisterPage() {
       <SiteHeader primaryCtaHref="/" primaryCtaLabel="Home" />
 
       <main className="container mx-auto px-4 py-12">
-        <div className="max-w-md mx-auto">
+        <div className={role === 'CAREGIVER' ? 'max-w-3xl mx-auto' : 'max-w-md mx-auto'}>
           <div className="bg-white rounded-2xl shadow-sm border border-black/5 p-8">
             <h1 className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-emerald-700 to-blue-700 mb-2">
-              Account aanmaken
+              {role === 'CAREGIVER' ? 'Aanmelden als dierenverzorger' : 'Account aanmaken'}
             </h1>
             <p className="text-gray-600 mb-6">
-              Maak een account aan als eigenaar of verzorger
+              {role === 'CAREGIVER'
+                ? 'Vul je gegevens in en selecteer de services die je aanbiedt. We nemen contact op voor de volgende stappen.'
+                : 'Maak een account aan als eigenaar.'}
             </p>
 
             {success && (
@@ -215,37 +218,39 @@ export default function RegisterPage() {
               </div>
             )}
 
-            <form onSubmit={handleSubmit} className="space-y-4">
-              {/* Role Selection */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Ik ben een:
-                </label>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  <button
-                    type="button"
-                    onClick={() => setRole('OWNER')}
-                    className={`px-4 py-3 rounded-xl border-2 font-semibold transition ${
-                      role === 'OWNER'
-                        ? 'border-emerald-600 bg-emerald-50 text-emerald-900'
-                        : 'border-gray-200 bg-white text-gray-700 hover:border-gray-300'
-                    }`}
-                  >
-                    Eigenaar
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setRole('CAREGIVER')}
-                    className={`px-4 py-3 rounded-xl border-2 font-semibold transition ${
-                      role === 'CAREGIVER'
-                        ? 'border-emerald-600 bg-emerald-50 text-emerald-900'
-                        : 'border-gray-200 bg-white text-gray-700 hover:border-gray-300'
-                    }`}
-                  >
-                    Verzorger
-                  </button>
-                </div>
+            {/* Role Selection */}
+            <div className="mb-6">
+              <label className="block text-sm font-medium text-gray-700 mb-2">Ik ben een:</label>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <button
+                  type="button"
+                  onClick={() => setRole('OWNER')}
+                  className={`px-4 py-3 rounded-xl border-2 font-semibold transition ${
+                    role === 'OWNER'
+                      ? 'border-emerald-600 bg-emerald-50 text-emerald-900'
+                      : 'border-gray-200 bg-white text-gray-700 hover:border-gray-300'
+                  }`}
+                >
+                  Eigenaar
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setRole('CAREGIVER')}
+                  className={`px-4 py-3 rounded-xl border-2 font-semibold transition ${
+                    role === 'CAREGIVER'
+                      ? 'border-emerald-600 bg-emerald-50 text-emerald-900'
+                      : 'border-gray-200 bg-white text-gray-700 hover:border-gray-300'
+                  }`}
+                >
+                  Verzorger
+                </button>
               </div>
+            </div>
+
+            {role === 'CAREGIVER' ? (
+              <CaregiverApplicationForm successRedirectTo="/verzorger-aanmelden/bedankt" />
+            ) : (
+              <form onSubmit={handleSubmit} className="space-y-4">
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 <div>
@@ -426,14 +431,11 @@ export default function RegisterPage() {
                 </label>
               </div>
 
-              <button
-                type="submit"
-                disabled={loading}
-                className="w-full btn-brand disabled:opacity-60"
-              >
-                {loading ? 'Account aanmaken...' : 'Account aanmaken'}
-              </button>
-            </form>
+                <button type="submit" disabled={loading} className="w-full btn-brand disabled:opacity-60">
+                  {loading ? 'Account aanmaken...' : 'Account aanmaken'}
+                </button>
+              </form>
+            )}
 
             {success && formData.email.trim() ? (
               <div className="mt-4 space-y-2">
