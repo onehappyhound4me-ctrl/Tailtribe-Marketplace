@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { usePathname } from 'next/navigation'
 import { useSession, signOut } from 'next-auth/react'
 import { createPortal } from 'react-dom'
@@ -63,7 +63,7 @@ export function SiteHeader({ primaryCtaHref = '/boeken', primaryCtaLabel = 'Boek
     }
     window.addEventListener('keydown', onKeyDown)
     return () => window.removeEventListener('keydown', onKeyDown)
-  }, [mobileMenuOpen])
+  }, [mobileMenuOpen, closeMobileMenu])
 
   useEffect(() => {
     setMounted(true)
@@ -88,7 +88,7 @@ export function SiteHeader({ primaryCtaHref = '/boeken', primaryCtaLabel = 'Boek
     const onHashChange = () => closeMobileMenu()
     window.addEventListener('hashchange', onHashChange)
     return () => window.removeEventListener('hashchange', onHashChange)
-  }, [mobileMenuOpen])
+  }, [mobileMenuOpen, closeMobileMenu])
 
   // Mobile-only UX: prevent background scroll when the mobile menu is open (important on iOS Safari).
   useEffect(() => {
