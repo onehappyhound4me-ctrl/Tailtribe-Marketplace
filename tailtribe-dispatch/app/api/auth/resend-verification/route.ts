@@ -66,8 +66,27 @@ export async function POST(req: NextRequest) {
 
   try {
     await sendVerificationEmail(email, token)
-  } catch {
-    return NextResponse.json({ error: 'Kon geen verificatiemail versturen. Probeer later opnieuw.' }, { status: 500 })
+  } catch (emailError) {
+    const detail =
+      emailError instanceof Error
+        ? emailError.message
+        : typeof emailError === 'string'
+          ? emailError
+          : (() => {
+              try {
+                return JSON.stringify(emailError)
+              } catch {
+                return String(emailError)
+              }
+            })()
+    return NextResponse.json(
+      {
+        error: 'Kon geen verificatiemail versturen. (code: EMAIL_SEND_FAILED)',
+        detail: String(detail).slice(0, 300),
+        hint: 'Controleer RESEND_API_KEY en DISPATCH_EMAIL_FROM (verified sender/domain).',
+      },
+      { status: 500 }
+    )
   }
 
   return NextResponse.json({ success: true, message: okMsg })

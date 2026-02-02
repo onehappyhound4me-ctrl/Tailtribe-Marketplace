@@ -53,6 +53,10 @@ export async function sendVerificationEmail(email: string, token: string) {
     subject,
     html,
     text,
+    meta: {
+      kind: 'verify-email',
+      url: verificationUrl,
+    },
     required: true,
   })
 }
