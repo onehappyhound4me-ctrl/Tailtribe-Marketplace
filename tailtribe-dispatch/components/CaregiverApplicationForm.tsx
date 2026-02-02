@@ -215,9 +215,6 @@ export function CaregiverApplicationForm({ successRedirectTo = '/verzorger-aanme
               <label htmlFor="hasLiabilityInsurance" className="text-sm font-medium text-gray-900">
                 Ik heb een BA-verzekering (burgerlijke aansprakelijkheid / beroepsaansprakelijkheid).
               </label>
-              <div className="text-sm text-gray-600 mt-1">
-                Een sleutelcontract is mogelijk. We kunnen ook een verzekeringsattest opvragen bij onboarding.
-              </div>
             </div>
           </div>
           {fieldErrors.hasLiabilityInsurance && <p className="text-sm text-red-700 mt-2">{fieldErrors.hasLiabilityInsurance}</p>}
