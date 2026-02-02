@@ -46,9 +46,8 @@ function isFreeMailboxDomain(email: string) {
 function randomId() {
   try {
     // Node 18+ supports crypto.randomUUID, but keep fallback safe.
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const anyCrypto = (globalThis as any).crypto
-    if (anyCrypto?.randomUUID) return anyCrypto.randomUUID()
+    const c = globalThis.crypto as unknown as { randomUUID?: () => string } | undefined
+    if (c?.randomUUID) return c.randomUUID()
   } catch {
     // ignore
   }

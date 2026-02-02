@@ -45,12 +45,12 @@ export function SiteHeader({ primaryCtaHref = '/boeken', primaryCtaLabel = 'Boek
     lockedScrollY.current = 0
   }
 
-  const closeMobileMenu = () => {
+  const closeMobileMenu = useCallback(() => {
     // Critical: unlock synchronously so iOS Safari can't get "stuck"
     // if navigation happens before React effects flush.
     unlockBodyScroll()
     setMobileMenuOpen(false)
-  }
+  }, [])
 
   const handleLogout = async () => {
     await signOut({ callbackUrl: '/', redirect: true })
@@ -80,8 +80,7 @@ export function SiteHeader({ primaryCtaHref = '/boeken', primaryCtaLabel = 'Boek
   useEffect(() => {
     if (!mobileMenuOpen) return
     closeMobileMenu()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pathname])
+  }, [pathname, mobileMenuOpen, closeMobileMenu])
 
   // Also close on hash navigation (e.g. "/#services").
   useEffect(() => {

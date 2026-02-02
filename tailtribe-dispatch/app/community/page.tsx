@@ -115,7 +115,7 @@ export default function CommunityPage() {
     } finally {
       setMessagesLoading(false)
     }
-  }, [activeRoom, lastMessageAt, messages.length])
+  }, [activeRoom, lastMessageAt])
 
   useEffect(() => {
     const handleVisibility = () => {
