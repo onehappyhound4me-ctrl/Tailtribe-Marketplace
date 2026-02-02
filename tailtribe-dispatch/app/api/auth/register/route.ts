@@ -156,13 +156,39 @@ export async function POST(request: NextRequest) {
       await sendVerificationEmail(emailNormalized, token)
     } catch (emailError) {
       console.error('Failed to send verification email:', emailError)
+      const detail =
+        emailError instanceof Error
+          ? emailError.message
+          : typeof emailError === 'string'
+            ? emailError
+            : (() => {
+                try {
+                  return JSON.stringify(emailError)
+                } catch {
+                  return String(emailError)
+                }
+              })()
       try {
         await prisma.user.delete({ where: { id: user.id } })
       } catch (cleanupError) {
         console.error('Failed to cleanup user after email send failure:', cleanupError)
       }
+      try {
+        ;(globalThis as any).__tt_last_verification_email_error = {
+          at: new Date().toISOString(),
+          email: emailNormalized,
+          detail: String(detail).slice(0, 2000),
+        }
+      } catch {
+        // ignore
+      }
       return NextResponse.json(
-        { error: 'Kon geen verificatiemail versturen. Probeer later opnieuw.' },
+        {
+          error: 'Kon geen verificatiemail versturen. (code: EMAIL_SEND_FAILED)',
+          // Keep it short + safe; helps debug live issues without digging in Vercel logs.
+          detail: String(detail).slice(0, 300),
+          hint: 'Controleer RESEND_API_KEY en DISPATCH_EMAIL_FROM (verified sender/domain).',
+        },
         { status: 500 }
       )
     }
