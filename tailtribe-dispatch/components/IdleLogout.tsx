@@ -56,10 +56,36 @@ export function IdleLogout() {
   useEffect(() => {
     if (!active) return
 
-    // Mark activity on login / tab open.
-    writeLastActivityMs(nowMs())
+    const signOutIfIdle = async () => {
+      if (stateRef.current.signingOut) return
+      const last = readLastActivityMs()
+      const now = nowMs()
+      // If we have a stored timestamp and it's too old: logout immediately.
+      if (last && now - last >= IDLE_MS) {
+        stateRef.current.signingOut = true
+        try {
+          await signOut({ callbackUrl: '/login' })
+        } finally {
+          stateRef.current.signingOut = false
+        }
+      }
+    }
 
-    const onActivity = () => {
+    // On login / tab open: if already idle (e.g. tab restored), logout; otherwise mark activity.
+    void (async () => {
+      const last = readLastActivityMs()
+      const now = nowMs()
+      if (last && now - last >= IDLE_MS) {
+        await signOutIfIdle()
+        return
+      }
+      writeLastActivityMs(now)
+      stateRef.current.lastWriteMs = now
+    })()
+
+    const onActivity = async () => {
+      await signOutIfIdle()
+      if (stateRef.current.signingOut) return
       const now = nowMs()
       if (now - stateRef.current.lastWriteMs < WRITE_THROTTLE_MS) return
       stateRef.current.lastWriteMs = now
@@ -74,7 +100,7 @@ export function IdleLogout() {
 
     const onVisibility = () => {
       if (document.visibilityState === 'visible') {
-        onActivity()
+        void onActivity()
       }
     }
 
@@ -83,17 +109,7 @@ export function IdleLogout() {
     document.addEventListener('visibilitychange', onVisibility)
 
     const id = window.setInterval(async () => {
-      if (stateRef.current.signingOut) return
-      const last = readLastActivityMs()
-      const now = nowMs()
-      if (last && now - last >= IDLE_MS) {
-        stateRef.current.signingOut = true
-        try {
-          await signOut({ callbackUrl: '/login' })
-        } finally {
-          stateRef.current.signingOut = false
-        }
-      }
+      await signOutIfIdle()
     }, CHECK_EVERY_MS)
 
     return () => {
