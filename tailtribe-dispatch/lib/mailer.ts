@@ -4,7 +4,9 @@ type SendEmailInput = {
   to: string
   subject: string
   html: string
+  text?: string
   replyTo?: string
+  headers?: Record<string, string>
   /**
    * If true, throw on any send failure (used for critical flows like email verification).
    * If false/omitted, log and return (best-effort).
@@ -12,7 +14,7 @@ type SendEmailInput = {
   required?: boolean
 }
 
-export async function sendTransactionalEmail({ to, subject, html, replyTo, required }: SendEmailInput) {
+export async function sendTransactionalEmail({ to, subject, html, text, replyTo, headers, required }: SendEmailInput) {
   const from = process.env.DISPATCH_EMAIL_FROM ?? 'TailTribe <noreply@tailtribe.be>'
   const finalReplyTo = replyTo ?? process.env.DISPATCH_EMAIL_REPLY_TO
   const resendKey = (process.env.RESEND_API_KEY ?? '').trim()
@@ -30,7 +32,9 @@ export async function sendTransactionalEmail({ to, subject, html, replyTo, requi
           to,
           subject,
           html,
+          ...(text ? { text } : {}),
           ...(finalReplyTo ? { reply_to: finalReplyTo } : {}),
+          ...(headers ? { headers } : {}),
         }),
         cache: 'no-store',
       })
@@ -87,6 +91,8 @@ export async function sendTransactionalEmail({ to, subject, html, replyTo, requi
       to,
       subject,
       html,
+      ...(text ? { text } : {}),
+      ...(headers ? { headers } : {}),
       ...(finalReplyTo ? { replyTo: finalReplyTo } : {}),
     })
   } catch (error) {

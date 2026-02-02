@@ -35,7 +35,11 @@ GOOGLE_CLIENT_SECRET=
 
 # Optioneel: email via Resend
 RESEND_API_KEY=
-EMAIL_FROM=noreply@tailtribe.be
+
+# Afzender (belangrijk voor deliverability, vooral Gmail):
+# Gebruik een verified domain/sender in Resend (SPF/DKIM).
+DISPATCH_EMAIL_FROM=TailTribe <noreply@tailtribe.be>
+DISPATCH_EMAIL_REPLY_TO=support@tailtribe.be
 ```
 
 ## Local iPhone testing (Google OAuth)

@@ -5,10 +5,25 @@ export async function sendVerificationEmail(email: string, token: string) {
     process.env.NEXT_PUBLIC_APP_URL ?? process.env.AUTH_URL ?? process.env.NEXTAUTH_URL ?? 'https://tailtribe.be'
   const verificationUrl = `${baseUrl}/api/auth/verify?token=${token}`
 
+  const subject = 'TailTribe: bevestig je e-mailadres'
+  const text = [
+    'Bevestig je e-mailadres voor TailTribe.',
+    '',
+    `Klik op deze link: ${verificationUrl}`,
+    '',
+    'Deze link is 24 uur geldig.',
+    'Heb je dit niet aangevraagd? Dan kan je deze e-mail negeren.',
+  ].join('\n')
+
   const html = `
     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-      <h1 style="color: #10b981;">Welkom bij TailTribe!</h1>
-      <p>Bedankt voor je registratie. Klik op de knop hieronder om je e-mailadres te verifiëren:</p>
+      <div style="display:none;max-height:0;overflow:hidden;opacity:0;color:transparent;">
+        Bevestig je e-mailadres voor TailTribe.
+      </div>
+      <h1 style="color: #10b981; margin: 0 0 8px 0;">Bevestig je e-mailadres</h1>
+      <p style="margin: 0 0 14px 0; color:#111827;">
+        Klik op de knop hieronder om je account te activeren.
+      </p>
       <div style="text-align: center; margin: 30px 0;">
         <a href="${verificationUrl}" 
            style="background: linear-gradient(to right, #10b981, #3b82f6); 
@@ -18,9 +33,15 @@ export async function sendVerificationEmail(email: string, token: string) {
                   border-radius: 25px; 
                   font-weight: bold;
                   display: inline-block;">
-          Verifieer E-mail
+          Bevestig e-mailadres
         </a>
       </div>
+      <p style="margin: 0 0 10px 0; color:#111827;">
+        Werkt de knop niet? Kopieer deze link in je browser:
+      </p>
+      <p style="margin: 0 0 18px 0; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size: 12px; word-break: break-all;">
+        <a href="${verificationUrl}" style="color:#2563eb; text-decoration: underline;">${verificationUrl}</a>
+      </p>
       <p style="color: #666; font-size: 12px; margin-top: 30px;">
         Deze link is 24 uur geldig. Als je dit niet hebt aangevraagd, negeer deze email dan.
       </p>
@@ -29,8 +50,9 @@ export async function sendVerificationEmail(email: string, token: string) {
 
   await sendTransactionalEmail({
     to: email,
-    subject: 'Verifieer je TailTribe account',
+    subject,
     html,
+    text,
     required: true,
   })
 }
