@@ -228,9 +228,29 @@ async function createApplication(rec: CaregiverApplicationRecord) {
     writeApplicationsToFile(apps)
     return
   }
-  await upstashCmd(['SET', `tt:caregiver_app:${rec.id}`, JSON.stringify(rec)])
-  await upstashCmd(['LPUSH', 'tt:caregiver_app:ids', rec.id])
-  await upstashCmd(['LTRIM', 'tt:caregiver_app:ids', 0, 200])
+  try {
+    await upstashCmd(['SET', `tt:caregiver_app:${rec.id}`, JSON.stringify(rec)])
+    await upstashCmd(['LPUSH', 'tt:caregiver_app:ids', rec.id])
+    await upstashCmd(['LTRIM', 'tt:caregiver_app:ids', 0, 200])
+    return
+  } catch (e) {
+    // Do not block submissions if Upstash is temporarily unreachable/misconfigured.
+    console.error(
+      JSON.stringify({
+        msg: 'caregiver_application.store_failed',
+        id: rec.id,
+        upstashEnabled: true,
+        detail: getErrorMessage(e),
+        ts: new Date().toISOString(),
+      })
+    )
+    if (e instanceof Error && e.stack) console.error(e.stack)
+  }
+
+  // Fallback: file storage (best-effort). In serverless this may not persist; still don't fail user.
+  const apps = readApplicationsFromFile()
+  apps.push(rec)
+  writeApplicationsToFile(apps)
 }
 
 export async function GET() {
@@ -239,20 +259,27 @@ export async function GET() {
       const apps = readApplicationsFromFile()
       return NextResponse.json(apps)
     }
-    const ids = (await upstashCmd<string[]>(['LRANGE', 'tt:caregiver_app:ids', 0, 200])) ?? []
-    if (ids.length === 0) return NextResponse.json([])
-    const keys = ids.map((id) => `tt:caregiver_app:${id}`)
-    const raws = (await upstashCmd<(string | null)[]>(['MGET', ...keys])) ?? []
-    const parsed: CaregiverApplicationRecord[] = []
-    for (const raw of raws) {
-      if (!raw) continue
-      try {
-        parsed.push(JSON.parse(raw))
-      } catch {
-        // ignore
+    try {
+      const ids = (await upstashCmd<string[]>(['LRANGE', 'tt:caregiver_app:ids', 0, 200])) ?? []
+      if (ids.length === 0) return NextResponse.json([])
+      const keys = ids.map((id) => `tt:caregiver_app:${id}`)
+      const raws = (await upstashCmd<(string | null)[]>(['MGET', ...keys])) ?? []
+      const parsed: CaregiverApplicationRecord[] = []
+      for (const raw of raws) {
+        if (!raw) continue
+        try {
+          parsed.push(JSON.parse(raw))
+        } catch {
+          // ignore
+        }
       }
+      return NextResponse.json(parsed)
+    } catch (e) {
+      console.error('Failed to fetch caregiver applications from Upstash:', e)
+      // Fallback (best-effort)
+      const apps = readApplicationsFromFile()
+      return NextResponse.json(apps)
     }
-    return NextResponse.json(parsed)
   } catch (e) {
     console.error('Failed to fetch caregiver applications:', e)
     return NextResponse.json({ error: 'Failed to fetch caregiver applications' }, { status: 500 })
@@ -421,7 +448,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ success: true, id })
   } catch (e) {
     const message = getErrorMessage(e)
-    const isUpstash = /upstash/i.test(message)
+    const isUpstash = /upstash/i.test(message) || hasUpstash()
     const detail = message
     const hint = isUpstash
       ? 'Upstash lijkt (gedeeltelijk) geconfigureerd maar faalt. Controleer UPSTASH_REDIS_REST_URL en UPSTASH_REDIS_REST_TOKEN in Vercel (Production).'
