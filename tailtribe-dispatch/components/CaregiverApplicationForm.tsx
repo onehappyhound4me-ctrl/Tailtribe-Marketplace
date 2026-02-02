@@ -15,6 +15,8 @@ export function CaregiverApplicationForm({ successRedirectTo = '/verzorger-aanme
   const router = useRouter()
   const [loading, setLoading] = useState(false)
   const [submitError, setSubmitError] = useState<string | null>(null)
+  const [errorDetail, setErrorDetail] = useState<string | null>(null)
+  const [errorHint, setErrorHint] = useState<string | null>(null)
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({})
 
   const [formData, setFormData] = useState({
@@ -51,6 +53,8 @@ export function CaregiverApplicationForm({ successRedirectTo = '/verzorger-aanme
     e.preventDefault()
     setLoading(true)
     setSubmitError(null)
+    setErrorDetail(null)
+    setErrorHint(null)
     setFieldErrors({})
 
     try {
@@ -72,6 +76,8 @@ export function CaregiverApplicationForm({ successRedirectTo = '/verzorger-aanme
         return
       }
       setSubmitError(data?.error || 'Er ging iets mis. Probeer opnieuw.')
+      setErrorDetail(typeof data?.detail === 'string' ? data.detail : null)
+      setErrorHint(typeof data?.hint === 'string' ? data.hint : null)
     } catch {
       setSubmitError('Er ging iets mis. Probeer opnieuw.')
     } finally {
@@ -83,7 +89,17 @@ export function CaregiverApplicationForm({ successRedirectTo = '/verzorger-aanme
     <>
       {submitError && (
         <div className="mb-6 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-red-800">
-          {submitError}
+          <div>{submitError}</div>
+          {errorDetail && (
+            <div className="mt-2 text-xs text-red-700 break-words">
+              <strong>Detail:</strong> {errorDetail}
+            </div>
+          )}
+          {errorHint && (
+            <div className="mt-2 text-xs text-red-700">
+              <strong>Tip:</strong> {errorHint}
+            </div>
+          )}
         </div>
       )}
 
@@ -277,6 +293,7 @@ export function CaregiverApplicationForm({ successRedirectTo = '/verzorger-aanme
             className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-brand"
             placeholder="Vertel kort over je ervaring, beschikbaarheid, en wat je aanbiedt…"
           />
+          <div className="mt-2 text-xs text-gray-600">Minstens 50 tekens.</div>
           {fieldErrors.experience && <p className="text-sm text-red-700 mt-2">{fieldErrors.experience}</p>}
         </div>
 

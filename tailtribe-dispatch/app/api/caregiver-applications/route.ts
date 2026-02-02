@@ -74,6 +74,24 @@ function normalizeEnterpriseOrVatNumber(input: string) {
   return digits ? `BE${digits}` : ''
 }
 
+function maskEmail(email: string) {
+  const e = String(email || '').trim()
+  const at = e.indexOf('@')
+  if (at <= 1) return '***'
+  const name = e.slice(0, at)
+  const domain = e.slice(at + 1)
+  return `${name.slice(0, 1)}***@${domain}`
+}
+
+function getErrorMessage(err: unknown) {
+  if (err instanceof Error) return err.message
+  try {
+    return JSON.stringify(err)
+  } catch {
+    return String(err)
+  }
+}
+
 function validate(body: any):
   | { ok: true; data: CaregiverApplicationInput }
   | { ok: false; fieldErrors: Record<string, string> } {
@@ -139,8 +157,8 @@ function validate(body: any):
   }
   data.services = validServices
 
-  if (!isNonEmptyString(data.experience) || data.experience.trim().length < 5) {
-    fieldErrors.experience = 'Geef een korte toelichting (minstens 5 tekens).'
+  if (!isNonEmptyString(data.experience) || data.experience.trim().length < 50) {
+    fieldErrors.experience = 'Geef een korte toelichting (minstens 50 tekens).'
   }
 
   if (!data.acceptTerms) {
@@ -165,7 +183,11 @@ async function upstashCmd<T = any>(cmd: any[]): Promise<T> {
     body: JSON.stringify(cmd),
     cache: 'no-store',
   })
-  if (!res.ok) throw new Error(`Upstash error ${res.status}`)
+  if (!res.ok) {
+    const text = await res.text().catch(() => '')
+    const snippet = text && text.length > 600 ? `${text.slice(0, 600)}…` : text
+    throw new Error(`Upstash error ${res.status}${snippet ? `: ${snippet}` : ''}`)
+  }
   const data = await res.json()
   return data?.result as T
 }
@@ -244,6 +266,7 @@ function formatServiceLabels(ids: string[]) {
 
 
 export async function POST(request: NextRequest) {
+  const requestId = `${Date.now()}-${Math.random().toString(16).slice(2, 8)}`
   try {
     const session = await auth()
     if (session?.user?.role === 'OWNER') {
@@ -276,6 +299,17 @@ export async function POST(request: NextRequest) {
       updatedAt: new Date().toISOString(),
     }
     delete (rec as any).website
+
+    console.info(
+      JSON.stringify({
+        msg: 'caregiver_application.submit',
+        requestId,
+        upstashEnabled: hasUpstash(),
+        email: maskEmail(rec.email),
+        servicesCount: rec.services?.length ?? 0,
+        ts: new Date().toISOString(),
+      })
+    )
 
     await createApplication(rec)
 
@@ -352,7 +386,29 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ success: true, id })
   } catch (e) {
-    return NextResponse.json({ error: 'Failed to submit application' }, { status: 500 })
+    const message = getErrorMessage(e)
+    const isUpstash = /upstash/i.test(message)
+    const detail = message
+    const hint = isUpstash
+      ? 'Upstash lijkt (gedeeltelijk) geconfigureerd maar faalt. Controleer UPSTASH_REDIS_REST_URL en UPSTASH_REDIS_REST_TOKEN in Vercel (Production).'
+      : 'Check Vercel logs voor requestId en error stack.'
+
+    console.error(
+      JSON.stringify({
+        msg: 'caregiver_application.submit_failed',
+        requestId,
+        detail,
+        ts: new Date().toISOString(),
+      })
+    )
+    if (e instanceof Error && e.stack) {
+      console.error(e.stack)
+    }
+
+    return NextResponse.json(
+      { error: 'Failed to submit application', code: 'CAREGIVER_APPLICATION_FAILED', requestId, detail, hint },
+      { status: 500 }
+    )
   }
 }
 
