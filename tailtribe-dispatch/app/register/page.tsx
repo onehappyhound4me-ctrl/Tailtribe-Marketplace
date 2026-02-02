@@ -25,6 +25,8 @@ export default function RegisterPage() {
     acceptTerms: false,
   })
   const [error, setError] = useState('')
+  const [errorDetail, setErrorDetail] = useState<string | null>(null)
+  const [errorHint, setErrorHint] = useState<string | null>(null)
   const [success, setSuccess] = useState('')
   const [loading, setLoading] = useState(false)
   const [resendLoading, setResendLoading] = useState(false)
@@ -70,6 +72,8 @@ export default function RegisterPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
+    setErrorDetail(null)
+    setErrorHint(null)
     debugLog('submit:start', {
       role,
       hasAddressFields: role === 'OWNER',
@@ -132,6 +136,8 @@ export default function RegisterPage() {
 
       if (!response.ok) {
         setError(data.error || 'Registratie mislukt')
+        setErrorDetail(typeof data?.detail === 'string' ? data.detail : null)
+        setErrorHint(typeof data?.hint === 'string' ? data.hint : null)
         setLoading(false)
         return
       }
@@ -148,6 +154,8 @@ export default function RegisterPage() {
 
   const resendVerification = async () => {
     setError('')
+    setErrorDetail(null)
+    setErrorHint(null)
     setResendLoading(true)
     try {
       const res = await fetch('/api/auth/resend-verification', {
@@ -158,6 +166,8 @@ export default function RegisterPage() {
       const data = await res.json().catch(() => ({}))
       if (!res.ok) {
         setError(data?.error ?? 'Kon geen e-mail opnieuw sturen. Probeer later opnieuw.')
+        setErrorDetail(typeof data?.detail === 'string' ? data.detail : null)
+        setErrorHint(typeof data?.hint === 'string' ? data.hint : null)
         setResendLoading(false)
         return
       }
@@ -191,7 +201,17 @@ export default function RegisterPage() {
 
             {error && (
               <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-800 text-sm">
-                {error}
+                <div>{error}</div>
+                {errorDetail && (
+                  <div className="mt-2 text-xs text-red-700 break-words">
+                    <strong>Detail:</strong> {errorDetail}
+                  </div>
+                )}
+                {errorHint && (
+                  <div className="mt-2 text-xs text-red-700">
+                    <strong>Tip:</strong> {errorHint}
+                  </div>
+                )}
               </div>
             )}
 
