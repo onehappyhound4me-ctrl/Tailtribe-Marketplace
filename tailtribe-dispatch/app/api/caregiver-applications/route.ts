@@ -316,10 +316,14 @@ export async function POST(request: NextRequest) {
     const adminEmail = process.env.DISPATCH_ADMIN_EMAIL ?? 'steven@tailtribe.be'
     const services = formatServiceLabels(rec.services)
 
-    void sendTransactionalEmail({
-      to: adminEmail,
-      subject: `Nieuwe aanmelding verzorger – ${rec.firstName} ${rec.lastName}`,
-      html: `
+    // Email sending should never block the application submission.
+    // If email is not configured (or fails), log it and still return success to the user.
+    void (async () => {
+      try {
+        await sendTransactionalEmail({
+          to: adminEmail,
+          subject: `Nieuwe aanmelding verzorger – ${rec.firstName} ${rec.lastName}`,
+          html: `
         <div style="font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; line-height: 1.5; color: #111827;">
           <h2 style="margin: 0 0 12px 0;">Nieuwe aanmelding dierenverzorger</h2>
           <p style="margin: 0 0 12px 0;"><strong>${rec.firstName} ${rec.lastName}</strong> heeft een aanmelding ingediend.</p>
@@ -368,21 +372,51 @@ export async function POST(request: NextRequest) {
           }
         </div>
       `,
-      replyTo: rec.email,
-    })
+          replyTo: rec.email,
+        })
+      } catch (e) {
+        console.error(
+          JSON.stringify({
+            msg: 'caregiver_application.email_failed',
+            requestId,
+            kind: 'admin',
+            to: maskEmail(adminEmail),
+            detail: getErrorMessage(e),
+            ts: new Date().toISOString(),
+          })
+        )
+        if (e instanceof Error && e.stack) console.error(e.stack)
+      }
+    })()
 
-    void sendTransactionalEmail({
-      to: rec.email,
-      subject: 'Aanmelding ontvangen – TailTribe',
-      html: `
+    void (async () => {
+      try {
+        await sendTransactionalEmail({
+          to: rec.email,
+          subject: 'Aanmelding ontvangen – TailTribe',
+          html: `
         <div style="font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; line-height: 1.5; color: #111827;">
           <h2 style="margin: 0 0 12px 0;">We hebben je aanmelding ontvangen</h2>
           <p style="margin: 0 0 12px 0;">Hoi ${rec.firstName},</p>
           <p style="margin: 0 0 12px 0;">Bedankt voor je aanmelding als dierenverzorger. We nemen contact met je op zodra we je aanmelding bekeken hebben.</p>
           <p style="margin: 16px 0 0 0;">Met vriendelijke groet,<br/>TailTribe</p>
         </div>
-      `,
-    })
+          `,
+        })
+      } catch (e) {
+        console.error(
+          JSON.stringify({
+            msg: 'caregiver_application.email_failed',
+            requestId,
+            kind: 'applicant',
+            to: maskEmail(rec.email),
+            detail: getErrorMessage(e),
+            ts: new Date().toISOString(),
+          })
+        )
+        if (e instanceof Error && e.stack) console.error(e.stack)
+      }
+    })()
 
     return NextResponse.json({ success: true, id })
   } catch (e) {
