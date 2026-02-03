@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef } from 'react'
 import { signOut, useSession } from 'next-auth/react'
 
 const STORAGE_KEY = 'tt_last_activity_ms'
+const COOKIE_KEY = 'tt_last_activity_ms'
 const IDLE_MS = 30 * 60 * 1000 // 30 minutes
 const CHECK_EVERY_MS = 30 * 1000
 const WRITE_THROTTLE_MS = 15 * 1000
@@ -12,14 +13,45 @@ function nowMs() {
   return Date.now()
 }
 
-function readLastActivityMs(): number {
+function readCookieMs(): number {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY)
-    const n = raw ? Number(raw) : NaN
-    return Number.isFinite(n) ? n : 0
+    const parts = String(document.cookie || '').split(';')
+    for (const part of parts) {
+      const [k, ...rest] = part.trim().split('=')
+      if (k !== COOKIE_KEY) continue
+      const raw = decodeURIComponent(rest.join('=') || '')
+      const n = raw ? Number(raw) : NaN
+      return Number.isFinite(n) ? n : 0
+    }
+    return 0
   } catch {
     return 0
   }
+}
+
+function writeCookieMs(ms: number) {
+  try {
+    // Persist long enough to cover "close browser, come back later".
+    const maxAgeSeconds = 60 * 60 * 24 * 30 // 30 days
+    document.cookie = `${COOKIE_KEY}=${encodeURIComponent(String(ms))}; Max-Age=${maxAgeSeconds}; Path=/; SameSite=Lax`
+  } catch {
+    // ignore
+  }
+}
+
+function readLastActivityMs(): number {
+  // Prefer the freshest timestamp between localStorage and cookie.
+  // Cookie fallback is important for browsers/environments where localStorage can be blocked/cleared.
+  let ls = 0
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY)
+    const n = raw ? Number(raw) : NaN
+    ls = Number.isFinite(n) ? n : 0
+  } catch {
+    ls = 0
+  }
+  const ck = readCookieMs()
+  return Math.max(ls, ck)
 }
 
 function writeLastActivityMs(ms: number) {
@@ -28,6 +60,7 @@ function writeLastActivityMs(ms: number) {
   } catch {
     // ignore
   }
+  writeCookieMs(ms)
 }
 
 export function IdleLogout() {
@@ -60,6 +93,12 @@ export function IdleLogout() {
       if (stateRef.current.signingOut) return
       const last = readLastActivityMs()
       const now = nowMs()
+      // If system clock moved backwards, treat as "active now".
+      if (last && now < last) {
+        writeLastActivityMs(now)
+        stateRef.current.lastWriteMs = now
+        return
+      }
       // If we have a stored timestamp and it's too old: logout immediately.
       if (last && now - last >= IDLE_MS) {
         stateRef.current.signingOut = true
@@ -107,6 +146,8 @@ export function IdleLogout() {
     activityEvents.forEach((evt) => window.addEventListener(evt, onActivity, { passive: true }))
     window.addEventListener('storage', onStorage)
     document.addEventListener('visibilitychange', onVisibility)
+    window.addEventListener('focus', onActivity)
+    window.addEventListener('pageshow', onActivity)
 
     const id = window.setInterval(async () => {
       await signOutIfIdle()
@@ -117,6 +158,8 @@ export function IdleLogout() {
       activityEvents.forEach((evt) => window.removeEventListener(evt, onActivity))
       window.removeEventListener('storage', onStorage)
       document.removeEventListener('visibilitychange', onVisibility)
+      window.removeEventListener('focus', onActivity)
+      window.removeEventListener('pageshow', onActivity)
     }
   }, [active, activityEvents])
 
