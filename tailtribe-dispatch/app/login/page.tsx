@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { signIn, useSession } from 'next-auth/react'
+import { signIn, signOut, useSession } from 'next-auth/react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { SiteHeader } from '@/components/SiteHeader'
@@ -16,7 +16,10 @@ export default function LoginPage() {
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
   const [googleEnabled, setGoogleEnabled] = useState<boolean | null>(null)
-  
+
+  const debug = searchParams.get('debug') === '1'
+  const switchMode = searchParams.get('switch') === '1'
+
   const verified = searchParams.get('verified')
   const errorParam = searchParams.get('error')
   const oauthErrorMessage = errorParam
@@ -59,15 +62,23 @@ export default function LoginPage() {
   }, [])
 
   useEffect(() => {
-    if (status === 'authenticated' && session?.user) {
+    // Default behavior: authenticated users go straight to the dashboard.
+    // Switch mode: stay on /login so the user can log out and sign in with another account (mobile-friendly).
+    if (!switchMode && status === 'authenticated' && session?.user) {
       router.replace(callbackUrl)
     }
-  }, [status, session, callbackUrl, router])
+  }, [status, session, callbackUrl, router, switchMode])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
     setLoading(true)
+
+    if (status === 'authenticated') {
+      setError('Je bent al ingelogd. Klik eerst op uitloggen om met een ander account in te loggen.')
+      setLoading(false)
+      return
+    }
 
     try {
       const result = await signIn('credentials', {
@@ -78,7 +89,11 @@ export default function LoginPage() {
       })
 
       if (result?.error) {
-        setError('Ongeldig e-mailadres of wachtwoord')
+        if (debug) {
+          setError(`Inloggen mislukt (${result.error}). Controleer je e-mailadres en wachtwoord.`)
+        } else {
+          setError('Ongeldig e-mailadres of wachtwoord')
+        }
         setLoading(false)
         return
       }
@@ -140,6 +155,30 @@ export default function LoginPage() {
             <p className="text-gray-600 mb-6">
               Log in om je dashboard te bekijken
             </p>
+
+            {status === 'authenticated' && session?.user && switchMode && (
+              <div className="mb-4 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+                <div className="font-semibold">Je bent nog ingelogd.</div>
+                <div className="mt-1">
+                  Rol: <strong>{(session.user as any)?.role ?? 'onbekend'}</strong>
+                </div>
+                <div className="mt-3 flex flex-col sm:flex-row gap-2">
+                  <button
+                    type="button"
+                    onClick={() => signOut({ callbackUrl: '/login?switch=1' })}
+                    className="btn-brand"
+                  >
+                    Uitloggen en opnieuw inloggen
+                  </button>
+                  <Link
+                    href="/logout"
+                    className="inline-flex items-center justify-center px-6 py-2.5 rounded-full border border-amber-300 text-amber-900 font-semibold hover:bg-amber-100"
+                  >
+                    Naar uitloggen
+                  </Link>
+                </div>
+              </div>
+            )}
 
             {verified && (
               <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-lg text-green-800 text-sm">
@@ -246,6 +285,14 @@ export default function LoginPage() {
               <Link href="/register" className="text-emerald-700 font-semibold hover:underline">
                 Registreren
               </Link>
+            </div>
+
+            <div className="mt-4 text-center text-xs text-gray-500">
+              Problemen om van account te wisselen? Gebruik{' '}
+              <Link href="/login?switch=1" className="text-emerald-700 font-semibold hover:underline">
+                /login?switch=1
+              </Link>
+              .
             </div>
           </div>
         </div>
