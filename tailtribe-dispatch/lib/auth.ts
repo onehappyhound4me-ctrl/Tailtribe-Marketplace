@@ -7,9 +7,21 @@ import { applyAuthBaseUrlEnv } from './auth-base-url'
 
 const normalizeEmail = (value?: string | null) => String(value ?? '').trim().toLowerCase()
 
+function normalizeEnvValue(value?: string | null) {
+  const v = String(value ?? '').trim()
+  if (!v) return ''
+  const first = v[0]
+  const last = v[v.length - 1]
+  // Common mistake: pasting env vars with quotes in Vercel (quotes become part of the value).
+  if ((first === '"' && last === '"') || (first === "'" && last === "'") || (first === '`' && last === '`')) {
+    return v.slice(1, -1).trim()
+  }
+  return v
+}
+
 function getEnvAdminCredentials() {
-  const email = normalizeEmail(process.env.ADMIN_LOGIN_EMAIL)
-  const password = String(process.env.ADMIN_LOGIN_PASSWORD ?? '').trim()
+  const email = normalizeEmail(normalizeEnvValue(process.env.ADMIN_LOGIN_EMAIL))
+  const password = normalizeEnvValue(process.env.ADMIN_LOGIN_PASSWORD)
   if (!email || !password) return null
   return { email, password }
 }
@@ -120,17 +132,26 @@ function buildAuth() {
           // Emergency/admin login via env vars (works in every environment).
           // This avoids DB/email verification bootstrapping issues.
           const envAdmin = getEnvAdminCredentials()
-          if (
-            envAdmin &&
-            normalizeEmail(credentials.email as string) === envAdmin.email &&
-            String(credentials.password ?? '').trim() === envAdmin.password
-          ) {
-            return {
-              id: 'env-admin',
-              email: envAdmin.email,
-              name: 'Admin',
-              role: 'ADMIN',
+          try {
+            const emailAttempt = normalizeEmail(credentials.email as string)
+            const passAttempt = String(credentials.password ?? '').trim()
+            if (envAdmin && emailAttempt === envAdmin.email) {
+              if (passAttempt === envAdmin.password) {
+                return {
+                  id: 'env-admin',
+                  email: envAdmin.email,
+                  name: 'Admin',
+                  role: 'ADMIN',
+                }
+              }
+              // eslint-disable-next-line no-console
+              console.warn('[auth] env-admin password mismatch', { email: envAdmin.email })
+            } else if (envAdmin) {
+              // eslint-disable-next-line no-console
+              console.info('[auth] env-admin configured (email mismatch)', { attempted: Boolean(emailAttempt) })
             }
+          } catch {
+            // ignore
           }
 
           const user = await prisma.user.findUnique({

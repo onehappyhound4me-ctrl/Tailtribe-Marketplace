@@ -5,13 +5,12 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { SiteHeader } from '@/components/SiteHeader'
 import { SiteFooter } from '@/components/SiteFooter'
-import { CaregiverApplicationForm } from '@/components/CaregiverApplicationForm'
 
 export default function RegisterPage() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const debug = useMemo(() => searchParams.get('debug') === '1', [searchParams])
-  const [role, setRole] = useState<'OWNER' | 'CAREGIVER'>('OWNER')
+  const role = 'OWNER'
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -77,7 +76,7 @@ export default function RegisterPage() {
     setErrorHint(null)
     debugLog('submit:start', {
       role,
-      hasAddressFields: role === 'OWNER',
+      hasAddressFields: true,
     })
 
     if (formData.password !== formData.confirmPassword) {
@@ -92,17 +91,15 @@ export default function RegisterPage() {
       return
     }
 
-    if (role === 'OWNER') {
-      if (!formData.address.trim() || !formData.city.trim() || !formData.postalCode.trim()) {
-        setError('Vul je volledige thuisadres in')
-        debugLog('submit:blocked', { reason: 'missing_address_fields' })
-        return
-      }
-      if (!/^\d{4}$/.test(formData.postalCode.trim())) {
-        setError('Vul een geldige Belgische postcode (4 cijfers) in')
-        debugLog('submit:blocked', { reason: 'invalid_postal_code' })
-        return
-      }
+    if (!formData.address.trim() || !formData.city.trim() || !formData.postalCode.trim()) {
+      setError('Vul je volledige thuisadres in')
+      debugLog('submit:blocked', { reason: 'missing_address_fields' })
+      return
+    }
+    if (!/^\d{4}$/.test(formData.postalCode.trim())) {
+      setError('Vul een geldige Belgische postcode (4 cijfers) in')
+      debugLog('submit:blocked', { reason: 'invalid_postal_code' })
+      return
     }
 
     if (!formData.acceptTerms) {
@@ -185,15 +182,13 @@ export default function RegisterPage() {
       <SiteHeader primaryCtaHref="/" primaryCtaLabel="Home" />
 
       <main className="container mx-auto px-4 py-12">
-        <div className={role === 'CAREGIVER' ? 'max-w-3xl mx-auto' : 'max-w-md mx-auto'}>
+        <div className="max-w-md mx-auto">
           <div className="bg-white rounded-2xl shadow-sm border border-black/5 p-8">
             <h1 className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-emerald-700 to-blue-700 mb-2">
-              {role === 'CAREGIVER' ? 'Aanmelden als dierenverzorger' : 'Account aanmaken'}
+              Account aanmaken
             </h1>
             <p className="text-gray-600 mb-6">
-              {role === 'CAREGIVER'
-                ? 'Vul je gegevens in en selecteer de services die je aanbiedt. We nemen contact op voor de volgende stappen.'
-                : 'Maak een account aan als eigenaar.'}
+              Maak een account aan als eigenaar.
             </p>
 
             {success && (
@@ -218,39 +213,15 @@ export default function RegisterPage() {
               </div>
             )}
 
-            {/* Role Selection */}
-            <div className="mb-6">
-              <label className="block text-sm font-medium text-gray-700 mb-2">Ik ben een:</label>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                <button
-                  type="button"
-                  onClick={() => setRole('OWNER')}
-                  className={`px-4 py-3 rounded-xl border-2 font-semibold transition ${
-                    role === 'OWNER'
-                      ? 'border-emerald-600 bg-emerald-50 text-emerald-900'
-                      : 'border-gray-200 bg-white text-gray-700 hover:border-gray-300'
-                  }`}
-                >
-                  Eigenaar
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setRole('CAREGIVER')}
-                  className={`px-4 py-3 rounded-xl border-2 font-semibold transition ${
-                    role === 'CAREGIVER'
-                      ? 'border-emerald-600 bg-emerald-50 text-emerald-900'
-                      : 'border-gray-200 bg-white text-gray-700 hover:border-gray-300'
-                  }`}
-                >
-                  Verzorger
-                </button>
-              </div>
+            <div className="mb-6 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-900">
+              Wil je je aanmelden als dierenverzorger? Ga naar{' '}
+              <Link href="/verzorger-aanmelden" className="font-semibold underline underline-offset-2">
+                Word dierenoppas
+              </Link>
+              .
             </div>
 
-            {role === 'CAREGIVER' ? (
-              <CaregiverApplicationForm successRedirectTo="/verzorger-aanmelden/bedankt" />
-            ) : (
-              <form onSubmit={handleSubmit} className="space-y-4">
+            <form onSubmit={handleSubmit} className="space-y-4">
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 <div>
@@ -320,63 +291,59 @@ export default function RegisterPage() {
                 />
               </div>
 
-              {role === 'OWNER' && (
-                <>
-                  <div>
-                    <label htmlFor="homeLine" className="block text-sm font-medium text-gray-700 mb-1">
-                      Thuisadres *
-                    </label>
-                    <input
-                      id="homeLine"
-                      name="homeLine"
-                      type="text"
-                      value={formData.address}
-                      onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-                      required
-                      autoComplete="off"
-                      className="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
-                      onFocus={onFocusDebug('homeLine')}
-                    />
-                  </div>
+              <div>
+                <label htmlFor="homeLine" className="block text-sm font-medium text-gray-700 mb-1">
+                  Thuisadres *
+                </label>
+                <input
+                  id="homeLine"
+                  name="homeLine"
+                  type="text"
+                  value={formData.address}
+                  onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+                  required
+                  autoComplete="off"
+                  className="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                  onFocus={onFocusDebug('homeLine')}
+                />
+              </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                    <div>
-                      <label htmlFor="homeCity" className="block text-sm font-medium text-gray-700 mb-1">
-                        Stad / gemeente *
-                      </label>
-                      <input
-                        id="homeCity"
-                        name="homeCity"
-                        type="text"
-                        value={formData.city}
-                        onChange={(e) => setFormData({ ...formData, city: e.target.value })}
-                        required
-                        autoComplete="off"
-                        className="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
-                        onFocus={onFocusDebug('homeCity')}
-                      />
-                    </div>
-                    <div>
-                      <label htmlFor="homePostal" className="block text-sm font-medium text-gray-700 mb-1">
-                        Postcode *
-                      </label>
-                      <input
-                        id="homePostal"
-                        name="homePostal"
-                        type="text"
-                        value={formData.postalCode}
-                        onChange={(e) => setFormData({ ...formData, postalCode: e.target.value })}
-                        required
-                        maxLength={4}
-                        inputMode="numeric"
-                        autoComplete="off"
-                        className="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
-                        onFocus={onFocusDebug('homePostal')}
-                      />
-                    </div>
-                  </div>
-                </>
-              )}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div>
+                  <label htmlFor="homeCity" className="block text-sm font-medium text-gray-700 mb-1">
+                    Stad / gemeente *
+                  </label>
+                  <input
+                    id="homeCity"
+                    name="homeCity"
+                    type="text"
+                    value={formData.city}
+                    onChange={(e) => setFormData({ ...formData, city: e.target.value })}
+                    required
+                    autoComplete="off"
+                    className="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                    onFocus={onFocusDebug('homeCity')}
+                  />
+                </div>
+                <div>
+                  <label htmlFor="homePostal" className="block text-sm font-medium text-gray-700 mb-1">
+                    Postcode *
+                  </label>
+                  <input
+                    id="homePostal"
+                    name="homePostal"
+                    type="text"
+                    value={formData.postalCode}
+                    onChange={(e) => setFormData({ ...formData, postalCode: e.target.value })}
+                    required
+                    maxLength={4}
+                    inputMode="numeric"
+                    autoComplete="off"
+                    className="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                    onFocus={onFocusDebug('homePostal')}
+                  />
+                </div>
+              </div>
 
               <div>
                 <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
@@ -434,8 +401,7 @@ export default function RegisterPage() {
                 <button type="submit" disabled={loading} className="w-full btn-brand disabled:opacity-60">
                   {loading ? 'Account aanmaken...' : 'Account aanmaken'}
                 </button>
-              </form>
-            )}
+            </form>
 
             {success && formData.email.trim() ? (
               <div className="mt-4 space-y-2">
