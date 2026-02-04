@@ -1,13 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { DISPATCH_SERVICES } from '@/lib/services'
 import { auth } from '@/lib/auth'
-import fs from 'fs'
-import path from 'path'
+import prisma from '@/lib/prisma'
 import { sendTransactionalEmail } from '@/lib/mailer'
 
 export const dynamic = 'force-dynamic'
+export const runtime = 'nodejs'
 
-const DATA_FILE = path.join(process.cwd(), 'data', 'caregiver-applications.json')
+const PENDING_ROLE = 'PENDING_CAREGIVER'
 
 type CaregiverApplicationInput = {
   firstName: string
@@ -169,98 +169,118 @@ function validate(body: any):
   return { ok: true, data }
 }
 
-async function upstashCmd<T = any>(cmd: any[]): Promise<T> {
-  const url = process.env.UPSTASH_REDIS_REST_URL
-  const token = process.env.UPSTASH_REDIS_REST_TOKEN
-  if (!url || !token) throw new Error('Upstash not configured')
+function parseJsonArray(raw: string | null | undefined): string[] {
+  try {
+    const parsed = JSON.parse(raw || '[]')
+    return Array.isArray(parsed) ? parsed.map((x) => String(x)) : []
+  } catch {
+    return []
+  }
+}
 
-  const res = await fetch(url, {
-    method: 'POST',
-    headers: {
-      Authorization: `Bearer ${token}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(cmd),
-    cache: 'no-store',
+async function upsertPendingApplication(rec: CaregiverApplicationRecord): Promise<string> {
+  const email = String(rec.email || '').trim().toLowerCase()
+  if (!email) throw new Error('Missing email')
+
+  const existing = await prisma.user.findUnique({
+    where: { email },
+    include: { caregiverProfile: true },
   })
-  if (!res.ok) {
-    const text = await res.text().catch(() => '')
-    const snippet = text && text.length > 600 ? `${text.slice(0, 600)}…` : text
-    throw new Error(`Upstash error ${res.status}${snippet ? `: ${snippet}` : ''}`)
-  }
-  const data = await res.json()
-  return data?.result as T
-}
 
-function hasUpstash() {
-  return Boolean(process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN)
-}
-
-function isProduction() {
-  return process.env.NODE_ENV === 'production'
-}
-
-function readApplicationsFromFile(): CaregiverApplicationRecord[] {
-  try {
-    if (fs.existsSync(DATA_FILE)) {
-      const raw = fs.readFileSync(DATA_FILE, 'utf-8')
-      const parsed = JSON.parse(raw)
-      return Array.isArray(parsed) ? parsed : []
-    }
-  } catch (e) {
-    console.error('Failed to read caregiver applications file:', e)
-  }
-  return []
-}
-
-function writeApplicationsToFile(apps: CaregiverApplicationRecord[]) {
-  try {
-    const dir = path.dirname(DATA_FILE)
-    if (!fs.existsSync(dir)) {
-      fs.mkdirSync(dir, { recursive: true })
-    }
-    fs.writeFileSync(DATA_FILE, JSON.stringify(apps, null, 2), 'utf-8')
-  } catch (e) {
-    console.error('Failed to write caregiver applications file:', e)
-  }
-}
-
-async function createApplication(rec: CaregiverApplicationRecord) {
-  if (!hasUpstash()) {
-    if (isProduction()) {
-      throw new Error('Caregiver applications storage not configured. Missing UPSTASH_REDIS_REST_URL/UPSTASH_REDIS_REST_TOKEN.')
-    }
-    const apps = readApplicationsFromFile()
-    apps.push(rec)
-    writeApplicationsToFile(apps)
-    return
-  }
-  try {
-    await upstashCmd(['SET', `tt:caregiver_app:${rec.id}`, JSON.stringify(rec)])
-    await upstashCmd(['LPUSH', 'tt:caregiver_app:ids', rec.id])
-    await upstashCmd(['LTRIM', 'tt:caregiver_app:ids', 0, 200])
-    return
-  } catch (e) {
-    console.error(
-      JSON.stringify({
-        msg: 'caregiver_application.store_failed',
-        id: rec.id,
-        upstashEnabled: true,
-        detail: getErrorMessage(e),
-        ts: new Date().toISOString(),
-      })
-    )
-    if (e instanceof Error && e.stack) console.error(e.stack)
-
-    if (isProduction()) {
-      throw e
-    }
+  if (existing && (existing.role === 'OWNER' || existing.role === 'ADMIN')) {
+    throw new Error('Email bestaat al als ander type gebruiker (geen verzorger).')
   }
 
-  // Dev fallback: file storage (best-effort). In serverless this may not persist; in production we fail above.
-  const apps = readApplicationsFromFile()
-  apps.push(rec)
-  writeApplicationsToFile(apps)
+  if (existing?.caregiverProfile?.isApproved) {
+    throw new Error('Je hebt al een verzorgersaccount. Gebruik je dashboard om je profiel te beheren.')
+  }
+
+  const servicesJson = JSON.stringify(Array.isArray(rec.services) ? rec.services : [])
+  const workRegionsJson = JSON.stringify([])
+
+  if (!existing) {
+    const created = await prisma.user.create({
+      data: {
+        email,
+        role: PENDING_ROLE,
+        firstName: String(rec.firstName ?? '').trim() || 'Verzorger',
+        lastName: String(rec.lastName ?? '').trim() || '',
+        phone: String(rec.phone ?? '').trim() || null,
+        caregiverProfile: {
+          create: {
+            city: String(rec.city ?? '').trim(),
+            postalCode: String(rec.postalCode ?? '').trim(),
+            region: null,
+            workRegions: workRegionsJson,
+            companyName: String(rec.companyName ?? '').trim() || null,
+            enterpriseNumber: String(rec.enterpriseNumber ?? '').trim() || null,
+            isSelfEmployed: Boolean(rec.isSelfEmployed),
+            hasLiabilityInsurance: Boolean(rec.hasLiabilityInsurance),
+            liabilityInsuranceCompany: String(rec.liabilityInsuranceCompany ?? '').trim() || null,
+            liabilityInsurancePolicyNumber: String(rec.liabilityInsurancePolicyNumber ?? '').trim() || null,
+            services: servicesJson,
+            experience: String(rec.experience ?? '').trim(),
+            bio: String(rec.message ?? '').trim() || null,
+            isApproved: false,
+            isActive: false,
+          },
+        },
+      },
+      select: { id: true },
+    })
+    return created.id
+  }
+
+  // Existing pending caregiver: update details & ensure profile exists.
+  const updated = await prisma.user.update({
+    where: { id: existing.id },
+    data: {
+      role: existing.role === 'CAREGIVER' ? 'CAREGIVER' : PENDING_ROLE,
+      firstName: String(rec.firstName ?? '').trim() || existing.firstName,
+      lastName: String(rec.lastName ?? '').trim() || existing.lastName,
+      phone: String(rec.phone ?? '').trim() || existing.phone,
+      caregiverProfile: existing.caregiverProfile
+        ? {
+            update: {
+              city: String(rec.city ?? '').trim(),
+              postalCode: String(rec.postalCode ?? '').trim(),
+              companyName: String(rec.companyName ?? '').trim() || null,
+              enterpriseNumber: String(rec.enterpriseNumber ?? '').trim() || null,
+              isSelfEmployed: Boolean(rec.isSelfEmployed),
+              hasLiabilityInsurance: Boolean(rec.hasLiabilityInsurance),
+              liabilityInsuranceCompany: String(rec.liabilityInsuranceCompany ?? '').trim() || null,
+              liabilityInsurancePolicyNumber: String(rec.liabilityInsurancePolicyNumber ?? '').trim() || null,
+              services: servicesJson,
+              experience: String(rec.experience ?? '').trim(),
+              bio: String(rec.message ?? '').trim() || null,
+              isApproved: false,
+              isActive: false,
+            },
+          }
+        : {
+            create: {
+              city: String(rec.city ?? '').trim(),
+              postalCode: String(rec.postalCode ?? '').trim(),
+              region: null,
+              workRegions: workRegionsJson,
+              companyName: String(rec.companyName ?? '').trim() || null,
+              enterpriseNumber: String(rec.enterpriseNumber ?? '').trim() || null,
+              isSelfEmployed: Boolean(rec.isSelfEmployed),
+              hasLiabilityInsurance: Boolean(rec.hasLiabilityInsurance),
+              liabilityInsuranceCompany: String(rec.liabilityInsuranceCompany ?? '').trim() || null,
+              liabilityInsurancePolicyNumber: String(rec.liabilityInsurancePolicyNumber ?? '').trim() || null,
+              services: servicesJson,
+              experience: String(rec.experience ?? '').trim(),
+              bio: String(rec.message ?? '').trim() || null,
+              isApproved: false,
+              isActive: false,
+            },
+          },
+    },
+    select: { id: true },
+  })
+
+  return updated.id
 }
 
 export async function GET() {
@@ -269,50 +289,45 @@ export async function GET() {
     if (session?.user?.role !== 'ADMIN') {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
-    if (!hasUpstash()) {
-      if (isProduction()) {
-        return NextResponse.json(
-          {
-            error: 'Caregiver applications storage not configured',
-            detail: 'Missing UPSTASH_REDIS_REST_URL/UPSTASH_REDIS_REST_TOKEN. In production, file fallback is not persistent.',
-            hint: 'Configure Upstash in Vercel env vars and redeploy.',
+
+    const pending = await prisma.caregiverProfile.findMany({
+      where: { isApproved: false },
+      orderBy: { createdAt: 'desc' },
+      include: {
+        user: {
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            email: true,
+            phone: true,
           },
-          { status: 500 }
-        )
-      }
-      const apps = readApplicationsFromFile()
-      return NextResponse.json(apps)
-    }
-    try {
-      const ids = (await upstashCmd<string[]>(['LRANGE', 'tt:caregiver_app:ids', 0, 200])) ?? []
-      if (ids.length === 0) return NextResponse.json([])
-      const keys = ids.map((id) => `tt:caregiver_app:${id}`)
-      const raws = (await upstashCmd<(string | null)[]>(['MGET', ...keys])) ?? []
-      const parsed: CaregiverApplicationRecord[] = []
-      for (const raw of raws) {
-        if (!raw) continue
-        try {
-          parsed.push(JSON.parse(raw))
-        } catch {
-          // ignore
-        }
-      }
-      return NextResponse.json(parsed)
-    } catch (e) {
-      console.error('Failed to fetch caregiver applications from Upstash:', e)
-      if (isProduction()) {
-        return NextResponse.json(
-          {
-            error: 'Failed to fetch caregiver applications',
-            detail: getErrorMessage(e),
-            hint: 'Check Vercel logs for Upstash connectivity / credentials.',
-          },
-          { status: 500 }
-        )
-      }
-      // Dev fallback (best-effort)
-      return NextResponse.json(readApplicationsFromFile())
-    }
+        },
+      },
+    })
+
+    const payload: CaregiverApplicationRecord[] = pending.map((cg) => ({
+      id: cg.user.id,
+      firstName: cg.user.firstName ?? '',
+      lastName: cg.user.lastName ?? '',
+      email: cg.user.email ?? '',
+      phone: cg.user.phone ?? '',
+      city: cg.city ?? '',
+      postalCode: cg.postalCode ?? '',
+      companyName: cg.companyName ?? undefined,
+      enterpriseNumber: cg.enterpriseNumber ?? undefined,
+      isSelfEmployed: cg.isSelfEmployed,
+      hasLiabilityInsurance: cg.hasLiabilityInsurance,
+      liabilityInsuranceCompany: cg.liabilityInsuranceCompany ?? undefined,
+      liabilityInsurancePolicyNumber: cg.liabilityInsurancePolicyNumber ?? undefined,
+      services: parseJsonArray(cg.services),
+      experience: cg.experience ?? '',
+      message: cg.bio ?? undefined,
+      createdAt: cg.createdAt.toISOString(),
+      updatedAt: cg.updatedAt.toISOString(),
+    }))
+
+    return NextResponse.json(payload)
   } catch (e) {
     console.error('Failed to fetch caregiver applications:', e)
     return NextResponse.json({ error: 'Failed to fetch caregiver applications' }, { status: 500 })
@@ -351,27 +366,25 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'VALIDATION_ERROR', fieldErrors: validated.fieldErrors }, { status: 400 })
     }
 
-    const id = `${Date.now()}-${Math.random().toString(16).slice(2, 8)}`
     const rec: CaregiverApplicationRecord = {
-      id,
+      id: 'pending',
       ...validated.data,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     }
-    delete (rec as any).website
 
     console.info(
       JSON.stringify({
         msg: 'caregiver_application.submit',
         requestId,
-        upstashEnabled: hasUpstash(),
         email: maskEmail(rec.email),
         servicesCount: rec.services?.length ?? 0,
         ts: new Date().toISOString(),
       })
     )
 
-    await createApplication(rec)
+    const userId = await upsertPendingApplication(rec)
+    rec.id = userId
 
     const adminEmail = process.env.DISPATCH_ADMIN_EMAIL ?? 'steven@tailtribe.be'
     const services = formatServiceLabels(rec.services)
@@ -478,14 +491,11 @@ export async function POST(request: NextRequest) {
       }
     })()
 
-    return NextResponse.json({ success: true, id })
+    return NextResponse.json({ success: true, id: userId })
   } catch (e) {
     const message = getErrorMessage(e)
-    const isUpstash = /upstash/i.test(message) || hasUpstash()
     const detail = message
-    const hint = isUpstash
-      ? 'Upstash lijkt (gedeeltelijk) geconfigureerd maar faalt. Controleer UPSTASH_REDIS_REST_URL en UPSTASH_REDIS_REST_TOKEN in Vercel (Production).'
-      : 'Check Vercel logs voor requestId en error stack.'
+    const hint = 'Check Vercel logs voor requestId en error stack.'
 
     console.error(
       JSON.stringify({

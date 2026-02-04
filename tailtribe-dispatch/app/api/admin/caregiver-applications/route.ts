@@ -1,6 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server'
-import fs from 'fs'
-import path from 'path'
 import { auth } from '@/lib/auth'
 import prisma from '@/lib/prisma'
 import bcrypt from 'bcryptjs'
@@ -10,8 +8,6 @@ import { sendCaregiverApprovedEmail } from '@/lib/email'
 
 export const dynamic = 'force-dynamic'
 export const runtime = 'nodejs'
-
-const DATA_FILE = path.join(process.cwd(), 'data', 'caregiver-applications.json')
 
 type CaregiverApplicationRecord = {
   id: string
@@ -38,127 +34,61 @@ function ensureAdmin(session: any) {
   return session && session.user?.role === 'ADMIN'
 }
 
-function hasUpstash() {
-  return Boolean(process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN)
-}
-
-function isProduction() {
-  return process.env.NODE_ENV === 'production'
-}
-
-function readApplicationsFromFile(): CaregiverApplicationRecord[] {
+function parseJsonArray(raw: string | null | undefined): string[] {
   try {
-    if (fs.existsSync(DATA_FILE)) {
-      const raw = fs.readFileSync(DATA_FILE, 'utf-8')
-      const parsed = JSON.parse(raw)
-      return Array.isArray(parsed) ? parsed : []
-    }
-  } catch (e) {
-    console.error('Failed to read caregiver applications file:', e)
+    const parsed = JSON.parse(raw || '[]')
+    return Array.isArray(parsed) ? parsed.map((x) => String(x)) : []
+  } catch {
+    return []
   }
-  return []
-}
-
-function writeApplicationsToFile(apps: CaregiverApplicationRecord[]) {
-  try {
-    const dir = path.dirname(DATA_FILE)
-    if (!fs.existsSync(dir)) {
-      fs.mkdirSync(dir, { recursive: true })
-    }
-    fs.writeFileSync(DATA_FILE, JSON.stringify(apps, null, 2), 'utf-8')
-  } catch (e) {
-    console.error('Failed to write caregiver applications file:', e)
-  }
-}
-
-async function upstashCmd<T = any>(cmd: any[]): Promise<T> {
-  const url = process.env.UPSTASH_REDIS_REST_URL
-  const token = process.env.UPSTASH_REDIS_REST_TOKEN
-  if (!url || !token) throw new Error('Upstash not configured')
-
-  const res = await fetch(url, {
-    method: 'POST',
-    headers: {
-      Authorization: `Bearer ${token}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(cmd),
-    cache: 'no-store',
-  })
-  if (!res.ok) throw new Error(`Upstash error ${res.status}`)
-  const data = await res.json()
-  return data?.result as T
-}
-
-async function getApplicationById(id: string): Promise<CaregiverApplicationRecord | null> {
-  if (hasUpstash()) {
-    const raw = await upstashCmd<string | null>(['GET', `tt:caregiver_app:${id}`])
-    if (!raw) return null
-    try {
-      return JSON.parse(raw) as CaregiverApplicationRecord
-    } catch {
-      return null
-    }
-  }
-  const apps = readApplicationsFromFile()
-  return apps.find((a) => a.id === id) ?? null
-}
-
-async function deleteApplicationById(id: string) {
-  if (hasUpstash()) {
-    await upstashCmd(['DEL', `tt:caregiver_app:${id}`])
-    await upstashCmd(['LREM', 'tt:caregiver_app:ids', 0, id])
-    return
-  }
-  const apps = readApplicationsFromFile()
-  const filtered = apps.filter((a) => a.id !== id)
-  writeApplicationsToFile(filtered)
 }
 
 export async function GET() {
-  try {
-    const session = await auth()
-    if (!ensureAdmin(session)) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
-
-    if (!hasUpstash()) {
-      if (isProduction()) {
-        return NextResponse.json(
-          {
-            error: 'Caregiver applications storage not configured',
-            detail: 'Missing UPSTASH_REDIS_REST_URL/UPSTASH_REDIS_REST_TOKEN. In production, file fallback is not persistent.',
-            hint: 'Configure Upstash in Vercel env vars and redeploy.',
-          },
-          { status: 500 }
-        )
-      }
-      return NextResponse.json(readApplicationsFromFile(), { status: 200 })
-    }
-    const ids = (await upstashCmd<string[]>(['LRANGE', 'tt:caregiver_app:ids', 0, 200])) ?? []
-    if (ids.length === 0) return NextResponse.json([])
-    const keys = ids.map((id) => `tt:caregiver_app:${id}`)
-    const raws = (await upstashCmd<(string | null)[]>(['MGET', ...keys])) ?? []
-    const parsed: CaregiverApplicationRecord[] = []
-    for (const raw of raws) {
-      if (!raw) continue
-      try {
-        parsed.push(JSON.parse(raw))
-      } catch {
-        // ignore
-      }
-    }
-    return NextResponse.json(parsed)
-  } catch (e) {
-    return NextResponse.json(
-      {
-        error: 'Failed to fetch caregiver applications',
-        detail: e instanceof Error ? e.message : String(e),
-        hint: 'Check Vercel logs for Upstash connectivity / credentials.',
-      },
-      { status: 500 }
-    )
+  const session = await auth()
+  if (!ensureAdmin(session)) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
+
+  const pending = await prisma.caregiverProfile.findMany({
+    where: { isApproved: false },
+    orderBy: { createdAt: 'desc' },
+    include: {
+      user: {
+        select: {
+          id: true,
+          firstName: true,
+          lastName: true,
+          email: true,
+          phone: true,
+          createdAt: true,
+          updatedAt: true,
+        },
+      },
+    },
+  })
+
+  const payload: CaregiverApplicationRecord[] = pending.map((cg) => ({
+    id: cg.user.id,
+    firstName: cg.user.firstName ?? '',
+    lastName: cg.user.lastName ?? '',
+    email: cg.user.email ?? '',
+    phone: cg.user.phone ?? '',
+    city: cg.city ?? '',
+    postalCode: cg.postalCode ?? '',
+    companyName: cg.companyName ?? undefined,
+    enterpriseNumber: cg.enterpriseNumber ?? undefined,
+    isSelfEmployed: cg.isSelfEmployed,
+    hasLiabilityInsurance: cg.hasLiabilityInsurance,
+    liabilityInsuranceCompany: cg.liabilityInsuranceCompany ?? undefined,
+    liabilityInsurancePolicyNumber: cg.liabilityInsurancePolicyNumber ?? undefined,
+    services: parseJsonArray(cg.services),
+    experience: cg.experience ?? '',
+    message: cg.bio ?? undefined,
+    createdAt: cg.createdAt.toISOString(),
+    updatedAt: cg.updatedAt.toISOString(),
+  }))
+
+  return NextResponse.json(payload)
 }
 
 export async function POST(request: NextRequest) {
@@ -169,93 +99,40 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json().catch(() => ({}))
-    const id = String(body?.id ?? '')
+    const id = String(body?.id ?? '').trim()
     if (!id) return NextResponse.json({ error: 'Missing id' }, { status: 400 })
 
-    const app = await getApplicationById(id)
-    if (!app) return NextResponse.json({ error: 'Not found' }, { status: 404 })
-
-    const email = String(app.email ?? '').trim().toLowerCase()
-    if (!email) return NextResponse.json({ error: 'Missing email' }, { status: 400 })
-
-    const existing = await prisma.user.findUnique({ where: { email } })
-    if (existing && existing.role !== 'CAREGIVER') {
-      return NextResponse.json(
-        { error: 'Email bestaat al als ander type gebruiker (geen verzorger).' },
-        { status: 409 }
-      )
+    const user = await prisma.user.findUnique({
+      where: { id },
+      include: { caregiverProfile: true },
+    })
+    if (!user || !user.caregiverProfile) return NextResponse.json({ error: 'Not found' }, { status: 404 })
+    if (user.caregiverProfile.isApproved) {
+      return NextResponse.json({ error: 'Already approved' }, { status: 409 })
     }
 
-    const isNewUser = !existing
-    const tempPassword = isNewUser ? crypto.randomBytes(12).toString('base64url') : null
+    const shouldGeneratePassword = !user.passwordHash
+    const tempPassword = shouldGeneratePassword ? crypto.randomBytes(12).toString('base64url') : null
     const passwordHash = tempPassword ? await bcrypt.hash(tempPassword, 10) : null
 
-    const user =
-      existing ??
-      (await prisma.user.create({
+    await prisma.$transaction(async (tx) => {
+      await tx.user.update({
+        where: { id: user.id },
         data: {
-          email,
-          passwordHash,
           role: 'CAREGIVER',
-          firstName: String(app.firstName ?? '').trim() || 'Verzorger',
-          lastName: String(app.lastName ?? '').trim() || '',
-          phone: String(app.phone ?? '').trim() || null,
+          passwordHash: passwordHash ?? undefined,
           emailVerified: new Date(),
         },
-      }))
-
-    // Ensure caregiver profile exists and is approved/active.
-    const services = Array.isArray(app.services) ? app.services : []
-    const workRegions: string[] = []
-    const experience = String(app.experience ?? '').trim()
-    const bio = String(app.message ?? '').trim() || null
-
-    await prisma.caregiverProfile.upsert({
-      where: { userId: user.id },
-      update: {
-        city: String(app.city ?? '').trim() || 'Onbekend',
-        postalCode: String(app.postalCode ?? '').trim() || '0000',
-        region: null,
-        workRegions: JSON.stringify(workRegions),
-        companyName: String(app.companyName ?? '').trim() || null,
-        enterpriseNumber: String(app.enterpriseNumber ?? '').trim() || null,
-        isSelfEmployed: Boolean(app.isSelfEmployed),
-        hasLiabilityInsurance: Boolean(app.hasLiabilityInsurance),
-        liabilityInsuranceCompany: String(app.liabilityInsuranceCompany ?? '').trim() || null,
-        liabilityInsurancePolicyNumber: String(app.liabilityInsurancePolicyNumber ?? '').trim() || null,
-        services: JSON.stringify(services),
-        experience: experience || '—',
-        bio,
-        isApproved: true,
-        isActive: true,
-      },
-      create: {
-        userId: user.id,
-        city: String(app.city ?? '').trim() || 'Onbekend',
-        postalCode: String(app.postalCode ?? '').trim() || '0000',
-        region: null,
-        workRegions: JSON.stringify(workRegions),
-        companyName: String(app.companyName ?? '').trim() || null,
-        enterpriseNumber: String(app.enterpriseNumber ?? '').trim() || null,
-        isSelfEmployed: Boolean(app.isSelfEmployed),
-        hasLiabilityInsurance: Boolean(app.hasLiabilityInsurance),
-        liabilityInsuranceCompany: String(app.liabilityInsuranceCompany ?? '').trim() || null,
-        liabilityInsurancePolicyNumber: String(app.liabilityInsurancePolicyNumber ?? '').trim() || null,
-        services: JSON.stringify(services),
-        experience: experience || '—',
-        bio,
-        isApproved: true,
-        isActive: true,
-      },
+      })
+      await tx.caregiverProfile.update({
+        where: { userId: user.id },
+        data: { isApproved: true, isActive: true },
+      })
     })
-
-    // Remove intake entry after conversion to avoid duplicates.
-    await deleteApplicationById(id)
 
     // Notify caregiver (best-effort; never block approval)
     try {
-      const caregiverName =
-        `${user.firstName ?? ''} ${user.lastName ?? ''}`.trim() || user.email || 'verzorger'
+      const caregiverName = `${user.firstName ?? ''} ${user.lastName ?? ''}`.trim() || user.email || 'verzorger'
       await createNotification({
         userId: user.id,
         type: 'ACCOUNT',
@@ -282,21 +159,21 @@ export async function POST(request: NextRequest) {
 }
 
 export async function DELETE(request: NextRequest) {
-  try {
-    const session = await auth()
-    if (!ensureAdmin(session)) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
-
-    const body = await request.json().catch(() => ({}))
-    const id = String(body?.id ?? '')
-    if (!id) return NextResponse.json({ error: 'Missing id' }, { status: 400 })
-
-    await deleteApplicationById(id)
-    return NextResponse.json({ success: true })
-  } catch (e) {
-    return NextResponse.json({ error: 'Failed to delete caregiver application' }, { status: 500 })
+  const session = await auth()
+  if (!ensureAdmin(session)) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
+
+  const body = await request.json().catch(() => ({}))
+  const id = String(body?.id ?? '').trim()
+  if (!id) return NextResponse.json({ error: 'Missing id' }, { status: 400 })
+
+  const user = await prisma.user.findUnique({ where: { id }, include: { caregiverProfile: true } })
+  if (!user || !user.caregiverProfile) return NextResponse.json({ error: 'Not found' }, { status: 404 })
+  if (user.caregiverProfile.isApproved) {
+    return NextResponse.json({ error: 'Cannot delete an approved caregiver via applications endpoint' }, { status: 409 })
+  }
+
+  await prisma.user.delete({ where: { id: user.id } })
+  return NextResponse.json({ success: true })
 }
-
-
