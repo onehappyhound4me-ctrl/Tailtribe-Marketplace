@@ -371,7 +371,14 @@ export default function AdminPage() {
       const res = await fetch('/api/admin/caregiver-applications', { cache: 'no-store' })
       if (!res.ok) {
         const data = await res.json().catch(() => null)
-        throw new Error(data?.error || 'Caregiver applications fetch failed')
+        const msg = [
+          data?.error || 'Caregiver applications fetch failed',
+          typeof data?.detail === 'string' ? `Detail: ${data.detail}` : null,
+          typeof data?.hint === 'string' ? `Tip: ${data.hint}` : null,
+        ]
+          .filter(Boolean)
+          .join(' • ')
+        throw new Error(msg)
       }
       const data = (await res.json()) as CaregiverApplication[]
       const sorted = [...(data ?? [])].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
@@ -379,7 +386,7 @@ export default function AdminPage() {
       setApplicationsLoaded(true)
     } catch (err) {
       console.error(err)
-      setErrorMsg('Kon aanmeldingen van verzorgers niet laden. Ben je ingelogd als beheerder?')
+      setErrorMsg(err instanceof Error ? err.message : 'Kon aanmeldingen van verzorgers niet laden. Ben je ingelogd als beheerder?')
     } finally {
       setApplicationsLoading(false)
     }
