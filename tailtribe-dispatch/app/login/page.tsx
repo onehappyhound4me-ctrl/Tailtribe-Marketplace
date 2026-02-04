@@ -294,6 +294,15 @@ export default function LoginPage() {
               </Link>
               .
             </div>
+
+            {debug && (
+              <div className="mt-2 text-center text-[11px] text-gray-500">
+                Debug: check admin env via{' '}
+                <a className="text-emerald-700 font-semibold hover:underline" href="/api/debug/env-admin" target="_blank" rel="noreferrer">
+                  /api/debug/env-admin
+                </a>
+              </div>
+            )}
           </div>
         </div>
       </main>
