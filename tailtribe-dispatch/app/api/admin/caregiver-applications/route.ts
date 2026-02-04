@@ -42,6 +42,10 @@ function hasUpstash() {
   return Boolean(process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN)
 }
 
+function isProduction() {
+  return process.env.NODE_ENV === 'production'
+}
+
 function readApplicationsFromFile(): CaregiverApplicationRecord[] {
   try {
     if (fs.existsSync(DATA_FILE)) {
@@ -119,6 +123,16 @@ export async function GET() {
     }
 
     if (!hasUpstash()) {
+      if (isProduction()) {
+        return NextResponse.json(
+          {
+            error: 'Caregiver applications storage not configured',
+            detail: 'Missing UPSTASH_REDIS_REST_URL/UPSTASH_REDIS_REST_TOKEN. In production, file fallback is not persistent.',
+            hint: 'Configure Upstash in Vercel env vars and redeploy.',
+          },
+          { status: 500 }
+        )
+      }
       return NextResponse.json(readApplicationsFromFile(), { status: 200 })
     }
     const ids = (await upstashCmd<string[]>(['LRANGE', 'tt:caregiver_app:ids', 0, 200])) ?? []
@@ -136,7 +150,14 @@ export async function GET() {
     }
     return NextResponse.json(parsed)
   } catch (e) {
-    return NextResponse.json({ error: 'Failed to fetch caregiver applications' }, { status: 500 })
+    return NextResponse.json(
+      {
+        error: 'Failed to fetch caregiver applications',
+        detail: e instanceof Error ? e.message : String(e),
+        hint: 'Check Vercel logs for Upstash connectivity / credentials.',
+      },
+      { status: 500 }
+    )
   }
 }
 

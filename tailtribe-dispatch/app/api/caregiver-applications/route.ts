@@ -196,6 +196,10 @@ function hasUpstash() {
   return Boolean(process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN)
 }
 
+function isProduction() {
+  return process.env.NODE_ENV === 'production'
+}
+
 function readApplicationsFromFile(): CaregiverApplicationRecord[] {
   try {
     if (fs.existsSync(DATA_FILE)) {
@@ -223,6 +227,9 @@ function writeApplicationsToFile(apps: CaregiverApplicationRecord[]) {
 
 async function createApplication(rec: CaregiverApplicationRecord) {
   if (!hasUpstash()) {
+    if (isProduction()) {
+      throw new Error('Caregiver applications storage not configured. Missing UPSTASH_REDIS_REST_URL/UPSTASH_REDIS_REST_TOKEN.')
+    }
     const apps = readApplicationsFromFile()
     apps.push(rec)
     writeApplicationsToFile(apps)
@@ -234,7 +241,6 @@ async function createApplication(rec: CaregiverApplicationRecord) {
     await upstashCmd(['LTRIM', 'tt:caregiver_app:ids', 0, 200])
     return
   } catch (e) {
-    // Do not block submissions if Upstash is temporarily unreachable/misconfigured.
     console.error(
       JSON.stringify({
         msg: 'caregiver_application.store_failed',
@@ -245,9 +251,13 @@ async function createApplication(rec: CaregiverApplicationRecord) {
       })
     )
     if (e instanceof Error && e.stack) console.error(e.stack)
+
+    if (isProduction()) {
+      throw e
+    }
   }
 
-  // Fallback: file storage (best-effort). In serverless this may not persist; still don't fail user.
+  // Dev fallback: file storage (best-effort). In serverless this may not persist; in production we fail above.
   const apps = readApplicationsFromFile()
   apps.push(rec)
   writeApplicationsToFile(apps)
@@ -260,6 +270,16 @@ export async function GET() {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
     if (!hasUpstash()) {
+      if (isProduction()) {
+        return NextResponse.json(
+          {
+            error: 'Caregiver applications storage not configured',
+            detail: 'Missing UPSTASH_REDIS_REST_URL/UPSTASH_REDIS_REST_TOKEN. In production, file fallback is not persistent.',
+            hint: 'Configure Upstash in Vercel env vars and redeploy.',
+          },
+          { status: 500 }
+        )
+      }
       const apps = readApplicationsFromFile()
       return NextResponse.json(apps)
     }
@@ -280,9 +300,18 @@ export async function GET() {
       return NextResponse.json(parsed)
     } catch (e) {
       console.error('Failed to fetch caregiver applications from Upstash:', e)
-      // Fallback (best-effort)
-      const apps = readApplicationsFromFile()
-      return NextResponse.json(apps)
+      if (isProduction()) {
+        return NextResponse.json(
+          {
+            error: 'Failed to fetch caregiver applications',
+            detail: getErrorMessage(e),
+            hint: 'Check Vercel logs for Upstash connectivity / credentials.',
+          },
+          { status: 500 }
+        )
+      }
+      // Dev fallback (best-effort)
+      return NextResponse.json(readApplicationsFromFile())
     }
   } catch (e) {
     console.error('Failed to fetch caregiver applications:', e)
