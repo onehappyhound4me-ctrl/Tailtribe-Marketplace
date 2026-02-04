@@ -26,6 +26,7 @@ type Booking = {
   petName: string
   petType: string
   status: string
+  offers?: { id: string }[]
   caregiver: {
     firstName: string
     lastName: string
@@ -448,6 +449,14 @@ export default function OwnerDashboardPage() {
                             {booking.caregiver && (
                               <div className="text-sm text-emerald-700 mt-1">
                                 Verzorger: {booking.caregiver.firstName} {booking.caregiver.lastName}
+                              </div>
+                            )}
+                            {!booking.caregiver && booking.offers && booking.offers.length > 0 && (
+                              <div className="text-sm text-blue-700 mt-1">
+                                Voorstel klaar: {booking.offers.length} verzorger(s).{' '}
+                                <Link href="/dashboard/owner/bookings" className="font-semibold hover:underline">
+                                  Kies verzorger
+                                </Link>
                               </div>
                             )}
                           </div>
