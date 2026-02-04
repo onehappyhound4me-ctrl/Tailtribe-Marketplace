@@ -144,6 +144,7 @@ export default function OwnerDashboardPage() {
   const confirmedBookings = bookings.filter((b) => b.status === 'CONFIRMED')
   const isImpersonating = session?.user?.role === 'ADMIN'
   const unreadNotifications = notifications.filter((n) => !n.readAt)
+  const latestNotifications = notifications.slice(0, 3)
 
   const stopImpersonation = async () => {
     setImpersonationLoading(true)
@@ -183,7 +184,82 @@ export default function OwnerDashboardPage() {
             </div>
           )}
 
-          {(notificationsLoading || notificationsError || unreadNotifications.length > 0) && (
+          <div className="mb-6 bg-white rounded-2xl shadow-sm border border-black/5 p-5">
+            <div className="flex items-center justify-between gap-3 mb-2">
+              <h2 className="text-lg font-semibold text-gray-900">
+                Meldingen
+                <span className="ml-2 text-sm font-normal text-gray-500">
+                  {notificationsLoading ? '(laden...)' : `${unreadNotifications.length} nieuw`}
+                </span>
+              </h2>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={fetchNotifications}
+                  disabled={notificationsLoading}
+                  className="px-3 py-1.5 rounded-lg border border-gray-200 text-sm font-semibold text-gray-800 disabled:opacity-60"
+                >
+                  {notificationsLoading ? 'Laden...' : 'Vernieuwen'}
+                </button>
+                {unreadNotifications.length > 0 && (
+                  <button
+                    type="button"
+                    onClick={() => markNotificationsRead(unreadNotifications.map((n) => n.id))}
+                    className="px-3 py-1.5 rounded-lg border border-emerald-200 text-sm font-semibold text-emerald-800 hover:bg-emerald-50"
+                  >
+                    Markeer als gelezen
+                  </button>
+                )}
+              </div>
+            </div>
+
+            {notificationsError && (
+              <div className="text-sm text-red-700 bg-red-50 border border-red-200 rounded-xl p-3">
+                {notificationsError}
+              </div>
+            )}
+
+            {!notificationsError && !notificationsLoading && latestNotifications.length === 0 && (
+              <div className="text-sm text-gray-600">Geen meldingen.</div>
+            )}
+
+            {!notificationsError && latestNotifications.length > 0 && (
+              <div className="space-y-2">
+                {latestNotifications.map((n) => {
+                  const isUnread = !n.readAt
+                  return (
+                    <div key={n.id} className="border border-gray-200 rounded-xl p-3">
+                      <div className="flex items-center justify-between gap-3">
+                        <div className="text-sm font-semibold text-gray-900">{n.title}</div>
+                        {isUnread && (
+                          <span className="text-xs font-semibold text-emerald-800 bg-emerald-50 border border-emerald-200 rounded-full px-2 py-0.5">
+                            nieuw
+                          </span>
+                        )}
+                      </div>
+                      <div className="text-sm text-gray-700">{n.message}</div>
+                      <div className="mt-2 flex items-center gap-3">
+                        <Link href="/dashboard/owner/bookings" className="text-sm font-semibold text-emerald-700 hover:underline">
+                          Bekijk
+                        </Link>
+                        {isUnread && (
+                          <button
+                            type="button"
+                            onClick={() => markNotificationsRead([n.id])}
+                            className="text-sm font-semibold text-gray-700 hover:underline"
+                          >
+                            Gelezen
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+            )}
+          </div>
+
+          {false && (
             <div className="mb-6 bg-white rounded-2xl shadow-sm border border-black/5 p-5">
               <div className="flex items-center justify-between gap-3 mb-2">
                 <h2 className="text-lg font-semibold text-gray-900">Meldingen</h2>
