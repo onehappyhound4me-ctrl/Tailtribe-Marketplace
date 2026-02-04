@@ -2,8 +2,12 @@ import { NextRequest, NextResponse } from 'next/server'
 import fs from 'fs'
 import path from 'path'
 import { auth } from '@/lib/auth'
+import prisma from '@/lib/prisma'
+import bcrypt from 'bcryptjs'
+import crypto from 'crypto'
 
 export const dynamic = 'force-dynamic'
+export const runtime = 'nodejs'
 
 const DATA_FILE = path.join(process.cwd(), 'data', 'caregiver-applications.json')
 
@@ -80,6 +84,31 @@ async function upstashCmd<T = any>(cmd: any[]): Promise<T> {
   return data?.result as T
 }
 
+async function getApplicationById(id: string): Promise<CaregiverApplicationRecord | null> {
+  if (hasUpstash()) {
+    const raw = await upstashCmd<string | null>(['GET', `tt:caregiver_app:${id}`])
+    if (!raw) return null
+    try {
+      return JSON.parse(raw) as CaregiverApplicationRecord
+    } catch {
+      return null
+    }
+  }
+  const apps = readApplicationsFromFile()
+  return apps.find((a) => a.id === id) ?? null
+}
+
+async function deleteApplicationById(id: string) {
+  if (hasUpstash()) {
+    await upstashCmd(['DEL', `tt:caregiver_app:${id}`])
+    await upstashCmd(['LREM', 'tt:caregiver_app:ids', 0, id])
+    return
+  }
+  const apps = readApplicationsFromFile()
+  const filtered = apps.filter((a) => a.id !== id)
+  writeApplicationsToFile(filtered)
+}
+
 export async function GET() {
   try {
     const session = await auth()
@@ -88,14 +117,7 @@ export async function GET() {
     }
 
     if (!hasUpstash()) {
-      try {
-        const base = process.env.NEXT_PUBLIC_APP_URL ?? 'https://tailtribe.be'
-        const res = await fetch(new URL('/api/caregiver-applications', base).toString(), { cache: 'no-store' })
-        const data = await res.json().catch(() => [])
-        return NextResponse.json(Array.isArray(data) ? data : [])
-      } catch {
-        return NextResponse.json([], { status: 200 })
-      }
+      return NextResponse.json(readApplicationsFromFile(), { status: 200 })
     }
     const ids = (await upstashCmd<string[]>(['LRANGE', 'tt:caregiver_app:ids', 0, 200])) ?? []
     if (ids.length === 0) return NextResponse.json([])
@@ -116,6 +138,103 @@ export async function GET() {
   }
 }
 
+export async function POST(request: NextRequest) {
+  try {
+    const session = await auth()
+    if (!ensureAdmin(session)) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    const body = await request.json().catch(() => ({}))
+    const id = String(body?.id ?? '')
+    if (!id) return NextResponse.json({ error: 'Missing id' }, { status: 400 })
+
+    const app = await getApplicationById(id)
+    if (!app) return NextResponse.json({ error: 'Not found' }, { status: 404 })
+
+    const email = String(app.email ?? '').trim().toLowerCase()
+    if (!email) return NextResponse.json({ error: 'Missing email' }, { status: 400 })
+
+    const existing = await prisma.user.findUnique({ where: { email } })
+    if (existing && existing.role !== 'CAREGIVER') {
+      return NextResponse.json(
+        { error: 'Email bestaat al als ander type gebruiker (geen verzorger).' },
+        { status: 409 }
+      )
+    }
+
+    const tempPassword = crypto.randomBytes(12).toString('base64url')
+    const passwordHash = await bcrypt.hash(tempPassword, 10)
+
+    const user =
+      existing ??
+      (await prisma.user.create({
+        data: {
+          email,
+          passwordHash,
+          role: 'CAREGIVER',
+          firstName: String(app.firstName ?? '').trim() || 'Verzorger',
+          lastName: String(app.lastName ?? '').trim() || '',
+          phone: String(app.phone ?? '').trim() || null,
+          emailVerified: new Date(),
+        },
+      }))
+
+    // Ensure caregiver profile exists and is approved/active.
+    const services = Array.isArray(app.services) ? app.services : []
+    const workRegions: string[] = []
+    const experience = String(app.experience ?? '').trim()
+    const bio = String(app.message ?? '').trim() || null
+
+    await prisma.caregiverProfile.upsert({
+      where: { userId: user.id },
+      update: {
+        city: String(app.city ?? '').trim() || 'Onbekend',
+        postalCode: String(app.postalCode ?? '').trim() || '0000',
+        region: null,
+        workRegions: JSON.stringify(workRegions),
+        companyName: String(app.companyName ?? '').trim() || null,
+        enterpriseNumber: String(app.enterpriseNumber ?? '').trim() || null,
+        isSelfEmployed: Boolean(app.isSelfEmployed),
+        hasLiabilityInsurance: Boolean(app.hasLiabilityInsurance),
+        liabilityInsuranceCompany: String(app.liabilityInsuranceCompany ?? '').trim() || null,
+        liabilityInsurancePolicyNumber: String(app.liabilityInsurancePolicyNumber ?? '').trim() || null,
+        services: JSON.stringify(services),
+        experience: experience || '—',
+        bio,
+        isApproved: true,
+        isActive: true,
+      },
+      create: {
+        userId: user.id,
+        city: String(app.city ?? '').trim() || 'Onbekend',
+        postalCode: String(app.postalCode ?? '').trim() || '0000',
+        region: null,
+        workRegions: JSON.stringify(workRegions),
+        companyName: String(app.companyName ?? '').trim() || null,
+        enterpriseNumber: String(app.enterpriseNumber ?? '').trim() || null,
+        isSelfEmployed: Boolean(app.isSelfEmployed),
+        hasLiabilityInsurance: Boolean(app.hasLiabilityInsurance),
+        liabilityInsuranceCompany: String(app.liabilityInsuranceCompany ?? '').trim() || null,
+        liabilityInsurancePolicyNumber: String(app.liabilityInsurancePolicyNumber ?? '').trim() || null,
+        services: JSON.stringify(services),
+        experience: experience || '—',
+        bio,
+        isApproved: true,
+        isActive: true,
+      },
+    })
+
+    // Remove intake entry after conversion to avoid duplicates.
+    await deleteApplicationById(id)
+
+    return NextResponse.json({ success: true, userId: user.id, tempPassword })
+  } catch (e) {
+    console.error('POST /api/admin/caregiver-applications', e)
+    return NextResponse.json({ error: 'Failed to approve caregiver application' }, { status: 500 })
+  }
+}
+
 export async function DELETE(request: NextRequest) {
   try {
     const session = await auth()
@@ -127,14 +246,7 @@ export async function DELETE(request: NextRequest) {
     const id = String(body?.id ?? '')
     if (!id) return NextResponse.json({ error: 'Missing id' }, { status: 400 })
 
-    if (hasUpstash()) {
-      await upstashCmd(['DEL', `tt:caregiver_app:${id}`])
-      await upstashCmd(['LREM', 'tt:caregiver_app:ids', 0, id])
-    } else {
-      const apps = readApplicationsFromFile()
-      const filtered = apps.filter((a) => a.id !== id)
-      writeApplicationsToFile(filtered)
-    }
+    await deleteApplicationById(id)
     return NextResponse.json({ success: true })
   } catch (e) {
     return NextResponse.json({ error: 'Failed to delete caregiver application' }, { status: 500 })

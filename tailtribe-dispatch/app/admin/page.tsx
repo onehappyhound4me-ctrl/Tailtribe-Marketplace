@@ -274,6 +274,8 @@ export default function AdminPage() {
   const [profilesExporting, setProfilesExporting] = useState(false)
   const [applicationsLoaded, setApplicationsLoaded] = useState(false)
   const [applicationsLoading, setApplicationsLoading] = useState(false)
+  const [applicationApproveLoadingId, setApplicationApproveLoadingId] = useState<string | null>(null)
+  const [lastApprovedCreds, setLastApprovedCreds] = useState<{ email: string; password: string } | null>(null)
   const [invoicesLoaded, setInvoicesLoaded] = useState(false)
   const [invoicesLoading, setInvoicesLoading] = useState(false)
   const [errorMsg, setErrorMsg] = useState<string | null>(null)
@@ -366,7 +368,7 @@ export default function AdminPage() {
     setApplicationsLoading(true)
     setErrorMsg(null)
     try {
-      const res = await fetch('/api/caregiver-applications', { cache: 'no-store' })
+      const res = await fetch('/api/admin/caregiver-applications', { cache: 'no-store' })
       if (!res.ok) {
         const data = await res.json().catch(() => null)
         throw new Error(data?.error || 'Caregiver applications fetch failed')
@@ -380,6 +382,45 @@ export default function AdminPage() {
       setErrorMsg('Kon aanmeldingen van verzorgers niet laden. Ben je ingelogd als beheerder?')
     } finally {
       setApplicationsLoading(false)
+    }
+  }
+
+  const approveCaregiverApplication = async (id: string) => {
+    const app = caregiverApplications.find((a) => a.id === id)
+    const label = app ? `${app.firstName} ${app.lastName}`.trim() : 'deze aanmelding'
+    if (!window.confirm(`Deze aanmelding goedkeuren en een verzorger-account aanmaken voor ${label}?`)) return
+
+    setApplicationApproveLoadingId(id)
+    setErrorMsg(null)
+    setSuccessMsg(null)
+    setLastApprovedCreds(null)
+    try {
+      const res = await fetch('/api/admin/caregiver-applications', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id }),
+      })
+      const data = await res.json().catch(() => ({}))
+      if (!res.ok) {
+        throw new Error(data?.error || 'Kon aanmelding niet goedkeuren.')
+      }
+      const email = app?.email ?? ''
+      const tempPassword = String(data?.tempPassword ?? '')
+      if (email && tempPassword) {
+        setLastApprovedCreds({ email, password: tempPassword })
+        setSuccessMsg(`Verzorger-account aangemaakt. Login: ${email} • tijdelijk wachtwoord: ${tempPassword}`)
+      } else {
+        setSuccessMsg('Verzorger-account aangemaakt.')
+      }
+      // Refresh lists
+      await loadCaregiverApplications()
+      await load()
+      await loadProfiles()
+    } catch (err) {
+      console.error(err)
+      setErrorMsg(err instanceof Error ? err.message : 'Kon aanmelding niet goedkeuren.')
+    } finally {
+      setApplicationApproveLoadingId(null)
     }
   }
 
@@ -1535,19 +1576,31 @@ export default function AdminPage() {
                       <div className="text-xs text-gray-500">
                         {app.city} ({app.postalCode}) • {created}
                       </div>
+                      <div className="mt-3">
+                        <button
+                          type="button"
+                          onClick={() => approveCaregiverApplication(app.id)}
+                          disabled={applicationApproveLoadingId === app.id}
+                          className="px-3 py-2 rounded-lg bg-emerald-600 text-white text-xs font-semibold disabled:opacity-60"
+                        >
+                          {applicationApproveLoadingId === app.id ? 'Goedkeuren…' : 'Goedkeuren & account maken'}
+                        </button>
+                      </div>
                     </div>
 
                     <div className="flex-1 min-w-[220px]">
                       <div className="text-xs text-gray-500">Diensten</div>
                       <div className="text-gray-800">{services || 'Geen'}</div>
                       <div className="mt-2 text-xs text-gray-500">Ervaring</div>
-                      <div className="text-gray-800 whitespace-pre-wrap">
+                      <div className="text-gray-800 whitespace-pre-wrap break-words max-h-32 overflow-auto pr-2">
                         {exp.length > 180 ? `${exp.slice(0, 180)}…` : exp || '—'}
                       </div>
                       {msg ? (
                         <>
                           <div className="mt-2 text-xs text-gray-500">Extra</div>
-                          <div className="text-gray-800 whitespace-pre-wrap">{msg.length > 180 ? `${msg.slice(0, 180)}…` : msg}</div>
+                          <div className="text-gray-800 whitespace-pre-wrap break-words max-h-32 overflow-auto pr-2">
+                            {msg.length > 180 ? `${msg.slice(0, 180)}…` : msg}
+                          </div>
                         </>
                       ) : null}
                     </div>
