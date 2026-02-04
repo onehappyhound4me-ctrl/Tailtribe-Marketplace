@@ -37,11 +37,11 @@ export async function POST(req: NextRequest) {
 
   const user = await prisma.user.findUnique({ where: { email } }).catch(() => null)
   // Don’t leak whether an email exists.
-  const okMsg = '✅ Als je account bestaat, is de verificatie e-mail opnieuw verstuurd. Controleer ook je spam.'
+  const okMsg = 'Als je account bestaat, is de verificatie e-mail opnieuw verstuurd. Controleer ook je spam.'
   if (!user) return NextResponse.json({ success: true, message: okMsg })
 
   if (user.emailVerified) {
-    return NextResponse.json({ success: true, message: '✅ Je e-mail is al geverifieerd. Je kan nu inloggen.' })
+    return NextResponse.json({ success: true, message: 'Je e-mail is al geverifieerd. Je kan nu inloggen.' })
   }
 
   const token = crypto.randomBytes(32).toString('hex')

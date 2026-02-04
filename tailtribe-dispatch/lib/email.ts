@@ -68,12 +68,12 @@ export async function sendWelcomeEmail(email: string, firstName: string) {
 
   const html = `
     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-      <h1 style="color: #10b981;">Welkom ${firstName}! 🎉</h1>
+      <h1 style="color: #10b981;">Welkom ${firstName}!</h1>
       <p>Je account is succesvol geverifieerd. Je kan nu inloggen en:</p>
       <ul>
-        <li>✅ Aanvragen doen voor dierenverzorging</li>
-        <li>✅ Je aanvragen volgen</li>
-        <li>✅ Profiel beheren</li>
+        <li>Aanvragen doen voor dierenverzorging</li>
+        <li>Je aanvragen volgen</li>
+        <li>Profiel beheren</li>
       </ul>
       <div style="text-align: center; margin: 30px 0;">
         <a href="${appUrl}/login" 
@@ -92,7 +92,7 @@ export async function sendWelcomeEmail(email: string, firstName: string) {
 
   await sendTransactionalEmail({
     to: email,
-    subject: 'Welkom bij TailTribe!',
+    subject: 'Welkom bij TailTribe',
     html,
   })
 }

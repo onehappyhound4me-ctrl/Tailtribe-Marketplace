@@ -8,7 +8,7 @@ export default function ThankYouPage() {
       <SiteHeader primaryCtaHref="/boeken" primaryCtaLabel="Nieuwe aanvraag" />
       <div className="flex items-center justify-center px-4 py-12">
         <div className="bg-white rounded-2xl shadow-tt-lg p-12 max-w-2xl text-center">
-        <div className="text-6xl mb-6">✅</div>
+        <div className="text-6xl mb-6" aria-hidden="true">•</div>
         <h1 className="text-4xl font-bold text-gray-900 mb-4">
           Aanvraag ontvangen!
         </h1>
@@ -18,10 +18,10 @@ export default function ThankYouPage() {
         <div className="bg-green-50 border border-green-200 rounded-xl p-6 mb-8">
           <h3 className="font-semibold text-green-900 mb-2">Wat gebeurt er nu?</h3>
           <ul className="text-left text-green-800 space-y-2">
-            <li>✓ We beoordelen je aanvraag</li>
-            <li>✓ We zoeken de best passende verzorger</li>
-            <li>✓ Je ontvangt een bevestiging per e-mail</li>
-            <li>✓ We nemen telefonisch contact op</li>
+            <li>We beoordelen je aanvraag</li>
+            <li>We zoeken de best passende verzorger</li>
+            <li>Je ontvangt een bevestiging per e-mail</li>
+            <li>We nemen telefonisch contact op</li>
           </ul>
         </div>
         <Link 

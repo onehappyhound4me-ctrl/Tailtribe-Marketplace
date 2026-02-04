@@ -141,7 +141,7 @@ export default function RegisterPage() {
       }
 
       // Show success message
-      setSuccess('✅ Account aangemaakt! Controleer je e-mail voor verificatie.')
+      setSuccess('Account aangemaakt. Controleer je e-mail voor verificatie.')
       setLoading(false)
     } catch (err) {
       setError('Er ging iets mis. Probeer opnieuw.')
@@ -169,7 +169,7 @@ export default function RegisterPage() {
         setResendLoading(false)
         return
       }
-      setSuccess(data?.message ?? '✅ Verificatie e-mail opnieuw verstuurd. Controleer ook je spam.')
+      setSuccess(data?.message ?? 'Verificatie e-mail opnieuw verstuurd. Controleer ook je spam.')
       setResendLoading(false)
     } catch {
       setError('Kon geen e-mail opnieuw sturen. Probeer later opnieuw.')

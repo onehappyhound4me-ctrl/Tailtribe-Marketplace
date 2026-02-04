@@ -191,7 +191,7 @@ export default function LoginPage() {
 
             {verified && (
               <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-lg text-green-800 text-sm">
-                ✅ Je email is geverifieerd! Je kan nu inloggen.
+                Je email is geverifieerd. Je kan nu inloggen.
               </div>
             )}
 

@@ -166,7 +166,7 @@ export async function sendTransactionalEmail({ to, subject, html, text, replyTo,
   }
 
   if (!smtpHost || !smtpUser) {
-    console.log('📧 Email not configured:', { to, subject })
+    console.log('Email not configured:', { to, subject })
     if (required) {
       throw new Error('Email not configured (missing RESEND_API_KEY or SMTP_HOST/SMTP_USER)')
     }

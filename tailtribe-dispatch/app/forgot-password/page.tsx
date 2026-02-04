@@ -72,7 +72,7 @@ export default function ForgotPasswordPage() {
         setLoading(false)
         return
       }
-      setSuccess('✅ Wachtwoord aangepast. Je kan nu inloggen.')
+      setSuccess('Wachtwoord aangepast. Je kan nu inloggen.')
       setLoading(false)
     } catch {
       setError('Reset mislukt. Vraag een nieuwe link aan.')
