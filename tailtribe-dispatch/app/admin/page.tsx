@@ -76,6 +76,27 @@ type CaregiverProfileOverview = {
   }
 }
 
+type CaregiverApplication = {
+  id: string
+  firstName: string
+  lastName: string
+  email: string
+  phone: string
+  city: string
+  postalCode: string
+  companyName?: string
+  enterpriseNumber?: string
+  isSelfEmployed: boolean
+  hasLiabilityInsurance: boolean
+  liabilityInsuranceCompany?: string
+  liabilityInsurancePolicyNumber?: string
+  services: string[]
+  experience: string
+  message?: string
+  createdAt: string
+  updatedAt: string
+}
+
 type InvoiceDraft = {
   id: string
   status: string
@@ -241,6 +262,7 @@ export default function AdminPage() {
   const [ownerProfiles, setOwnerProfiles] = useState<OwnerProfileOverview[]>([])
   const [caregiverProfiles, setCaregiverProfiles] = useState<CaregiverProfileOverview[]>([])
   const [invoiceDrafts, setInvoiceDrafts] = useState<InvoiceDraft[]>([])
+  const [caregiverApplications, setCaregiverApplications] = useState<CaregiverApplication[]>([])
 
   const [selectedOwnerId, setSelectedOwnerId] = useState<string | null>(null)
   const [selectedOwnerType, setSelectedOwnerType] = useState<'BOOKING' | 'REQUEST' | null>(null)
@@ -250,6 +272,8 @@ export default function AdminPage() {
   const [profilesLoaded, setProfilesLoaded] = useState(false)
   const [profilesLoading, setProfilesLoading] = useState(false)
   const [profilesExporting, setProfilesExporting] = useState(false)
+  const [applicationsLoaded, setApplicationsLoaded] = useState(false)
+  const [applicationsLoading, setApplicationsLoading] = useState(false)
   const [invoicesLoaded, setInvoicesLoaded] = useState(false)
   const [invoicesLoading, setInvoicesLoading] = useState(false)
   const [errorMsg, setErrorMsg] = useState<string | null>(null)
@@ -334,6 +358,28 @@ export default function AdminPage() {
       setErrorMsg('Kon profielen niet laden. Probeer opnieuw.')
     } finally {
       setProfilesLoading(false)
+    }
+  }
+
+  const loadCaregiverApplications = async () => {
+    if (applicationsLoading) return
+    setApplicationsLoading(true)
+    setErrorMsg(null)
+    try {
+      const res = await fetch('/api/caregiver-applications', { cache: 'no-store' })
+      if (!res.ok) {
+        const data = await res.json().catch(() => null)
+        throw new Error(data?.error || 'Caregiver applications fetch failed')
+      }
+      const data = (await res.json()) as CaregiverApplication[]
+      const sorted = [...(data ?? [])].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+      setCaregiverApplications(sorted)
+      setApplicationsLoaded(true)
+    } catch (err) {
+      console.error(err)
+      setErrorMsg('Kon aanmeldingen van verzorgers niet laden. Ben je ingelogd als beheerder?')
+    } finally {
+      setApplicationsLoading(false)
     }
   }
 
@@ -1433,6 +1479,104 @@ export default function AdminPage() {
                 ))}
               </div>
             </div>
+          </div>
+        </div>
+
+        <div className="bg-white border rounded-2xl shadow-sm p-4 mb-6">
+          <div className="flex items-center justify-between mb-3">
+            <div>
+              <h2 className="text-lg font-semibold text-gray-900">Aanmeldingen dierenverzorgers</h2>
+              <p className="text-xs text-gray-500">
+                Dit zijn intake-aanmeldingen (nog geen account). Gebruik dit om kandidaten te beoordelen.
+              </p>
+            </div>
+            <div className="flex items-center gap-3">
+              <span className="text-xs text-gray-500">
+                {applicationsLoaded ? `${caregiverApplications.length} aanmeldingen` : 'Nog niet geladen'}
+              </span>
+              <button
+                onClick={loadCaregiverApplications}
+                disabled={applicationsLoading}
+                className="text-xs text-emerald-700 hover:underline disabled:opacity-60"
+              >
+                {applicationsLoading ? 'Laden...' : applicationsLoaded ? 'Vernieuwen' : 'Aanmeldingen laden'}
+              </button>
+            </div>
+          </div>
+
+          <div className="divide-y">
+            {caregiverApplications.length === 0 && (
+              <div className="py-3 text-sm text-gray-500">
+                {applicationsLoaded ? 'Geen aanmeldingen gevonden.' : 'Klik op “Aanmeldingen laden” om ze te bekijken.'}
+              </div>
+            )}
+            {caregiverApplications.slice(0, 50).map((app) => {
+              const services = (app.services ?? []).map(serviceLabel).join(', ')
+              const created = new Date(app.createdAt).toLocaleString('nl-BE')
+              const exp = (app.experience ?? '').trim()
+              const msg = (app.message ?? '').trim()
+              const enterprise = (app.enterpriseNumber ?? '').trim()
+              return (
+                <div key={app.id} className="py-3 text-sm">
+                  <div className="flex flex-wrap items-start justify-between gap-3">
+                    <div className="min-w-[220px]">
+                      <div className="font-semibold text-gray-900">
+                        {app.firstName} {app.lastName}
+                      </div>
+                      <div className="text-xs text-gray-600">
+                        <a className="text-emerald-700 font-semibold hover:underline" href={`mailto:${app.email}`}>
+                          {app.email}
+                        </a>
+                        {' • '}
+                        <a className="text-emerald-700 font-semibold hover:underline" href={`tel:${app.phone}`}>
+                          {app.phone}
+                        </a>
+                      </div>
+                      <div className="text-xs text-gray-500">
+                        {app.city} ({app.postalCode}) • {created}
+                      </div>
+                    </div>
+
+                    <div className="flex-1 min-w-[220px]">
+                      <div className="text-xs text-gray-500">Diensten</div>
+                      <div className="text-gray-800">{services || 'Geen'}</div>
+                      <div className="mt-2 text-xs text-gray-500">Ervaring</div>
+                      <div className="text-gray-800 whitespace-pre-wrap">
+                        {exp.length > 180 ? `${exp.slice(0, 180)}…` : exp || '—'}
+                      </div>
+                      {msg ? (
+                        <>
+                          <div className="mt-2 text-xs text-gray-500">Extra</div>
+                          <div className="text-gray-800 whitespace-pre-wrap">{msg.length > 180 ? `${msg.slice(0, 180)}…` : msg}</div>
+                        </>
+                      ) : null}
+                    </div>
+
+                    <div className="min-w-[220px]">
+                      <div className="text-xs text-gray-500">Zelfstandig</div>
+                      <div className="text-gray-800">{app.isSelfEmployed ? 'Ja' : 'Nee'}</div>
+                      <div className="mt-2 text-xs text-gray-500">BA-verzekering</div>
+                      <div className="text-gray-800">{app.hasLiabilityInsurance ? 'Ja' : 'Nee'}</div>
+                      {enterprise ? (
+                        <>
+                          <div className="mt-2 text-xs text-gray-500">Ondernemingsnummer</div>
+                          <div className="text-gray-800">{enterprise}</div>
+                        </>
+                      ) : null}
+                      {app.companyName ? (
+                        <>
+                          <div className="mt-2 text-xs text-gray-500">Bedrijf</div>
+                          <div className="text-gray-800">{app.companyName}</div>
+                        </>
+                      ) : null}
+                    </div>
+                  </div>
+                </div>
+              )
+            })}
+            {caregiverApplications.length > 50 && (
+              <div className="pt-3 text-xs text-gray-500">Toont de eerste 50 aanmeldingen.</div>
+            )}
           </div>
         </div>
 

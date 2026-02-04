@@ -255,6 +255,10 @@ async function createApplication(rec: CaregiverApplicationRecord) {
 
 export async function GET() {
   try {
+    const session = await auth()
+    if (session?.user?.role !== 'ADMIN') {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+    }
     if (!hasUpstash()) {
       const apps = readApplicationsFromFile()
       return NextResponse.json(apps)
