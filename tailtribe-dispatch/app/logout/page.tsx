@@ -5,6 +5,14 @@ import { signOut } from 'next-auth/react'
 
 export default function LogoutPage() {
   useEffect(() => {
+    try {
+      localStorage.removeItem('tt_last_activity_ms')
+      localStorage.removeItem('tt_last_login_ms')
+      document.cookie = `tt_last_activity_ms=; Max-Age=0; Path=/; SameSite=Lax`
+      document.cookie = `tt_last_login_ms=; Max-Age=0; Path=/; SameSite=Lax`
+    } catch {
+      // ignore
+    }
     // Always sign out and return to login (works on mobile + desktop).
     signOut({ callbackUrl: '/login' })
   }, [])

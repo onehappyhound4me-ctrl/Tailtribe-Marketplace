@@ -98,6 +98,15 @@ export default function LoginPage() {
         return
       }
 
+      // Mark a fresh login so IdleLogout won't immediately kick the user due to stale activity markers.
+      try {
+        const ms = Date.now()
+        localStorage.setItem('tt_last_login_ms', String(ms))
+        document.cookie = `tt_last_login_ms=${encodeURIComponent(String(ms))}; Max-Age=${60 * 60 * 24 * 30}; Path=/; SameSite=Lax`
+      } catch {
+        // ignore
+      }
+
       // Redirect based on role (will be handled by middleware)
       router.push(callbackUrl)
       router.refresh()
