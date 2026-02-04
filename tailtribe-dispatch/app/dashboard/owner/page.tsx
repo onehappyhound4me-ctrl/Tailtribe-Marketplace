@@ -41,11 +41,24 @@ const TIME_WINDOW_LABELS: Record<string, string> = {
 
 const CHAT_ELIGIBLE_STATUSES = new Set(['CONFIRMED', 'COMPLETED'])
 
+type NotificationItem = {
+  id: string
+  type: string
+  title: string
+  message: string
+  entityId?: string | null
+  readAt: string | null
+  createdAt: string
+}
+
 export default function OwnerDashboardPage() {
   const { data: session, status } = useSession()
   const router = useRouter()
   const [profile, setProfile] = useState<OwnerProfile | null>(null)
   const [bookings, setBookings] = useState<Booking[]>([])
+  const [notifications, setNotifications] = useState<NotificationItem[]>([])
+  const [notificationsLoading, setNotificationsLoading] = useState(false)
+  const [notificationsError, setNotificationsError] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
   const [impersonationLoading, setImpersonationLoading] = useState(false)
 
@@ -53,6 +66,7 @@ export default function OwnerDashboardPage() {
     if (status === 'authenticated') {
       fetchProfile()
       fetchBookings()
+      fetchNotifications()
     }
   }, [status])
 
@@ -82,6 +96,40 @@ export default function OwnerDashboardPage() {
     }
   }
 
+  const fetchNotifications = async () => {
+    if (notificationsLoading) return
+    setNotificationsLoading(true)
+    setNotificationsError(null)
+    try {
+      const res = await fetch('/api/notifications', { cache: 'no-store' })
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}))
+        throw new Error(data?.error || 'Kon meldingen niet laden')
+      }
+      const data = (await res.json()) as NotificationItem[]
+      setNotifications(Array.isArray(data) ? data : [])
+    } catch (e) {
+      setNotificationsError(e instanceof Error ? e.message : 'Kon meldingen niet laden')
+      setNotifications([])
+    } finally {
+      setNotificationsLoading(false)
+    }
+  }
+
+  const markNotificationsRead = async (ids: string[]) => {
+    if (!ids || ids.length === 0) return
+    try {
+      await fetch('/api/notifications', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ids }),
+      })
+      setNotifications((prev) => prev.map((n) => (ids.includes(n.id) ? { ...n, readAt: n.readAt ?? new Date().toISOString() } : n)))
+    } catch {
+      // ignore (best-effort)
+    }
+  }
+
   if (status === 'loading' || loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -95,6 +143,7 @@ export default function OwnerDashboardPage() {
   const assignedBookings = bookings.filter((b) => b.status === 'ASSIGNED')
   const confirmedBookings = bookings.filter((b) => b.status === 'CONFIRMED')
   const isImpersonating = session?.user?.role === 'ADMIN'
+  const unreadNotifications = notifications.filter((n) => !n.readAt)
 
   const stopImpersonation = async () => {
     setImpersonationLoading(true)
@@ -131,6 +180,66 @@ export default function OwnerDashboardPage() {
               >
                 {impersonationLoading ? 'Stoppen...' : 'Stop bekijken'}
               </button>
+            </div>
+          )}
+
+          {(notificationsLoading || notificationsError || unreadNotifications.length > 0) && (
+            <div className="mb-6 bg-white rounded-2xl shadow-sm border border-black/5 p-5">
+              <div className="flex items-center justify-between gap-3 mb-2">
+                <h2 className="text-lg font-semibold text-gray-900">Meldingen</h2>
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={fetchNotifications}
+                    disabled={notificationsLoading}
+                    className="px-3 py-1.5 rounded-lg border border-gray-200 text-sm font-semibold text-gray-800 disabled:opacity-60"
+                  >
+                    {notificationsLoading ? 'Laden...' : 'Vernieuwen'}
+                  </button>
+                  {unreadNotifications.length > 0 && (
+                    <button
+                      type="button"
+                      onClick={() => markNotificationsRead(unreadNotifications.map((n) => n.id))}
+                      className="px-3 py-1.5 rounded-lg border border-emerald-200 text-sm font-semibold text-emerald-800 hover:bg-emerald-50"
+                    >
+                      Markeer als gelezen
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              {notificationsError && (
+                <div className="text-sm text-red-700 bg-red-50 border border-red-200 rounded-xl p-3">
+                  {notificationsError}
+                </div>
+              )}
+
+              {!notificationsError && unreadNotifications.length === 0 && !notificationsLoading && (
+                <div className="text-sm text-gray-600">Geen nieuwe meldingen.</div>
+              )}
+
+              {unreadNotifications.length > 0 && (
+                <div className="space-y-2">
+                  {unreadNotifications.slice(0, 3).map((n) => (
+                    <div key={n.id} className="border border-gray-200 rounded-xl p-3">
+                      <div className="text-sm font-semibold text-gray-900">{n.title}</div>
+                      <div className="text-sm text-gray-700">{n.message}</div>
+                      <div className="mt-2 flex items-center gap-3">
+                        <Link href="/dashboard/owner/bookings" className="text-sm font-semibold text-emerald-700 hover:underline">
+                          Bekijk
+                        </Link>
+                        <button
+                          type="button"
+                          onClick={() => markNotificationsRead([n.id])}
+                          className="text-sm font-semibold text-gray-700 hover:underline"
+                        >
+                          Gelezen
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           )}
 
