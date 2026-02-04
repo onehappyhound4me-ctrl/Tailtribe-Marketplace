@@ -5,6 +5,8 @@ import { auth } from '@/lib/auth'
 import prisma from '@/lib/prisma'
 import bcrypt from 'bcryptjs'
 import crypto from 'crypto'
+import { createNotification } from '@/lib/notifications'
+import { sendCaregiverApprovedEmail } from '@/lib/email'
 
 export const dynamic = 'force-dynamic'
 export const runtime = 'nodejs'
@@ -163,8 +165,9 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const tempPassword = crypto.randomBytes(12).toString('base64url')
-    const passwordHash = await bcrypt.hash(tempPassword, 10)
+    const isNewUser = !existing
+    const tempPassword = isNewUser ? crypto.randomBytes(12).toString('base64url') : null
+    const passwordHash = tempPassword ? await bcrypt.hash(tempPassword, 10) : null
 
     const user =
       existing ??
@@ -227,6 +230,28 @@ export async function POST(request: NextRequest) {
 
     // Remove intake entry after conversion to avoid duplicates.
     await deleteApplicationById(id)
+
+    // Notify caregiver (best-effort; never block approval)
+    try {
+      const caregiverName =
+        `${user.firstName ?? ''} ${user.lastName ?? ''}`.trim() || user.email || 'verzorger'
+      await createNotification({
+        userId: user.id,
+        type: 'ACCOUNT',
+        title: 'Je bent goedgekeurd',
+        message: 'Je verzorger-account is nu actief. Log in om je dashboard te bekijken.',
+        entityId: user.id,
+      })
+      if (user.email) {
+        await sendCaregiverApprovedEmail({
+          caregiverEmail: user.email,
+          caregiverName,
+          tempPassword,
+        })
+      }
+    } catch (notifyErr) {
+      console.error('Failed to notify caregiver on approval', notifyErr)
+    }
 
     return NextResponse.json({ success: true, userId: user.id, tempPassword })
   } catch (e) {

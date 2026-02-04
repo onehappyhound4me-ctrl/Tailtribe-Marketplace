@@ -1,9 +1,11 @@
 import { sendTransactionalEmail } from './mailer'
 
+function baseUrl() {
+  return process.env.NEXT_PUBLIC_APP_URL ?? process.env.AUTH_URL ?? process.env.NEXTAUTH_URL ?? 'https://tailtribe.be'
+}
+
 export async function sendVerificationEmail(email: string, token: string) {
-  const baseUrl =
-    process.env.NEXT_PUBLIC_APP_URL ?? process.env.AUTH_URL ?? process.env.NEXTAUTH_URL ?? 'https://tailtribe.be'
-  const verificationUrl = `${baseUrl}/api/auth/verify?token=${token}`
+  const verificationUrl = `${baseUrl()}/api/auth/verify?token=${token}`
 
   const subject = 'TailTribe: bevestig je e-mailadres'
   const text = [
@@ -62,8 +64,7 @@ export async function sendVerificationEmail(email: string, token: string) {
 }
 
 export async function sendWelcomeEmail(email: string, firstName: string) {
-  const baseUrl =
-    process.env.NEXT_PUBLIC_APP_URL ?? process.env.AUTH_URL ?? process.env.NEXTAUTH_URL ?? 'https://tailtribe.be'
+  const appUrl = baseUrl()
 
   const html = `
     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
@@ -75,7 +76,7 @@ export async function sendWelcomeEmail(email: string, firstName: string) {
         <li>✅ Profiel beheren</li>
       </ul>
       <div style="text-align: center; margin: 30px 0;">
-        <a href="${baseUrl}/login" 
+        <a href="${appUrl}/login" 
            style="background: linear-gradient(to right, #10b981, #3b82f6); 
                   color: white; 
                   padding: 15px 30px; 
@@ -93,6 +94,146 @@ export async function sendWelcomeEmail(email: string, firstName: string) {
     to: email,
     subject: 'Welkom bij TailTribe!',
     html,
+  })
+}
+
+export async function sendCaregiverApprovedEmail(input: {
+  caregiverEmail: string
+  caregiverName: string
+  tempPassword?: string | null
+}) {
+  const appUrl = baseUrl()
+  const loginUrl = `${appUrl}/login?switch=1`
+  const subject = 'Je bent goedgekeurd als dierenverzorger – TailTribe'
+
+  const pwLine = input.tempPassword
+    ? `Tijdelijk wachtwoord: ${input.tempPassword}`
+    : 'Je account bestond al; gebruik je huidige wachtwoord.'
+
+  const text = [
+    `Hoi ${input.caregiverName || 'verzorger'},`,
+    '',
+    'Je aanmelding is goedgekeurd. Je verzorger-account is nu actief.',
+    '',
+    `Login: ${input.caregiverEmail}`,
+    pwLine,
+    '',
+    `Inloggen: ${loginUrl}`,
+    '',
+    'TailTribe',
+  ].join('\n')
+
+  const html = `
+    <div style="font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; line-height: 1.5; color: #111827;">
+      <h2 style="margin: 0 0 12px 0;">Je bent goedgekeurd</h2>
+      <p style="margin: 0 0 12px 0;">Hoi ${input.caregiverName || 'verzorger'},</p>
+      <p style="margin: 0 0 12px 0;">Je aanmelding is goedgekeurd. Je verzorger-account is nu actief.</p>
+      <div style="background:#F9FAFB;border:1px solid #E5E7EB;border-radius:12px;padding:14px;">
+        <p style="margin:0 0 6px 0;"><strong>Login:</strong> ${input.caregiverEmail}</p>
+        ${
+          input.tempPassword
+            ? `<p style="margin:0 0 6px 0;"><strong>Tijdelijk wachtwoord:</strong> <span style="font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;">${input.tempPassword}</span></p>`
+            : `<p style="margin:0 0 6px 0;"><strong>Wachtwoord:</strong> gebruik je huidige wachtwoord.</p>`
+        }
+      </div>
+      <p style="margin:16px 0 0 0;">
+        <a href="${loginUrl}" style="display:inline-block;background:#10B981;color:white;text-decoration:none;padding:10px 14px;border-radius:10px;font-weight:600;">
+          Inloggen
+        </a>
+      </p>
+    </div>
+  `
+
+  await sendTransactionalEmail({
+    to: input.caregiverEmail,
+    subject,
+    html,
+    text,
+    meta: { kind: 'caregiver-approved' },
+  })
+}
+
+export async function sendOwnerOfferEmail(input: {
+  ownerEmail: string
+  ownerName: string
+  serviceLabel: string
+  caregiverName: string
+  link: string
+}) {
+  const subject = `Nieuwe verzorger voorgesteld – ${input.serviceLabel}`
+  const text = [
+    `Hoi ${input.ownerName || 'eigenaar'},`,
+    '',
+    `Er is een nieuwe verzorger voorgesteld voor je aanvraag (${input.serviceLabel}):`,
+    `- Verzorger: ${input.caregiverName}`,
+    '',
+    `Bekijk en bevestig in je dashboard: ${input.link}`,
+    '',
+    'TailTribe',
+  ].join('\n')
+
+  const html = `
+    <div style="font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; line-height: 1.5; color: #111827;">
+      <h2 style="margin: 0 0 12px 0;">Nieuwe verzorger voorgesteld</h2>
+      <p style="margin: 0 0 12px 0;">Hoi ${input.ownerName || 'eigenaar'},</p>
+      <p style="margin: 0 0 12px 0;">Er is een nieuwe verzorger voorgesteld voor je aanvraag (<strong>${input.serviceLabel}</strong>).</p>
+      <div style="background:#F9FAFB;border:1px solid #E5E7EB;border-radius:12px;padding:14px;">
+        <p style="margin:0;"><strong>Verzorger:</strong> ${input.caregiverName}</p>
+      </div>
+      <p style="margin:16px 0 0 0;">
+        <a href="${input.link}" style="display:inline-block;background:#10B981;color:white;text-decoration:none;padding:10px 14px;border-radius:10px;font-weight:600;">
+          Bekijk in dashboard
+        </a>
+      </p>
+    </div>
+  `
+
+  await sendTransactionalEmail({
+    to: input.ownerEmail,
+    subject,
+    html,
+    text,
+    meta: { kind: 'owner-offer' },
+  })
+}
+
+export async function sendCaregiverOfferEmail(input: {
+  caregiverEmail: string
+  caregiverName: string
+  serviceLabel: string
+  link: string
+}) {
+  const subject = `Je bent voorgesteld voor een opdracht – ${input.serviceLabel}`
+  const text = [
+    `Hoi ${input.caregiverName || 'verzorger'},`,
+    '',
+    `Je bent voorgesteld voor een opdracht (${input.serviceLabel}).`,
+    'Als de eigenaar bevestigt, verschijnt dit als toegewezen opdracht.',
+    '',
+    `Open je dashboard: ${input.link}`,
+    '',
+    'TailTribe',
+  ].join('\n')
+
+  const html = `
+    <div style="font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; line-height: 1.5; color: #111827;">
+      <h2 style="margin: 0 0 12px 0;">Je bent voorgesteld</h2>
+      <p style="margin: 0 0 12px 0;">Hoi ${input.caregiverName || 'verzorger'},</p>
+      <p style="margin: 0 0 12px 0;">Je bent voorgesteld voor een opdracht (<strong>${input.serviceLabel}</strong>).</p>
+      <p style="margin:16px 0 0 0;">
+        <a href="${input.link}" style="display:inline-block;background:#10B981;color:white;text-decoration:none;padding:10px 14px;border-radius:10px;font-weight:600;">
+          Open dashboard
+        </a>
+      </p>
+    </div>
+  `
+
+  await sendTransactionalEmail({
+    to: input.caregiverEmail,
+    subject,
+    html,
+    text,
+    meta: { kind: 'caregiver-offer' },
   })
 }
 

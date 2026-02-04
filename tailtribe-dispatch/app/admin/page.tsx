@@ -405,10 +405,12 @@ export default function AdminPage() {
         throw new Error(data?.error || 'Kon aanmelding niet goedkeuren.')
       }
       const email = app?.email ?? ''
-      const tempPassword = String(data?.tempPassword ?? '')
+      const tempPassword = typeof data?.tempPassword === 'string' ? data.tempPassword : ''
       if (email && tempPassword) {
         setLastApprovedCreds({ email, password: tempPassword })
         setSuccessMsg(`Verzorger-account aangemaakt. Login: ${email} • tijdelijk wachtwoord: ${tempPassword}`)
+      } else if (email) {
+        setSuccessMsg(`Verzorger-account aangemaakt. Login: ${email} (bestaand account: geen nieuw wachtwoord).`)
       } else {
         setSuccessMsg('Verzorger-account aangemaakt.')
       }
