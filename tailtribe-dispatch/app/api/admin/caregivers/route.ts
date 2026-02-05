@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { auth } from '@/lib/auth'
 import prisma from '@/lib/prisma'
+import { provinceSlugFromPostalCode } from '@/data/be-geo'
 
 export const dynamic = 'force-dynamic'
 
@@ -76,7 +77,7 @@ export async function GET() {
       phone: cg.user.phone ?? '',
       city: cg.city ?? '',
       postalCode: cg.postalCode ?? '',
-      region: cg.region ?? null,
+      region: cg.region ?? provinceSlugFromPostalCode(cg.postalCode ?? '') ?? null,
       workRegions,
       services,
       servicePricing,

@@ -7,6 +7,7 @@ import { createNotification } from '@/lib/notifications'
 import { sendAssignmentEmail, sendCancellationEmail, sendOwnerAssignmentEmail } from '@/lib/email'
 import { assertCaregiverAvailable } from '@/lib/availability'
 import { SERVICE_LABELS } from '@/lib/services'
+import { provinceSlugFromPostalCode } from '@/data/be-geo'
 
 export const dynamic = 'force-dynamic'
 
@@ -106,14 +107,17 @@ export async function GET(req: NextRequest) {
         address: reqItem.owner.ownerProfile?.address ?? null,
         city: reqItem.owner.ownerProfile?.city ?? null,
         postalCode: reqItem.owner.ownerProfile?.postalCode ?? null,
-        region: reqItem.owner.ownerProfile?.region ?? null,
+        region:
+          reqItem.owner.ownerProfile?.region ??
+          provinceSlugFromPostalCode(reqItem.owner.ownerProfile?.postalCode ?? '') ??
+          null,
         petsInfo: reqItem.owner.ownerProfile?.petsInfo ?? null,
       },
       service: reqItem.service,
       city: reqItem.city,
       postalCode: reqItem.postalCode,
       address: reqItem.address,
-      region: reqItem.region,
+      region: reqItem.region ?? provinceSlugFromPostalCode(reqItem.postalCode ?? '') ?? null,
       preferredTime: reqItem.preferredTime,
       startDate: reqItem.startDate,
       recurrence: reqItem.recurrence,

@@ -6,6 +6,7 @@ import { createNotification } from '@/lib/notifications'
 import { sendAssignmentEmail, sendCancellationEmail, sendOwnerAssignmentEmail } from '@/lib/email'
 import { assertCaregiverAvailable } from '@/lib/availability'
 import { SERVICE_LABELS } from '@/lib/services'
+import { provinceSlugFromPostalCode } from '@/data/be-geo'
 
 export const dynamic = 'force-dynamic'
 
@@ -63,7 +64,7 @@ export async function GET(request: NextRequest) {
       timeWindow: b.timeWindow,
       city: b.city,
       postalCode: b.postalCode,
-      region: b.region ?? null,
+      region: b.region ?? provinceSlugFromPostalCode(b.postalCode ?? '') ?? null,
       petName: b.petName,
       petType: b.petType,
       status: b.status as any,
@@ -79,7 +80,10 @@ export async function GET(request: NextRequest) {
       ownerAddress: b.owner.ownerProfile?.address ?? null,
       ownerCity: b.owner.ownerProfile?.city ?? null,
       ownerPostalCode: b.owner.ownerProfile?.postalCode ?? null,
-      ownerRegion: b.owner.ownerProfile?.region ?? null,
+      ownerRegion:
+        b.owner.ownerProfile?.region ??
+        provinceSlugFromPostalCode(b.owner.ownerProfile?.postalCode ?? '') ??
+        null,
       ownerPetsInfo: b.owner.ownerProfile?.petsInfo ?? null,
       adminNotes,
       createdAt: b.createdAt.toISOString(),

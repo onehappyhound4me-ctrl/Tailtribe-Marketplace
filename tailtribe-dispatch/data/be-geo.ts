@@ -250,4 +250,34 @@ export function getPlaceBySlugs(provinceSlug: string, placeSlug: string): BEPlac
 // Popular provinces for footer links
 export const getPopularProvinces = () => ['antwerpen', 'oost-vlaanderen', 'vlaams-brabant', 'brussel', 'luik']
 
+// Best-effort province lookup from Belgian postal codes.
+// We store province as our internal slug (matches PROVINCES slugs).
+// Note: 1xxx is shared across Brussels + Vlaams-Brabant + Waals-Brabant, so we use common ranges.
+export function provinceSlugFromPostalCode(postalCode: string): string | null {
+  const pc = Number(String(postalCode || '').trim())
+  if (!Number.isFinite(pc)) return null
+  const code = Math.trunc(pc)
+  if (code < 1000 || code > 9999) return null
+
+  // Brussels
+  if (code >= 1000 && code <= 1299) return 'brussel'
+  // Brabant wallon
+  if (code >= 1300 && code <= 1499) return 'waals-brabant'
+  // Vlaams-Brabant (incl. Halle/Vilvoorde etc.)
+  if (code >= 1500 && code <= 1999) return 'vlaams-brabant'
+  if (code >= 3000 && code <= 3499) return 'vlaams-brabant'
+
+  if (code >= 2000 && code <= 2999) return 'antwerpen'
+  if (code >= 3500 && code <= 3999) return 'limburg'
+  if (code >= 4000 && code <= 4999) return 'luik'
+  if (code >= 5000 && code <= 5999) return 'namen'
+  if (code >= 6000 && code <= 6599) return 'henegouwen'
+  if (code >= 6600 && code <= 6999) return 'luxemburg'
+  if (code >= 7000 && code <= 7999) return 'henegouwen'
+  if (code >= 8000 && code <= 8999) return 'west-vlaanderen'
+  if (code >= 9000 && code <= 9999) return 'oost-vlaanderen'
+
+  return null
+}
+
 

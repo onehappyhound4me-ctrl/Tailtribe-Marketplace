@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/lib/auth'
 import prisma from '@/lib/prisma'
+import { provinceSlugFromPostalCode } from '@/data/be-geo'
 
 export const dynamic = 'force-dynamic'
 
@@ -33,7 +34,10 @@ export async function GET() {
       address: owner.ownerProfile?.address ?? null,
       city: owner.ownerProfile?.city ?? null,
       postalCode: owner.ownerProfile?.postalCode ?? null,
-      region: owner.ownerProfile?.region ?? null,
+      region:
+        owner.ownerProfile?.region ??
+        provinceSlugFromPostalCode(owner.ownerProfile?.postalCode ?? '') ??
+        null,
       petsInfo: owner.ownerProfile?.petsInfo ?? null,
     },
   }))
@@ -63,7 +67,10 @@ export async function GET() {
       profile: {
         city: caregiver.caregiverProfile?.city ?? null,
         postalCode: caregiver.caregiverProfile?.postalCode ?? null,
-        region: caregiver.caregiverProfile?.region ?? null,
+        region:
+          caregiver.caregiverProfile?.region ??
+          provinceSlugFromPostalCode(caregiver.caregiverProfile?.postalCode ?? '') ??
+          null,
         workRegions,
         services,
         companyName: caregiver.caregiverProfile?.companyName ?? null,
