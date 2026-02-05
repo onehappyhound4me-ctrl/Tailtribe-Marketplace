@@ -282,6 +282,7 @@ export default function AdminPage() {
   const [actionLoading, setActionLoading] = useState<'assign' | 'delete' | 'anonymize' | null>(null)
   const [successMsg, setSuccessMsg] = useState<string | null>(null)
   const [impersonateLoadingId, setImpersonateLoadingId] = useState<string | null>(null)
+  const [bulkOfferLoading, setBulkOfferLoading] = useState(false)
 
   const [invoiceSelection, setInvoiceSelection] = useState<Record<string, boolean>>({})
   const [invoiceQuantities, setInvoiceQuantities] = useState<Record<string, number>>({})
@@ -1138,6 +1139,54 @@ export default function AdminPage() {
       setErrorMsg(err instanceof Error ? err.message : 'Kon voorstel niet maken.')
     } finally {
       setActionLoading(null)
+    }
+  }
+
+  const bulkOfferSelected = async () => {
+    if (!selectedOwner || !selectedCaregiver) {
+      setErrorMsg('Selecteer zowel een aanvraag als een verzorger')
+      return
+    }
+    if (selectedOwner.type !== 'BOOKING') {
+      setErrorMsg('Bulk voorstel werkt alleen voor bookings.')
+      return
+    }
+    setBulkOfferLoading(true)
+    setErrorMsg(null)
+    setSuccessMsg(null)
+
+    const confirmText = `Bulk voorstel sturen naar eigenaar (alle dagen):\n- ${serviceLabel(selectedOwner.service)}\n- Eigenaar: ${selectedOwner.ownerName}\n- Verzorger: ${selectedCaregiver.firstName} ${selectedCaregiver.lastName}`
+    if (!window.confirm(confirmText)) {
+      setBulkOfferLoading(false)
+      return
+    }
+
+    try {
+      const res = await fetch('/api/admin/offers/bulk', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          bookingId: selectedOwner.id,
+          caregiverId: selectedCaregiver.id,
+        }),
+      })
+      const data = await res.json().catch(() => ({}))
+      if (!res.ok) {
+        throw new Error(data?.error || 'Kon bulk voorstel niet maken.')
+      }
+      const created = typeof data?.created === 'number' ? data.created : 0
+      const total = typeof data?.total === 'number' ? data.total : undefined
+      setSuccessMsg(
+        total !== undefined
+          ? `Bulk voorstel toegevoegd voor ${created}/${total} dag(en). De eigenaar kan nu kiezen.`
+          : `Bulk voorstel toegevoegd voor ${created} dag(en). De eigenaar kan nu kiezen.`
+      )
+      await load({ includeProfiles: profilesLoaded, includeInvoices: invoicesLoaded })
+    } catch (err) {
+      console.error(err)
+      setErrorMsg(err instanceof Error ? err.message : 'Kon bulk voorstel niet maken.')
+    } finally {
+      setBulkOfferLoading(false)
     }
   }
 
@@ -2170,7 +2219,7 @@ export default function AdminPage() {
             <div className="flex gap-3 pt-2">
               <button
                 onClick={assignSelected}
-              disabled={!!actionLoading || !selectedOwner || !selectedCaregiver}
+              disabled={!!actionLoading || bulkOfferLoading || !selectedOwner || !selectedCaregiver}
                 className="px-4 py-2 rounded-lg bg-emerald-600 text-white text-sm disabled:opacity-60"
               >
               {actionLoading === 'assign'
@@ -2181,6 +2230,16 @@ export default function AdminPage() {
                   ? 'Voorstel aan eigenaar'
                   : 'Goedkeuren & toewijzen'}
               </button>
+
+              {selectedOwner?.type === 'BOOKING' && (
+                <button
+                  onClick={bulkOfferSelected}
+                  disabled={!!actionLoading || bulkOfferLoading || !selectedOwner || !selectedCaregiver}
+                  className="px-4 py-2 rounded-lg border border-blue-200 text-blue-800 text-sm font-semibold hover:bg-blue-50 disabled:opacity-60"
+                >
+                  {bulkOfferLoading ? 'Bulk voorstel...' : 'Bulk voorstel (alle dagen)'}
+                </button>
+              )}
             </div>
           </div>
         </div>
