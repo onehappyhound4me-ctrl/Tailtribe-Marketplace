@@ -714,8 +714,19 @@ export default function AdminPage() {
   }, [caregiversWithMatch, selectedCaregiverId])
 
   const handleSelectOwner = (item: OwnerItem) => {
+    // Toggle: click again to deselect
+    if (selectedOwnerId === item.id && selectedOwnerType === item.type) {
+      setSelectedOwnerId(null)
+      setSelectedOwnerType(null)
+      return
+    }
     setSelectedOwnerId(item.id)
     setSelectedOwnerType(item.type)
+  }
+
+  const handleSelectCaregiver = (caregiverId: string) => {
+    // Toggle: click again to deselect
+    setSelectedCaregiverId((prev) => (prev === caregiverId ? null : caregiverId))
   }
 
   const deleteOwnerProfile = async (userId: string) => {
@@ -1983,7 +1994,7 @@ export default function AdminPage() {
                 return (
                   <button
                     key={cg.id}
-                    onClick={() => setSelectedCaregiverId(cg.id)}
+                    onClick={() => handleSelectCaregiver(cg.id)}
                     className={`w-full text-left px-5 py-3 hover:bg-gray-50 transition ${
                       active ? 'bg-blue-50/60 border-l-4 border-blue-500' : ''
                     }`}
