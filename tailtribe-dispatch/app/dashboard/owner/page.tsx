@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
@@ -26,7 +26,19 @@ type Booking = {
   petName: string
   petType: string
   status: string
-  offers?: { id: string }[]
+  offers?: {
+    id: string
+    caregiverId: string
+    caregiver: {
+      id: string
+      firstName: string
+      lastName: string
+      email: string
+      phone: string | null
+    }
+    unit: string
+    priceCents: number
+  }[]
   caregiver: {
     firstName: string
     lastName: string
@@ -154,11 +166,43 @@ export default function OwnerDashboardPage() {
   const isImpersonating = session?.user?.role === 'ADMIN'
   const unreadNotifications = notifications.filter((n) => !n.readAt)
   const latestNotifications = notifications.slice(0, 3)
-  const latestOfferBookings = bookings
-    .filter((b) => !b.caregiver && (b.offers?.length ?? 0) > 0)
-    .slice()
-    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
-    .slice(0, 3)
+
+  const offerGroups = useMemo(() => {
+    const map = new Map<
+      string,
+      {
+        caregiverId: string
+        caregiver: Booking['offers'][number]['caregiver']
+        bookings: Booking[]
+      }
+    >()
+
+    for (const b of bookings) {
+      if (b.caregiver) continue
+      const offers = b.offers ?? []
+      for (const o of offers) {
+        const existing = map.get(o.caregiverId)
+        if (!existing) {
+          map.set(o.caregiverId, { caregiverId: o.caregiverId, caregiver: o.caregiver, bookings: [b] })
+        } else if (!existing.bookings.some((x) => x.id === b.id)) {
+          existing.bookings.push(b)
+        }
+      }
+    }
+
+    const groups = Array.from(map.values())
+      .map((g) => ({
+        ...g,
+        bookings: g.bookings.slice().sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()),
+      }))
+      .sort((a, b) => {
+        const aTime = a.bookings[0] ? new Date(a.bookings[0].date).getTime() : 0
+        const bTime = b.bookings[0] ? new Date(b.bookings[0].date).getTime() : 0
+        return aTime - bTime
+      })
+
+    return groups
+  }, [bookings])
   const debugEnabled =
     typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('debug') === '1'
 
@@ -238,27 +282,61 @@ export default function OwnerDashboardPage() {
               </div>
             )}
 
-            {latestOfferBookings.length > 0 && (
+            {offerGroups.length > 0 && (
               <div className="mb-4 rounded-xl border border-blue-200 bg-blue-50 px-4 py-3">
-                <div className="text-sm font-semibold text-blue-900 mb-2">Voorstellen klaar</div>
-                <div className="space-y-2">
-                  {latestOfferBookings.map((b) => (
-                    <div key={b.id} className="flex items-center justify-between gap-3">
-                      <div className="text-sm text-blue-900">
-                        <span className="font-semibold">
-                          {b.petName} ({b.petType})
-                        </span>{' '}
-                        • {new Date(b.date).toLocaleDateString('nl-BE')} • {b.offers?.length ?? 0} verzorger(s)
-                      </div>
-                      <Link
-                        href="/dashboard/owner/bookings"
-                        className="text-sm font-semibold text-blue-900 hover:underline shrink-0"
-                      >
-                        Bekijk
-                      </Link>
-                    </div>
-                  ))}
+                <div className="text-sm font-semibold text-blue-900 mb-1">Nieuwe verzorger voorgesteld</div>
+                <div className="text-xs text-blue-900/80 mb-3">
+                  Bekijk de dagen en keur goed in één overzicht.
                 </div>
+
+                <div className="space-y-3">
+                  {offerGroups.slice(0, 3).map((g) => {
+                    const caregiverName =
+                      `${g.caregiver.firstName ?? ''} ${g.caregiver.lastName ?? ''}`.trim() || g.caregiver.email
+                    const dates = g.bookings.map((b) => new Date(b.date).toLocaleDateString('nl-BE'))
+                    const shown = dates.slice(0, 6)
+                    const rest = Math.max(0, dates.length - shown.length)
+                    return (
+                      <div key={g.caregiverId} className="rounded-xl border border-blue-200 bg-white/60 px-3 py-3">
+                        <div className="flex flex-wrap items-start justify-between gap-3">
+                          <div className="min-w-[200px]">
+                            <div className="text-sm font-semibold text-blue-950">{caregiverName}</div>
+                            <div className="text-xs text-blue-950/70">{dates.length} dag(en)</div>
+                          </div>
+
+                          <div className="flex-1 min-w-[220px] text-xs text-blue-950/80">
+                            <span className="font-semibold">Dagen:</span> {shown.join(' • ')}
+                            {rest > 0 ? ` • +${rest}` : ''}
+                          </div>
+
+                          <div className="flex items-center gap-3 shrink-0">
+                            <Link
+                              href={`/dashboard/owner/caregivers/${g.caregiverId}`}
+                              className="text-sm font-semibold text-blue-900 hover:underline"
+                            >
+                              Bekijk profiel
+                            </Link>
+                            <Link
+                              href={`/dashboard/owner/bookings?caregiver=${encodeURIComponent(g.caregiverId)}`}
+                              className="px-3 py-1.5 rounded-lg bg-blue-700 text-white text-sm font-semibold hover:bg-blue-800"
+                            >
+                              Keur goed
+                            </Link>
+                          </div>
+                        </div>
+                      </div>
+                    )
+                  })}
+                </div>
+
+                {offerGroups.length > 3 && (
+                  <div className="mt-3 text-xs text-blue-900/80">
+                    Er zijn nog meer voorstellen.{' '}
+                    <Link href="/dashboard/owner/bookings" className="font-semibold hover:underline">
+                      Bekijk alles
+                    </Link>
+                  </div>
+                )}
               </div>
             )}
 
@@ -268,7 +346,7 @@ export default function OwnerDashboardPage() {
                 <div>Status: {status}</div>
                 <div>Role: {String((session as any)?.user?.role ?? '')}</div>
                 <div>Bookings: {bookings.length}</div>
-                <div>Bookings with offers: {latestOfferBookings.length}</div>
+                  <div>Bookings with offers: {bookings.filter((b) => !b.caregiver && (b.offers?.length ?? 0) > 0).length}</div>
                 <div>Notifications: {notifications.length}</div>
                 <div>Unread notifications: {unreadNotifications.length}</div>
               </div>

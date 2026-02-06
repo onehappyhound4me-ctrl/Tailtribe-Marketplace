@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useSession } from 'next-auth/react'
 import Link from 'next/link'
 import { SiteHeader } from '@/components/SiteHeader'
@@ -80,6 +80,9 @@ export default function OwnerBookingsPage() {
   const [successCount, setSuccessCount] = useState<number | null>(null)
   const [isDirect, setIsDirect] = useState(false)
   const [actionLoadingId, setActionLoadingId] = useState<string | null>(null)
+  const [focusCaregiverId, setFocusCaregiverId] = useState<string | null>(null)
+  const [bulkApproveLoading, setBulkApproveLoading] = useState(false)
+  const [bulkApproveProgress, setBulkApproveProgress] = useState<{ done: number; total: number } | null>(null)
 
   const dismissSuccess = () => {
     window.history.replaceState({}, '', '/dashboard/owner/bookings')
@@ -94,11 +97,15 @@ export default function OwnerBookingsPage() {
     const params = new URLSearchParams(window.location.search)
     const count = params.get('success')
     const direct = params.get('direct')
+    const caregiver = params.get('caregiver')
     if (count) {
       setSuccessCount(parseInt(count))
       setIsDirect(direct === 'true')
       // Keep banner visible until user closes it, but clean up the URL immediately.
       window.history.replaceState({}, '', '/dashboard/owner/bookings')
+    }
+    if (caregiver) {
+      setFocusCaregiverId(caregiver)
     }
   }, [])
 
@@ -135,15 +142,25 @@ export default function OwnerBookingsPage() {
     }
   }
 
-  const selectCaregiver = async (bookingId: string, caregiverId: string) => {
-    setActionLoadingId(bookingId)
+  const patchSelectCaregiver = async (bookingId: string, caregiverId: string) => {
     try {
       const response = await fetch('/api/owner/bookings', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ id: bookingId, caregiverId }),
       })
-      if (response.ok) {
+      return response.ok
+    } catch (error) {
+      console.error('Failed to select caregiver:', error)
+      return false
+    }
+  }
+
+  const selectCaregiver = async (bookingId: string, caregiverId: string) => {
+    setActionLoadingId(bookingId)
+    try {
+      const ok = await patchSelectCaregiver(bookingId, caregiverId)
+      if (ok) {
         trackEvent('caregiver_selected', { booking_id: bookingId, caregiver_id: caregiverId })
         await fetchBookings()
       }
@@ -151,6 +168,54 @@ export default function OwnerBookingsPage() {
       console.error('Failed to select caregiver:', error)
     } finally {
       setActionLoadingId(null)
+    }
+  }
+
+  const focusMatches = useMemo(() => {
+    if (!focusCaregiverId) return bookings
+    return bookings.filter((b) => (b.offers ?? []).some((o) => o.caregiverId === focusCaregiverId))
+  }, [bookings, focusCaregiverId])
+
+  const focusedCaregiverName = useMemo(() => {
+    if (!focusCaregiverId) return null
+    for (const b of bookings) {
+      const offer = (b.offers ?? []).find((o) => o.caregiverId === focusCaregiverId)
+      if (offer) return `${offer.caregiver.firstName} ${offer.caregiver.lastName}`.trim() || offer.caregiver.email
+    }
+    return null
+  }, [bookings, focusCaregiverId])
+
+  const approveAllForFocusedCaregiver = async () => {
+    if (!focusCaregiverId) return
+    const targets = bookings.filter(
+      (b) => !b.caregiver && (b.offers ?? []).some((o) => o.caregiverId === focusCaregiverId)
+    )
+    if (targets.length === 0) return
+
+    const label = focusedCaregiverName || 'deze verzorger'
+    if (
+      !window.confirm(
+        `Keur ${label} goed voor ${targets.length} dag(en)?\n\nDit bevestigt je aanvraag voor alle dagen die bij dit voorstel horen.`
+      )
+    )
+      return
+
+    setBulkApproveLoading(true)
+    setBulkApproveProgress({ done: 0, total: targets.length })
+    try {
+      let done = 0
+      for (const b of targets) {
+        const ok = await patchSelectCaregiver(b.id, focusCaregiverId)
+        if (ok) done += 1
+        setBulkApproveProgress({ done, total: targets.length })
+      }
+      await fetchBookings()
+      if (done > 0) {
+        trackEvent('caregiver_selected_bulk', { caregiver_id: focusCaregiverId, count: done })
+      }
+    } finally {
+      setBulkApproveLoading(false)
+      setBulkApproveProgress(null)
     }
   }
 
@@ -168,6 +233,43 @@ export default function OwnerBookingsPage() {
 
       <main className="container mx-auto px-4" style={{ paddingTop: '3rem', paddingBottom: '5rem' }}>
         <div className="max-w-5xl mx-auto">
+          {focusCaregiverId && (
+            <div className="mb-6 rounded-2xl border border-blue-200 bg-blue-50 p-4">
+              <div className="flex flex-wrap items-start justify-between gap-3">
+                <div>
+                  <div className="font-semibold text-blue-950">
+                    Voorstel {focusedCaregiverName ? `van ${focusedCaregiverName}` : 'geselecteerd'}
+                  </div>
+                  <div className="text-sm text-blue-950/80">
+                    Toont alleen de dagen waar deze verzorger is voorgesteld.
+                  </div>
+                  {bulkApproveProgress && (
+                    <div className="mt-2 text-xs text-blue-950/80">
+                      Bezig: {bulkApproveProgress.done}/{bulkApproveProgress.total}
+                    </div>
+                  )}
+                </div>
+                <div className="flex items-center gap-3">
+                  <button
+                    type="button"
+                    onClick={approveAllForFocusedCaregiver}
+                    disabled={bulkApproveLoading}
+                    className="px-4 py-2 rounded-lg bg-blue-700 text-white text-sm font-semibold disabled:opacity-60"
+                  >
+                    {bulkApproveLoading ? 'Bezig...' : 'Keur goed (alle dagen)'}
+                  </button>
+                  <Link
+                    href="/dashboard/owner/bookings"
+                    className="text-sm font-semibold text-blue-900 hover:underline"
+                    onClick={() => setFocusCaregiverId(null)}
+                  >
+                    Toon alles
+                  </Link>
+                </div>
+              </div>
+            </div>
+          )}
+
           {successCount !== null && (
             <div className={`mb-6 p-4 rounded-xl border ${
               isDirect 
@@ -228,14 +330,16 @@ export default function OwnerBookingsPage() {
             </Link>
           </div>
 
-          {bookings.length === 0 ? (
+          {focusMatches.length === 0 ? (
             <div className="bg-white rounded-2xl shadow-sm border border-black/5 p-12 text-center">
               <div className="text-6xl mb-4">📋</div>
               <h2 className="text-2xl font-semibold text-gray-900 mb-3">
-                Nog geen aanvragen
+                {focusCaregiverId ? 'Geen aanvragen voor dit voorstel' : 'Nog geen aanvragen'}
               </h2>
               <p className="text-gray-600 mb-6">
-                Je hebt nog geen aanvragen gedaan voor dierenverzorging
+                {focusCaregiverId
+                  ? 'Deze verzorger is (nog) niet voorgesteld voor je huidige aanvragen.'
+                  : 'Je hebt nog geen aanvragen gedaan voor dierenverzorging'}
               </p>
               <Link
                 href="/dashboard/owner/new-booking"
@@ -246,7 +350,7 @@ export default function OwnerBookingsPage() {
             </div>
           ) : (
             <div className="space-y-4">
-              {bookings.map((booking) => {
+              {focusMatches.map((booking) => {
                 const serviceName =
                   DISPATCH_SERVICES.find((service) => service.id === booking.service)?.name ||
                   booking.service
@@ -322,6 +426,14 @@ export default function OwnerBookingsPage() {
                                   {offer.priceCents > 0
                                     ? `${formatEuro(offer.priceCents)} ${UNIT_LABELS[offer.unit] ?? offer.unit}`
                                     : 'Prijs in overleg'}
+                                </div>
+                                <div className="mt-1">
+                                  <Link
+                                    href={`/dashboard/owner/caregivers/${offer.caregiverId}`}
+                                    className="text-xs font-semibold text-emerald-700 hover:underline"
+                                  >
+                                    Bekijk profiel
+                                  </Link>
                                 </div>
                               </div>
                               <button
