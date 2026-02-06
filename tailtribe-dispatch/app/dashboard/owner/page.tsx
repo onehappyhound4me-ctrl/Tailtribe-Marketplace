@@ -8,6 +8,7 @@ import { SiteHeader } from '@/components/SiteHeader'
 import { SiteFooter } from '@/components/SiteFooter'
 // Use relative import to avoid path-alias resolution issues in some Vercel build configurations.
 import { getStatusLabel } from '../../../lib/status-labels'
+import { SERVICE_LABELS } from '@/lib/services'
 
 type OwnerProfile = {
   id: string
@@ -293,15 +294,26 @@ export default function OwnerDashboardPage() {
                   {offerGroups.slice(0, 3).map((g) => {
                     const caregiverName =
                       `${g.caregiver.firstName ?? ''} ${g.caregiver.lastName ?? ''}`.trim() || g.caregiver.email
-                    const dates = g.bookings.map((b) => new Date(b.date).toLocaleDateString('nl-BE'))
-                    const shown = dates.slice(0, 6)
-                    const rest = Math.max(0, dates.length - shown.length)
+                    const serviceSet = new Set<string>(g.bookings.map((b) => b.service))
+                    const serviceLabels = Array.from(serviceSet).map(
+                      (id) => (SERVICE_LABELS as Record<string, string>)[id] ?? id
+                    )
+
+                    const dayLines = g.bookings.map((b) => {
+                      const d = new Date(b.date).toLocaleDateString('nl-BE')
+                      const lbl = (SERVICE_LABELS as Record<string, string>)[b.service] ?? b.service
+                      return `${d} (${lbl})`
+                    })
+                    const shown = dayLines.slice(0, 6)
+                    const rest = Math.max(0, dayLines.length - shown.length)
                     return (
                       <div key={g.caregiverId} className="rounded-xl border border-blue-200 bg-white/60 px-3 py-3">
                         <div className="flex flex-wrap items-start justify-between gap-3">
                           <div className="min-w-[200px]">
                             <div className="text-sm font-semibold text-blue-950">{caregiverName}</div>
-                            <div className="text-xs text-blue-950/70">{dates.length} dag(en)</div>
+                            <div className="text-xs text-blue-950/70">
+                              {g.bookings.length} dag(en){serviceLabels.length > 0 ? ` • ${serviceLabels.join(' • ')}` : ''}
+                            </div>
                           </div>
 
                           <div className="flex-1 min-w-[220px] text-xs text-blue-950/80">
