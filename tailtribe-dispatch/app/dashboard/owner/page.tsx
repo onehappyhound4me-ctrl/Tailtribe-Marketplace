@@ -76,6 +76,8 @@ export default function OwnerDashboardPage() {
   const [notificationsError, setNotificationsError] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
   const [impersonationLoading, setImpersonationLoading] = useState(false)
+  const [rejectLoadingCaregiverId, setRejectLoadingCaregiverId] = useState<string | null>(null)
+  const [rejectError, setRejectError] = useState<string | null>(null)
 
   const notificationsLoadingRef = useRef(false)
 
@@ -153,6 +155,36 @@ export default function OwnerDashboardPage() {
       setNotifications((prev) => prev.map((n) => (ids.includes(n.id) ? { ...n, readAt: n.readAt ?? new Date().toISOString() } : n)))
     } catch {
       // ignore (best-effort)
+    }
+  }
+
+  const rejectOfferGroup = async (caregiverId: string, bookingIds: string[], caregiverName: string) => {
+    if (!caregiverId || !bookingIds || bookingIds.length === 0) return
+    if (
+      !window.confirm(
+        `Weiger ${caregiverName} voor ${bookingIds.length} dag(en)?\n\nDit verwijdert dit voorstel uit je lijst.`
+      )
+    ) {
+      return
+    }
+
+    setRejectError(null)
+    setRejectLoadingCaregiverId(caregiverId)
+    try {
+      const res = await fetch('/api/owner/offers/reject', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ caregiverId, bookingIds }),
+      })
+      const data = await res.json().catch(() => ({}))
+      if (!res.ok) {
+        throw new Error(data?.error || 'Kon voorstel niet verwijderen.')
+      }
+      await fetchBookings()
+    } catch (e) {
+      setRejectError(e instanceof Error ? e.message : 'Kon voorstel niet verwijderen.')
+    } finally {
+      setRejectLoadingCaregiverId(null)
     }
   }
 
@@ -258,16 +290,6 @@ export default function OwnerDashboardPage() {
                   {offerGroups.length > 0 ? ` • Nieuwe voorstellen: ${offerGroups.length}` : ''}
                 </div>
               </div>
-              <div className="flex items-center gap-2">
-                <button
-                  type="button"
-                  onClick={fetchNotifications}
-                  disabled={notificationsLoading}
-                  className="px-3 py-1.5 rounded-lg border border-gray-200 text-sm font-semibold text-gray-800 disabled:opacity-60"
-                >
-                  {notificationsLoading ? 'Laden...' : 'Vernieuwen'}
-                </button>
-              </div>
             </div>
 
             {bookingsError && (
@@ -282,6 +304,12 @@ export default function OwnerDashboardPage() {
                 <div className="text-xs text-blue-900/80 mb-3">
                   Bekijk de dagen en keur goed in één overzicht.
                 </div>
+
+                {rejectError && (
+                  <div className="mb-3 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-800">
+                    {rejectError}
+                  </div>
+                )}
 
                 <div className="space-y-3">
                   {offerGroups.slice(0, 3).map((g) => {
@@ -327,6 +355,20 @@ export default function OwnerDashboardPage() {
                             >
                               Keur goed
                             </Link>
+                            <button
+                              type="button"
+                              onClick={() =>
+                                rejectOfferGroup(
+                                  g.caregiverId,
+                                  g.bookings.map((b) => b.id),
+                                  caregiverName
+                                )
+                              }
+                              disabled={rejectLoadingCaregiverId === g.caregiverId}
+                              className="px-3 py-1.5 rounded-lg border border-red-200 text-red-800 text-sm font-semibold hover:bg-red-50 disabled:opacity-60"
+                            >
+                              {rejectLoadingCaregiverId === g.caregiverId ? 'Bezig...' : 'Weiger'}
+                            </button>
                           </div>
                         </div>
                       </div>
