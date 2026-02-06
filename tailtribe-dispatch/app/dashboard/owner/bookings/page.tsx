@@ -104,7 +104,7 @@ export default function OwnerBookingsPage() {
 
   const fetchBookings = async () => {
     try {
-      const response = await fetch('/api/owner/bookings')
+      const response = await fetch('/api/owner/bookings', { cache: 'no-store' })
       if (response.ok) {
         const data = await response.json()
         setBookings(data)
