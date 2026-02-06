@@ -67,11 +67,13 @@ export async function POST(req: NextRequest) {
   } catch {
     pricing = {}
   }
-  const priceEntry = pricing[booking.service]
-  if (!priceEntry || !ALLOWED_UNITS.includes(priceEntry.unit as any) || !priceEntry.priceCents) {
-    const label = DISPATCH_SERVICES.find((s) => s.id === booking.service)?.name || booking.service
-    return NextResponse.json({ error: `Verzorger heeft geen prijs ingesteld voor ${label}.` }, { status: 400 })
-  }
+  // SPEED/SHIP: allow bulk propose even if pricing isn't configured yet.
+  // The owner UI will show "Prijs in overleg" when priceCents is 0.
+  const priceEntryRaw = pricing[booking.service]
+  const priceEntry =
+    priceEntryRaw && ALLOWED_UNITS.includes(priceEntryRaw.unit as any)
+      ? priceEntryRaw
+      : { unit: 'DAY', priceCents: 0 }
 
   const targets = await prisma.booking.findMany({
     where: {

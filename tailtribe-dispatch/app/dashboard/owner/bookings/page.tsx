@@ -319,7 +319,9 @@ export default function OwnerBookingsPage() {
                                   {offer.caregiver.firstName} {offer.caregiver.lastName}
                                 </div>
                                 <div className="text-xs text-gray-600">
-                                  {formatEuro(offer.priceCents)} {UNIT_LABELS[offer.unit] ?? offer.unit}
+                                  {offer.priceCents > 0
+                                    ? `${formatEuro(offer.priceCents)} ${UNIT_LABELS[offer.unit] ?? offer.unit}`
+                                    : 'Prijs in overleg'}
                                 </div>
                               </div>
                               <button
