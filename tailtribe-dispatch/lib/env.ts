@@ -67,10 +67,23 @@ export function normalizeBaseUrl(envName: string, raw: string | undefined, opts:
 }
 
 export function getPublicAppUrl() {
-  // Production parity: do not silently fall back; this value affects links, emails, and metadata.
-  const required = isProd()
+  // This value affects links, emails, and metadata.
+  // Prefer explicit config, but keep Vercel deployments resilient by deriving from `VERCEL_URL`.
   const raw = process.env.NEXT_PUBLIC_APP_URL
-  const normalized = normalizeBaseUrl('NEXT_PUBLIC_APP_URL', raw, { required, allowHttpInDev: true })
-  return normalized || 'https://tailtribe.be'
+  const explicit = normalizeBaseUrl('NEXT_PUBLIC_APP_URL', raw, { required: false, allowHttpInDev: true })
+  if (explicit) return explicit
+
+  // Vercel sets `VERCEL_URL` (no protocol), e.g. "tailtribe.vercel.app" or a preview URL.
+  const vercelUrl = String(process.env.VERCEL_URL ?? '').trim()
+  if (vercelUrl) {
+    const derived = `https://${vercelUrl}`
+    return normalizeBaseUrl('VERCEL_URL', derived, { required: false, allowHttpInDev: false }) || derived
+  }
+
+  // Local/dev fallback.
+  if (!isProd()) return 'http://localhost:3000'
+
+  // Safe last-resort fallback for production if envs are missing.
+  return 'https://tailtribe.be'
 }
 
