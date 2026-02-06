@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
@@ -77,15 +77,9 @@ export default function OwnerDashboardPage() {
   const [loading, setLoading] = useState(true)
   const [impersonationLoading, setImpersonationLoading] = useState(false)
 
-  useEffect(() => {
-    if (status === 'authenticated') {
-      fetchProfile()
-      fetchBookings()
-      fetchNotifications()
-    }
-  }, [status])
+  const notificationsLoadingRef = useRef(false)
 
-  const fetchProfile = async () => {
+  const fetchProfile = useCallback(async () => {
     try {
       const response = await fetch('/api/owner/profile', { cache: 'no-store' })
       if (response.ok) {
@@ -97,9 +91,9 @@ export default function OwnerDashboardPage() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [])
 
-  const fetchBookings = async () => {
+  const fetchBookings = useCallback(async () => {
     setBookingsError(null)
     try {
       const response = await fetch('/api/owner/bookings', { cache: 'no-store' })
@@ -116,10 +110,11 @@ export default function OwnerDashboardPage() {
       setBookings([])
       setBookingsError('Kon aanvragen niet laden (network/fetch)')
     }
-  }
+  }, [])
 
-  const fetchNotifications = async () => {
-    if (notificationsLoading) return
+  const fetchNotifications = useCallback(async () => {
+    if (notificationsLoadingRef.current) return
+    notificationsLoadingRef.current = true
     setNotificationsLoading(true)
     setNotificationsError(null)
     try {
@@ -135,8 +130,17 @@ export default function OwnerDashboardPage() {
       setNotifications([])
     } finally {
       setNotificationsLoading(false)
+      notificationsLoadingRef.current = false
     }
-  }
+  }, [])
+
+  useEffect(() => {
+    if (status === 'authenticated') {
+      fetchProfile()
+      fetchBookings()
+      fetchNotifications()
+    }
+  }, [status, fetchProfile, fetchBookings, fetchNotifications])
 
   const markNotificationsRead = async (ids: string[]) => {
     if (!ids || ids.length === 0) return
@@ -152,14 +156,6 @@ export default function OwnerDashboardPage() {
     }
   }
 
-  if (status === 'loading' || loading) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-xl">Laden...</div>
-      </div>
-    )
-  }
-
   const hasProfile = !!profile
   const pendingBookings = bookings.filter((b) => b.status === 'PENDING')
   const assignedBookings = bookings.filter((b) => b.status === 'ASSIGNED')
@@ -173,7 +169,7 @@ export default function OwnerDashboardPage() {
       string,
       {
         caregiverId: string
-        caregiver: Booking['offers'][number]['caregiver']
+        caregiver: NonNullable<Booking['offers']>[number]['caregiver']
         bookings: Booking[]
       }
     >()
@@ -206,6 +202,14 @@ export default function OwnerDashboardPage() {
   }, [bookings])
   const debugEnabled =
     typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('debug') === '1'
+
+  if (status === 'loading' || loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-xl">Laden...</div>
+      </div>
+    )
+  }
 
   const stopImpersonation = async () => {
     setImpersonationLoading(true)
