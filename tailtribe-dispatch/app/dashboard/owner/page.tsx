@@ -250,16 +250,14 @@ export default function OwnerDashboardPage() {
           )}
 
           <div className="mb-6 bg-white rounded-2xl shadow-sm border border-black/5 p-5">
-            <div className="flex items-center justify-between gap-3 mb-2">
-              <h2 className="text-lg font-semibold text-gray-900">
-                Meldingen
-                <span className="ml-2 text-sm font-normal text-gray-500">
-                  {notificationsLoading ? '(laden...)' : `${unreadNotifications.length} nieuw`}
-                </span>
-                <span className="ml-2 text-sm font-normal text-gray-500">
-                  {bookingsError ? '(aanvragen: fout)' : `(aanvragen: ${bookings.length})`}
-                </span>
-              </h2>
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-3">
+              <div>
+                <h2 className="text-lg font-semibold text-gray-900">Meldingen</h2>
+                <div className="text-xs text-gray-600">
+                  {bookingsError ? 'Aanvragen: fout' : `Aanvragen: ${bookings.length}`}
+                  {offerGroups.length > 0 ? ` • Nieuwe voorstellen: ${offerGroups.length}` : ''}
+                </div>
+              </div>
               <div className="flex items-center gap-2">
                 <button
                   type="button"
@@ -269,15 +267,6 @@ export default function OwnerDashboardPage() {
                 >
                   {notificationsLoading ? 'Laden...' : 'Vernieuwen'}
                 </button>
-                {unreadNotifications.length > 0 && (
-                  <button
-                    type="button"
-                    onClick={() => markNotificationsRead(unreadNotifications.map((n) => n.id))}
-                    className="px-3 py-1.5 rounded-lg border border-emerald-200 text-sm font-semibold text-emerald-800 hover:bg-emerald-50"
-                  >
-                    Markeer als gelezen
-                  </button>
-                )}
               </div>
             </div>
 
@@ -374,42 +363,9 @@ export default function OwnerDashboardPage() {
               </div>
             )}
 
-            {!notificationsError && !notificationsLoading && latestNotifications.length === 0 && (
-              <div className="text-sm text-gray-600">Geen meldingen.</div>
-            )}
-
-            {!notificationsError && latestNotifications.length > 0 && (
-              <div className="space-y-2">
-                {latestNotifications.map((n) => {
-                  const isUnread = !n.readAt
-                  return (
-                    <div key={n.id} className="border border-gray-200 rounded-xl p-3">
-                      <div className="flex items-center justify-between gap-3">
-                        <div className="text-sm font-semibold text-gray-900">{n.title}</div>
-                        {isUnread && (
-                          <span className="text-xs font-semibold text-emerald-800 bg-emerald-50 border border-emerald-200 rounded-full px-2 py-0.5">
-                            nieuw
-                          </span>
-                        )}
-                      </div>
-                      <div className="text-sm text-gray-700">{n.message}</div>
-                      <div className="mt-2 flex items-center gap-3">
-                        <Link href="/dashboard/owner/bookings" className="text-sm font-semibold text-emerald-700 hover:underline">
-                          Bekijk
-                        </Link>
-                        {isUnread && (
-                          <button
-                            type="button"
-                            onClick={() => markNotificationsRead([n.id])}
-                            className="text-sm font-semibold text-gray-700 hover:underline"
-                          >
-                            Gelezen
-                          </button>
-                        )}
-                      </div>
-                    </div>
-                  )
-                })}
+            {!bookingsError && offerGroups.length === 0 && (
+              <div className="text-sm text-gray-700">
+                Geen nieuwe voorstellen. Je ziet hier iets zodra er een verzorger is voorgesteld.
               </div>
             )}
           </div>

@@ -83,6 +83,8 @@ export default function OwnerBookingsPage() {
   const [focusCaregiverId, setFocusCaregiverId] = useState<string | null>(null)
   const [bulkApproveLoading, setBulkApproveLoading] = useState(false)
   const [bulkApproveProgress, setBulkApproveProgress] = useState<{ done: number; total: number } | null>(null)
+  const [focusMsg, setFocusMsg] = useState<string | null>(null)
+  const [focusError, setFocusError] = useState<string | null>(null)
 
   const dismissSuccess = () => {
     window.history.replaceState({}, '', '/dashboard/owner/bookings')
@@ -219,6 +221,42 @@ export default function OwnerBookingsPage() {
     }
   }
 
+  const rejectAllForFocusedCaregiver = async () => {
+    if (!focusCaregiverId) return
+    const targets = bookings.filter(
+      (b) => !b.caregiver && (b.offers ?? []).some((o) => o.caregiverId === focusCaregiverId)
+    )
+    if (targets.length === 0) return
+
+    const label = focusedCaregiverName || 'deze verzorger'
+    if (!window.confirm(`Weiger ${label} voor ${targets.length} dag(en)?\n\nDit verwijdert dit voorstel uit je lijst.`)) {
+      return
+    }
+
+    setFocusMsg(null)
+    setFocusError(null)
+    setBulkApproveLoading(true)
+    try {
+      const res = await fetch('/api/owner/offers/reject', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ caregiverId: focusCaregiverId, bookingIds: targets.map((t) => t.id) }),
+      })
+      const data = await res.json().catch(() => ({}))
+      if (!res.ok) {
+        throw new Error(data?.error || 'Kon voorstel niet verwijderen.')
+      }
+      const deleted = typeof data?.deleted === 'number' ? data.deleted : 0
+      setFocusMsg(`Voorstel geweigerd. (${deleted} dag(en) verwijderd)`)
+      setFocusCaregiverId(null)
+      await fetchBookings()
+    } catch (e) {
+      setFocusError(e instanceof Error ? e.message : 'Kon voorstel niet verwijderen.')
+    } finally {
+      setBulkApproveLoading(false)
+    }
+  }
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -248,6 +286,8 @@ export default function OwnerBookingsPage() {
                       Bezig: {bulkApproveProgress.done}/{bulkApproveProgress.total}
                     </div>
                   )}
+                  {focusMsg && <div className="mt-2 text-xs text-emerald-800">{focusMsg}</div>}
+                  {focusError && <div className="mt-2 text-xs text-red-800">{focusError}</div>}
                 </div>
                 <div className="flex items-center gap-3">
                   <button
@@ -257,6 +297,14 @@ export default function OwnerBookingsPage() {
                     className="px-4 py-2 rounded-lg bg-blue-700 text-white text-sm font-semibold disabled:opacity-60"
                   >
                     {bulkApproveLoading ? 'Bezig...' : 'Keur goed (alle dagen)'}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={rejectAllForFocusedCaregiver}
+                    disabled={bulkApproveLoading}
+                    className="px-4 py-2 rounded-lg border border-red-200 text-red-800 text-sm font-semibold hover:bg-red-50 disabled:opacity-60"
+                  >
+                    Weiger voorstel
                   </button>
                   <Link
                     href="/dashboard/owner/bookings"
