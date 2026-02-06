@@ -73,7 +73,7 @@ export default function OwnerDashboardPage() {
 
   const fetchProfile = async () => {
     try {
-      const response = await fetch('/api/owner/profile')
+      const response = await fetch('/api/owner/profile', { cache: 'no-store' })
       if (response.ok) {
         const data = await response.json()
         setProfile(data)
@@ -87,7 +87,7 @@ export default function OwnerDashboardPage() {
 
   const fetchBookings = async () => {
     try {
-      const response = await fetch('/api/owner/bookings')
+      const response = await fetch('/api/owner/bookings', { cache: 'no-store' })
       if (response.ok) {
         const data = await response.json()
         setBookings(data)

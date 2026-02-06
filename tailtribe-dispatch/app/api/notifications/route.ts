@@ -1,13 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/lib/auth'
 import prisma from '@/lib/prisma'
+import { getImpersonationContext } from '@/lib/impersonation'
 
 export const dynamic = 'force-dynamic'
 export const runtime = 'nodejs'
 
 export async function GET() {
   const session = await auth()
-  const userId = session?.user?.id
+  const impersonation = getImpersonationContext(session)
+  const userId = impersonation?.userId ?? session?.user?.id
   if (!session || !userId) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
@@ -33,7 +35,8 @@ export async function GET() {
 
 export async function PATCH(req: NextRequest) {
   const session = await auth()
-  const userId = session?.user?.id
+  const impersonation = getImpersonationContext(session)
+  const userId = impersonation?.userId ?? session?.user?.id
   if (!session || !userId) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
