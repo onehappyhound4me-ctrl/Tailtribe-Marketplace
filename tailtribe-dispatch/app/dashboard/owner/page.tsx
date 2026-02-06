@@ -164,7 +164,7 @@ export default function OwnerDashboardPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-green-50 via-white to-blue-50">
-      <SiteHeader primaryCtaHref="/login" primaryCtaLabel="Uitloggen" />
+      <SiteHeader primaryCtaHref="/logout" primaryCtaLabel="Uitloggen" />
 
       <main className="container mx-auto px-4" style={{ paddingTop: '3rem', paddingBottom: '5rem' }}>
         <div className="max-w-6xl mx-auto">
