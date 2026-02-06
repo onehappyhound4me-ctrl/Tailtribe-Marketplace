@@ -190,7 +190,7 @@ export default function OwnerDashboardPage() {
 
   const hasProfile = !!profile
   const pendingBookings = bookings.filter((b) => b.status === 'PENDING')
-  const assignedBookings = bookings.filter((b) => b.status === 'ASSIGNED')
+  const assignedBookings = bookings.filter((b) => Boolean(b.caregiver) || b.status === 'ASSIGNED')
   const confirmedBookings = bookings.filter((b) => b.status === 'CONFIRMED')
   const isImpersonating = session?.user?.role === 'ADMIN'
   const unreadNotifications = notifications.filter((n) => !n.readAt)
@@ -513,7 +513,7 @@ export default function OwnerDashboardPage() {
                 </div>
                 <div className="bg-white rounded-xl shadow-sm p-6">
                   <div className="text-2xl font-bold text-blue-600">{assignedBookings.length}</div>
-                  <div className="text-sm text-gray-600">Toegewezen</div>
+                  <div className="text-sm text-gray-600">Verzorger gekozen</div>
                 </div>
                 <div className="bg-white rounded-xl shadow-sm p-6">
                   <div className="text-2xl font-bold text-green-600">{confirmedBookings.length}</div>
