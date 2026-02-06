@@ -1139,11 +1139,25 @@ export default function AdminPage() {
           throw new Error(data?.error || 'Kon niet toewijzen.')
         }
       }
-      setSuccessMsg(
-        selectedOwner.type === 'BOOKING'
-          ? 'Voorstel toegevoegd. De eigenaar kan nu kiezen.'
-          : 'Succesvol toegewezen en notificatie verstuurd.'
-      )
+      if (selectedOwner.type === 'BOOKING') {
+        const when = `${new Date(selectedOwner.date).toLocaleDateString('nl-BE')}${
+          selectedOwner.time ? ` • ${selectedOwner.time}` : ''
+        }${selectedOwner.timeWindow ? ` • ${timeWindowLabels[selectedOwner.timeWindow] ?? selectedOwner.timeWindow}` : ''}`
+        const ownerLabel = `${selectedOwner.ownerName}${selectedOwner.ownerEmail ? ` (${selectedOwner.ownerEmail})` : ''}`
+        const caregiverLabel = `${selectedCaregiver.firstName} ${selectedCaregiver.lastName}`.trim()
+        setSuccessMsg(
+          `Voorstel toegevoegd: ${serviceLabel(selectedOwner.service)} • ${when} • eigenaar: ${ownerLabel} • verzorger: ${caregiverLabel}.`
+        )
+      } else {
+        const when = `${new Date(selectedOwner.date).toLocaleDateString('nl-BE')}${
+          selectedOwner.time ? ` • ${selectedOwner.time}` : ''
+        }${selectedOwner.timeWindow ? ` • ${timeWindowLabels[selectedOwner.timeWindow] ?? selectedOwner.timeWindow}` : ''}`
+        const ownerLabel = `${selectedOwner.ownerName}${selectedOwner.ownerEmail ? ` (${selectedOwner.ownerEmail})` : ''}`
+        const caregiverLabel = `${selectedCaregiver.firstName} ${selectedCaregiver.lastName}`.trim()
+        setSuccessMsg(
+          `Toegewezen: ${serviceLabel(selectedOwner.service)} • ${when} • eigenaar: ${ownerLabel} • verzorger: ${caregiverLabel}.`
+        )
+      }
       await load({ includeProfiles: profilesLoaded, includeInvoices: invoicesLoaded })
     } catch (err) {
       console.error(err)
@@ -1187,10 +1201,15 @@ export default function AdminPage() {
       }
       const created = typeof data?.created === 'number' ? data.created : 0
       const total = typeof data?.total === 'number' ? data.total : undefined
+      const when = `${new Date(selectedOwner.date).toLocaleDateString('nl-BE')}${
+        selectedOwner.time ? ` • ${selectedOwner.time}` : ''
+      }${selectedOwner.timeWindow ? ` • ${timeWindowLabels[selectedOwner.timeWindow] ?? selectedOwner.timeWindow}` : ''}`
+      const ownerLabel = `${selectedOwner.ownerName}${selectedOwner.ownerEmail ? ` (${selectedOwner.ownerEmail})` : ''}`
+      const caregiverLabel = `${selectedCaregiver.firstName} ${selectedCaregiver.lastName}`.trim()
+      const countLabel =
+        total !== undefined ? `${created}/${total} dag(en)` : `${created} dag(en)`
       setSuccessMsg(
-        total !== undefined
-          ? `Bulk voorstel toegevoegd voor ${created}/${total} dag(en). De eigenaar kan nu kiezen.`
-          : `Bulk voorstel toegevoegd voor ${created} dag(en). De eigenaar kan nu kiezen.`
+        `Bulk voorstel toegevoegd (${countLabel}): ${serviceLabel(selectedOwner.service)} • start: ${when} • eigenaar: ${ownerLabel} • verzorger: ${caregiverLabel}.`
       )
       await load({ includeProfiles: profilesLoaded, includeInvoices: invoicesLoaded })
     } catch (err) {
