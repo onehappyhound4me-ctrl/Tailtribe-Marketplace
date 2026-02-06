@@ -146,6 +146,11 @@ export default function OwnerDashboardPage() {
   const isImpersonating = session?.user?.role === 'ADMIN'
   const unreadNotifications = notifications.filter((n) => !n.readAt)
   const latestNotifications = notifications.slice(0, 3)
+  const latestOfferBookings = bookings
+    .filter((b) => !b.caregiver && (b.offers?.length ?? 0) > 0)
+    .slice()
+    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+    .slice(0, 3)
 
   const stopImpersonation = async () => {
     setImpersonationLoading(true)
@@ -213,6 +218,30 @@ export default function OwnerDashboardPage() {
                 )}
               </div>
             </div>
+
+            {latestOfferBookings.length > 0 && (
+              <div className="mb-4 rounded-xl border border-blue-200 bg-blue-50 px-4 py-3">
+                <div className="text-sm font-semibold text-blue-900 mb-2">Voorstellen klaar</div>
+                <div className="space-y-2">
+                  {latestOfferBookings.map((b) => (
+                    <div key={b.id} className="flex items-center justify-between gap-3">
+                      <div className="text-sm text-blue-900">
+                        <span className="font-semibold">
+                          {b.petName} ({b.petType})
+                        </span>{' '}
+                        • {new Date(b.date).toLocaleDateString('nl-BE')} • {b.offers?.length ?? 0} verzorger(s)
+                      </div>
+                      <Link
+                        href="/dashboard/owner/bookings"
+                        className="text-sm font-semibold text-blue-900 hover:underline shrink-0"
+                      >
+                        Bekijk
+                      </Link>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
 
             {notificationsError && (
               <div className="text-sm text-red-700 bg-red-50 border border-red-200 rounded-xl p-3">
