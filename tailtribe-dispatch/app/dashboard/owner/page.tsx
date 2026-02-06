@@ -57,6 +57,7 @@ export default function OwnerDashboardPage() {
   const router = useRouter()
   const [profile, setProfile] = useState<OwnerProfile | null>(null)
   const [bookings, setBookings] = useState<Booking[]>([])
+  const [bookingsError, setBookingsError] = useState<string | null>(null)
   const [notifications, setNotifications] = useState<NotificationItem[]>([])
   const [notificationsLoading, setNotificationsLoading] = useState(false)
   const [notificationsError, setNotificationsError] = useState<string | null>(null)
@@ -86,14 +87,21 @@ export default function OwnerDashboardPage() {
   }
 
   const fetchBookings = async () => {
+    setBookingsError(null)
     try {
       const response = await fetch('/api/owner/bookings', { cache: 'no-store' })
-      if (response.ok) {
-        const data = await response.json()
-        setBookings(data)
+      const data = await response.json().catch(() => null)
+      if (!response.ok) {
+        const msg = (data && typeof data === 'object' && (data as any).error) ? String((data as any).error) : 'Kon aanvragen niet laden'
+        setBookings([])
+        setBookingsError(`${msg} (status ${response.status})`)
+        return
       }
+      setBookings(Array.isArray(data) ? (data as Booking[]) : [])
     } catch (error) {
       console.error('Failed to fetch bookings:', error)
+      setBookings([])
+      setBookingsError('Kon aanvragen niet laden (network/fetch)')
     }
   }
 
@@ -151,6 +159,8 @@ export default function OwnerDashboardPage() {
     .slice()
     .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
     .slice(0, 3)
+  const debugEnabled =
+    typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('debug') === '1'
 
   const stopImpersonation = async () => {
     setImpersonationLoading(true)
@@ -197,6 +207,9 @@ export default function OwnerDashboardPage() {
                 <span className="ml-2 text-sm font-normal text-gray-500">
                   {notificationsLoading ? '(laden...)' : `${unreadNotifications.length} nieuw`}
                 </span>
+                <span className="ml-2 text-sm font-normal text-gray-500">
+                  {bookingsError ? '(aanvragen: fout)' : `(aanvragen: ${bookings.length})`}
+                </span>
               </h2>
               <div className="flex items-center gap-2">
                 <button
@@ -219,6 +232,12 @@ export default function OwnerDashboardPage() {
               </div>
             </div>
 
+            {bookingsError && (
+              <div className="mb-4 text-sm text-red-700 bg-red-50 border border-red-200 rounded-xl p-3">
+                {bookingsError}
+              </div>
+            )}
+
             {latestOfferBookings.length > 0 && (
               <div className="mb-4 rounded-xl border border-blue-200 bg-blue-50 px-4 py-3">
                 <div className="text-sm font-semibold text-blue-900 mb-2">Voorstellen klaar</div>
@@ -240,6 +259,18 @@ export default function OwnerDashboardPage() {
                     </div>
                   ))}
                 </div>
+              </div>
+            )}
+
+            {debugEnabled && (
+              <div className="mb-4 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-xs text-slate-700">
+                <div className="font-semibold mb-1">Debug</div>
+                <div>Status: {status}</div>
+                <div>Role: {String((session as any)?.user?.role ?? '')}</div>
+                <div>Bookings: {bookings.length}</div>
+                <div>Bookings with offers: {latestOfferBookings.length}</div>
+                <div>Notifications: {notifications.length}</div>
+                <div>Unread notifications: {unreadNotifications.length}</div>
               </div>
             )}
 
