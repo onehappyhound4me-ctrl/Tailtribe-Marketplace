@@ -568,7 +568,10 @@ export default function OwnerDashboardPage() {
                 <ol className="list-decimal pl-5 space-y-1 text-sm text-gray-700">
                   <li>Maak een nieuwe aanvraag aan en kies dienst + dagen.</li>
                   <li>Geef je huisdierinfo mee bij de aanvraag.</li>
-                  <li>Wacht op toewijzing of bevestiging van de verzorger (tijdstip in overleg via chat).</li>
+                  <li>
+                    Wacht op toewijzing of bevestiging van de dierenoppas, kijk of je recente aanvragen bevestigd zijn,
+                    hierna verschijnt er een chat knop op de recente aanvragen om verder af te spreken met de dierenoppas.
+                  </li>
                 </ol>
               </div>
 
