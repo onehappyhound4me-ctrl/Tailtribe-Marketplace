@@ -3,6 +3,7 @@ import crypto from 'crypto'
 import { prisma } from '@/lib/prisma'
 import { checkRateLimit } from '@/lib/rate-limit'
 import { sendTransactionalEmail } from '@/lib/mailer'
+import { getPublicAppUrl } from '@/lib/env'
 
 function normalizeEmail(value: unknown) {
   return String(value ?? '')
@@ -69,9 +70,8 @@ export async function POST(req: NextRequest) {
     },
   })
 
-  const baseUrl =
-    process.env.NEXT_PUBLIC_APP_URL ?? process.env.AUTH_URL ?? process.env.NEXTAUTH_URL ?? 'https://tailtribe.be'
-  const resetUrl = `${baseUrl}/forgot-password?token=${token}`
+  const baseUrl = getPublicAppUrl()
+  const resetUrl = new URL(`/forgot-password?token=${encodeURIComponent(token)}`, baseUrl).toString()
 
   const html = `
     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
