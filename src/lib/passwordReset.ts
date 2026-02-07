@@ -49,13 +49,20 @@ export async function consumePasswordResetToken(rawToken: string) {
 }
 
 export function getResetPasswordUrl(token: string, _origin?: string) {
-  const rawBase = (process.env.NEXT_PUBLIC_APP_URL || 'https://tailtribe.be').trim()
-  const withProtocol = rawBase.startsWith('http://') || rawBase.startsWith('https://')
-    ? rawBase
-    : `https://${rawBase}`
+  // Prefer explicit config, but keep Vercel resilient.
+  // Vercel sets `VERCEL_URL` without protocol (e.g. "tailtribe.vercel.app").
+  const explicit = String(process.env.NEXT_PUBLIC_APP_URL ?? '').trim()
+  const vercel = String(process.env.VERCEL_URL ?? '').trim()
+  const fallback =
+    process.env.NODE_ENV === 'production' ? 'https://tailtribe.be' : 'http://localhost:3000'
+
+  const rawBase = (explicit || (vercel ? `https://${vercel}` : '') || fallback).trim()
+  const withProtocol =
+    rawBase.startsWith('http://') || rawBase.startsWith('https://') ? rawBase : `https://${rawBase}`
 
   const base = withProtocol.replace(/\/$/, '')
-  const url = new URL('/reset-password', base)
+  // The UI page lives under /auth/reset-password (NOT /reset-password).
+  const url = new URL('/auth/reset-password', base)
   url.searchParams.set('token', token)
   return url.toString()
 }

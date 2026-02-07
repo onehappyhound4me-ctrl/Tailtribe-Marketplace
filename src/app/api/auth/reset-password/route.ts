@@ -1,46 +1,39 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 import bcrypt from 'bcryptjs'
+import { consumePasswordResetToken } from '@/lib/passwordReset'
+import { z } from 'zod'
 
 export async function POST(request: NextRequest) {
   try {
-    const { token, password } = await request.json()
+    const body = await request.json()
+    const parsed = z
+      .object({
+        token: z.string().min(1),
+        password: z.string().min(8, 'Wachtwoord moet minimaal 8 karakters zijn'),
+      })
+      .safeParse(body)
 
-    if (!token || !password) {
-      return NextResponse.json({ error: 'Token en wachtwoord zijn verplicht' }, { status: 400 })
+    if (!parsed.success) {
+      return NextResponse.json(
+        { error: parsed.error.issues?.[0]?.message ?? 'Token en wachtwoord zijn verplicht' },
+        { status: 400 }
+      )
     }
 
-    if (password.length < 8) {
-      return NextResponse.json({ error: 'Wachtwoord moet minimaal 8 karakters zijn' }, { status: 400 })
-    }
+    const { token, password } = parsed.data
 
-    // For now, we'll use a simple approach: token = email:timestamp
-    // In production, you'd want to store tokens in database
-    // For this demo, we'll just accept any token format and find user by email
-    
-    // TODO: Implement proper token validation with database storage
-    // For now, this is a simplified version that will need enhancement
-
-    // Find user (simplified - in production use proper token storage)
-    const users = await db.user.findMany({
-      where: {
-        email: { not: '' }
-      }
-    })
-
-    if (users.length === 0) {
+    const userId = await consumePasswordResetToken(token)
+    if (!userId) {
       return NextResponse.json({ error: 'Ongeldige of verlopen reset link' }, { status: 400 })
     }
-
-    // For demo: use first user (in production, validate token properly)
-    const user = users[0]
 
     // Hash new password
     const hashedPassword = await bcrypt.hash(password, 10)
 
     // Update password
     await db.user.update({
-      where: { id: user.id },
+      where: { id: userId },
       data: { password: hashedPassword }
     })
 

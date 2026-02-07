@@ -87,7 +87,7 @@ export default function ForgotPasswordPage() {
             {/* Info */}
             <div className="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-200 text-left">
               <p className="text-sm text-gray-700">
-                <strong>💡 Tip:</strong> Check ook je spam folder als je de email niet ontvangt.
+                <strong>Tip:</strong> Check ook je spam folder als je de email niet ontvangt.
               </p>
             </div>
           </div>
