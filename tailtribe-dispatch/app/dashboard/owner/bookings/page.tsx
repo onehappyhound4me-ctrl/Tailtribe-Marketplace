@@ -361,20 +361,20 @@ export default function OwnerBookingsPage() {
             </div>
           )}
           
-          <div className="mb-8 flex items-center justify-between">
-            <div>
-              <h1 className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-emerald-700 to-blue-700 mb-2">
-                Mijn Aanvragen
+          <div className="mb-8 flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
+            <div className="min-w-0">
+              <h1 className="text-2xl sm:text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-emerald-700 to-blue-700">
+                Mijn aanvragen
               </h1>
-              <p className="text-gray-600">
+              <p className="mt-1 text-sm sm:text-base text-gray-600">
                 Overzicht van al je aanvragen voor dierenverzorging
               </p>
             </div>
             <Link
               href="/dashboard/owner/new-booking"
-              className="btn-brand"
+              className="btn-brand w-full sm:w-auto inline-flex justify-center"
             >
-              ➕ Nieuwe Aanvraag
+              Nieuwe aanvraag
             </Link>
           </div>
 
