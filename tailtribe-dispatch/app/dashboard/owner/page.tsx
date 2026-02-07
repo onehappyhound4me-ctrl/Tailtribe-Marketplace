@@ -76,6 +76,9 @@ export default function OwnerDashboardPage() {
   const [notificationsError, setNotificationsError] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
   const [impersonationLoading, setImpersonationLoading] = useState(false)
+  const [approveLoadingCaregiverId, setApproveLoadingCaregiverId] = useState<string | null>(null)
+  const [approveError, setApproveError] = useState<string | null>(null)
+  const [approveProgress, setApproveProgress] = useState<{ done: number; total: number } | null>(null)
   const [rejectLoadingCaregiverId, setRejectLoadingCaregiverId] = useState<string | null>(null)
   const [rejectError, setRejectError] = useState<string | null>(null)
 
@@ -155,6 +158,56 @@ export default function OwnerDashboardPage() {
       setNotifications((prev) => prev.map((n) => (ids.includes(n.id) ? { ...n, readAt: n.readAt ?? new Date().toISOString() } : n)))
     } catch {
       // ignore (best-effort)
+    }
+  }
+
+  const patchSelectCaregiver = async (bookingId: string, caregiverId: string) => {
+    const response = await fetch('/api/owner/bookings', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id: bookingId, caregiverId }),
+    })
+    const data = await response.json().catch(() => ({}))
+    if (!response.ok) {
+      throw new Error(data?.error || `Kon verzorger niet kiezen (status ${response.status}).`)
+    }
+    return true
+  }
+
+  const approveOfferGroup = async (caregiverId: string, bookingIds: string[], caregiverName: string) => {
+    if (!caregiverId || !bookingIds || bookingIds.length === 0) return
+    if (
+      !window.confirm(
+        `Keur ${caregiverName} goed voor ${bookingIds.length} dag(en)?\n\nDit kiest de verzorger voor alle voorgestelde dagen.`
+      )
+    ) {
+      return
+    }
+
+    setApproveError(null)
+    setApproveLoadingCaregiverId(caregiverId)
+    setApproveProgress({ done: 0, total: bookingIds.length })
+    try {
+      let done = 0
+      for (const bookingId of bookingIds) {
+        try {
+          await patchSelectCaregiver(bookingId, caregiverId)
+          done += 1
+        } catch (e) {
+          // Keep going; we'll show a partial error summary.
+          console.error('Failed to approve caregiver for booking', bookingId, e)
+        }
+        setApproveProgress({ done, total: bookingIds.length })
+      }
+
+      await fetchBookings()
+
+      if (done !== bookingIds.length) {
+        setApproveError(`Niet alle dagen konden goedgekeurd worden. Gelukt: ${done}/${bookingIds.length}.`)
+      }
+    } finally {
+      setApproveLoadingCaregiverId(null)
+      setApproveProgress(null)
     }
   }
 
@@ -302,9 +355,19 @@ export default function OwnerDashboardPage() {
               <div className="mb-4 rounded-xl border border-blue-200 bg-blue-50 px-4 py-3">
                 <div className="text-sm font-semibold text-blue-900 mb-1">Nieuwe verzorger voorgesteld</div>
                 <div className="text-xs text-blue-900/80 mb-3">
-                  Bekijk de dagen en keur goed in één overzicht.
+                  Bekijk de dagen en keur goed in één klik.
                 </div>
 
+                {approveProgress && (
+                  <div className="mb-3 rounded-lg border border-blue-200 bg-blue-100/60 px-3 py-2 text-xs text-blue-900">
+                    Bezig: {approveProgress.done}/{approveProgress.total}
+                  </div>
+                )}
+                {approveError && (
+                  <div className="mb-3 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-800">
+                    {approveError}
+                  </div>
+                )}
                 {rejectError && (
                   <div className="mb-3 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-800">
                     {rejectError}
@@ -349,12 +412,20 @@ export default function OwnerDashboardPage() {
                             >
                               Bekijk profiel
                             </Link>
-                            <Link
-                              href={`/dashboard/owner/bookings?caregiver=${encodeURIComponent(g.caregiverId)}`}
-                              className="w-full sm:w-auto px-3 py-1.5 rounded-lg bg-blue-700 text-white text-sm font-semibold hover:bg-blue-800 text-center whitespace-nowrap"
+                            <button
+                              type="button"
+                              onClick={() =>
+                                approveOfferGroup(
+                                  g.caregiverId,
+                                  g.bookings.map((b) => b.id),
+                                  caregiverName
+                                )
+                              }
+                              disabled={approveLoadingCaregiverId === g.caregiverId}
+                              className="w-full sm:w-auto px-3 py-1.5 rounded-lg bg-blue-700 text-white text-sm font-semibold hover:bg-blue-800 disabled:opacity-60 text-center whitespace-nowrap"
                             >
-                              Keur goed
-                            </Link>
+                              {approveLoadingCaregiverId === g.caregiverId ? 'Bezig...' : 'Keur goed'}
+                            </button>
                             <button
                               type="button"
                               onClick={() =>
