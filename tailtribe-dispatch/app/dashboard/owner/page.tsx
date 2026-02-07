@@ -330,28 +330,28 @@ export default function OwnerDashboardPage() {
                     return (
                       <div key={g.caregiverId} className="rounded-xl border border-blue-200 bg-white/60 px-3 py-3">
                         <div className="flex flex-wrap items-start justify-between gap-3">
-                          <div className="min-w-[200px]">
+                          <div className="min-w-0 sm:min-w-[200px] pr-2">
                             <div className="text-sm font-semibold text-blue-950">{caregiverName}</div>
                             <div className="text-xs text-blue-950/70">
                               {g.bookings.length} dag(en){serviceLabels.length > 0 ? ` • ${serviceLabels.join(' • ')}` : ''}
                             </div>
                           </div>
 
-                          <div className="flex-1 min-w-[220px] text-xs text-blue-950/80">
+                          <div className="flex-1 min-w-0 sm:min-w-[220px] text-xs text-blue-950/80 break-words">
                             <span className="font-semibold">Dagen:</span> {shown.join(' • ')}
                             {rest > 0 ? ` • +${rest}` : ''}
                           </div>
 
-                          <div className="flex flex-col sm:flex-row sm:items-center gap-2 w-full sm:w-auto">
+                          <div className="flex flex-col sm:flex-row sm:flex-wrap sm:justify-end sm:items-center gap-2 w-full sm:w-auto sm:ml-auto">
                             <Link
                               href={`/dashboard/owner/caregivers/${g.caregiverId}`}
-                              className="w-full sm:w-auto px-3 py-1.5 rounded-lg border border-blue-200 text-blue-900 text-sm font-semibold hover:bg-blue-50 text-center"
+                              className="w-full sm:w-auto px-3 py-1.5 rounded-lg border border-blue-200 text-blue-900 text-sm font-semibold hover:bg-blue-50 text-center whitespace-nowrap"
                             >
                               Bekijk profiel
                             </Link>
                             <Link
                               href={`/dashboard/owner/bookings?caregiver=${encodeURIComponent(g.caregiverId)}`}
-                              className="w-full sm:w-auto px-3 py-1.5 rounded-lg bg-blue-700 text-white text-sm font-semibold hover:bg-blue-800 text-center"
+                              className="w-full sm:w-auto px-3 py-1.5 rounded-lg bg-blue-700 text-white text-sm font-semibold hover:bg-blue-800 text-center whitespace-nowrap"
                             >
                               Keur goed
                             </Link>
@@ -365,7 +365,7 @@ export default function OwnerDashboardPage() {
                                 )
                               }
                               disabled={rejectLoadingCaregiverId === g.caregiverId}
-                              className="w-full sm:w-auto px-3 py-1.5 rounded-lg border border-red-200 text-red-800 text-sm font-semibold hover:bg-red-50 disabled:opacity-60 text-center"
+                              className="w-full sm:w-auto px-3 py-1.5 rounded-lg border border-red-200 text-red-800 text-sm font-semibold hover:bg-red-50 disabled:opacity-60 text-center whitespace-nowrap"
                             >
                               {rejectLoadingCaregiverId === g.caregiverId ? 'Bezig...' : 'Weiger'}
                             </button>
