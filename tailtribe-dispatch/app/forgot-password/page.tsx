@@ -1,6 +1,6 @@
 'use client'
 
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
 import { useRouter } from 'next/navigation'
@@ -10,7 +10,8 @@ import { SiteFooter } from '@/components/SiteFooter'
 export default function ForgotPasswordPage() {
   const router = useRouter()
   const searchParams = useSearchParams()
-  const token = useMemo(() => searchParams.get('token')?.trim() || '', [searchParams])
+  const tokenFromUrl = useMemo(() => searchParams.get('token')?.trim() || '', [searchParams])
+  const [token, setToken] = useState('')
 
   const [email, setEmail] = useState('')
   const [newPassword, setNewPassword] = useState('')
@@ -18,6 +19,14 @@ export default function ForgotPasswordPage() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
+
+  // Immediately remove the token from the address bar (safer + avoids "token stays visible when switching accounts").
+  useEffect(() => {
+    if (!tokenFromUrl) return
+    setToken(tokenFromUrl)
+    // Remove query param without losing the reset state.
+    router.replace('/forgot-password')
+  }, [tokenFromUrl, router])
 
   const requestReset = async (e: React.FormEvent) => {
     e.preventDefault()

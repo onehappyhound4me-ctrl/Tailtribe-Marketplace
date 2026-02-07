@@ -92,7 +92,6 @@ export async function POST(req: NextRequest) {
   // Keep only a few active reset tokens per user.
   await prisma.verificationToken.deleteMany({
     where: {
-      userId: user.id,
       identifier: `reset:${email}`,
     },
   }).catch(() => null)
@@ -102,7 +101,6 @@ export async function POST(req: NextRequest) {
       identifier: `reset:${email}`,
       token,
       expires,
-      userId: user.id,
     },
   })
 

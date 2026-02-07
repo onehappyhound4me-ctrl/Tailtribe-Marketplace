@@ -23,16 +23,32 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Wachtwoord moet minimaal 6 karakters lang zijn.' }, { status: 400 })
   }
 
-  const record = await prisma.verificationToken.findUnique({ where: { token } }).catch(() => null)
-  if (!record || record.expires < new Date() || !record.userId || !record.identifier.startsWith('reset:')) {
+  // IMPORTANT: some prod databases may not have `verificationToken.userId` (schema drift).
+  // So we only select fields we need and derive the target user from `identifier=reset:<email>`.
+  const record = await prisma.verificationToken.findUnique({
+    where: { token },
+    select: { identifier: true, expires: true },
+  }).catch(() => null)
+
+  if (!record || record.expires < new Date() || !record.identifier.startsWith('reset:')) {
     return NextResponse.json({ error: 'Reset link is verlopen of ongeldig. Vraag een nieuwe aan.' }, { status: 400 })
+  }
+
+  const email = record.identifier.replace(/^reset:/, '').trim().toLowerCase()
+  if (!email) {
+    return NextResponse.json({ error: 'Reset link is ongeldig. Vraag een nieuwe aan.' }, { status: 400 })
+  }
+
+  const user = await prisma.user.findUnique({ where: { email }, select: { id: true } }).catch(() => null)
+  if (!user) {
+    return NextResponse.json({ error: 'Reset link is ongeldig. Vraag een nieuwe aan.' }, { status: 400 })
   }
 
   const passwordHash = await bcrypt.hash(newPassword, 10)
 
   await prisma.$transaction(async (tx) => {
     await tx.user.update({
-      where: { id: record.userId as string },
+      where: { id: user.id },
       data: {
         passwordHash,
         // Ensure credentials login works immediately even if email verification was flaky.
