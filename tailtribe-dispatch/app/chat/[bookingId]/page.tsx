@@ -27,6 +27,7 @@ export default function ChatPage() {
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
   const [isVisible, setIsVisible] = useState(true)
+  const [sending, setSending] = useState(false)
 
   const loadConversation = useCallback(async () => {
     setError(null)
@@ -104,21 +105,31 @@ export default function ChatPage() {
   }, [conversation, loadMessages, isVisible])
 
   const handleSend = async () => {
-    if (!conversation || !input.trim()) return
+    if (!conversation) return
+    const body = input.trim()
+    if (!body || sending) return
     setError(null)
-    const body = input
-    setInput('')
-    const res = await fetch(`/api/conversations/${conversation.id}/messages`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ body }),
-    })
-    if (!res.ok) {
+    setSending(true)
+    try {
+      const res = await fetch(`/api/conversations/${conversation.id}/messages`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ body }),
+      })
       const data = await res.json().catch(() => null)
-      setError(data?.error || 'Bericht kon niet worden verzonden.')
-      return
+      if (!res.ok) {
+        // Keep the user's input so they can edit it (common when moderation blocks phone/email/links).
+        setError(data?.error || 'Bericht kon niet worden verzonden.')
+        // Still refresh so the sender sees the blocked message entry (if created).
+        loadMessages(true)
+        return
+      }
+      // Clear only after successful send.
+      setInput('')
+      loadMessages(true)
+    } finally {
+      setSending(false)
     }
-    loadMessages(true)
   }
 
   if (loading) {
@@ -155,7 +166,10 @@ export default function ChatPage() {
                 <div className="text-xs text-gray-500">
                   {new Date(msg.createdAt).toLocaleString('nl-BE')} • {msg.senderRole}
                 </div>
-                <div className="text-sm text-gray-900 bg-gray-50 border border-gray-200 rounded-lg px-3 py-2">
+                <div
+                  className="text-sm text-gray-900 bg-gray-50 border border-gray-200 rounded-lg px-3 py-2"
+                  dir="auto"
+                >
                   {msg.blockedReason ? (
                     <span className="text-red-600">Geblokkeerd: {msg.blockedReason}</span>
                   ) : (
@@ -173,13 +187,15 @@ export default function ChatPage() {
                 onChange={(e) => setInput(e.target.value)}
                 className="flex-1 border rounded-lg px-3 py-2 text-sm"
                 placeholder="Typ je bericht..."
+                disabled={sending}
+                dir="auto"
               />
               <button
                 onClick={handleSend}
                 className="px-4 py-2 bg-emerald-600 text-white rounded-lg text-sm disabled:opacity-50"
-                disabled={!input.trim() || !conversation}
+                disabled={!input.trim() || !conversation || sending}
               >
-                Verstuur
+                {sending ? 'Bezig...' : 'Verstuur'}
               </button>
             </div>
           </div>
