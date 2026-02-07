@@ -84,8 +84,8 @@ export default async function OwnerCaregiverProfilePage({
       <main className="container mx-auto px-4" style={{ paddingTop: '3rem', paddingBottom: '5rem' }}>
         <div className="max-w-3xl mx-auto">
           <div className="mb-4">
-            <Link href="/dashboard/owner/bookings" className="text-sm font-semibold text-emerald-700 hover:underline">
-              ← Terug naar aanvragen
+            <Link href="/dashboard/owner" className="text-sm font-semibold text-emerald-700 hover:underline">
+              ← Terug naar dashboard
             </Link>
           </div>
 
