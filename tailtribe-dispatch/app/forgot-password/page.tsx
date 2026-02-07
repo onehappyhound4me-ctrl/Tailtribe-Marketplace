@@ -194,10 +194,6 @@ export default function ForgotPasswordPage() {
                 Terug naar inloggen
               </Link>
             </div>
-
-            <div className="mt-4 text-center text-[11px] text-gray-400">
-              Reset build: v2
-            </div>
           </div>
         </div>
       </main>
