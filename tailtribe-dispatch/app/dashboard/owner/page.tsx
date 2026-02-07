@@ -342,16 +342,16 @@ export default function OwnerDashboardPage() {
                             {rest > 0 ? ` • +${rest}` : ''}
                           </div>
 
-                          <div className="flex items-center gap-3 shrink-0">
+                          <div className="flex flex-col sm:flex-row sm:items-center gap-2 w-full sm:w-auto">
                             <Link
                               href={`/dashboard/owner/caregivers/${g.caregiverId}`}
-                              className="text-sm font-semibold text-blue-900 hover:underline"
+                              className="w-full sm:w-auto px-3 py-1.5 rounded-lg border border-blue-200 text-blue-900 text-sm font-semibold hover:bg-blue-50 text-center"
                             >
                               Bekijk profiel
                             </Link>
                             <Link
                               href={`/dashboard/owner/bookings?caregiver=${encodeURIComponent(g.caregiverId)}`}
-                              className="px-3 py-1.5 rounded-lg bg-blue-700 text-white text-sm font-semibold hover:bg-blue-800"
+                              className="w-full sm:w-auto px-3 py-1.5 rounded-lg bg-blue-700 text-white text-sm font-semibold hover:bg-blue-800 text-center"
                             >
                               Keur goed
                             </Link>
@@ -365,7 +365,7 @@ export default function OwnerDashboardPage() {
                                 )
                               }
                               disabled={rejectLoadingCaregiverId === g.caregiverId}
-                              className="px-3 py-1.5 rounded-lg border border-red-200 text-red-800 text-sm font-semibold hover:bg-red-50 disabled:opacity-60"
+                              className="w-full sm:w-auto px-3 py-1.5 rounded-lg border border-red-200 text-red-800 text-sm font-semibold hover:bg-red-50 disabled:opacity-60 text-center"
                             >
                               {rejectLoadingCaregiverId === g.caregiverId ? 'Bezig...' : 'Weiger'}
                             </button>
