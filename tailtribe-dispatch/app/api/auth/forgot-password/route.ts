@@ -11,9 +11,36 @@ function normalizeEmail(value: unknown) {
     .toLowerCase()
 }
 
+function maskEmail(email: string) {
+  const e = String(email || '').trim()
+  const [user, domain] = e.split('@')
+  if (!user || !domain) return 'invalid-email'
+  const u = user.length <= 2 ? `${user[0] ?? ''}*` : `${user.slice(0, 2)}***`
+  const dParts = domain.split('.')
+  const d0 = dParts[0] ?? ''
+  const dMasked = d0 ? `${d0[0]}***` : '***'
+  const rest = dParts.slice(1).join('.')
+  return `${u}@${dMasked}${rest ? `.${rest}` : ''}`
+}
+
+function serializeError(err: unknown) {
+  const e = err as any
+  return {
+    name: e?.name,
+    message: e?.message,
+    stack: e?.stack,
+    code: e?.code,
+    status: e?.status,
+    response: e?.response,
+    cause: e?.cause,
+  }
+}
+
 export const runtime = 'nodejs'
 
 export async function POST(req: NextRequest) {
+  const requestId =
+    (crypto as any).randomUUID?.() ?? crypto.randomBytes(8).toString('hex')
   const ip = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown'
   const rate = await checkRateLimit(`forgot-password:${ip}`, 5, 10 * 60 * 1000)
   if (!rate.allowed) {
@@ -29,6 +56,15 @@ export async function POST(req: NextRequest) {
   if (!email) {
     return NextResponse.json({ error: 'Vul je e-mailadres in.' }, { status: 400 })
   }
+
+  console.log(
+    JSON.stringify({
+      event: 'auth.forgot_password.request',
+      requestId,
+      email: maskEmail(email),
+      emailConfigured,
+    })
+  )
 
   // Don’t leak whether an email exists.
   const genericOk = NextResponse.json({
@@ -72,6 +108,7 @@ export async function POST(req: NextRequest) {
 
   const baseUrl = getPublicAppUrl()
   const resetUrl = new URL(`/forgot-password?token=${encodeURIComponent(token)}`, baseUrl).toString()
+  const displayUrl = new URL('/forgot-password', baseUrl).toString()
 
   const html = `
     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
@@ -90,8 +127,8 @@ export async function POST(req: NextRequest) {
         </a>
       </div>
       <p style="color: #666; font-size: 14px;">
-        Of kopieer deze link in je browser:<br>
-        <a href="${resetUrl}">${resetUrl}</a>
+        Werkt de knop niet? Open dan TailTribe en reset je wachtwoord via:<br>
+        <a href="${resetUrl}">${displayUrl}</a>
       </p>
       <p style="color: #666; font-size: 12px; margin-top: 30px;">
         Deze link is 1 uur geldig. Als je dit niet hebt aangevraagd, negeer deze e-mail.
@@ -101,10 +138,17 @@ export async function POST(req: NextRequest) {
 
   await sendTransactionalEmail({
     to: email,
-    subject: 'Reset je TailTribe wachtwoord',
+    subject: 'Wachtwoord resetten - TailTribe',
     html,
-  }).catch(() => {
-    // Keep response stable; user can still contact support.
+  }).catch((err) => {
+    console.error(
+      JSON.stringify({
+        event: 'auth.forgot_password.email_failed',
+        requestId,
+        email: maskEmail(email),
+        error: serializeError(err),
+      })
+    )
   })
 
   return genericOk

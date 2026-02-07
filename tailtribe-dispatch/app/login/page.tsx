@@ -19,6 +19,7 @@ export default function LoginPage() {
 
   const debug = searchParams.get('debug') === '1'
   const switchMode = searchParams.get('switch') === '1'
+  const pwReset = searchParams.get('pwreset') === '1'
 
   const verified = searchParams.get('verified')
   const errorParam = searchParams.get('error')
@@ -192,6 +193,12 @@ export default function LoginPage() {
             {verified && (
               <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-lg text-green-800 text-sm">
                 Je email is geverifieerd. Je kan nu inloggen.
+              </div>
+            )}
+
+            {pwReset && (
+              <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-lg text-green-800 text-sm">
+                Je wachtwoord is aangepast. Je kan nu inloggen.
               </div>
             )}
 

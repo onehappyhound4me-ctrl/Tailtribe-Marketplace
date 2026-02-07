@@ -3,10 +3,12 @@
 import { useMemo, useState } from 'react'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
+import { useRouter } from 'next/navigation'
 import { SiteHeader } from '@/components/SiteHeader'
 import { SiteFooter } from '@/components/SiteFooter'
 
 export default function ForgotPasswordPage() {
+  const router = useRouter()
   const searchParams = useSearchParams()
   const token = useMemo(() => searchParams.get('token')?.trim() || '', [searchParams])
 
@@ -74,6 +76,12 @@ export default function ForgotPasswordPage() {
       }
       setSuccess('Wachtwoord aangepast. Je kan nu inloggen.')
       setLoading(false)
+
+      // Remove the token from the address bar by redirecting to login.
+      // This also makes account switching less confusing.
+      requestAnimationFrame(() => {
+        router.replace('/login?pwreset=1')
+      })
     } catch {
       setError('Reset mislukt. Vraag een nieuwe link aan.')
       setLoading(false)
@@ -176,6 +184,10 @@ export default function ForgotPasswordPage() {
               <Link href="/login" className="text-emerald-700 font-semibold hover:underline">
                 Terug naar inloggen
               </Link>
+            </div>
+
+            <div className="mt-4 text-center text-[11px] text-gray-400">
+              Reset build: v2
             </div>
           </div>
         </div>
