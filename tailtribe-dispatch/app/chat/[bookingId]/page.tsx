@@ -1,9 +1,20 @@
 'use client'
 
-import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useRef, useState, useCallback, useMemo } from 'react'
 import { useParams } from 'next/navigation'
+import { DISPATCH_SERVICES } from '@/lib/services'
 
-type Conversation = { id: string; status: string }
+type Conversation = {
+  id: string
+  status: string
+  context?: {
+    type?: 'BOOKING' | 'REQUEST'
+    service?: string | null
+    date?: string | null
+    timeWindow?: string | null
+    time?: string | null
+  }
+}
 type Message = {
   id: string
   senderUserId: string
@@ -15,6 +26,13 @@ type Message = {
 }
 
 const MAX_MESSAGES = 300
+
+const TIME_WINDOW_LABELS: Record<string, string> = {
+  MORNING: 'Ochtend',
+  AFTERNOON: 'Middag',
+  EVENING: 'Avond',
+  NIGHT: 'Nacht',
+}
 
 export default function ChatPage() {
   const params = useParams<{ bookingId: string }>()
@@ -28,6 +46,10 @@ export default function ChatPage() {
   const [loading, setLoading] = useState(true)
   const [isVisible, setIsVisible] = useState(true)
   const [sending, setSending] = useState(false)
+  const [inputFocused, setInputFocused] = useState(false)
+
+  const inputValueRef = useRef('')
+  const inputFocusedRef = useRef(false)
 
   const loadConversation = useCallback(async () => {
     setError(null)
@@ -48,8 +70,26 @@ export default function ChatPage() {
     }
   }, [bookingId])
 
+  const contextLine = useMemo(() => {
+    const ctx = conversation?.context
+    if (!ctx) return ''
+    const serviceId = ctx.service ?? ''
+    const serviceName = serviceId
+      ? DISPATCH_SERVICES.find((s) => s.id === serviceId)?.name ?? serviceId
+      : ''
+    const dateStr = ctx.date ? new Date(ctx.date).toLocaleDateString('nl-BE') : ''
+    const tw = ctx.timeWindow ? (TIME_WINDOW_LABELS[ctx.timeWindow] ?? ctx.timeWindow) : ''
+    const parts = [serviceName, dateStr, tw].filter(Boolean)
+    return parts.join(' • ')
+  }, [conversation?.context])
+
   const loadMessages = useCallback(async (force = false) => {
     if (!conversation) return
+    // Mobile Safari: updating messages while typing can cause the input caret/text to "jump/flip".
+    // Pause polling updates while the user is actively typing.
+    if (!force && inputFocusedRef.current && inputValueRef.current.trim().length > 0) {
+      return
+    }
     try {
       const sinceParam = !force && lastMessageAt ? `&since=${encodeURIComponent(lastMessageAt)}` : ''
       const res = await fetch(
@@ -125,6 +165,7 @@ export default function ChatPage() {
         return
       }
       // Clear only after successful send.
+      inputValueRef.current = ''
       setInput('')
       loadMessages(true)
     } finally {
@@ -154,6 +195,9 @@ export default function ChatPage() {
         <div className="bg-white rounded-2xl shadow-md border border-gray-100 overflow-hidden">
           <div className="bg-emerald-50 px-4 py-3 border-b">
             <div className="text-sm text-gray-700 font-semibold">Chatregels</div>
+            {contextLine ? (
+              <div className="mt-0.5 text-xs text-gray-700 font-medium">{contextLine}</div>
+            ) : null}
             <div className="text-xs text-gray-600">Deel geen telefoonnummers, e-mail, links of social media. Blijf binnen het platform.</div>
           </div>
 
@@ -184,7 +228,19 @@ export default function ChatPage() {
             <div className="flex gap-2">
               <input
                 value={input}
-                onChange={(e) => setInput(e.target.value)}
+                onChange={(e) => {
+                  const v = e.target.value
+                  inputValueRef.current = v
+                  setInput(v)
+                }}
+                onFocus={() => {
+                  inputFocusedRef.current = true
+                  setInputFocused(true)
+                }}
+                onBlur={() => {
+                  inputFocusedRef.current = false
+                  setInputFocused(false)
+                }}
                 className="flex-1 border rounded-lg px-3 py-2 text-sm"
                 placeholder="Typ je bericht..."
                 disabled={sending}

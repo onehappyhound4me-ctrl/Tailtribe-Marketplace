@@ -7,7 +7,16 @@ const allowedStatuses = ['CONFIRMED', 'COMPLETED']
 async function getBookingContext(bookingId: string) {
   const booking = await prisma.booking.findUnique({
     where: { id: bookingId },
-    select: { id: true, status: true, ownerId: true, caregiverId: true },
+    select: {
+      id: true,
+      status: true,
+      ownerId: true,
+      caregiverId: true,
+      service: true,
+      date: true,
+      timeWindow: true,
+      time: true,
+    },
   })
   if (booking) {
     return {
@@ -16,6 +25,10 @@ async function getBookingContext(bookingId: string) {
       caregiverId: booking.caregiverId,
       status: booking.status,
       type: 'BOOKING' as const,
+      service: booking.service,
+      date: booking.date,
+      timeWindow: booking.timeWindow,
+      time: booking.time,
     }
   }
   const occurrence = await prisma.bookingOccurrence.findUnique({
@@ -24,6 +37,10 @@ async function getBookingContext(bookingId: string) {
       id: true,
       status: true,
       assignedCaregiverId: true,
+      scheduledDate: true,
+      timeWindow: true,
+      time: true,
+      service: true,
       request: { select: { ownerId: true } },
     },
   })
@@ -34,6 +51,10 @@ async function getBookingContext(bookingId: string) {
       caregiverId: occurrence.assignedCaregiverId ?? null,
       status: occurrence.status,
       type: 'REQUEST' as const,
+      service: occurrence.service,
+      date: occurrence.scheduledDate,
+      timeWindow: occurrence.timeWindow,
+      time: occurrence.time,
     }
   }
   return null
@@ -91,5 +112,14 @@ export async function GET(req: NextRequest) {
     },
   })
 
-  return NextResponse.json(convo)
+  return NextResponse.json({
+    ...convo,
+    context: {
+      type: ctx.type,
+      service: ctx.service,
+      date: ctx.date,
+      timeWindow: ctx.timeWindow,
+      time: ctx.time,
+    },
+  })
 }
