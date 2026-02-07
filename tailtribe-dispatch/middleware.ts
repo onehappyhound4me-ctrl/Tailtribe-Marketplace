@@ -66,6 +66,7 @@ export default async function middleware(req: NextRequest) {
     '/login',
     '/logout',
     '/register',
+    '/forgot-password',
     '/bedankt',
     '/verzorger-aanmelden',
     '/verzorger-aanmelden/bedankt',

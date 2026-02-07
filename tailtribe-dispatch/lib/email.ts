@@ -103,7 +103,7 @@ export async function sendCaregiverApprovedEmail(input: {
   tempPassword?: string | null
 }) {
   const appUrl = baseUrl()
-  const loginUrl = `${appUrl}/login?switch=1`
+  const loginUrl = `${appUrl}/login`
   const subject = 'Je bent goedgekeurd als dierenverzorger – TailTribe'
 
   const pwLine = input.tempPassword
