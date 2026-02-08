@@ -6,12 +6,9 @@ import { checkRateLimit } from '@/lib/rate-limit'
 
 const DEFAULT_ROOMS = [
   { slug: 'vrije-chat', name: 'Vrije chat', description: 'Algemene chat zonder topic.', sortOrder: 0 },
-  { slug: 'algemeen', name: 'Algemeen', description: 'Algemene vragen en updates voor verzorgers.', sortOrder: 1 },
-  { slug: 'tips-tricks', name: 'Tips & tricks', description: 'Praktische tips uit het veld en best practices.', sortOrder: 2 },
-  { slug: 'gedrag-training', name: 'Gedrag & training', description: 'Training, gedrag en opvoedkundige vragen.', sortOrder: 3 },
-  { slug: 'veiligheid', name: 'Veiligheid', description: 'Veiligheid bij oppas, uitlaat en transport.', sortOrder: 4 },
-  { slug: 'planning', name: 'Planning & organisatie', description: 'Planning, routes, tijdsblokken en efficiëntie.', sortOrder: 5 },
-  { slug: 'huisdieren-klanten', name: 'Huisdieren & klanten', description: 'Wisselwerking tussen verzorgers ivm klanten.', sortOrder: 6 },
+  { slug: 'algemeen', name: 'Algemeen', description: 'Vragen, updates en klantensituaties.', sortOrder: 1 },
+  { slug: 'tips-praktijk', name: 'Tips & praktijk', description: 'Praktische tips uit het veld en best practices.', sortOrder: 2 },
+  { slug: 'gedrag-veiligheid', name: 'Gedrag & veiligheid', description: 'Gedrag, training en veiligheid onderweg.', sortOrder: 3 },
 ]
 
 const hasAccess = (role?: string | null) => role === 'CAREGIVER' || role === 'ADMIN'

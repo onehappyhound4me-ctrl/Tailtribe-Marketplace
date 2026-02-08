@@ -12,38 +12,20 @@ const DEFAULT_ROOMS = [
   {
     slug: 'algemeen',
     name: 'Algemeen',
-    description: 'Algemene vragen en updates voor verzorgers.',
+    description: 'Vragen, updates en klantensituaties.',
     sortOrder: 1,
   },
   {
-    slug: 'tips-tricks',
-    name: 'Tips & tricks',
+    slug: 'tips-praktijk',
+    name: 'Tips & praktijk',
     description: 'Praktische tips uit het veld en best practices.',
     sortOrder: 2,
   },
   {
-    slug: 'gedrag-training',
-    name: 'Gedrag & training',
-    description: 'Training, gedrag en opvoedkundige vragen.',
+    slug: 'gedrag-veiligheid',
+    name: 'Gedrag & veiligheid',
+    description: 'Gedrag, training en veiligheid onderweg.',
     sortOrder: 3,
-  },
-  {
-    slug: 'veiligheid',
-    name: 'Veiligheid',
-    description: 'Veiligheid bij oppas, uitlaat en transport.',
-    sortOrder: 4,
-  },
-  {
-    slug: 'planning',
-    name: 'Planning & organisatie',
-    description: 'Planning, routes, tijdsblokken en efficiëntie.',
-    sortOrder: 5,
-  },
-  {
-    slug: 'huisdieren-klanten',
-    name: 'Huisdieren & klanten',
-    description: 'Wisselwerking tussen verzorgers ivm klanten.',
-    sortOrder: 6,
   },
 ]
 
@@ -81,9 +63,12 @@ export async function GET() {
     return NextResponse.json({ error: 'Geen toegang tot deze community.' }, { status: 403 })
   }
 
+  const allowedSlugs = DEFAULT_ROOMS.map((r) => r.slug)
+
   try {
     await ensureRooms()
     const rooms = await prisma.communityRoom.findMany({
+      where: { slug: { in: allowedSlugs } },
       orderBy: [{ sortOrder: 'asc' }, { name: 'asc' }],
     })
     return NextResponse.json(rooms)
