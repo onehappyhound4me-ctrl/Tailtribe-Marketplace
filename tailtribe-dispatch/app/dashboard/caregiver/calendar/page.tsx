@@ -23,8 +23,6 @@ type Booking = {
   owner: {
     firstName: string
     lastName: string
-    email?: string
-    phone?: string | null
   }
 }
 
@@ -282,7 +280,7 @@ export default function CaregiverCalendarPage() {
     <div className="min-h-screen bg-gradient-to-b from-green-50 via-white to-blue-50">
       <SiteHeader primaryCtaHref="/dashboard/caregiver" primaryCtaLabel="Dashboard" />
 
-      <main className="container mx-auto px-4" style={{ paddingTop: '6rem', paddingBottom: '5rem' }}>
+      <main className="container mx-auto px-4" style={{ paddingTop: '7rem', paddingBottom: '5rem' }}>
         <div className="max-w-7xl mx-auto">
           <div className="mb-8">
             <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-4">
@@ -297,17 +295,13 @@ export default function CaregiverCalendarPage() {
                   Beschikbaarheid tot 60 dagen vooruit
                 </div>
               </div>
-              <Link
-                href="/dashboard/caregiver/availability"
-                className="w-full sm:w-auto inline-flex items-center justify-center rounded-xl border border-emerald-200 bg-white px-4 py-3 text-sm font-semibold text-emerald-700 hover:bg-emerald-50 transition"
-              >
-                Bulk invullen
-              </Link>
             </div>
             
             <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-4">
               <div className="flex items-start gap-3">
-                <span className="text-2xl select-none pointer-events-none">i</span>
+                <div className="h-8 w-8 rounded-full bg-emerald-100 text-emerald-800 flex items-center justify-center font-bold select-none pointer-events-none">
+                  i
+                </div>
                 <div>
                   <h3 className="font-semibold text-emerald-900 mb-1">
                     Tip
@@ -323,22 +317,26 @@ export default function CaregiverCalendarPage() {
           {/* Kalender */}
           <div className="bg-white rounded-2xl shadow-lg border border-black/5 overflow-hidden">
             <div className="bg-gradient-to-r from-emerald-600 to-blue-600 text-white p-4 sm:p-6">
-              <div className="flex items-center justify-between gap-3">
-                <button
-                  onClick={() => changeMonth(-1)}
-                  className="p-2 hover:bg-white/20 rounded-lg transition h-11 w-11 sm:h-auto sm:w-auto text-sm sm:text-base"
-                >
-                  ← Vorige
-                </button>
-                <h2 className="text-lg sm:text-2xl font-bold text-center">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                <h2 className="text-lg sm:text-2xl font-bold text-center sm:text-left">
                   {MONTHS[currentDate.getMonth()]} {currentDate.getFullYear()}
                 </h2>
-                <button
-                  onClick={() => changeMonth(1)}
-                  className="p-2 hover:bg-white/20 rounded-lg transition h-11 w-11 sm:h-auto sm:w-auto text-sm sm:text-base"
-                >
-                  Volgende →
-                </button>
+                <div className="flex items-center gap-2 w-full sm:w-auto">
+                  <button
+                    type="button"
+                    onClick={() => changeMonth(-1)}
+                    className="flex-1 sm:flex-none px-3 py-2 rounded-lg hover:bg-white/20 transition text-sm font-semibold"
+                  >
+                    ← Vorige
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => changeMonth(1)}
+                    className="flex-1 sm:flex-none px-3 py-2 rounded-lg hover:bg-white/20 transition text-sm font-semibold"
+                  >
+                    Volgende →
+                  </button>
+                </div>
               </div>
             </div>
 
@@ -668,16 +666,9 @@ export default function CaregiverCalendarPage() {
                 <p className="text-lg font-medium text-orange-800">
                   {selectedBooking.owner.firstName} {selectedBooking.owner.lastName}
                 </p>
-                {selectedBooking.owner.email && (
-                  <p className="text-orange-700 mt-1">
-                        {selectedBooking.owner.email}
-                  </p>
-                )}
-                {selectedBooking.owner.phone && (
-                  <p className="text-orange-700 mt-1">
-                        {selectedBooking.owner.phone}
-                  </p>
-                )}
+                <p className="text-sm text-orange-800/80 mt-1">
+                  Je mag enkel je adres delen via de chat. Deel geen telefoonnummer, e-mail of links.
+                </p>
               </div>
 
               {/* Locatie */}

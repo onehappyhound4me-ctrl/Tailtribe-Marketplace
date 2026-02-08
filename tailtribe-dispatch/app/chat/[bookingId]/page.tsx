@@ -87,7 +87,9 @@ export default function ChatPage() {
     if (!conversation) return
     // Mobile Safari: updating messages while typing can cause the input caret/text to "jump/flip".
     // Pause polling updates while the user is actively typing.
-    if (!force && inputFocusedRef.current && inputValueRef.current.trim().length > 0) {
+    if (!force && inputValueRef.current.trim().length > 0) {
+      // Some mobile browsers can briefly lose focus while typing/scrolling.
+      // If there's unsent text, avoid UI updates that can disturb the caret.
       return
     }
     try {
@@ -198,7 +200,9 @@ export default function ChatPage() {
             {contextLine ? (
               <div className="mt-0.5 text-xs text-gray-700 font-medium">{contextLine}</div>
             ) : null}
-            <div className="text-xs text-gray-600">Deel geen telefoonnummers, e-mail, links of social media. Blijf binnen het platform.</div>
+            <div className="text-xs text-gray-600">
+              Je mag enkel je adres delen. Deel geen telefoonnummer, e-mail, links of social media.
+            </div>
           </div>
 
           {error && <div className="px-4 py-2 text-sm text-red-600 border-b bg-red-50">{error}</div>}
@@ -241,7 +245,9 @@ export default function ChatPage() {
                   inputFocusedRef.current = false
                   setInputFocused(false)
                 }}
-                className="flex-1 border rounded-lg px-3 py-2 text-sm"
+                // iOS Safari zoom/jump happens when input font-size < 16px.
+                // Use 16px on mobile to keep typing stable.
+                className="flex-1 border rounded-lg px-3 py-2 text-[16px] sm:text-sm"
                 placeholder="Typ je bericht..."
                 disabled={sending}
                 dir="auto"

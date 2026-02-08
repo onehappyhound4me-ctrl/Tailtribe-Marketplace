@@ -21,8 +21,6 @@ type Booking = {
   owner: {
     firstName: string
     lastName: string
-    email: string
-    phone: string | null
   }
 }
 
@@ -179,22 +177,14 @@ export default function CaregiverBookingsPage() {
                     )}
 
                     <div className="pt-4 border-t border-gray-100">
-                      <div className="text-sm text-gray-500 mb-1">👤 Eigenaar Contact</div>
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <div className="font-medium text-gray-900">
-                            {booking.owner.firstName} {booking.owner.lastName}
-                          </div>
-                          <div className="text-sm text-gray-600">
-                            📧 {booking.owner.email}
-                            {booking.owner.phone && ` • 📱 ${booking.owner.phone}`}
-                          </div>
+                      <div className="text-sm text-gray-500 mb-1">👤 Eigenaar</div>
+                      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                        <div className="font-medium text-gray-900">
+                          {booking.owner.firstName} {booking.owner.lastName}
                         </div>
-                        {booking.status === 'ASSIGNED' && (
-                          <div className="text-xs text-gray-500">
-                            Chat beschikbaar na bevestiging door de eigenaar.
-                          </div>
-                        )}
+                        <div className="text-xs text-gray-500">
+                          Je mag enkel je adres delen via de chat. Deel geen telefoonnummer, e-mail of links.
+                        </div>
                       </div>
                     </div>
 

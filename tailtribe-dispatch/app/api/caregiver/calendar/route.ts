@@ -41,8 +41,6 @@ export async function GET() {
           select: {
             firstName: true,
             lastName: true,
-            email: true,
-            phone: true,
           },
         },
       },

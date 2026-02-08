@@ -129,7 +129,11 @@ export default function CaregiverDashboardPage() {
               <div className="font-semibold">Wat moet je doen?</div>
               <ol className="mt-1 list-decimal pl-5 space-y-1 text-sm text-emerald-900/90">
                 <li>Vul je profiel in bij Instellingen.</li>
-                <li>Zet je beschikbaarheid in Kalender of Beschikbaarheid.</li>
+                <li>Zet je beschikbaarheid in Kalender.</li>
+                <li>
+                  Kijk je opdrachten na. Zodra een opdracht bevestigd is, kan je chatten via de knop <strong>Chat</strong> bij je recente
+                  opdrachten.
+                </li>
               </ol>
             </div>
           </div>
@@ -165,7 +169,7 @@ export default function CaregiverDashboardPage() {
           ) : (
             <div className="space-y-6">
               {/* Quick Links */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 <Link
                   href="/dashboard/caregiver/calendar"
                   className="bg-white rounded-2xl shadow-sm border border-black/5 p-4 sm:p-6 hover:shadow-md transition"
@@ -175,18 +179,6 @@ export default function CaregiverDashboardPage() {
                   </h3>
                   <p className="mt-1 text-sm text-gray-600">
                     Bekijk je planning
-                  </p>
-                </Link>
-
-                <Link
-                  href="/dashboard/caregiver/availability"
-                  className="bg-white rounded-2xl shadow-sm border border-black/5 p-4 sm:p-6 hover:shadow-md transition"
-                >
-                  <h3 className="text-base sm:text-lg font-semibold text-gray-900">
-                    Beschikbaarheid
-                  </h3>
-                  <p className="mt-1 text-sm text-gray-600">
-                    Beheer je tijden
                   </p>
                 </Link>
 
