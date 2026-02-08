@@ -119,24 +119,28 @@ export default function CaregiverDashboardPage() {
       <main className="container mx-auto px-4" style={{ paddingTop: '3rem', paddingBottom: '5rem' }}>
         <div className="max-w-6xl mx-auto">
           <div className="mb-8">
-            <h1 className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-emerald-700 to-blue-700 mb-2">
+            <h1 className="text-2xl sm:text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-emerald-700 to-blue-700">
               Verzorger Dashboard
             </h1>
-            <p className="text-gray-600">
+            <p className="mt-1 text-sm sm:text-base text-gray-600">
               Welkom terug, {session?.user?.name}
             </p>
-            <p className="text-sm text-gray-600 mt-2">
-              Stap 1: vul je profiel in bij Instellingen. Stap 2: zet je beschikbaarheid in Kalender of Beschikbaarheid.
-            </p>
+            <div className="mt-3 rounded-xl border border-emerald-100 bg-emerald-50/60 px-4 py-3 text-sm text-emerald-900">
+              <div className="font-semibold">Wat moet je doen?</div>
+              <ol className="mt-1 list-decimal pl-5 space-y-1 text-sm text-emerald-900/90">
+                <li>Vul je profiel in bij Instellingen.</li>
+                <li>Zet je beschikbaarheid in Kalender of Beschikbaarheid.</li>
+              </ol>
+            </div>
           </div>
 
           {isImpersonating && (
-            <div className="mb-6 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900 flex items-center justify-between gap-3">
-              <span>Je bekijkt dit dashboard als beheerder.</span>
+            <div className="mb-6 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+              <span className="min-w-0">Je bekijkt dit dashboard als beheerder.</span>
               <button
                 onClick={stopImpersonation}
                 disabled={impersonationLoading}
-                className="px-3 py-1 rounded-lg border border-amber-300 text-amber-900 font-semibold disabled:opacity-60"
+                className="w-full sm:w-auto px-4 py-2 rounded-xl border border-amber-300 text-amber-900 font-semibold disabled:opacity-60"
               >
                 {impersonationLoading ? 'Stoppen...' : 'Stop bekijken'}
               </button>
@@ -153,7 +157,7 @@ export default function CaregiverDashboardPage() {
               </p>
               <Link
                 href="/dashboard/caregiver/profile"
-                className="btn-brand"
+                className="btn-brand w-full sm:w-auto inline-flex justify-center"
               >
                 Profiel aanmaken
               </Link>
@@ -161,51 +165,51 @@ export default function CaregiverDashboardPage() {
           ) : (
             <div className="space-y-6">
               {/* Quick Links */}
-              <div className="grid md:grid-cols-4 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 <Link
                   href="/dashboard/caregiver/calendar"
-                  className="bg-white rounded-2xl shadow-sm border border-black/5 p-6 hover:shadow-md transition"
+                  className="bg-white rounded-2xl shadow-sm border border-black/5 p-4 sm:p-6 hover:shadow-md transition"
                 >
-                  <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                    📅 Kalender
+                  <h3 className="text-base sm:text-lg font-semibold text-gray-900">
+                    Kalender
                   </h3>
-                  <p className="text-sm text-gray-600">
+                  <p className="mt-1 text-sm text-gray-600">
                     Bekijk je planning
                   </p>
                 </Link>
 
                 <Link
                   href="/dashboard/caregiver/availability"
-                  className="bg-white rounded-2xl shadow-sm border border-black/5 p-6 hover:shadow-md transition"
+                  className="bg-white rounded-2xl shadow-sm border border-black/5 p-4 sm:p-6 hover:shadow-md transition"
                 >
-                  <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                    🕒 Beschikbaarheid
+                  <h3 className="text-base sm:text-lg font-semibold text-gray-900">
+                    Beschikbaarheid
                   </h3>
-                  <p className="text-sm text-gray-600">
+                  <p className="mt-1 text-sm text-gray-600">
                     Beheer je tijden
                   </p>
                 </Link>
 
                 <Link
                   href="/dashboard/caregiver/bookings"
-                  className="bg-white rounded-2xl shadow-sm border border-black/5 p-6 hover:shadow-md transition"
+                  className="bg-white rounded-2xl shadow-sm border border-black/5 p-4 sm:p-6 hover:shadow-md transition"
                 >
-                  <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                    📋 Mijn opdrachten
+                  <h3 className="text-base sm:text-lg font-semibold text-gray-900">
+                    Mijn opdrachten
                   </h3>
-                  <p className="text-sm text-gray-600">
+                  <p className="mt-1 text-sm text-gray-600">
                     {bookings.length} actieve opdrachten
                   </p>
                 </Link>
 
                 <Link
                   href="/dashboard/caregiver/profile"
-                  className="bg-white rounded-2xl shadow-sm border border-black/5 p-6 hover:shadow-md transition"
+                  className="bg-white rounded-2xl shadow-sm border border-black/5 p-4 sm:p-6 hover:shadow-md transition"
                 >
-                  <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                    ⚙️ Instellingen
+                  <h3 className="text-base sm:text-lg font-semibold text-gray-900">
+                    Instellingen
                   </h3>
-                  <p className="text-sm text-gray-600">
+                  <p className="mt-1 text-sm text-gray-600">
                     Profiel en voorkeuren
                   </p>
                 </Link>
@@ -228,8 +232,8 @@ export default function CaregiverDashboardPage() {
                         key={booking.id}
                         className="border border-gray-200 rounded-xl p-4 hover:bg-gray-50 transition"
                       >
-                        <div className="flex items-start justify-between gap-4">
-                          <div>
+                        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
+                          <div className="min-w-0">
                             <div className="font-semibold text-gray-900">
                               {booking.petName} ({booking.petType})
                             </div>
@@ -241,7 +245,7 @@ export default function CaregiverDashboardPage() {
                               {booking.city}, {booking.postalCode}
                             </div>
                           </div>
-                          <div className="flex flex-col items-end gap-2">
+                          <div className="flex flex-row sm:flex-col sm:items-end items-center justify-between gap-2">
                             <span
                               className={`px-3 py-1 rounded-full text-xs font-medium ${
                                 booking.status === 'CONFIRMED'
@@ -256,7 +260,7 @@ export default function CaregiverDashboardPage() {
                             {['CONFIRMED', 'COMPLETED'].includes(booking.status) && (
                               <Link
                                 href={`/chat/${booking.id}`}
-                                className="text-xs font-semibold text-emerald-700 hover:underline"
+                                className="text-xs font-semibold text-emerald-700 hover:underline whitespace-nowrap"
                               >
                                 Chat
                               </Link>
@@ -282,12 +286,12 @@ export default function CaregiverDashboardPage() {
 
               {/* Status Overzicht */}
               <div className="bg-white rounded-2xl shadow-sm border border-black/5 p-6">
-                <div className="flex items-center justify-between">
-                  <div>
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                  <div className="min-w-0">
                     <h2 className="text-xl font-semibold text-gray-900 mb-2">
                       Statusoverzicht
                     </h2>
-                    <div className="flex items-center gap-3 select-none pointer-events-none">
+                    <div className="flex flex-wrap items-center gap-2 select-none pointer-events-none">
                       <span
                         className={`px-3 py-1 rounded-full text-sm font-medium ${
                           profile.isApproved

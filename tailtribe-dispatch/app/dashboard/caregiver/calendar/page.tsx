@@ -285,32 +285,32 @@ export default function CaregiverCalendarPage() {
       <main className="container mx-auto px-4" style={{ paddingTop: '6rem', paddingBottom: '5rem' }}>
         <div className="max-w-7xl mx-auto">
           <div className="mb-8">
-            <div className="flex items-center justify-between mb-4">
-              <div>
-                <h1 className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-emerald-700 to-blue-700 mb-2">
-                  📅 Mijn Kalender
+            <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-4">
+              <div className="min-w-0">
+                <h1 className="text-2xl sm:text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-emerald-700 to-blue-700">
+                  Mijn kalender
                 </h1>
-                <p className="text-gray-600">
+                <p className="mt-1 text-sm sm:text-base text-gray-600">
                   Klik op een dag om je beschikbaarheid in te vullen
                 </p>
-                <div className="mt-2 inline-flex items-center rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-800">
+                <div className="mt-2 inline-flex items-center rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-[11px] sm:text-xs font-semibold text-emerald-800">
                   Beschikbaarheid tot 60 dagen vooruit
                 </div>
               </div>
               <Link
                 href="/dashboard/caregiver/availability"
-                className="text-sm text-emerald-600 hover:text-emerald-700 font-medium"
+                className="w-full sm:w-auto inline-flex items-center justify-center rounded-xl border border-emerald-200 bg-white px-4 py-3 text-sm font-semibold text-emerald-700 hover:bg-emerald-50 transition"
               >
-                Bulk invullen →
+                Bulk invullen
               </Link>
             </div>
             
             <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-4">
               <div className="flex items-start gap-3">
-                <span className="text-2xl">💡</span>
+                <span className="text-2xl select-none pointer-events-none">i</span>
                 <div>
                   <h3 className="font-semibold text-emerald-900 mb-1">
-                    Tip: Klik op een dag
+                    Tip
                   </h3>
                   <p className="text-sm text-emerald-700">
                     Klik op een dag in de kalender om snel je beschikbaarheid voor die dag in te vullen of te wijzigen
@@ -322,35 +322,35 @@ export default function CaregiverCalendarPage() {
 
           {/* Kalender */}
           <div className="bg-white rounded-2xl shadow-lg border border-black/5 overflow-hidden">
-            <div className="bg-gradient-to-r from-emerald-600 to-blue-600 text-white p-6">
-              <div className="flex items-center justify-between">
+            <div className="bg-gradient-to-r from-emerald-600 to-blue-600 text-white p-4 sm:p-6">
+              <div className="flex items-center justify-between gap-3">
                 <button
                   onClick={() => changeMonth(-1)}
-                  className="p-2 hover:bg-white/20 rounded-lg transition h-11 w-11 md:h-auto md:w-auto"
+                  className="p-2 hover:bg-white/20 rounded-lg transition h-11 w-11 sm:h-auto sm:w-auto text-sm sm:text-base"
                 >
                   ← Vorige
                 </button>
-                <h2 className="text-2xl font-bold">
+                <h2 className="text-lg sm:text-2xl font-bold text-center">
                   {MONTHS[currentDate.getMonth()]} {currentDate.getFullYear()}
                 </h2>
                 <button
                   onClick={() => changeMonth(1)}
-                  className="p-2 hover:bg-white/20 rounded-lg transition h-11 w-11 md:h-auto md:w-auto"
+                  className="p-2 hover:bg-white/20 rounded-lg transition h-11 w-11 sm:h-auto sm:w-auto text-sm sm:text-base"
                 >
                   Volgende →
                 </button>
               </div>
             </div>
 
-            {/* Mobile: allow horizontal scroll for 7-column calendar */}
-            <div className="overflow-x-auto md:overflow-x-visible">
-              <div className="min-w-[720px] md:min-w-0">
+            {/* Mobile: keep 7 columns readable without massive width */}
+            <div className="-mx-4 px-4 overflow-x-auto sm:mx-0 sm:px-0 sm:overflow-x-visible">
+              <div className="min-w-[420px] sm:min-w-0">
                 {/* Weekdag headers */}
                 <div className="grid grid-cols-7 bg-gray-50 border-b">
                   {WEEKDAYS.map((day) => (
                     <div
                       key={day}
-                      className="p-2 md:p-4 text-center font-semibold text-gray-700 border-r last:border-r-0"
+                      className="p-1.5 sm:p-3 text-center font-semibold text-gray-700 border-r last:border-r-0 text-xs sm:text-sm"
                     >
                       {day}
                     </div>
@@ -364,7 +364,7 @@ export default function CaregiverCalendarPage() {
                       return (
                         <div
                           key={`empty-${index}`}
-                          className="min-h-[96px] md:min-h-[140px] bg-gray-50 border-r border-b last:border-r-0"
+                          className="min-h-[72px] sm:min-h-[120px] bg-gray-50 border-r border-b last:border-r-0"
                         />
                       )
                     }
@@ -377,13 +377,13 @@ export default function CaregiverCalendarPage() {
                       <div
                         key={date.toISOString()}
                         onClick={() => handleDayClick(date)}
-                        className={`min-h-[96px] md:min-h-[140px] border-r border-b last:border-r-0 p-2 cursor-pointer ${
+                        className={`min-h-[72px] sm:min-h-[120px] border-r border-b last:border-r-0 p-1.5 sm:p-2 cursor-pointer ${
                           today ? 'bg-blue-50' : 'bg-white'
                         } hover:bg-emerald-50 hover:border-emerald-300 transition`}
                       >
-                        <div className={`text-sm font-semibold mb-2 ${
+                        <div className={`text-xs sm:text-sm font-semibold mb-1.5 ${
                           today 
-                            ? 'text-blue-600 bg-blue-100 rounded-full w-7 h-7 flex items-center justify-center' 
+                            ? 'text-blue-600 bg-blue-100 rounded-full w-6 h-6 sm:w-7 sm:h-7 flex items-center justify-center' 
                             : 'text-gray-700'
                         }`}>
                           {date.getDate()}
@@ -393,9 +393,12 @@ export default function CaregiverCalendarPage() {
                           {/* Beschikbaarheid */}
                           {dayAvailability.length > 0 && (
                             <div className="text-[10px] bg-green-50 border-l-2 border-green-400 p-1 rounded">
-                              <div className="font-medium text-green-700">✓ Beschikbaar:</div>
-                              <div className="text-green-600">
+                              <div className="font-medium text-green-700">Beschikbaar</div>
+                              <div className="text-green-600 hidden sm:block">
                                 {dayAvailability.map(a => TIME_WINDOW_LABELS[a.timeWindow]).join(', ')}
+                              </div>
+                              <div className="text-green-700 sm:hidden">
+                                {dayAvailability.length} blok{dayAvailability.length === 1 ? '' : 'ken'}
                               </div>
                             </div>
                           )}
@@ -414,7 +417,7 @@ export default function CaregiverCalendarPage() {
                                   setSelectedBooking(booking)
                                   setShowBookingModal(true)
                                 }}
-                                className={`text-xs p-2 rounded-lg border-l-4 cursor-pointer hover:shadow-md transition ${
+                                className={`text-[11px] sm:text-xs p-1.5 sm:p-2 rounded-lg border-l-4 cursor-pointer hover:shadow-md transition ${
                                   STATUS_COLORS[booking.status]
                                 }`}
                                 title={`Klik voor details: ${serviceName} - ${booking.petName}`}
@@ -424,10 +427,10 @@ export default function CaregiverCalendarPage() {
                                 </div>
                                 <div className="truncate text-[10px] opacity-90">
                                   {booking.petName}
-                                  {booking.isRecurring && ' 🔄'}
+                                  {booking.isRecurring && <span className="ml-1">(reeks)</span>}
                                 </div>
-                                <div className="truncate text-[10px] font-medium mt-1">
-                                  👤 {booking.owner.firstName} {booking.owner.lastName}
+                                <div className="truncate text-[10px] font-medium mt-1 hidden sm:block">
+                                  {booking.owner.firstName} {booking.owner.lastName}
                                 </div>
                               </div>
                             )
@@ -601,7 +604,7 @@ export default function CaregiverCalendarPage() {
             <div className="flex items-start justify-between mb-6">
               <div>
                 <h2 className="text-2xl font-bold text-gray-900 mb-2">
-                  📋 Opdracht Details
+                      Opdracht details
                 </h2>
                 <div className={`inline-block px-3 py-1 rounded-full text-sm font-semibold ${
                   STATUS_COLORS[selectedBooking.status]
@@ -620,7 +623,7 @@ export default function CaregiverCalendarPage() {
             <div className="space-y-6">
               {/* Datum & Tijd */}
               <div className="bg-emerald-50 border-l-4 border-emerald-500 p-4 rounded-lg">
-                <h3 className="font-semibold text-emerald-900 mb-2">📅 Wanneer</h3>
+                    <h3 className="font-semibold text-emerald-900 mb-2">Wanneer</h3>
                 <p className="text-lg font-medium text-emerald-800">
                   {new Date(selectedBooking.date).toLocaleDateString('nl-BE', {
                     weekday: 'long',
@@ -635,14 +638,14 @@ export default function CaregiverCalendarPage() {
                 </p>
                 {selectedBooking.isRecurring && (
                   <p className="text-sm text-emerald-600 mt-2">
-                    🔄 Terugkerende opdracht
+                        Terugkerende opdracht
                   </p>
                 )}
               </div>
 
               {/* Dienst */}
               <div className="bg-blue-50 border-l-4 border-blue-500 p-4 rounded-lg">
-                <h3 className="font-semibold text-blue-900 mb-2">🎯 Dienst</h3>
+                    <h3 className="font-semibold text-blue-900 mb-2">Dienst</h3>
                 <p className="text-lg font-medium text-blue-800">
                   {DISPATCH_SERVICES.find(s => s.id === selectedBooking.service)?.name || selectedBooking.service}
                 </p>
@@ -650,7 +653,7 @@ export default function CaregiverCalendarPage() {
 
               {/* Huisdier */}
               <div className="bg-purple-50 border-l-4 border-purple-500 p-4 rounded-lg">
-                <h3 className="font-semibold text-purple-900 mb-2">🐾 Huisdier</h3>
+                    <h3 className="font-semibold text-purple-900 mb-2">Huisdier</h3>
                 <p className="text-lg font-medium text-purple-800">
                   {selectedBooking.petName}
                 </p>
@@ -661,25 +664,25 @@ export default function CaregiverCalendarPage() {
 
               {/* Eigenaar */}
               <div className="bg-orange-50 border-l-4 border-orange-500 p-4 rounded-lg">
-                <h3 className="font-semibold text-orange-900 mb-2">👤 Eigenaar</h3>
+                    <h3 className="font-semibold text-orange-900 mb-2">Eigenaar</h3>
                 <p className="text-lg font-medium text-orange-800">
                   {selectedBooking.owner.firstName} {selectedBooking.owner.lastName}
                 </p>
                 {selectedBooking.owner.email && (
                   <p className="text-orange-700 mt-1">
-                    📧 {selectedBooking.owner.email}
+                        {selectedBooking.owner.email}
                   </p>
                 )}
                 {selectedBooking.owner.phone && (
                   <p className="text-orange-700 mt-1">
-                    📱 {selectedBooking.owner.phone}
+                        {selectedBooking.owner.phone}
                   </p>
                 )}
               </div>
 
               {/* Locatie */}
               <div className="bg-teal-50 border-l-4 border-teal-500 p-4 rounded-lg">
-                <h3 className="font-semibold text-teal-900 mb-2">📍 Locatie</h3>
+                    <h3 className="font-semibold text-teal-900 mb-2">Locatie</h3>
                 <p className="text-teal-800">
                   {selectedBooking.city}
                 </p>
