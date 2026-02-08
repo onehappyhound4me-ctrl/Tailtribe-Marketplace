@@ -1,8 +1,6 @@
-const { PrismaClient } = require('@prisma/client')
 const bcrypt = require('bcryptjs')
 const fs = require('fs')
 const path = require('path')
-const prisma = new PrismaClient()
 
 function loadEnvFile(filePath) {
   if (!fs.existsSync(filePath)) return {}
@@ -28,9 +26,32 @@ function loadEnvFile(filePath) {
 const root = path.join(__dirname, '..')
 const envLocal = loadEnvFile(path.join(root, '.env.local'))
 const env = loadEnvFile(path.join(root, '.env'))
-if (!process.env.DATABASE_URL) {
-  process.env.DATABASE_URL = envLocal.DATABASE_URL || env.DATABASE_URL || ''
+
+function sanitizeDatabaseUrl(value) {
+  let v = String(value || '')
+  v = v.replace(/[\u200B-\u200D\uFEFF]/g, '').trim()
+  if ((v.startsWith('"') && v.endsWith('"')) || (v.startsWith("'") && v.endsWith("'"))) {
+    v = v.slice(1, -1).trim()
+  }
+  return v
 }
+
+function isValidPostgresUrl(url) {
+  const v = sanitizeDatabaseUrl(url)
+  return v.startsWith('postgresql://') || v.startsWith('postgres://')
+}
+
+// Prefer .env.local when current env is missing/invalid (common on Windows with global env vars).
+const current = sanitizeDatabaseUrl(process.env.DATABASE_URL || '')
+const fromFiles = sanitizeDatabaseUrl(envLocal.DATABASE_URL || env.DATABASE_URL || '')
+if (!isValidPostgresUrl(current) && isValidPostgresUrl(fromFiles)) {
+  process.env.DATABASE_URL = fromFiles
+} else if (current) {
+  process.env.DATABASE_URL = current
+}
+
+const { PrismaClient } = require('@prisma/client')
+const prisma = new PrismaClient()
 
 async function main() {
   if (!process.env.DATABASE_URL) {

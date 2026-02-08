@@ -1,10 +1,24 @@
-const { PrismaClient } = require('@prisma/client')
-const prisma = new PrismaClient()
+const fs = require('fs')
+const path = require('path')
+
+function sanitizeDatabaseUrl(value) {
+  let v = String(value || '')
+  v = v.replace(/[\u200B-\u200D\uFEFF]/g, '').trim()
+  if ((v.startsWith('"') && v.endsWith('"')) || (v.startsWith("'") && v.endsWith("'"))) {
+    v = v.slice(1, -1).trim()
+  }
+  return v
+}
+
+function isValidPostgresUrl(url) {
+  const v = sanitizeDatabaseUrl(url)
+  return v.startsWith('postgresql://') || v.startsWith('postgres://')
+}
 
 function loadEnvFile(filePath) {
-  const fs = require('fs')
-  if (!fs.existsSync(filePath)) return
+  if (!fs.existsSync(filePath)) return {}
   const raw = fs.readFileSync(filePath, 'utf8')
+  const out = {}
   for (const line of raw.split(/\r?\n/)) {
     const trimmed = line.trim()
     if (!trimmed || trimmed.startsWith('#')) continue
@@ -15,15 +29,30 @@ function loadEnvFile(filePath) {
     if ((val.startsWith('"') && val.endsWith('"')) || (val.startsWith("'") && val.endsWith("'"))) {
       val = val.slice(1, -1)
     }
-    if (!process.env[key]) process.env[key] = val
+    out[key] = val
+  }
+  return out
+}
+
+function ensureDatabaseUrl() {
+  const root = path.join(__dirname, '..')
+  const envLocal = loadEnvFile(path.join(root, '.env.local'))
+  const env = loadEnvFile(path.join(root, '.env'))
+
+  const fromFiles = sanitizeDatabaseUrl(envLocal.DATABASE_URL || env.DATABASE_URL || '')
+  const current = sanitizeDatabaseUrl(process.env.DATABASE_URL || '')
+
+  if (!isValidPostgresUrl(current) && isValidPostgresUrl(fromFiles)) {
+    process.env.DATABASE_URL = fromFiles
+  } else if (current) {
+    process.env.DATABASE_URL = current
   }
 }
 
-// Ensure DATABASE_URL is available for Prisma scripts.
-const path = require('path')
-const root = path.join(__dirname, '..')
-loadEnvFile(path.join(root, '.env.local'))
-loadEnvFile(path.join(root, '.env'))
+ensureDatabaseUrl()
+
+const { PrismaClient } = require('@prisma/client')
+const prisma = new PrismaClient()
 
 async function main() {
   const email = process.argv[2]
