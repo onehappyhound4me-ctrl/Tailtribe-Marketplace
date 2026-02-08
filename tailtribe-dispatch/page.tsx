@@ -295,7 +295,7 @@ export default function HomePage() {
               href="/google-reviews"
               className="inline-flex items-center justify-center gap-2 text-emerald-800 font-semibold hover:text-emerald-600 transition-colors"
             >
-              Bekijk alle Google reviews
+              Bekijk alle Google reviews (binnenkort)
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 className="w-4 h-4"

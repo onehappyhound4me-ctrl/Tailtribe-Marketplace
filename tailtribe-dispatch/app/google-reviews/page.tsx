@@ -1,70 +1,51 @@
-'use client'
-
-import { useEffect, useRef } from 'react'
-import { ExternalLink } from '@/components/ExternalLink'
-
-const GOOGLE_REVIEWS_SEARCH_URL = 'https://www.google.com/search?hl=nl&gl=BE&q=One%20Happy%20Hound%20reviews'
-const GOOGLE_MAPS_CID = '3943987553262873468'
-const GOOGLE_MAPS_APP_URL = `comgooglemapsurl://maps.google.com/?cid=${GOOGLE_MAPS_CID}&hl=nl&gl=BE`
+import Link from 'next/link'
 
 export default function GoogleReviewsPage() {
-  const fallbackTimer = useRef<number | null>(null)
-
-  useEffect(() => {
-    const clear = () => {
-      if (fallbackTimer.current !== null) {
-        window.clearTimeout(fallbackTimer.current)
-        fallbackTimer.current = null
-      }
-    }
-
-    const onVisibilityChange = () => {
-      // If the Maps app opens, the page becomes hidden; don't fire the fallback redirect.
-      if (document.hidden) clear()
-    }
-
-    document.addEventListener('visibilitychange', onVisibilityChange)
-
-    // Try to open the Google Maps app first (best UX on iPhone).
-    // If that doesn't work, fall back to Google Search reviews (less "open in Maps" banners).
-    try {
-      window.location.href = GOOGLE_MAPS_APP_URL
-    } catch {
-      // Ignore and let fallback handle it.
-    }
-
-    fallbackTimer.current = window.setTimeout(() => {
-      if (!document.hidden) window.location.href = GOOGLE_REVIEWS_SEARCH_URL
-    }, 900)
-
-    return () => {
-      clear()
-      document.removeEventListener('visibilitychange', onVisibilityChange)
-    }
-  }, [])
-
   return (
-    <div className="min-h-screen bg-white px-4 flex items-center justify-center" aria-hidden="true">
-      {/* Keep UI minimal to avoid "background explanation" flashes on iPhone. */}
-      <div className="sr-only">Google reviews openen…</div>
-      <div className="w-full max-w-md space-y-2">
-        <a
-          href={GOOGLE_MAPS_APP_URL}
-          className="w-full rounded-xl bg-gradient-to-r from-green-600 to-blue-600 text-white px-4 py-3 text-sm font-semibold transition min-h-[44px] flex items-center justify-center shadow-md hover:from-green-700 hover:to-blue-700"
-        >
-          Open Google reviews
-        </a>
-        <ExternalLink
-          href={GOOGLE_REVIEWS_SEARCH_URL}
-          className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm font-semibold text-gray-900 hover:bg-gray-100 transition min-h-[44px] flex items-center justify-center"
-        >
-          Lukt het niet? Open in browser
-        </ExternalLink>
-        <a className="block text-center text-xs text-gray-500 underline" href="/">
-          Terug naar TailTribe
-        </a>
+    <main className="min-h-screen bg-gradient-to-b from-white via-emerald-50/40 to-blue-50/40 px-4 py-14">
+      <div className="mx-auto w-full max-w-xl">
+        <div className="rounded-2xl border border-emerald-100 bg-white shadow-sm p-6 sm:p-8">
+          <div className="flex items-start gap-4">
+            <div
+              className="h-10 w-10 rounded-full bg-amber-100 text-amber-900 flex items-center justify-center font-bold select-none pointer-events-none"
+              aria-hidden="true"
+            >
+              i
+            </div>
+            <div className="min-w-0">
+              <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Reviews tijdelijk gepauzeerd</h1>
+              <p className="mt-2 text-gray-700 leading-relaxed">
+                Deze pagina staat even geparkeerd. We passen eerst de reviews-werking aan en zetten dit later weer aan.
+              </p>
+              <p className="mt-3 text-sm text-gray-600">
+                Bedankt voor je begrip.
+              </p>
+
+              <div className="mt-6 flex flex-col sm:flex-row gap-3">
+                <Link
+                  href="/"
+                  className="inline-flex items-center justify-center rounded-xl bg-gradient-to-r from-green-600 to-blue-600 text-white px-4 py-3 text-sm font-semibold transition min-h-[44px] shadow-md hover:from-green-700 hover:to-blue-700"
+                >
+                  Terug naar start
+                </Link>
+                <Link
+                  href="/contact"
+                  className="inline-flex items-center justify-center rounded-xl border border-emerald-200 bg-white px-4 py-3 text-sm font-semibold text-emerald-900 hover:bg-emerald-50 transition min-h-[44px]"
+                >
+                  Contact
+                </Link>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="mt-6 text-center text-xs text-gray-500">
+          <Link href="/" className="underline hover:text-gray-700">
+            Naar de homepage
+          </Link>
+        </div>
       </div>
-    </div>
+    </main>
   )
 }
 
