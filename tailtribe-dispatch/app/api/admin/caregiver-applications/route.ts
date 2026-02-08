@@ -24,6 +24,7 @@ type CaregiverApplicationRecord = {
   liabilityInsuranceCompany?: string
   liabilityInsurancePolicyNumber?: string
   services: string[]
+  servicePricing?: Record<string, { unit?: string; priceCents?: number }>
   experience: string
   message?: string
   createdAt: string
@@ -82,6 +83,13 @@ export async function GET() {
     liabilityInsuranceCompany: cg.liabilityInsuranceCompany ?? undefined,
     liabilityInsurancePolicyNumber: cg.liabilityInsurancePolicyNumber ?? undefined,
     services: parseJsonArray(cg.services),
+    servicePricing: (() => {
+      try {
+        return JSON.parse(cg.servicePricing || '{}')
+      } catch {
+        return {}
+      }
+    })(),
     experience: cg.experience ?? '',
     message: cg.bio ?? undefined,
     createdAt: cg.createdAt.toISOString(),

@@ -91,6 +91,7 @@ type CaregiverApplication = {
   liabilityInsuranceCompany?: string
   liabilityInsurancePolicyNumber?: string
   services: string[]
+  servicePricing?: Record<string, { unit?: string; priceCents?: number }>
   experience: string
   message?: string
   createdAt: string
@@ -253,6 +254,19 @@ const formatPricingLines = (
       return `${serviceLabel(serviceId)}: ${formatEuro(entry.priceCents)} ${unitLabel}`
     })
     .join(' • ')
+}
+
+const formatApplicationPricingLines = (services?: string[], pricing?: Record<string, { unit?: string; priceCents?: number }>) => {
+  if (!services || services.length === 0) return 'Geen'
+  const parts = services.map((serviceId) => {
+    const entry = pricing?.[serviceId]
+    if (!entry || !entry.priceCents) {
+      return `${serviceLabel(serviceId)}: niet ingesteld`
+    }
+    const unitLabel = UNIT_LABELS[String(entry.unit || '')] ?? entry.unit ?? ''
+    return `${serviceLabel(serviceId)}: ${formatEuro(Number(entry.priceCents))} ${unitLabel}`.trim()
+  })
+  return parts.join(' • ')
 }
 
 export default function AdminPage() {
@@ -1641,6 +1655,7 @@ export default function AdminPage() {
             )}
             {caregiverApplications.slice(0, 50).map((app) => {
               const services = (app.services ?? []).map(serviceLabel).join(', ')
+              const pricingLines = formatApplicationPricingLines(app.services ?? [], app.servicePricing ?? {})
               const created = new Date(app.createdAt).toLocaleString('nl-BE')
               const exp = (app.experience ?? '').trim()
               const msg = (app.message ?? '').trim()
@@ -1679,6 +1694,8 @@ export default function AdminPage() {
                     <div className="flex-1 min-w-[220px]">
                       <div className="text-xs text-gray-500">Diensten</div>
                       <div className="text-gray-800">{services || 'Geen'}</div>
+                      <div className="mt-2 text-xs text-gray-500">Prijs</div>
+                      <div className="text-gray-800">{pricingLines}</div>
                       <div className="mt-2 text-xs text-gray-500">Ervaring</div>
                       <div className="text-gray-800 whitespace-pre-wrap break-words max-h-32 overflow-auto pr-2">
                         {exp.length > 180 ? `${exp.slice(0, 180)}…` : exp || '—'}

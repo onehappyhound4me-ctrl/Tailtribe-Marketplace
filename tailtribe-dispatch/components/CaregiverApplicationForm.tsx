@@ -11,6 +11,13 @@ type Props = {
   successRedirectTo?: string
 }
 
+const PRICING_UNITS = [
+  { value: 'HALF_HOUR', label: 'Per half uur' },
+  { value: 'HOUR', label: 'Per uur' },
+  { value: 'HALF_DAY', label: 'Per halve dag' },
+  { value: 'DAY', label: 'Per dag' },
+]
+
 export function CaregiverApplicationForm({ successRedirectTo = '/verzorger-aanmelden/bedankt' }: Props) {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
@@ -33,6 +40,7 @@ export function CaregiverApplicationForm({ successRedirectTo = '/verzorger-aanme
     liabilityInsuranceCompany: '',
     liabilityInsurancePolicyNumber: '',
     services: [] as string[],
+    servicePricing: {} as Record<string, { price: string; unit: string }>,
     experience: '',
     message: '',
     acceptTerms: false,
@@ -43,10 +51,29 @@ export function CaregiverApplicationForm({ successRedirectTo = '/verzorger-aanme
   const toggleService = (id: string) => {
     setFormData((prev) => {
       const set = new Set(prev.services)
-      if (set.has(id)) set.delete(id)
-      else set.add(id)
-      return { ...prev, services: Array.from(set) }
+      const nextPricing = { ...prev.servicePricing }
+      if (set.has(id)) {
+        set.delete(id)
+        delete nextPricing[id]
+      } else {
+        set.add(id)
+        if (!nextPricing[id]) nextPricing[id] = { price: '', unit: 'HOUR' }
+      }
+      return { ...prev, services: Array.from(set), servicePricing: nextPricing }
     })
+  }
+
+  const updateServicePricing = (serviceId: string, next: { price?: string; unit?: string }) => {
+    setFormData((prev) => ({
+      ...prev,
+      servicePricing: {
+        ...prev.servicePricing,
+        [serviceId]: {
+          price: next.price ?? prev.servicePricing[serviceId]?.price ?? '',
+          unit: next.unit ?? prev.servicePricing[serviceId]?.unit ?? 'HOUR',
+        },
+      },
+    }))
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -283,6 +310,58 @@ export function CaregiverApplicationForm({ successRedirectTo = '/verzorger-aanme
           </div>
           {fieldErrors.services && <p className="text-sm text-red-700 mt-2">{fieldErrors.services}</p>}
         </div>
+
+        {formData.services.length > 0 && (
+          <div className="rounded-xl border border-black/5 bg-gray-50 p-4">
+            <div className="font-semibold text-gray-900 mb-2">Prijs per gekozen dienst</div>
+            <p className="text-sm text-gray-600 mb-4">
+              Vul een prijs in voor elke dienst. Je kan dit later nog aanpassen in je Instellingen.
+            </p>
+            {fieldErrors.servicePricing && (
+              <p className="text-sm text-red-700 mb-3">{fieldErrors.servicePricing}</p>
+            )}
+            <div className="space-y-3">
+              {formData.services.map((serviceId) => {
+                const svc = DISPATCH_SERVICES.find((s) => s.id === serviceId)
+                const pricing = formData.servicePricing[serviceId] ?? { price: '', unit: 'HOUR' }
+                const rowError = fieldErrors[`pricing.${serviceId}`]
+                return (
+                  <div key={serviceId} className="rounded-xl border border-gray-200 bg-white p-4">
+                    <div className="font-semibold text-gray-900">{svc?.name ?? serviceId}</div>
+                    <div className="mt-3 grid grid-cols-1 sm:grid-cols-[1fr_180px] gap-3 items-end">
+                      <div>
+                        <label className="block text-sm font-medium mb-2">Prijs (EUR)</label>
+                        <input
+                          inputMode="decimal"
+                          type="text"
+                          placeholder="bv. 15,00"
+                          value={pricing.price}
+                          onChange={(e) => updateServicePricing(serviceId, { price: e.target.value })}
+                          className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-brand"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium mb-2">Eenheid</label>
+                        <select
+                          value={pricing.unit}
+                          onChange={(e) => updateServicePricing(serviceId, { unit: e.target.value })}
+                          className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-brand bg-white"
+                        >
+                          {PRICING_UNITS.map((u) => (
+                            <option key={u.value} value={u.value}>
+                              {u.label}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                    </div>
+                    {rowError && <p className="text-sm text-red-700 mt-2">{rowError}</p>}
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+        )}
 
         <div>
           <label className="block text-sm font-medium mb-2">Ervaring (kort)</label>

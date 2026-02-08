@@ -23,6 +23,7 @@ type CaregiverApplicationInput = {
   liabilityInsuranceCompany?: string
   liabilityInsurancePolicyNumber?: string
   services: string[]
+  servicePricing: Record<string, { unit: string; priceCents: number }>
   experience: string
   message?: string
   acceptTerms?: boolean
@@ -44,6 +45,7 @@ type CaregiverApplicationRecord = {
   liabilityInsuranceCompany?: string
   liabilityInsurancePolicyNumber?: string
   services: string[]
+  servicePricing: Record<string, { unit: string; priceCents: number }>
   experience: string
   message?: string
   createdAt: string
@@ -97,9 +99,12 @@ function validate(body: any):
   | { ok: false; fieldErrors: Record<string, string> } {
   const fieldErrors: Record<string, string> = {}
   const allowedServices = new Set(DISPATCH_SERVICES.map((s) => s.id))
+  const allowedUnits = new Set(['HALF_HOUR', 'HOUR', 'HALF_DAY', 'DAY'])
 
   const servicesRaw = Array.isArray(body?.services) ? body.services : []
   const services = servicesRaw.map((x: any) => String(x)).filter(Boolean)
+  const pricingRaw =
+    body?.servicePricing && typeof body.servicePricing === 'object' ? (body.servicePricing as Record<string, any>) : {}
 
   const data: CaregiverApplicationInput = {
     firstName: String(body?.firstName ?? ''),
@@ -116,6 +121,7 @@ function validate(body: any):
     liabilityInsurancePolicyNumber:
       typeof body?.liabilityInsurancePolicyNumber === 'string' ? body.liabilityInsurancePolicyNumber : '',
     services,
+    servicePricing: {},
     experience: String(body?.experience ?? ''),
     message: typeof body?.message === 'string' ? body.message : '',
     acceptTerms: Boolean(body?.acceptTerms),
@@ -157,6 +163,34 @@ function validate(body: any):
   }
   data.services = validServices
 
+  // Require pricing per selected service.
+  // Note: proposals can still work with "Prijs in overleg" for existing caregivers,
+  // but for new caregiver applications we want pricing filled in upfront.
+  const servicePricing: Record<string, { unit: string; priceCents: number }> = {}
+  for (const serviceId of data.services) {
+    const raw = pricingRaw?.[serviceId]
+    const unit = String(raw?.unit ?? '').trim().toUpperCase()
+    const priceStr = String(raw?.price ?? '').trim()
+
+    if (!unit || !allowedUnits.has(unit)) {
+      fieldErrors[`pricing.${serviceId}`] = 'Kies een eenheid (bv. per uur of per dag).'
+      continue
+    }
+
+    // Accept both "15.00" and "15,00"
+    const parsed = Number(priceStr.replace(',', '.'))
+    if (!Number.isFinite(parsed) || parsed <= 0) {
+      fieldErrors[`pricing.${serviceId}`] = 'Vul een geldige prijs in (bv. 15,00).'
+      continue
+    }
+    const priceCents = Math.round(parsed * 100)
+    servicePricing[serviceId] = { unit, priceCents }
+  }
+  if (data.services.length > 0 && Object.keys(servicePricing).length !== data.services.length) {
+    fieldErrors.servicePricing = 'Vul een prijs in voor elke gekozen dienst.'
+  }
+  data.servicePricing = servicePricing
+
   if (!isNonEmptyString(data.experience) || data.experience.trim().length < 50) {
     fieldErrors.experience = 'Geef een korte toelichting (minstens 50 tekens).'
   }
@@ -196,6 +230,7 @@ async function upsertPendingApplication(rec: CaregiverApplicationRecord): Promis
   }
 
   const servicesJson = JSON.stringify(Array.isArray(rec.services) ? rec.services : [])
+  const servicePricingJson = JSON.stringify(rec.servicePricing ?? {})
   const workRegionsJson = JSON.stringify([])
 
   if (!existing) {
@@ -219,6 +254,7 @@ async function upsertPendingApplication(rec: CaregiverApplicationRecord): Promis
             liabilityInsuranceCompany: String(rec.liabilityInsuranceCompany ?? '').trim() || null,
             liabilityInsurancePolicyNumber: String(rec.liabilityInsurancePolicyNumber ?? '').trim() || null,
             services: servicesJson,
+            servicePricing: servicePricingJson,
             experience: String(rec.experience ?? '').trim(),
             bio: String(rec.message ?? '').trim() || null,
             isApproved: false,
@@ -251,6 +287,7 @@ async function upsertPendingApplication(rec: CaregiverApplicationRecord): Promis
               liabilityInsuranceCompany: String(rec.liabilityInsuranceCompany ?? '').trim() || null,
               liabilityInsurancePolicyNumber: String(rec.liabilityInsurancePolicyNumber ?? '').trim() || null,
               services: servicesJson,
+              servicePricing: servicePricingJson,
               experience: String(rec.experience ?? '').trim(),
               bio: String(rec.message ?? '').trim() || null,
               isApproved: false,
@@ -270,6 +307,7 @@ async function upsertPendingApplication(rec: CaregiverApplicationRecord): Promis
               liabilityInsuranceCompany: String(rec.liabilityInsuranceCompany ?? '').trim() || null,
               liabilityInsurancePolicyNumber: String(rec.liabilityInsurancePolicyNumber ?? '').trim() || null,
               services: servicesJson,
+              servicePricing: servicePricingJson,
               experience: String(rec.experience ?? '').trim(),
               bio: String(rec.message ?? '').trim() || null,
               isApproved: false,
@@ -321,6 +359,13 @@ export async function GET() {
       liabilityInsuranceCompany: cg.liabilityInsuranceCompany ?? undefined,
       liabilityInsurancePolicyNumber: cg.liabilityInsurancePolicyNumber ?? undefined,
       services: parseJsonArray(cg.services),
+      servicePricing: (() => {
+        try {
+          return JSON.parse(cg.servicePricing || '{}')
+        } catch {
+          return {}
+        }
+      })(),
       experience: cg.experience ?? '',
       message: cg.bio ?? undefined,
       createdAt: cg.createdAt.toISOString(),

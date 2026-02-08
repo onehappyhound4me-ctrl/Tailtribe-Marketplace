@@ -53,6 +53,15 @@ const TIME_WINDOW_LABELS: Record<string, string> = {
   NIGHT: 'Nacht',
 }
 
+const UNIT_LABELS: Record<string, string> = {
+  HALF_HOUR: 'per half uur',
+  HOUR: 'per uur',
+  HALF_DAY: 'per halve dag',
+  DAY: 'per dag',
+}
+
+const formatEuro = (cents: number) => `€ ${(cents / 100).toFixed(2).replace('.', ',')}`
+
 const CHAT_ELIGIBLE_STATUSES = new Set(['CONFIRMED', 'COMPLETED'])
 
 type NotificationItem = {
@@ -390,6 +399,23 @@ export default function OwnerDashboardPage() {
                     })
                     const shown = dayLines.slice(0, 6)
                     const rest = Math.max(0, dayLines.length - shown.length)
+
+                    const priceSet = new Set<string>()
+                    let hasNegotiation = false
+                    for (const b of g.bookings) {
+                      const offer = b.offers?.find((o) => o.caregiverId === g.caregiverId)
+                      if (!offer) continue
+                      if (offer.priceCents > 0) {
+                        priceSet.add(`${formatEuro(offer.priceCents)} ${UNIT_LABELS[offer.unit] ?? offer.unit}`)
+                      } else {
+                        hasNegotiation = true
+                      }
+                    }
+                    const priceItems = Array.from(priceSet)
+                    const priceSummary =
+                      hasNegotiation || priceItems.length === 0
+                        ? 'Prijs in overleg'
+                        : `${priceItems.slice(0, 2).join(' • ')}${priceItems.length > 2 ? ` • +${priceItems.length - 2}` : ''}`
                     return (
                       <div key={g.caregiverId} className="rounded-xl border border-blue-200 bg-white/60 px-3 py-3">
                         <div className="flex flex-wrap items-start justify-between gap-3">
@@ -403,6 +429,9 @@ export default function OwnerDashboardPage() {
                           <div className="flex-1 min-w-0 sm:min-w-[220px] text-xs text-blue-950/80 break-words">
                             <span className="font-semibold">Dagen:</span> {shown.join(' • ')}
                             {rest > 0 ? ` • +${rest}` : ''}
+                            <div className="mt-1">
+                              <span className="font-semibold">Prijs:</span> {priceSummary}
+                            </div>
                           </div>
 
                           <div className="flex flex-col sm:flex-row sm:flex-wrap sm:justify-end sm:items-center gap-2 w-full sm:w-auto sm:ml-auto">
