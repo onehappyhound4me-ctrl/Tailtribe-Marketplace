@@ -61,8 +61,11 @@ export async function POST(request: NextRequest) {
     const { date } = body as { date?: string; timeWindows?: string[] }
     const timeWindows = Array.isArray((body as any)?.timeWindows) ? (body as any).timeWindows : null
 
-    // Day-based availability: if no timeWindows provided, assume full day.
+    // If timeWindows is omitted, assume full day.
     const FULL_DAY_WINDOWS = ['MORNING', 'AFTERNOON', 'EVENING', 'NIGHT']
+    if (timeWindows && timeWindows.length === 0) {
+      return NextResponse.json({ error: 'Kies minstens één tijdsblok' }, { status: 400 })
+    }
     const effectiveTimeWindows = timeWindows && timeWindows.length > 0 ? timeWindows : FULL_DAY_WINDOWS
 
     // Get caregiver profile

@@ -251,16 +251,16 @@ export default function OwnerCalendarPage() {
                             }`}
                             title={`Klik voor details: ${serviceName} - ${booking.petName}`}
                           >
-                            <div className="font-semibold truncate">{TIME_WINDOW_LABELS[booking.timeWindow]}</div>
+                            <div className="font-semibold truncate">{serviceName}</div>
                             <div className="truncate text-[10px] opacity-80">
                               {booking.petName}
-                              {booking.isRecurring && ' 🔄'}
+                              {booking.isRecurring && ' (reeks)'}
                             </div>
                             {booking.caregiver && (
-                              <div className="truncate text-[10px] font-medium mt-1">👤 {booking.caregiver.firstName}</div>
+                              <div className="truncate text-[10px] font-medium mt-1">{booking.caregiver.firstName}</div>
                             )}
                             {!booking.caregiver && booking.status === 'PENDING' && (
-                              <div className="truncate text-[10px] text-yellow-700 mt-1">⏳ Wacht op toewijzing</div>
+                              <div className="truncate text-[10px] text-yellow-700 mt-1">Wacht op toewijzing</div>
                             )}
                           </div>
                         )
@@ -293,7 +293,7 @@ export default function OwnerCalendarPage() {
                 <span className="text-sm">Afgerond</span>
               </div>
               <div className="flex items-center gap-2">
-                <span className="text-sm">🔄 = Reeks</span>
+                <span className="text-sm">Reeks</span>
               </div>
             </div>
           </div>
@@ -335,16 +335,16 @@ export default function OwnerCalendarPage() {
             <div className="flex items-start justify-between mb-6">
               <div>
                 <h2 className="text-2xl font-bold text-gray-900 mb-2">
-                  📋 Aanvraag Details
+                  Aanvraag details
                 </h2>
                 <div className={`inline-block px-3 py-1 rounded-full text-sm font-semibold ${
                   STATUS_COLORS[selectedBooking.status]
                 }`}>
-                  {selectedBooking.status === 'PENDING' && '⏳ In afwachting'}
-                  {selectedBooking.status === 'ASSIGNED' && '✓ Toegewezen'}
-                  {selectedBooking.status === 'CONFIRMED' && '✓✓ Bevestigd'}
-                  {selectedBooking.status === 'COMPLETED' && '✅ Afgerond'}
-                  {selectedBooking.status === 'CANCELLED' && '❌ Geannuleerd'}
+                  {selectedBooking.status === 'PENDING' && 'In afwachting'}
+                  {selectedBooking.status === 'ASSIGNED' && 'Toegewezen'}
+                  {selectedBooking.status === 'CONFIRMED' && 'Bevestigd'}
+                  {selectedBooking.status === 'COMPLETED' && 'Afgerond'}
+                  {selectedBooking.status === 'CANCELLED' && 'Geannuleerd'}
                 </div>
               </div>
               <button
@@ -358,7 +358,7 @@ export default function OwnerCalendarPage() {
             <div className="space-y-6">
               {/* Datum & Tijd */}
               <div className="bg-emerald-50 border-l-4 border-emerald-500 p-4 rounded-lg">
-                <h3 className="font-semibold text-emerald-900 mb-2">📅 Wanneer</h3>
+                <h3 className="font-semibold text-emerald-900 mb-2">Wanneer</h3>
                 <p className="text-lg font-medium text-emerald-800">
                   {new Date(selectedBooking.date).toLocaleDateString('nl-BE', {
                     weekday: 'long',
@@ -367,19 +367,17 @@ export default function OwnerCalendarPage() {
                     year: 'numeric'
                   })}
                 </p>
-                <p className="text-emerald-700 mt-1">
-                  {TIME_WINDOW_LABELS[selectedBooking.timeWindow]}
-                </p>
+                <p className="text-emerald-700 mt-1">Tijdstip bespreek je via chat.</p>
                 {selectedBooking.isRecurring && (
                   <p className="text-sm text-emerald-600 mt-2">
-                    🔄 Terugkerende aanvraag
+                    Terugkerende aanvraag
                   </p>
                 )}
               </div>
 
               {/* Dienst */}
               <div className="bg-blue-50 border-l-4 border-blue-500 p-4 rounded-lg">
-                <h3 className="font-semibold text-blue-900 mb-2">🎯 Dienst</h3>
+                <h3 className="font-semibold text-blue-900 mb-2">Dienst</h3>
                 <p className="text-lg font-medium text-blue-800">
                   {DISPATCH_SERVICES.find(s => s.id === selectedBooking.service)?.name || selectedBooking.service}
                 </p>
@@ -387,7 +385,7 @@ export default function OwnerCalendarPage() {
 
               {/* Huisdier */}
               <div className="bg-purple-50 border-l-4 border-purple-500 p-4 rounded-lg">
-                <h3 className="font-semibold text-purple-900 mb-2">🐾 Huisdier</h3>
+                <h3 className="font-semibold text-purple-900 mb-2">Huisdier</h3>
                 <p className="text-lg font-medium text-purple-800">
                   {selectedBooking.petName}
                 </p>
@@ -399,13 +397,13 @@ export default function OwnerCalendarPage() {
               {/* Verzorger (als toegewezen) */}
               {selectedBooking.caregiver ? (
                 <div className="bg-green-50 border-l-4 border-green-500 p-4 rounded-lg">
-                  <h3 className="font-semibold text-green-900 mb-2">👤 Toegewezen Verzorger</h3>
+                  <h3 className="font-semibold text-green-900 mb-2">Toegewezen verzorger</h3>
                   <p className="text-lg font-medium text-green-800">
                     {selectedBooking.caregiver.firstName} {selectedBooking.caregiver.lastName}
                   </p>
                   {selectedBooking.caregiver.email && (
                     <p className="text-green-700 mt-1">
-                      📧 {selectedBooking.caregiver.email}
+                      {selectedBooking.caregiver.email}
                     </p>
                   )}
                   {selectedBooking.caregiver.phone && (

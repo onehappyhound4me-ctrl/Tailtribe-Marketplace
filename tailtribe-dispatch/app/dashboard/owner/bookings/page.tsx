@@ -333,10 +333,10 @@ export default function OwnerBookingsPage() {
                 : 'bg-green-50 border-green-200'
             }`}>
               <div className="flex items-start justify-between gap-4">
-                <div className={isDirect ? 'text-purple-900' : 'text-green-800'}>
+                    <div className={isDirect ? 'text-purple-900' : 'text-green-800'}>
                 {isDirect ? (
                   <>
-                    <div className="font-bold text-lg mb-1">⚡ Direct Toegewezen!</div>
+                    <div className="font-bold text-lg mb-1">Direct toegewezen</div>
                     <div className="text-sm">
                       {successCount} aanvra{successCount === 1 ? 'ag' : 'gen'} direct naar je verzorger gestuurd.
                       Geen wachttijd - de verzorger kan nu direct bevestigen!
@@ -344,7 +344,7 @@ export default function OwnerBookingsPage() {
                   </>
                 ) : (
                   <>
-                    <div className="font-bold text-lg mb-1">✅ Aanvragen Verstuurd!</div>
+                    <div className="font-bold text-lg mb-1">Aanvragen verstuurd</div>
                     <div className="text-sm">
                       {successCount} aanvra{successCount === 1 ? 'ag' : 'gen'} succesvol aangemaakt.
                       De beheerder stelt verzorgers voor. Jij kiest je verzorger.
@@ -413,7 +413,6 @@ export default function OwnerBookingsPage() {
 
           {focusMatches.length === 0 ? (
             <div className="bg-white rounded-2xl shadow-sm border border-black/5 p-12 text-center">
-              <div className="text-6xl mb-4">📋</div>
               <h2 className="text-2xl font-semibold text-gray-900 mb-3">
                 {focusCaregiverId ? 'Geen aanvragen voor dit voorstel' : 'Nog geen aanvragen'}
               </h2>
@@ -464,7 +463,7 @@ export default function OwnerBookingsPage() {
                           </span>
                           {booking.isRecurring && (
                             <span className="px-3 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800 border border-purple-200">
-                              🔄 Reeks
+                              Reeks
                             </span>
                           )}
                         </div>
@@ -476,7 +475,7 @@ export default function OwnerBookingsPage() {
 
                     <div className="grid md:grid-cols-2 gap-4 mb-4">
                       <div>
-                        <div className="text-sm text-gray-500 mb-1">📅 Datum & Tijd</div>
+                        <div className="text-sm text-gray-500 mb-1">Datum</div>
                         <div className="font-medium text-gray-900">
                           {new Date(booking.date).toLocaleDateString('nl-BE', {
                             weekday: 'long',
@@ -485,13 +484,11 @@ export default function OwnerBookingsPage() {
                             day: 'numeric',
                           })}
                         </div>
-                        <div className="text-sm text-gray-600">
-                          {TIME_WINDOW_LABELS[booking.timeWindow] || booking.timeWindow}
-                        </div>
+                        <div className="text-sm text-gray-600">Tijdstip bespreek je via chat.</div>
                       </div>
 
                       <div>
-                        <div className="text-sm text-gray-500 mb-1">📍 Locatie</div>
+                        <div className="text-sm text-gray-500 mb-1">Locatie</div>
                         <div className="font-medium text-gray-900">
                           {booking.city}, {booking.postalCode}
                         </div>
@@ -500,7 +497,7 @@ export default function OwnerBookingsPage() {
 
                     {booking.offers && booking.offers.length > 0 && !booking.caregiver && (
                       <div className="mt-4 pt-4 border-t border-gray-100">
-                        <div className="text-sm text-gray-500 mb-2">💶 Kies een verzorger</div>
+                        <div className="text-sm text-gray-500 mb-2">Kies een verzorger</div>
                         <div className="space-y-2">
                           {booking.offers.map((offer) => (
                             <div
