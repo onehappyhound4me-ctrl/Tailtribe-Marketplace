@@ -466,6 +466,11 @@ export default function NewBookingPage() {
                           const ymd = formatYmd(new Date(year, month, day))
                           const isSelected = selectedDates.includes(ymd)
                           const isDisabled = ymd < todayStr || ymd > maxBookingDateStr
+                          const dayClass = isDisabled
+                            ? 'bg-gray-50 border-gray-100 text-gray-300 cursor-not-allowed'
+                            : isSelected
+                              ? 'bg-emerald-600 border-emerald-600 text-white shadow-sm ring-2 ring-emerald-200 hover:bg-emerald-700 hover:border-emerald-700'
+                              : 'bg-white border-gray-200 hover:border-emerald-300 hover:bg-emerald-50'
                           cells.push(
                             <button
                               key={ymd}
@@ -474,10 +479,9 @@ export default function NewBookingPage() {
                               onClick={() => toggleSelectedDate(ymd)}
                               className={[
                                 'aspect-square w-full rounded-xl border text-sm font-semibold transition',
-                                isDisabled
-                                  ? 'bg-gray-50 border-gray-100 text-gray-300 cursor-not-allowed'
-                                  : 'bg-white border-gray-200 hover:border-emerald-300 hover:bg-emerald-50',
-                                isSelected ? 'bg-emerald-600 border-emerald-600 text-white hover:bg-emerald-600' : '',
+                                dayClass,
+                                'focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/60 focus-visible:ring-offset-2',
+                                !isDisabled ? 'active:scale-[0.98]' : '',
                               ].join(' ')}
                               aria-pressed={isSelected}
                               aria-label={`Selecteer ${new Date(ymd).toLocaleDateString('nl-BE')}`}
