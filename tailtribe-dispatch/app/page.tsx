@@ -25,7 +25,7 @@ export default function HomePage() {
       <SiteHeader primaryCtaHref={bookingHref} primaryCtaLabel="Boek Nu" />
 
       {/* Hero with Image */}
-      <section className="relative w-full min-h-[32vh] sm:min-h-[38vh] md:min-h-[46vh] overflow-hidden flex items-center">
+      <section className="relative w-full min-h-[40vh] md:min-h-[50vh] overflow-hidden flex items-center">
         <img
           src={HERO_IMG_URL}
           alt=""
@@ -33,17 +33,15 @@ export default function HomePage() {
           className="absolute inset-0 h-full w-full object-cover object-[60%_35%] sm:object-[50%_30%] md:object-[50%_30%]"
           style={{ filter: 'brightness(1.08) saturate(1.04) blur(0.6px)' }}
         />
-        <div className="absolute inset-0 bg-black/20 sm:bg-black/12" />
+        <div className="absolute inset-0 bg-black/12" />
 
-        <div className="relative z-10 container mx-auto px-4 sm:px-6 py-10 sm:py-14 md:py-20">
+        <div className="relative z-10 container mx-auto px-4 sm:px-6 py-12 sm:py-16 md:py-24">
           <div className="max-w-5xl mx-auto text-center">
             <h1
-              className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-bold leading-tight text-white"
+              className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-bold mb-5 sm:mb-6 leading-tight text-white"
               style={{ textShadow: '0 3px 12px rgba(0,0,0,0.55)' }}
             >
-              <span className="bg-black/18 sm:bg-transparent px-2 py-0.5 rounded">
-                Vind de juiste
-              </span>{' '}
+              Vind de juiste{' '}
               <span className="text-green-200 transition-colors duration-200 hover:text-white hover:drop-shadow-[0_0_12px_rgba(74,222,128,0.85)]">
                 dierenoppasser
               </span>{' '}
@@ -53,29 +51,54 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Hero content below image */}
+      {/* Hero content below image (same styling as before, just moved under the photo) */}
       <section className="-mt-6 sm:-mt-8">
         <div className="container mx-auto px-4 sm:px-6">
-          <div className="max-w-4xl mx-auto rounded-2xl border border-black/5 bg-white/85 backdrop-blur shadow-tt p-5 sm:p-7">
-            <div className="text-center">
-              <p className="text-sm sm:text-base md:text-lg text-gray-700 leading-relaxed">
+          <div className="max-w-5xl mx-auto text-center">
+            <p className="text-lg sm:text-xl md:text-2xl mb-4 max-w-3xl mx-auto">
+              <span
+                className="inline-block px-1.5 py-0.5 rounded bg-black/18 backdrop-blur-[3px] font-semibold"
+                style={{ color: '#eaffcc', textShadow: '0 3px 12px rgba(0,0,0,0.85)' }}
+              >
                 Hondenuitlaat, dierenoppas, dierenverzorging en meer bij jou in de buurt
-              </p>
-              <p className="mt-2 text-sm sm:text-base text-emerald-900/90 font-semibold">
+              </span>
+            </p>
+            <p className="text-base sm:text-lg mb-6 max-w-2xl mx-auto">
+              <span
+                className="inline-block px-1.5 py-0.5 rounded bg-black/18 backdrop-blur-[3px] font-semibold"
+                style={{ color: '#eaffcc', textShadow: '0 3px 12px rgba(0,0,0,0.85)' }}
+              >
                 Voor en door dierenverzorgers
-              </p>
-            </div>
+              </span>
+            </p>
+            {/* Removed bottom line per request */}
 
-            <div className="mt-5 flex flex-col sm:flex-row gap-3 justify-center items-stretch sm:items-center">
+            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
               <Link
                 href={bookingHref}
-                className="btn-brand w-full sm:w-auto inline-flex justify-center min-h-[48px]"
+                className="group relative bg-white text-green-700 px-8 sm:px-10 py-4 sm:py-5 rounded-full font-bold text-lg hover:bg-green-50 transition-all duration-300 shadow-2xl hover:shadow-[0_20px_60px_-15px_rgba(255,255,255,0.5)] transform hover:-translate-y-1 hover:scale-105 overflow-hidden"
               >
-                Boek Nu
+                <span className="relative z-10 flex items-center gap-2">
+                  Boek Nu
+                  <svg
+                    className="w-5 h-5 group-hover:translate-x-1 transition-transform"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M13 7l5 5m0 0l-5 5m5-5H6"
+                    />
+                  </svg>
+                </span>
+                <div className="absolute inset-0 bg-gradient-to-r from-green-400 to-blue-400 opacity-0 group-hover:opacity-10 transition-opacity"></div>
               </Link>
               <Link
                 href="/verzorger-aanmelden"
-                className="w-full sm:w-auto inline-flex items-center justify-center rounded-xl border border-emerald-200 bg-white px-5 py-3 text-sm font-semibold text-emerald-900 hover:bg-emerald-50 transition min-h-[48px]"
+                className="inline-flex items-center justify-center px-7 py-4 rounded-full font-semibold bg-white/20 text-white border border-white/30 backdrop-blur hover:bg-white/30 transition shadow-lg"
               >
                 Join our tribe: werk met dieren
               </Link>
