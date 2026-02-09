@@ -53,6 +53,7 @@ const STATUS_LABELS: Record<string, string> = {
   CONFIRMED: 'Bevestigd',
   COMPLETED: 'Afgerond',
   CANCELLED: 'Geannuleerd',
+  ARCHIVED: 'Gearchiveerd',
 }
 
 const STATUS_COLORS: Record<string, string> = {
@@ -61,6 +62,7 @@ const STATUS_COLORS: Record<string, string> = {
   CONFIRMED: 'bg-green-100 text-green-800 border-green-200',
   COMPLETED: 'bg-gray-100 text-gray-800 border-gray-200',
   CANCELLED: 'bg-red-100 text-red-800 border-red-200',
+  ARCHIVED: 'bg-slate-100 text-slate-800 border-slate-200',
 }
 
 const CHAT_ELIGIBLE_STATUSES = new Set(['CONFIRMED', 'COMPLETED'])
@@ -77,6 +79,7 @@ export default function OwnerBookingsPage() {
   const { data: session } = useSession()
   const [bookings, setBookings] = useState<Booking[]>([])
   const [loading, setLoading] = useState(true)
+  const [view, setView] = useState<'active' | 'history'>('active')
   const [successCount, setSuccessCount] = useState<number | null>(null)
   const [isDirect, setIsDirect] = useState(false)
   const [actionLoadingId, setActionLoadingId] = useState<string | null>(null)
@@ -93,8 +96,6 @@ export default function OwnerBookingsPage() {
   }
 
   useEffect(() => {
-    fetchBookings()
-    
     // Check voor success parameter in URL
     const params = new URLSearchParams(window.location.search)
     const count = params.get('success')
@@ -111,9 +112,15 @@ export default function OwnerBookingsPage() {
     }
   }, [])
 
-  const fetchBookings = async () => {
+  useEffect(() => {
+    fetchBookings(view)
+  }, [view])
+
+  const fetchBookings = async (nextView: 'active' | 'history') => {
+    setLoading(true)
     try {
-      const response = await fetch('/api/owner/bookings', { cache: 'no-store' })
+      const url = nextView === 'history' ? '/api/owner/bookings?view=history' : '/api/owner/bookings'
+      const response = await fetch(url, { cache: 'no-store' })
       if (response.ok) {
         const data = await response.json()
         setBookings(data)
@@ -135,7 +142,7 @@ export default function OwnerBookingsPage() {
       })
       if (response.ok) {
         trackEvent('booking_confirmed', { booking_id: bookingId })
-        await fetchBookings()
+        await fetchBookings(view)
       }
     } catch (error) {
       console.error('Failed to confirm booking:', error)
@@ -164,7 +171,7 @@ export default function OwnerBookingsPage() {
       const ok = await patchSelectCaregiver(bookingId, caregiverId)
       if (ok) {
         trackEvent('caregiver_selected', { booking_id: bookingId, caregiver_id: caregiverId })
-        await fetchBookings()
+        await fetchBookings(view)
       }
     } catch (error) {
       console.error('Failed to select caregiver:', error)
@@ -211,7 +218,7 @@ export default function OwnerBookingsPage() {
         if (ok) done += 1
         setBulkApproveProgress({ done, total: targets.length })
       }
-      await fetchBookings()
+      await fetchBookings(view)
       if (done > 0) {
         trackEvent('caregiver_selected_bulk', { caregiver_id: focusCaregiverId, count: done })
       }
@@ -249,7 +256,7 @@ export default function OwnerBookingsPage() {
       const deleted = typeof data?.deleted === 'number' ? data.deleted : 0
       setFocusMsg(`Voorstel geweigerd. (${deleted} dag(en) verwijderd)`)
       setFocusCaregiverId(null)
-      await fetchBookings()
+      await fetchBookings(view)
     } catch (e) {
       setFocusError(e instanceof Error ? e.message : 'Kon voorstel niet verwijderen.')
     } finally {
@@ -367,15 +374,40 @@ export default function OwnerBookingsPage() {
                 Mijn aanvragen
               </h1>
               <p className="mt-1 text-sm sm:text-base text-gray-600">
-                Overzicht van al je aanvragen voor dierenverzorging
+                {view === 'history'
+                  ? 'Geschiedenis van oudere of gearchiveerde aanvragen'
+                  : 'Overzicht van komende en recente aanvragen'}
               </p>
             </div>
-            <Link
-              href="/dashboard/owner/new-booking"
-              className="btn-brand w-full sm:w-auto inline-flex justify-center"
-            >
-              Nieuwe aanvraag
-            </Link>
+            <div className="w-full sm:w-auto flex flex-col sm:flex-row gap-3 sm:items-center">
+              <div className="inline-flex rounded-full border border-emerald-200 bg-white shadow-sm overflow-hidden w-full sm:w-auto">
+                <button
+                  type="button"
+                  onClick={() => setView('active')}
+                  className={`flex-1 px-4 py-2 text-sm font-semibold transition ${
+                    view === 'active' ? 'bg-emerald-600 text-white' : 'text-gray-700 hover:bg-emerald-50'
+                  }`}
+                >
+                  Actief
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setView('history')}
+                  className={`flex-1 px-4 py-2 text-sm font-semibold transition ${
+                    view === 'history' ? 'bg-emerald-600 text-white' : 'text-gray-700 hover:bg-emerald-50'
+                  }`}
+                >
+                  Geschiedenis
+                </button>
+              </div>
+
+              <Link
+                href="/dashboard/owner/new-booking"
+                className="btn-brand w-full sm:w-auto inline-flex justify-center"
+              >
+                Nieuwe aanvraag
+              </Link>
+            </div>
           </div>
 
           {focusMatches.length === 0 ? (

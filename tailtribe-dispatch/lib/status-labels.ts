@@ -5,6 +5,7 @@ export const STATUS_LABELS: Record<string, string> = {
   CONFIRMED: 'Bevestigd',
   COMPLETED: 'Afgerond',
   CANCELLED: 'Geannuleerd',
+  ARCHIVED: 'Gearchiveerd',
   APPROVED: 'Goedgekeurd',
   REJECTED: 'Geweigerd',
   PENDING_ADMIN: 'Wacht op beheerder',

@@ -3,7 +3,7 @@ import { auth } from '@/lib/auth'
 import prisma from '@/lib/prisma'
 import { assertSlotNotInPast } from '@/lib/date-utils'
 import { createNotification } from '@/lib/notifications'
-import { sendAssignmentEmail, sendCancellationEmail, sendOwnerAssignmentEmail } from '@/lib/email'
+import { sendAssignmentEmail, sendOwnerAssignmentEmail } from '@/lib/email'
 import { assertCaregiverAvailable } from '@/lib/availability'
 import { SERVICE_LABELS } from '@/lib/services'
 import { provinceSlugFromPostalCode } from '@/data/be-geo'
@@ -265,70 +265,15 @@ export async function DELETE(req: NextRequest) {
   if (!id) return NextResponse.json({ error: 'id is required' }, { status: 400 })
 
   try {
-    const booking = await prisma.booking.findUnique({
+    // Professional default: archive instead of hard-delete.
+    // This keeps history for owner/caregiver, but removes it from the default "active" lists.
+    await prisma.booking.update({
       where: { id },
-      include: {
-        owner: {
-          select: { id: true, email: true, firstName: true, lastName: true, phone: true },
-        },
-        caregiver: {
-          select: { id: true, email: true, firstName: true, lastName: true, phone: true },
-        },
-      },
+      data: { status: 'ARCHIVED' },
     })
-
-    await prisma.booking.delete({ where: { id } })
-
-    if (booking) {
-      const serviceLabel =
-        SERVICE_LABELS[booking.service as keyof typeof SERVICE_LABELS] ?? booking.service
-      const location = `${booking.city ?? ''}${booking.postalCode ? ` ${booking.postalCode}` : ''}`.trim()
-      const ownerLink = `${process.env.NEXT_PUBLIC_APP_URL ?? 'https://tailtribe.be'}/dashboard/owner/bookings`
-      const caregiverLink = `${process.env.NEXT_PUBLIC_APP_URL ?? 'https://tailtribe.be'}/dashboard/caregiver`
-
-      await createNotification({
-        userId: booking.owner.id,
-        type: 'CANCELLED',
-        title: 'Aanvraag verwijderd',
-        message: `${serviceLabel} • ${new Date(booking.date).toLocaleDateString('nl-BE')}`,
-        entityId: booking.id,
-      })
-
-      await sendCancellationEmail({
-        recipientEmail: booking.owner.email,
-        recipientRole: 'OWNER',
-        service: serviceLabel,
-        date: booking.date,
-        timeWindow: booking.timeWindow,
-        time: booking.time ?? null,
-        location: location || 'Onbekend',
-        link: ownerLink,
-      })
-
-      if (booking.caregiver?.id && booking.caregiver.email) {
-        await createNotification({
-          userId: booking.caregiver.id,
-          type: 'CANCELLED',
-          title: 'Opdracht verwijderd',
-          message: `${serviceLabel} • ${new Date(booking.date).toLocaleDateString('nl-BE')}`,
-          entityId: booking.id,
-        })
-
-        await sendCancellationEmail({
-          recipientEmail: booking.caregiver.email,
-          recipientRole: 'CAREGIVER',
-          service: serviceLabel,
-          date: booking.date,
-          timeWindow: booking.timeWindow,
-          time: booking.time ?? null,
-          location: location || 'Onbekend',
-          link: caregiverLink,
-        })
-      }
-    }
     return NextResponse.json({ success: true })
   } catch (e) {
     console.error('DELETE /api/admin/bookings', e)
-    return NextResponse.json({ error: 'Failed to delete booking' }, { status: 500 })
+    return NextResponse.json({ error: 'Failed to archive booking' }, { status: 500 })
   }
 }

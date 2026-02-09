@@ -7,7 +7,7 @@ import { createNotification } from '@/lib/notifications'
 import { sendAdminOwnerConfirmedEmail, sendAssignmentEmail, sendOwnerAssignmentEmail } from '@/lib/email'
 import { SERVICE_LABELS } from '@/lib/services'
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   const session = await auth()
   const impersonation = getImpersonationContext(session)
   const effectiveRole = impersonation?.role ?? session?.user?.role
@@ -17,9 +17,29 @@ export async function GET() {
   }
 
   try {
+    const { searchParams } = new URL(request.url)
+    const view = searchParams.get('view') === 'history' ? 'history' : 'active'
+
+    // Professional default:
+    // - Active view: upcoming + last 90 days (excluding ARCHIVED)
+    // - History view: older than 90 days OR explicitly ARCHIVED
+    const todayUtc = parseMidnightUtc(getTodayStringInZone())
+    const cutoffUtc = new Date(todayUtc)
+    cutoffUtc.setUTCDate(cutoffUtc.getUTCDate() - 90)
+
+    const ownerId = impersonation?.role === 'OWNER' ? impersonation.userId : session.user.id
+
     const bookings = await prisma.booking.findMany({
       where: {
-        ownerId: impersonation?.role === 'OWNER' ? impersonation.userId : session.user.id,
+        ownerId,
+        ...(view === 'history'
+          ? {
+              OR: [{ status: 'ARCHIVED' }, { date: { lt: cutoffUtc } }],
+            }
+          : {
+              status: { not: 'ARCHIVED' },
+              date: { gte: cutoffUtc },
+            }),
       },
       include: {
         caregiver: {
@@ -78,12 +98,12 @@ const TIME_WINDOW_STARTS: Record<string, string> = {
   NIGHT: '22:00',
 }
 
-const parseMidnightUtc = (dateStr: string) => {
+function parseMidnightUtc(dateStr: string) {
   const [y, m, d] = dateStr.split('-').map(Number)
   return new Date(Date.UTC(y, m - 1, d, 0, 0, 0, 0))
 }
 
-const slotStartUtc = (date: string, timeWindow?: string, time?: string) => {
+function slotStartUtc(date: string, timeWindow?: string, time?: string) {
   const start = time && /^\d{2}:\d{2}$/.test(time) ? time : TIME_WINDOW_STARTS[timeWindow ?? ''] ?? '00:00'
   const [hh, mm] = start.split(':').map(Number)
   const [y, m, d] = date.split('-').map(Number)

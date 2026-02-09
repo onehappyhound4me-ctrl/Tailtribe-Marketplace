@@ -2,10 +2,16 @@ import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { getImpersonationContext } from '@/lib/impersonation'
+import { getTodayStringInZone } from '@/lib/date-utils'
 
 export const dynamic = 'force-dynamic'
 
-export async function GET() {
+function parseMidnightUtc(dateStr: string) {
+  const [y, m, d] = dateStr.split('-').map(Number)
+  return new Date(Date.UTC(y, m - 1, d, 0, 0, 0, 0))
+}
+
+export async function GET(request: NextRequest) {
   const session = await auth()
   const impersonation = getImpersonationContext(session)
   const effectiveRole = impersonation?.role ?? session?.user?.role
@@ -15,9 +21,24 @@ export async function GET() {
   }
 
   try {
+    const { searchParams } = new URL(request.url)
+    const view = searchParams.get('view') === 'history' ? 'history' : 'active'
+
+    const todayUtc = parseMidnightUtc(getTodayStringInZone())
+    const cutoffUtc = new Date(todayUtc)
+    cutoffUtc.setUTCDate(cutoffUtc.getUTCDate() - 90)
+
     const bookings = await prisma.booking.findMany({
       where: {
         caregiverId: impersonation?.role === 'CAREGIVER' ? impersonation.userId : session.user.id,
+        ...(view === 'history'
+          ? {
+              OR: [{ status: 'ARCHIVED' }, { date: { lt: cutoffUtc } }],
+            }
+          : {
+              status: { not: 'ARCHIVED' },
+              date: { gte: cutoffUtc },
+            }),
       },
       include: {
         owner: {

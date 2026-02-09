@@ -2,8 +2,14 @@ import { NextResponse } from 'next/server'
 import { auth } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { getImpersonationContext } from '@/lib/impersonation'
+import { getTodayStringInZone } from '@/lib/date-utils'
 
 export const dynamic = 'force-dynamic'
+
+function parseMidnightUtc(dateStr: string) {
+  const [y, m, d] = dateStr.split('-').map(Number)
+  return new Date(Date.UTC(y, m - 1, d, 0, 0, 0, 0))
+}
 
 export async function GET() {
   try {
@@ -32,9 +38,17 @@ export async function GET() {
     }
 
     // Fetch bookings assigned to this caregiver (caregiverId refers to User.id)
+    const todayUtc = parseMidnightUtc(getTodayStringInZone())
+    const startUtc = new Date(todayUtc)
+    startUtc.setUTCDate(startUtc.getUTCDate() - 14)
+    const endUtc = new Date(todayUtc)
+    endUtc.setUTCDate(endUtc.getUTCDate() + 120)
+
     const bookings = await prisma.booking.findMany({
       where: {
         caregiverId: caregiverUserId, // User ID, not profile ID
+        status: { not: 'ARCHIVED' },
+        date: { gte: startUtc, lte: endUtc },
       },
       include: {
         owner: {

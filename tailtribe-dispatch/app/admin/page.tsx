@@ -293,7 +293,7 @@ export default function AdminPage() {
   const [invoicesLoaded, setInvoicesLoaded] = useState(false)
   const [invoicesLoading, setInvoicesLoading] = useState(false)
   const [errorMsg, setErrorMsg] = useState<string | null>(null)
-  const [actionLoading, setActionLoading] = useState<'assign' | 'delete' | 'anonymize' | null>(null)
+  const [actionLoading, setActionLoading] = useState<'assign' | 'delete' | 'archive' | 'anonymize' | null>(null)
   const [successMsg, setSuccessMsg] = useState<string | null>(null)
   const [impersonateLoadingId, setImpersonateLoadingId] = useState<string | null>(null)
   const [bulkOfferLoading, setBulkOfferLoading] = useState(false)
@@ -1234,18 +1234,23 @@ export default function AdminPage() {
     }
   }
 
-  const deleteSelectedOwner = async () => {
+  const archiveSelectedOwner = async () => {
     if (!selectedOwner) {
       setErrorMsg('Selecteer eerst een aanvraag')
       return
     }
-    const confirmed = window.confirm('Weet je zeker dat je deze aanvraag wilt verwijderen?')
+    const isBooking = selectedOwner.type === 'BOOKING'
+    const confirmed = window.confirm(
+      isBooking
+        ? 'Weet je zeker dat je deze aanvraag wilt archiveren?'
+        : 'Weet je zeker dat je deze aanvraag wilt verwijderen?'
+    )
     if (!confirmed) return
-    setActionLoading('delete')
+    setActionLoading(isBooking ? 'archive' : 'delete')
     setErrorMsg(null)
     setSuccessMsg(null)
     try {
-      if (selectedOwner.type === 'BOOKING') {
+      if (isBooking) {
         const res = await fetch('/api/admin/bookings', {
           method: 'DELETE',
           headers: { 'Content-Type': 'application/json' },
@@ -1260,11 +1265,11 @@ export default function AdminPage() {
         })
         if (!res.ok) throw new Error('delete failed')
       }
-      setSuccessMsg('Aanvraag verwijderd.')
+      setSuccessMsg(isBooking ? 'Aanvraag gearchiveerd.' : 'Aanvraag verwijderd.')
       await load({ includeProfiles: profilesLoaded, includeInvoices: invoicesLoaded })
     } catch (err) {
       console.error(err)
-      setErrorMsg('Kon niet verwijderen.')
+      setErrorMsg(isBooking ? 'Kon niet archiveren.' : 'Kon niet verwijderen.')
     } finally {
       setActionLoading(null)
     }
@@ -2153,11 +2158,11 @@ export default function AdminPage() {
                 ) : null}
                 <div className="sm:col-span-2 flex flex-wrap gap-2 pt-1">
                   <button
-                    onClick={deleteSelectedOwner}
+                    onClick={archiveSelectedOwner}
                     disabled={!!actionLoading}
                     className="px-3 py-2 rounded-lg border text-sm text-red-700 disabled:opacity-60"
                   >
-                    Verwijder aanvraag
+                    {selectedOwner.type === 'BOOKING' ? 'Archiveer aanvraag' : 'Verwijder aanvraag'}
                   </button>
                   <button
                     onClick={deleteSelectedOwnerUser}
