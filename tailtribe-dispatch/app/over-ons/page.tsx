@@ -42,12 +42,14 @@ export default function OverOnsPage() {
     <div className="min-h-screen bg-gradient-to-b from-green-50 via-white to-blue-50">
       <SiteHeader primaryCtaHref="/boeken" primaryCtaLabel="Boek Nu" />
 
-      <main className="container mx-auto px-4 py-12">
+      <main className="container mx-auto px-4 py-10 sm:py-12">
         <div className="max-w-5xl mx-auto space-y-10">
-          <section className="bg-white rounded-2xl shadow-tt p-8 md:p-10 border border-black/5">
-            <div className="space-y-4 text-emerald-900/90">
-              <p className="text-sm uppercase tracking-wide text-emerald-700 font-semibold">Over TailTribe</p>
-              <h1 className="text-3xl md:text-[2.6rem] lg:text-[2.8rem] font-bold text-transparent bg-clip-text bg-gradient-to-r from-emerald-700 to-blue-700 leading-snug">
+          <section className="bg-white rounded-2xl shadow-tt p-5 sm:p-8 md:p-10 border border-black/5">
+            <div className="space-y-4 text-emerald-900/90 text-[15px] sm:text-base leading-relaxed">
+              <p className="text-[11px] sm:text-sm uppercase tracking-wide text-emerald-700 font-semibold">
+                Over TailTribe
+              </p>
+              <h1 className="text-2xl sm:text-3xl md:text-[2.6rem] lg:text-[2.8rem] font-bold text-transparent bg-clip-text bg-gradient-to-r from-emerald-700 to-blue-700 leading-tight sm:leading-snug">
                 Gebouwd op echte ervaring
               </h1>
               <p>
@@ -57,13 +59,13 @@ export default function OverOnsPage() {
                 rekenen op echte expertise, veiligheid en consistente kwaliteit. Je kiest niet zomaar iemand, je kiest een aanpak
                 die bewezen is en vertrouwen geeft.
               </p>
-              <div className="mt-6 bg-gradient-to-br from-emerald-50 via-white to-blue-50 border border-emerald-100 rounded-2xl p-8 text-center shadow-sm">
-                <p className="text-2xl md:text-3xl font-semibold text-emerald-900 mb-3 leading-snug">
+              <div className="mt-6 bg-gradient-to-br from-emerald-50 via-white to-blue-50 border border-emerald-100 rounded-2xl p-5 sm:p-8 text-center shadow-sm">
+                <p className="text-lg sm:text-2xl md:text-3xl font-semibold text-emerald-900 mb-3 leading-relaxed">
                   “The greatness of a nation and its moral progress can be judged by the way its animals are treated.”
                 </p>
-                <p className="text-gray-600 font-medium text-lg">– Mahatma Gandhi</p>
+                <p className="text-gray-600 font-medium text-sm sm:text-lg">– Mahatma Gandhi</p>
               </div>
-              <h2 className="text-2xl font-semibold text-transparent bg-clip-text bg-gradient-to-r from-emerald-700 to-blue-700 mt-6">
+              <h2 className="text-xl sm:text-2xl font-semibold text-transparent bg-clip-text bg-gradient-to-r from-emerald-700 to-blue-700 mt-6">
                 Onze benadering
               </h2>
               <p>
@@ -74,7 +76,7 @@ export default function OverOnsPage() {
                 We bieden hondenuitlaat (individueel en in kleine groepen), oppas aan huis, verzorging op maat en ondersteuning
                 tijdens afwezigheid. Elke aanvraag wordt afgestemd op soort, karakter, routine en omgeving.
               </p>
-              <h2 className="text-2xl font-semibold text-transparent bg-clip-text bg-gradient-to-r from-emerald-700 to-blue-700 mt-6">
+              <h2 className="text-xl sm:text-2xl font-semibold text-transparent bg-clip-text bg-gradient-to-r from-emerald-700 to-blue-700 mt-6">
                 Kwaliteit boven kwantiteit
               </h2>
               <p>
@@ -82,21 +84,21 @@ export default function OverOnsPage() {
                 veiligheid en dierenwelzijn. Door selectie, begeleiding en opvolging leveren we consistente kwaliteit waarop je
                 kan rekenen.
               </p>
-              <h2 className="text-2xl font-semibold text-transparent bg-clip-text bg-gradient-to-r from-emerald-700 to-blue-700 mt-6">
+              <h2 className="text-xl sm:text-2xl font-semibold text-transparent bg-clip-text bg-gradient-to-r from-emerald-700 to-blue-700 mt-6">
                 Vertrouwd door honderden baasjes
               </h2>
               <p>
                 Vertrouwen komt niet uit beloften, maar uit resultaten. Dankzij jaren praktijkervaring, heldere communicatie en
                 betrouwbare opvolging kiezen steeds meer baasjes voor TailTribe als vaste partner in huisdierenzorg.
               </p>
-              <h2 className="text-2xl font-semibold text-transparent bg-clip-text bg-gradient-to-r from-emerald-700 to-blue-700 mt-6">
+              <h2 className="text-xl sm:text-2xl font-semibold text-transparent bg-clip-text bg-gradient-to-r from-emerald-700 to-blue-700 mt-6">
                 Gebouwd vanuit praktijkervaring
               </h2>
               <p>
                 TailTribe is geen theorie, maar praktijk. Jaren ervaring met groepsuitlaat, gedrag en dagelijkse zorg bepalen onze
                 standaarden. We weten wat werkt in het veld en vertalen dat naar veilige, professionele begeleiding.
               </p>
-              <h2 className="text-2xl font-semibold text-transparent bg-clip-text bg-gradient-to-r from-emerald-700 to-blue-700 mt-6">
+              <h2 className="text-xl sm:text-2xl font-semibold text-transparent bg-clip-text bg-gradient-to-r from-emerald-700 to-blue-700 mt-6">
                 Onze visie
               </h2>
               <p>
@@ -107,7 +109,7 @@ export default function OverOnsPage() {
                 TailTribe wil een betrouwbare referentie zijn voor georganiseerde huisdierenzorg, waarbij kwaliteit en dierenwelzijn
                 altijd vooropstaan.
               </p>
-              <h2 className="text-2xl font-semibold text-transparent bg-clip-text bg-gradient-to-r from-emerald-700 to-blue-700 mt-6">
+              <h2 className="text-xl sm:text-2xl font-semibold text-transparent bg-clip-text bg-gradient-to-r from-emerald-700 to-blue-700 mt-6">
                 TailTribe voor alle huisdieren
               </h2>
               <p>
@@ -118,30 +120,30 @@ export default function OverOnsPage() {
                 {VALUES.map((v) => (
                   <div key={v.title} className="bg-white rounded-2xl border border-black/5 p-5 shadow-sm">
                     <h3 className="text-lg font-semibold text-emerald-900">{v.title}</h3>
-                    <p className="text-emerald-900/85 mt-2">{v.desc}</p>
+                    <p className="text-emerald-900/85 mt-2 text-[15px] sm:text-base leading-relaxed">{v.desc}</p>
                   </div>
                 ))}
               </div>
             </div>
           </section>
 
-          <section className="bg-white rounded-2xl border border-black/5 p-8 shadow-sm">
-            <h2 className="text-2xl font-semibold text-transparent bg-clip-text bg-gradient-to-r from-emerald-700 to-blue-700 mb-4">
+          <section className="bg-white rounded-2xl border border-black/5 p-5 sm:p-8 shadow-sm">
+            <h2 className="text-xl sm:text-2xl font-semibold text-transparent bg-clip-text bg-gradient-to-r from-emerald-700 to-blue-700 mb-4">
               Team
             </h2>
-            <p className="text-emerald-900/85 mb-4">
+            <p className="text-emerald-900/85 mb-4 text-sm sm:text-base leading-relaxed">
               De visie achter TailTribe is nauw verbonden met de achtergrond van oprichter Steven Van Gucht. Zijn interesse in
               dierengedrag begon op jonge leeftijd en groeide uit tot internationale praktijkervaring in dierenzorg en
               gedragsbegeleiding, met telkens welzijn, gedrag en samenwerking tussen mens en dier centraal.
             </p>
-            <p className="text-emerald-900/85 mb-4">
+            <p className="text-emerald-900/85 mb-4 text-sm sm:text-base leading-relaxed">
               In 2007 werkte Steven als vrijwilliger in één van de grootste hondenasielen van Spanje, gespecialiseerd in de
               rehabilitatie van mishandelde en verwaarloosde Greyhounds en Galgos. Een jaar later volgde vrijwilligerswerk in een
               Wildlife Rescue Park in Thailand, waar verwaarloosde exotische dieren een tweede kans kregen. In 2012 verbleef hij
               meer dan drie jaar in de California Bay Area om zich te verdiepen in hondengedrag, werkte samen met trainers,
               begeleidde roedels en ondersteunde eigenaars bij gedragstrajecten aan huis.
             </p>
-            <p className="text-emerald-900/85 mb-4">
+            <p className="text-emerald-900/85 mb-4 text-sm sm:text-base leading-relaxed">
               Doorheen de jaren begeleidde hij meer dan 2000 groepsuitstappen met honden in binnen- en buitenland, waarvan meer dan zeven jaar
               met het OneHappyHound-team in België. Deze praktijkervaring vormt vandaag de kern van TailTribe.
             </p>
@@ -160,7 +162,7 @@ export default function OverOnsPage() {
                 </div>
               </div>
             </div>
-            <div className="space-y-2 text-emerald-900/85">
+            <div className="space-y-2 text-emerald-900/85 text-sm sm:text-base leading-relaxed">
               <div className="font-semibold text-emerald-900">Academische en professionele achtergrond</div>
               <ul className="list-disc pl-5 space-y-1">
                 <li>Bachelor Agro-biotechnologie, optie dierenzorg (Gent, 2008) – Thesis: De effecten van hondengedrag op menselijke feedback.</li>
@@ -170,13 +172,13 @@ export default function OverOnsPage() {
             </div>
           </section>
 
-          <section className="bg-gradient-to-br from-blue-50 to-green-50 rounded-2xl border border-black/5 p-8 shadow-sm mb-14">
+          <section className="bg-gradient-to-br from-blue-50 to-green-50 rounded-2xl border border-black/5 p-5 sm:p-8 shadow-sm mb-14">
             <div className="grid md:grid-cols-2 gap-8 items-center">
               <div className="space-y-3">
-                <h2 className="text-2xl font-semibold text-transparent bg-clip-text bg-gradient-to-r from-emerald-700 to-blue-700 mb-3">
+                <h2 className="text-xl sm:text-2xl font-semibold text-transparent bg-clip-text bg-gradient-to-r from-emerald-700 to-blue-700 mb-3">
                   Klaar voor veilige, professionele dierenzorg?
                 </h2>
-                <p className="text-emerald-900/85">
+                <p className="text-emerald-900/85 text-sm sm:text-base leading-relaxed">
                   Dien je aanvraag in en we plannen een passende verzorger in. Werk je zelf als ervaren freelancer? Meld je aan en we
                   nemen je graag mee in onze pool.
                 </p>

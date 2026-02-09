@@ -262,8 +262,8 @@ export default function BookingPage() {
                             />
                           </div>
                           <div>
-                            <div className="font-semibold text-lg">{service.name}</div>
-                            <div className="text-sm text-gray-600 line-clamp-2">{service.desc}</div>
+                            <div className="font-semibold text-base sm:text-lg text-gray-900">{service.name}</div>
+                            <div className="text-sm text-gray-600 line-clamp-2 leading-relaxed">{service.desc}</div>
                           </div>
                         </div>
                       </button>
@@ -275,7 +275,7 @@ export default function BookingPage() {
               {/* Step 2: Date & Time */}
               {step === 2 && (
                 <div>
-                  <h2 className="text-3xl font-bold mb-6">Wanneer?</h2>
+                  <h2 className="text-2xl sm:text-3xl font-bold mb-5 sm:mb-6">Wanneer?</h2>
                   <div className="space-y-4">
                     <div>
                       <label className="block text-sm font-medium mb-2">Voorkeur tijdsblok(ken)</label>
@@ -379,7 +379,7 @@ export default function BookingPage() {
               {/* Step 3: Contact Info */}
               {step === 3 && (
                 <div>
-                  <h2 className="text-3xl font-bold mb-6">Jouw gegevens</h2>
+                  <h2 className="text-2xl sm:text-3xl font-bold mb-5 sm:mb-6">Jouw gegevens</h2>
                   <div className="space-y-4">
                     <div className="grid md:grid-cols-2 gap-4">
                       <div>
@@ -424,7 +424,9 @@ export default function BookingPage() {
                         onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                         className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-brand"
                       />
-                      <p className="text-xs text-gray-500 mt-1">Optioneel. Als je “Telefoon” of “WhatsApp” kiest, helpt dit om sneller te contacteren.</p>
+                      <p className="text-xs text-gray-500 mt-1 leading-relaxed">
+                        Optioneel. Als je “Telefoon” of “WhatsApp” kiest, helpt dit om sneller te contacteren.
+                      </p>
                       {fieldErrors.phone && <p className="text-sm text-red-700 mt-2">{fieldErrors.phone}</p>}
                     </div>
                     <div>
@@ -502,7 +504,7 @@ export default function BookingPage() {
               {/* Step 4: Pet Info */}
               {step === 4 && (
                 <div>
-                  <h2 className="text-3xl font-bold mb-6">Over je huisdier</h2>
+                  <h2 className="text-2xl sm:text-3xl font-bold mb-5 sm:mb-6">Over je huisdier</h2>
                   <div className="space-y-4">
                     <div>
                       <label className="block text-sm font-medium mb-2">Naam huisdier</label>

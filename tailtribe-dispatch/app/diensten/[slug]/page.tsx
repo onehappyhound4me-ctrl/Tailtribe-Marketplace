@@ -128,7 +128,7 @@ export default function DienstDetailPage({ params }: Props) {
     <div className="min-h-screen bg-gradient-to-b from-green-50 via-white to-blue-50">
       <SiteHeader primaryCtaHref="/boeken" primaryCtaLabel="Boek Nu" />
 
-      <main className="container mx-auto px-4 py-14">
+      <main className="container mx-auto px-4 py-12 sm:py-14">
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(serviceJsonLd) }}
@@ -138,7 +138,7 @@ export default function DienstDetailPage({ params }: Props) {
           dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
         />
         <div className="max-w-6xl mx-auto">
-          <nav className="flex items-center space-x-2 text-sm text-gray-500 mb-6">
+          <nav className="flex items-center space-x-2 text-xs sm:text-sm text-gray-500 mb-5 sm:mb-6">
             <Link href="/" className="hover:text-gray-700">
               Home
             </Link>
@@ -150,8 +150,8 @@ export default function DienstDetailPage({ params }: Props) {
             <span className="text-gray-900">{service.name}</span>
           </nav>
 
-          <header className="bg-white rounded-2xl shadow-sm border border-black/5 p-8 md:p-10 flex flex-col md:flex-row gap-8 items-center">
-            <div className="relative w-40 h-40 md:w-48 md:h-48 rounded-2xl overflow-hidden bg-gradient-to-br from-emerald-50 to-blue-50 border border-black/5 flex-shrink-0">
+          <header className="bg-white rounded-2xl shadow-sm border border-black/5 p-5 sm:p-8 md:p-10 flex flex-col md:flex-row gap-6 sm:gap-8 items-center">
+            <div className="relative w-28 h-28 sm:w-40 sm:h-40 md:w-48 md:h-48 rounded-2xl overflow-hidden bg-gradient-to-br from-emerald-50 to-blue-50 border border-black/5 flex-shrink-0">
               {/* Use plain <img> for local /assets icons: more reliable on mobile Safari than Next/Image optimizer. */}
               <img
                 src={withAssetVersion(service.image)}
@@ -162,10 +162,10 @@ export default function DienstDetailPage({ params }: Props) {
               />
             </div>
             <div className="text-center md:text-left">
-              <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-3">
+              <h1 className="text-2xl sm:text-4xl md:text-5xl font-bold text-gray-900 mb-3">
                 {service.detailTitle ?? service.name}
               </h1>
-              <p className="text-base leading-7 md:text-lg md:leading-normal text-gray-600 max-w-2xl">
+              <p className="text-sm sm:text-base md:text-lg leading-relaxed text-gray-600 max-w-2xl">
                 {service.desc}
               </p>
               <div className="mt-6 flex flex-col sm:flex-row gap-3 justify-center md:justify-start">
@@ -183,8 +183,8 @@ export default function DienstDetailPage({ params }: Props) {
           </header>
 
           <section className="mt-8 md:mt-10 space-y-6 md:space-y-8">
-            <div className="bg-white rounded-2xl shadow-sm border border-black/5 p-6 md:p-8">
-              <h2 className="text-2xl md:text-3xl font-semibold text-transparent bg-clip-text bg-gradient-to-r from-emerald-700 to-blue-700 mb-4">
+            <div className="bg-white rounded-2xl shadow-sm border border-black/5 p-5 sm:p-6 md:p-8">
+              <h2 className="text-xl sm:text-2xl md:text-3xl font-semibold text-transparent bg-clip-text bg-gradient-to-r from-emerald-700 to-blue-700 mb-4">
                 Waarom deze dienst?
               </h2>
               {service.longDescription?.whyText ? (

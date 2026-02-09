@@ -641,6 +641,24 @@ export default function AdminPage() {
 
   const normalize = (value?: string | null) => (value ?? '').trim().toLowerCase()
 
+  const getCaregiverTimeWindowsForOwner = useCallback((cg: Caregiver, owner: OwnerItem | null) => {
+    if (!owner) return []
+    const ownerDate = new Date(owner.date).toISOString().slice(0, 10)
+    const windows =
+      cg.availability
+        ?.filter((slot) => {
+          const slotDate = new Date(slot.date).toISOString().slice(0, 10)
+          return slotDate === ownerDate
+        })
+        .map((slot) => slot.timeWindow) ?? []
+
+    // Unique + stable order
+    const unique = Array.from(new Set(windows))
+    const sortOrder = ['MORNING', 'AFTERNOON', 'EVENING', 'NIGHT']
+    unique.sort((a, b) => sortOrder.indexOf(a) - sortOrder.indexOf(b))
+    return unique
+  }, [])
+
   const getMatchDetails = useCallback((cg: Caregiver, owner: OwnerItem | null) => {
     const reasons: string[] = []
     const warnings: string[] = []
@@ -679,16 +697,14 @@ export default function AdminPage() {
     }
 
     const ownerDate = new Date(owner.date).toISOString().slice(0, 10)
-    const ownerWindow = owner.timeWindow || null
     const hasAvailability =
       cg.availability?.some((slot) => {
         const slotDate = new Date(slot.date).toISOString().slice(0, 10)
         if (slotDate !== ownerDate) return false
-        if (ownerWindow) return slot.timeWindow === ownerWindow
         return true
       }) ?? false
     if (hasAvailability) {
-      reasons.push('Beschikbaar op datum/tijd')
+      reasons.push('Beschikbaar op datum')
     } else {
       warnings.push('Geen beschikbaarheid gevonden')
     }
@@ -2100,6 +2116,14 @@ export default function AdminPage() {
                               Matchdetails
                             </summary>
                             <div className="pt-2 space-y-2 text-xs">
+                              <div className="text-gray-700">
+                                <span className="font-semibold">Beschikbaarheid op deze dag:</span>{' '}
+                                {(() => {
+                                  const windows = getCaregiverTimeWindowsForOwner(cg, selectedOwner)
+                                  if (windows.length === 0) return 'geen'
+                                  return windows.map((tw) => timeWindowLabels[tw] ?? tw).join(', ')
+                                })()}
+                              </div>
                               {cg.matchReasons && cg.matchReasons.length > 0 ? (
                                 <div>
                                   <div className="font-semibold text-gray-700 mb-1">Waarom match</div>

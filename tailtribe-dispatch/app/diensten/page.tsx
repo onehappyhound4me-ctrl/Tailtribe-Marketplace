@@ -59,8 +59,8 @@ export default function DienstenPage() {
         />
         <div className="max-w-6xl mx-auto">
           <header className="text-center mb-10">
-            <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">Onze diensten</h1>
-            <p className="text-lg md:text-xl text-gray-600 max-w-3xl mx-auto">
+            <h1 className="text-2xl sm:text-4xl md:text-5xl font-bold text-gray-900 mb-3 sm:mb-4">Onze diensten</h1>
+            <p className="text-sm sm:text-base md:text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
               Klik op een dienst voor meer uitleg. Wil je meteen boeken? Dien je aanvraag in en wij nemen contact op.
             </p>
             <div className="mt-6">

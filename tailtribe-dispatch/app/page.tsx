@@ -95,10 +95,10 @@ export default function HomePage() {
       <section id="services" className="py-16 px-4 sm:px-6 lg:px-8">
         <div className="container mx-auto max-w-7xl">
           <div className="max-w-3xl mx-auto text-center mb-12">
-            <h2 className="text-4xl md:text-5xl font-bold mb-4 text-gray-800">
+            <h2 className="text-2xl sm:text-4xl md:text-5xl font-bold mb-3 sm:mb-4 text-gray-800">
               Ontdek onze diensten
             </h2>
-            <p className="text-lg md:text-xl text-gray-600 max-w-2xl mx-auto">
+            <p className="text-sm sm:text-base md:text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed">
               Van wandelen tot oppassen - vind de perfecte dienst voor jouw huisdier
             </p>
           </div>
@@ -138,10 +138,10 @@ export default function HomePage() {
       <section className="py-16 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-blue-50 to-green-50">
         <div className="container mx-auto max-w-6xl">
           <div className="max-w-3xl mx-auto text-center mb-12">
-            <h2 className="text-4xl md:text-5xl font-bold mb-4 text-gray-800">
+            <h2 className="text-2xl sm:text-4xl md:text-5xl font-bold mb-3 sm:mb-4 text-gray-800">
               Hoe werkt het?
             </h2>
-            <p className="text-lg md:text-xl text-gray-600 max-w-2xl mx-auto">
+            <p className="text-sm sm:text-base md:text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed">
               In 3 eenvoudige stappen naar de perfecte dierenoppas
             </p>
           </div>
@@ -172,7 +172,7 @@ export default function HomePage() {
                   {item.step}
                 </div>
                 <h3 className="text-xl font-bold mb-2 text-gray-800">{item.title}</h3>
-                <p className="text-gray-600 text-center leading-relaxed px-2">
+                <p className="text-gray-600 text-center text-sm sm:text-base leading-relaxed px-2">
                   {item.desc}
                 </p>
               </div>
@@ -185,10 +185,10 @@ export default function HomePage() {
       <section className="py-16 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-blue-50 to-purple-50">
         <div className="container mx-auto max-w-6xl">
           <div className="max-w-3xl mx-auto text-center mb-12">
-            <h2 className="text-4xl md:text-5xl font-bold mb-4 text-gray-800">
+            <h2 className="text-2xl sm:text-4xl md:text-5xl font-bold mb-3 sm:mb-4 text-gray-800">
               Waarom TailTribe?
             </h2>
-            <p className="text-lg md:text-xl text-gray-600 max-w-2xl mx-auto">
+            <p className="text-sm sm:text-base md:text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed">
               Jij vraagt aan, wij nemen je gemoedsrust op ons: we regelen en volgen op met zorg
             </p>
           </div>
@@ -208,7 +208,7 @@ export default function HomePage() {
                 desc: 'Geen online betaling: we spreken prijs en details af op basis van jouw situatie'
               }
             ].map((benefit) => (
-              <div key={benefit.title} className="group bg-white rounded-2xl p-8 shadow-md hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 border border-gray-100">
+              <div key={benefit.title} className="group bg-white rounded-2xl p-6 sm:p-8 shadow-md hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 border border-gray-100">
                 <div className="w-16 h-16 bg-gradient-to-br from-green-600 to-blue-600 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
                   {benefit.title === 'Gescreende verzorgers' && (
                     <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -226,8 +226,8 @@ export default function HomePage() {
                     </svg>
                   )}
                 </div>
-                <h3 className="text-2xl font-bold mb-3 text-gray-800">{benefit.title}</h3>
-                <p className="text-gray-600">{benefit.desc}</p>
+                <h3 className="text-xl sm:text-2xl font-bold mb-3 text-gray-800">{benefit.title}</h3>
+                <p className="text-gray-600 text-sm sm:text-base leading-relaxed">{benefit.desc}</p>
               </div>
             ))}
           </div>
@@ -240,8 +240,8 @@ export default function HomePage() {
       <section className="py-16 px-4 sm:px-6 lg:px-8">
         <div className="container mx-auto max-w-6xl">
           <div className="max-w-3xl mx-auto text-center mb-12">
-            <h2 className="text-4xl md:text-5xl font-bold mb-4 text-gray-800">Reviews van baasjes</h2>
-            <p className="text-lg md:text-xl text-gray-600 max-w-2xl mx-auto">
+            <h2 className="text-2xl sm:text-4xl md:text-5xl font-bold mb-3 sm:mb-4 text-gray-800">Reviews van baasjes</h2>
+            <p className="text-sm sm:text-base md:text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed">
               Rust in je hoofd: echte ervaringen van klanten die hun huisdier aan ons toevertrouwen.
             </p>
           </div>
@@ -283,7 +283,7 @@ export default function HomePage() {
                     </svg>
                   ))}
                 </div>
-                <p className="text-gray-700 leading-relaxed">{review.quote}</p>
+                <p className="text-gray-700 text-sm sm:text-base leading-relaxed">{review.quote}</p>
               </div>
             ))}
           </div>

@@ -117,13 +117,13 @@ export default function HelpPage() {
       />
 
       <main className="container mx-auto px-4 py-12">
-        <div className="max-w-3xl mx-auto bg-white rounded-2xl shadow-tt p-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-6">FAQ</h1>
+        <div className="max-w-3xl mx-auto bg-white rounded-2xl shadow-tt p-5 sm:p-8">
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-5 sm:mb-6">FAQ</h1>
           <div className="space-y-6">
             {faqs.map((f) => (
               <div key={f.q} className="border border-black/5 rounded-xl p-5">
-                <h2 className="font-semibold text-gray-900 mb-2">{f.q}</h2>
-                <p className="text-gray-700">{f.a}</p>
+                <h2 className="font-semibold text-gray-900 mb-2 text-sm sm:text-base">{f.q}</h2>
+                <p className="text-gray-700 text-sm sm:text-base leading-relaxed">{f.a}</p>
               </div>
             ))}
           </div>
