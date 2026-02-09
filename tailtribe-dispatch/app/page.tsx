@@ -9,7 +9,7 @@ import { SERVICE_ICON_FILTER, withAssetVersion } from '@/lib/service-icons'
 
 // Gebruik een lokale hero-afbeelding uit /public.
 // Cache-buster query om harde refresh te forceren bij updates.
-const HERO_IMG_PRIMARY = '/assets/hero.jpg?v=2'
+const HERO_IMG_PRIMARY = '/assets/hero-marketplace.jpg?v=1'
 const HERO_IMG_URL = encodeURI(HERO_IMG_PRIMARY)
 export default function HomePage() {
   const { data: session } = useSession()

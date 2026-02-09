@@ -6,7 +6,7 @@ import { CookieConsent } from '@/components/CookieConsent'
 import { getPublicAppUrl } from '@/lib/env'
 
 const appUrl = getPublicAppUrl()
-const ogImageUrl = `${appUrl}/assets/hero.jpg`
+const ogImageUrl = `${appUrl}/assets/hero-marketplace.jpg`
 const orgLogoUrl = `${appUrl}/tailtribe_logo_masked_1751977129022.png`
 
 export const metadata: Metadata = {
