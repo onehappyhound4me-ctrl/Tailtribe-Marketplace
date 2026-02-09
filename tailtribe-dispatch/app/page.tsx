@@ -30,7 +30,7 @@ export default function HomePage() {
           alt=""
           aria-hidden="true"
           className="absolute inset-0 h-full w-full object-cover object-[60%_35%] sm:object-[50%_30%] md:object-[50%_30%]"
-          style={{ filter: 'brightness(1.12) saturate(1.05) blur(2px)' }}
+          style={{ filter: 'brightness(1.08) saturate(1.04) blur(0.6px)' }}
         />
         <div className="absolute inset-0 bg-black/12" />
 
@@ -81,7 +81,7 @@ export default function HomePage() {
                 href="/verzorger-aanmelden"
                 className="inline-flex items-center justify-center px-7 py-4 rounded-full font-semibold bg-white/20 text-white border border-white/30 backdrop-blur hover:bg-white/30 transition shadow-lg"
               >
-                Word verzorger: werk met dieren
+                Join our tribe: werk met dieren
               </Link>
             </div>
 
