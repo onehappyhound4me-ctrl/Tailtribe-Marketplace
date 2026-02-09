@@ -136,6 +136,23 @@ export default function CaregiverDashboardPage() {
                 </li>
               </ol>
             </div>
+
+            <div className="mt-3 rounded-xl border border-gray-200 bg-white/70 px-4 py-3">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                <div className="min-w-0">
+                  <div className="text-sm font-semibold text-gray-900">Hulp nodig?</div>
+                  <div className="mt-1 text-sm text-gray-600 leading-relaxed">
+                    Voor extra vragen of tips kan je naar de community gaan en je vraag stellen.
+                  </div>
+                </div>
+                <Link
+                  href="/community"
+                  className="w-full sm:w-auto inline-flex items-center justify-center rounded-xl border border-emerald-200 bg-white px-4 py-2 text-sm font-semibold text-emerald-900 hover:bg-emerald-50 transition min-h-[44px]"
+                >
+                  Naar community
+                </Link>
+              </div>
+            </div>
           </div>
 
           {isImpersonating && (
