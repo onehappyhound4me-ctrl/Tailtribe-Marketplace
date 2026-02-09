@@ -25,7 +25,7 @@ export default function HomePage() {
       <SiteHeader primaryCtaHref={bookingHref} primaryCtaLabel="Boek Nu" />
 
       {/* Hero with Image */}
-      <section className="relative w-full min-h-[32vh] sm:min-h-[38vh] md:min-h-[46vh] overflow-hidden flex items-center">
+      <section className="relative w-full min-h-[40vh] md:min-h-[50vh] overflow-hidden flex items-center">
         <img
           src={HERO_IMG_URL}
           alt=""
@@ -35,10 +35,10 @@ export default function HomePage() {
         />
         <div className="absolute inset-0 bg-black/12" />
 
-        <div className="relative z-10 container mx-auto px-4 sm:px-6 py-10 sm:py-14 md:py-20">
+        <div className="relative z-10 container mx-auto px-4 sm:px-6 py-12 sm:py-16 md:py-24">
           <div className="max-w-5xl mx-auto text-center">
             <h1
-              className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-bold leading-tight text-white"
+              className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-bold mb-5 sm:mb-6 leading-tight text-white"
               style={{ textShadow: '0 3px 12px rgba(0,0,0,0.55)' }}
             >
               Vind de juiste{' '}
@@ -82,28 +82,51 @@ export default function HomePage() {
                 </Link>
               </div>
             </div>
+
+            {/* Mobile: reserve the same vertical space so the H1 doesn't "sink" when we move copy/CTAs below the photo */}
+            <div className="md:hidden opacity-0 pointer-events-none select-none" aria-hidden="true">
+              <p className="text-lg sm:text-xl md:text-2xl mt-4 mb-4 max-w-3xl mx-auto">
+                <span
+                  className="inline-block px-1.5 py-0.5 rounded bg-black/18 backdrop-blur-[3px] font-semibold"
+                  style={{ color: '#eaffcc', textShadow: '0 3px 12px rgba(0,0,0,0.85)' }}
+                >
+                  Hondenuitlaat, dierenoppas, dierenverzorging en meer bij jou in de buurt
+                </span>
+              </p>
+              <p className="text-base sm:text-lg mb-6 max-w-2xl mx-auto">
+                <span
+                  className="inline-block px-1.5 py-0.5 rounded bg-black/18 backdrop-blur-[3px] font-semibold"
+                  style={{ color: '#eaffcc', textShadow: '0 3px 12px rgba(0,0,0,0.85)' }}
+                >
+                  Voor en door dierenverzorgers
+                </span>
+              </p>
+              <div className="flex flex-col sm:flex-row gap-3 justify-center items-stretch sm:items-center">
+                <span className="btn-brand w-full sm:w-auto inline-flex justify-center min-h-[48px]">
+                  Boek Nu
+                </span>
+                <span className="w-full sm:w-auto inline-flex items-center justify-center rounded-xl border border-emerald-200 bg-white px-5 py-3 text-sm font-semibold text-emerald-900 min-h-[48px]">
+                  Join our tribe: werk met dieren
+                </span>
+              </div>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* Mobile only: move hero copy + CTAs below the photo */}
-      <section className="md:hidden py-6">
+      {/* Mobile only: move hero copy + CTAs below the photo (no card/kader) */}
+      <section className="md:hidden pt-4 pb-8">
         <div className="container mx-auto px-4 sm:px-6">
-          <div className="max-w-4xl mx-auto rounded-2xl border border-black/5 bg-white shadow-tt p-5">
-            <div className="text-center">
-              <p className="text-sm text-gray-700 leading-relaxed">
-                Hondenuitlaat, dierenoppas, dierenverzorging en meer bij jou in de buurt
-              </p>
-              <p className="mt-2 text-sm text-emerald-900/90 font-semibold">
-                Voor en door dierenverzorgers
-              </p>
-            </div>
+          <div className="max-w-4xl mx-auto text-center">
+            <p className="text-sm sm:text-base text-gray-700 leading-relaxed">
+              Hondenuitlaat, dierenoppas, dierenverzorging en meer bij jou in de buurt
+            </p>
+            <p className="mt-2 text-sm sm:text-base text-emerald-900/90 font-semibold">
+              Voor en door dierenverzorgers
+            </p>
 
             <div className="mt-5 flex flex-col gap-3 justify-center items-stretch">
-              <Link
-                href={bookingHref}
-                className="btn-brand w-full inline-flex justify-center min-h-[48px]"
-              >
+              <Link href={bookingHref} className="btn-brand w-full inline-flex justify-center min-h-[48px]">
                 Boek Nu
               </Link>
               <Link
