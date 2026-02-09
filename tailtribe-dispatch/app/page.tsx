@@ -33,7 +33,7 @@ export default function HomePage() {
           className="absolute inset-0 h-full w-full object-cover object-[60%_35%] sm:object-[50%_30%] md:object-[50%_30%]"
           style={{ filter: 'brightness(1.08) saturate(1.04) blur(0.6px)' }}
         />
-        <div className="absolute inset-0 bg-black/20 sm:bg-black/12" />
+        <div className="absolute inset-0 bg-black/12" />
 
         <div className="relative z-10 container mx-auto px-4 sm:px-6 py-10 sm:py-14 md:py-20">
           <div className="max-w-5xl mx-auto text-center">
@@ -41,9 +41,7 @@ export default function HomePage() {
               className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-bold leading-tight text-white"
               style={{ textShadow: '0 3px 12px rgba(0,0,0,0.55)' }}
             >
-              <span className="bg-black/18 sm:bg-transparent px-2 py-0.5 rounded">
-                Vind de juiste
-              </span>{' '}
+              Vind de juiste{' '}
               <span className="text-green-200 transition-colors duration-200 hover:text-white hover:drop-shadow-[0_0_12px_rgba(74,222,128,0.85)]">
                 dierenoppasser
               </span>{' '}
