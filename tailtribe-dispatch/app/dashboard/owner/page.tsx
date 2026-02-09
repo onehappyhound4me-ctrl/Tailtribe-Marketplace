@@ -251,9 +251,10 @@ export default function OwnerDashboardPage() {
   }
 
   const hasProfile = !!profile
-  const pendingBookings = bookings.filter((b) => b.status === 'PENDING')
-  const assignedBookings = bookings.filter((b) => Boolean(b.caregiver) || b.status === 'ASSIGNED')
-  const confirmedBookings = bookings.filter((b) => b.status === 'CONFIRMED')
+  const pendingCount = bookings.filter((b) => b.status === 'PENDING').length
+  const assignedCount = bookings.filter((b) => b.status === 'ASSIGNED').length
+  const confirmedCount = bookings.filter((b) => b.status === 'CONFIRMED').length
+  const confirmedOrCompletedCount = bookings.filter((b) => b.status === 'CONFIRMED' || b.status === 'COMPLETED').length
   const isImpersonating = session?.user?.role === 'ADMIN'
   const unreadNotifications = notifications.filter((n) => !n.readAt)
   const latestNotifications = notifications.slice(0, 3)
@@ -605,23 +606,27 @@ export default function OwnerDashboardPage() {
               </div>
 
               {/* Quick Stats */}
-              <div className="grid md:grid-cols-4 gap-4">
-                <div className="bg-white rounded-xl shadow-sm p-6">
-                  <div className="text-2xl font-bold text-gray-900">{bookings.length}</div>
-                  <div className="text-sm text-gray-600">Totaal aanvragen</div>
+              <div className="bg-white rounded-2xl shadow-sm border border-black/5 p-6">
+                <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3">
+                  <div>
+                    <div className="text-sm text-gray-600">Aanvragen</div>
+                    <div className="text-2xl font-bold text-gray-900">{bookings.length}</div>
+                  </div>
+                  <div className="text-sm text-gray-700">
+                    {[
+                      pendingCount ? `${pendingCount} wacht` : null,
+                      assignedCount ? `${assignedCount} toegewezen` : null,
+                      confirmedOrCompletedCount ? `${confirmedOrCompletedCount} bevestigd` : null,
+                    ]
+                      .filter(Boolean)
+                      .join(' • ') || 'Geen aanvragen'}
+                  </div>
                 </div>
-                <div className="bg-white rounded-xl shadow-sm p-6">
-                  <div className="text-2xl font-bold text-yellow-600">{pendingBookings.length}</div>
-                  <div className="text-sm text-gray-600">In afwachting</div>
-                </div>
-                <div className="bg-white rounded-xl shadow-sm p-6">
-                  <div className="text-2xl font-bold text-blue-600">{assignedBookings.length}</div>
-                  <div className="text-sm text-gray-600">Verzorger gekozen</div>
-                </div>
-                <div className="bg-white rounded-xl shadow-sm p-6">
-                  <div className="text-2xl font-bold text-green-600">{confirmedBookings.length}</div>
-                  <div className="text-sm text-gray-600">Bevestigd</div>
-                </div>
+                {confirmedCount !== confirmedOrCompletedCount ? (
+                  <div className="mt-2 text-xs text-gray-500">
+                    Bevestigd telt ook afgeronde opdrachten mee.
+                  </div>
+                ) : null}
               </div>
 
               {/* Quick Links */}
