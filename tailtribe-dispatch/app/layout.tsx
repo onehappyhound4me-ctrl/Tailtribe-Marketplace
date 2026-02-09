@@ -3,6 +3,7 @@ import './globals.css'
 import { SessionProvider } from '@/components/SessionProvider'
 import { BackButtonFloating } from '@/components/BackButtonFloating'
 import { CookieConsent } from '@/components/CookieConsent'
+import { NavigationClickGuards } from '@/components/NavigationClickGuards'
 import { getPublicAppUrl } from '@/lib/env'
 
 const appUrl = getPublicAppUrl()
@@ -61,6 +62,7 @@ export default function RootLayout({
     <html lang="nl" className="h-full">
       <body className="h-full antialiased font-sans">
         <SessionProvider>
+          <NavigationClickGuards />
           <BackButtonFloating />
           <CookieConsent />
           <script

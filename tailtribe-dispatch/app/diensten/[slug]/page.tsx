@@ -5,6 +5,7 @@ import { SiteHeader } from '@/components/SiteHeader'
 import { SiteFooter } from '@/components/SiteFooter'
 import { DISPATCH_SERVICES, getDispatchServiceBySlug } from '@/lib/services'
 import { SERVICE_ICON_FILTER, withAssetVersion } from '@/lib/service-icons'
+import { routes } from '@/lib/routes'
 
 type Props = {
   params: { slug: string }
@@ -143,7 +144,7 @@ export default function DienstDetailPage({ params }: Props) {
               Home
             </Link>
             <span>›</span>
-            <Link href="/diensten" className="hover:text-gray-700">
+            <Link href={routes.diensten} className="hover:text-gray-700">
               Diensten
             </Link>
             <span>›</span>
@@ -173,7 +174,7 @@ export default function DienstDetailPage({ params }: Props) {
                   Aanvraag indienen
                 </Link>
                 <Link
-                  href="/diensten"
+                  href={routes.diensten}
                   className="inline-block px-6 py-3 rounded-tt border border-white/10 bg-white text-gray-900 hover:bg-gray-50 transition"
                 >
                   Alle diensten
@@ -401,7 +402,11 @@ export default function DienstDetailPage({ params }: Props) {
               {related.map((s) => (
                 <Link
                   key={s.id}
-                  href={`/diensten/${s.slug}`}
+                  href={routes.dienst(s.slug)}
+                  data-nav="service"
+                  data-component="DienstDetailPage.Related"
+                  data-service-id={s.id}
+                  data-service-slug={s.slug}
                   className="group bg-white rounded-2xl shadow-sm hover:shadow-tt transition-all border border-black/5 overflow-hidden"
                 >
                   <div className="relative h-36 w-full overflow-hidden bg-gradient-to-br from-emerald-50 to-blue-50 flex items-center justify-center p-5">

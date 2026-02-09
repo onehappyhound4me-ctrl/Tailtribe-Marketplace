@@ -9,6 +9,7 @@ import { SiteFooter } from '@/components/SiteFooter'
 import { DISPATCH_SERVICES } from '@/lib/services'
 import { trackEvent } from '@/lib/analytics'
 import { SERVICE_ICON_FILTER, withAssetVersion } from '@/lib/service-icons'
+import { routes } from '@/lib/routes'
 
 const TIME_WINDOWS = [
   { value: 'MORNING', label: 'Ochtend', hint: '07:00 - 12:00' },
@@ -177,7 +178,7 @@ export default function BookingPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-green-50 via-white to-blue-50">
-      <SiteHeader primaryCtaHref="/#services" primaryCtaLabel="Diensten" />
+      <SiteHeader primaryCtaHref={routes.diensten} primaryCtaLabel="Diensten" />
 
       {/* Booking Form */}
       <div className="container mx-auto px-4 py-12">

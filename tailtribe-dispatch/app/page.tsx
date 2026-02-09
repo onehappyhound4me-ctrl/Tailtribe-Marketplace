@@ -6,6 +6,7 @@ import { SiteHeader } from '@/components/SiteHeader'
 import { SiteFooter } from '@/components/SiteFooter'
 import { DISPATCH_SERVICES } from '@/lib/services'
 import { SERVICE_ICON_FILTER, withAssetVersion } from '@/lib/service-icons'
+import { routes } from '@/lib/routes'
 
 // Gebruik een lokale hero-afbeelding uit /public.
 // Cache-buster query om harde refresh te forceren bij updates.
@@ -105,7 +106,11 @@ export default function HomePage() {
             {DISPATCH_SERVICES.map((service) => (
               <Link 
                 key={service.id}
-                href={`/diensten/${service.slug}`}
+                href={routes.dienst(service.slug)}
+                data-nav="service"
+                data-component="HomePage.ServicesGrid"
+                data-service-id={service.id}
+                data-service-slug={service.slug}
                 className="group bg-gradient-to-br from-white via-white to-emerald-50 rounded-2xl shadow-md hover:shadow-2xl transition-all duration-300 overflow-hidden border border-emerald-100 hover:border-emerald-200 transform hover:-translate-y-1"
               >
                 <div className="relative h-36 sm:h-40 w-full overflow-hidden bg-gradient-to-br from-emerald-50 to-blue-50 flex items-center justify-center p-3 sm:p-4">

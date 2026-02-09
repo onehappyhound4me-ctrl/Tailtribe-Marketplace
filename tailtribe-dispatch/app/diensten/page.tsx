@@ -4,6 +4,7 @@ import { SiteHeader } from '@/components/SiteHeader'
 import { SiteFooter } from '@/components/SiteFooter'
 import { DISPATCH_SERVICES } from '@/lib/services'
 import { SERVICE_ICON_FILTER, withAssetVersion } from '@/lib/service-icons'
+import { routes } from '@/lib/routes'
 
 const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://tailtribe.be'
 const canonicalUrl = `${baseUrl}/diensten`
@@ -74,7 +75,11 @@ export default function DienstenPage() {
             {DISPATCH_SERVICES.map((service) => (
               <Link
                 key={service.id}
-                href={`/diensten/${service.slug}`}
+                href={routes.dienst(service.slug)}
+                data-nav="service"
+                data-component="DienstenPage.Cards"
+                data-service-id={service.id}
+                data-service-slug={service.slug}
                 className="group bg-white rounded-2xl shadow-sm hover:shadow-tt transition-all border border-black/5 overflow-hidden"
               >
                 <div className="relative h-36 sm:h-40 w-full overflow-hidden bg-gradient-to-br from-emerald-50 to-blue-50 flex items-center justify-center p-3 sm:p-4">

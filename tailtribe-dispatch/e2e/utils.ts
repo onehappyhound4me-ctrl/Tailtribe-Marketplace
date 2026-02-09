@@ -4,10 +4,11 @@ type CollectedIssue = { type: string; message: string }
 
 type ConsoleGuardOptions = {
   ignoreConsoleErrors?: Array<string | RegExp>
+  ignorePageErrors?: Array<string | RegExp>
+  ignoreRequestFailed?: Array<string | RegExp>
 }
 
-function shouldIgnoreConsoleError(message: string, opts?: ConsoleGuardOptions) {
-  const rules = opts?.ignoreConsoleErrors ?? []
+function matchesIgnoreRules(message: string, rules: Array<string | RegExp>) {
   if (!rules.length) return false
   return rules.some((r) => (typeof r === 'string' ? message.includes(r) : r.test(message)))
 }
@@ -16,14 +17,16 @@ export function attachConsoleGuards(page: Page, testInfo: TestInfo, opts?: Conso
   const issues: CollectedIssue[] = []
 
   page.on('pageerror', (err) => {
-    issues.push({ type: 'pageerror', message: String(err?.stack ?? err?.message ?? err) })
+    const text = String(err?.stack ?? err?.message ?? err)
+    if (matchesIgnoreRules(text, opts?.ignorePageErrors ?? [])) return
+    issues.push({ type: 'pageerror', message: text })
   })
 
   page.on('console', (msg) => {
     // Keep this strict: console errors are almost always a bug (hydration, runtime, etc).
     if (msg.type() === 'error') {
       const text = msg.text()
-      if (shouldIgnoreConsoleError(text, opts)) return
+      if (matchesIgnoreRules(text, opts?.ignoreConsoleErrors ?? [])) return
       issues.push({ type: 'console.error', message: text })
     }
   })
@@ -32,7 +35,9 @@ export function attachConsoleGuards(page: Page, testInfo: TestInfo, opts?: Conso
     const failure = req.failure()
     // Ignore aborted navigations (common when we intentionally redirect during tests).
     if (failure?.errorText?.toLowerCase().includes('aborted')) return
-    issues.push({ type: 'requestfailed', message: `${req.method()} ${req.url()} :: ${failure?.errorText ?? 'failed'}` })
+    const text = `${req.method()} ${req.url()} :: ${failure?.errorText ?? 'failed'}`
+    if (matchesIgnoreRules(text, opts?.ignoreRequestFailed ?? [])) return
+    issues.push({ type: 'requestfailed', message: text })
   })
 
   return {

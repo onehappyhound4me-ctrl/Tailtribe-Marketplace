@@ -58,6 +58,14 @@ export default defineConfig({
 
   projects: [
     {
+      name: 'desktop-chromium',
+      testMatch: /.*desktop.*\.spec\.ts/,
+      use: {
+        browserName: 'chromium',
+        viewport: { width: 1440, height: 900 },
+      },
+    },
+    {
       name: 'mobile-webkit-iphone',
       use: {
         ...devices['iPhone 14'],

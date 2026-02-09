@@ -5,6 +5,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { usePathname } from 'next/navigation'
 import { useSession, signOut } from 'next-auth/react'
 import { createPortal } from 'react-dom'
+import { routes } from '@/lib/routes'
 
 type Props = {
   primaryCtaHref?: string
@@ -92,7 +93,7 @@ export function SiteHeader({ primaryCtaHref = '/boeken', primaryCtaLabel = 'Boek
     }
   }, [pathname, mobileMenuOpen, closeMobileMenu])
 
-  // Also close on hash navigation (e.g. "/#services").
+  // Also close on hash navigation (e.g. home section anchors).
   useEffect(() => {
     if (!mobileMenuOpen) return
     const onHashChange = () => closeMobileMenu()
@@ -221,8 +222,8 @@ export function SiteHeader({ primaryCtaHref = '/boeken', primaryCtaLabel = 'Boek
           </div>
 
           <a
-            href="/#services"
-            onClick={onMobileNavClick('/#services')}
+            href={routes.diensten}
+            onClick={onMobileNavClick(routes.diensten)}
             className="rounded-xl border border-emerald-200 bg-white px-4 py-3 text-sm font-semibold text-gray-900 hover:bg-emerald-50 transition min-h-[44px] flex items-center justify-between"
           >
             Diensten
@@ -380,7 +381,7 @@ export function SiteHeader({ primaryCtaHref = '/boeken', primaryCtaLabel = 'Boek
           <div className="flex items-center gap-2 md:gap-4 lg:gap-6 min-w-0">
             {/* Desktop Menu - alleen zichtbaar op md en groter */}
             <Link
-              href="/#services"
+              href={routes.diensten}
               className="hidden md:block text-gray-700 hover:text-green-700 font-medium transition whitespace-nowrap"
             >
               Diensten

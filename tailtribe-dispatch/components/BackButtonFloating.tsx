@@ -3,6 +3,7 @@
 import { usePathname, useRouter } from 'next/navigation'
 import { useMemo } from 'react'
 import { useSession } from 'next-auth/react'
+import { routes } from '@/lib/routes'
 
 export function BackButtonFloating() {
   const router = useRouter()
@@ -19,7 +20,8 @@ export function BackButtonFloating() {
     if (role === 'ADMIN') return '/admin'
     if (role === 'OWNER') return '/dashboard/owner'
     if (role === 'CAREGIVER') return '/dashboard/caregiver'
-    return '/'
+    // Public fallback should never be a generic home redirect (avoids "random" jumps to /).
+    return routes.diensten
   })()
 
   const handleBack = () => {
@@ -46,7 +48,9 @@ export function BackButtonFloating() {
       // ignore and use fallback
     }
 
-    router.push(fallbackHref)
+    if (fallbackHref && fallbackHref !== pathname) {
+      router.push(fallbackHref)
+    }
   }
 
   return (
