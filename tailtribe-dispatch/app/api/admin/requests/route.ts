@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/lib/auth'
 import prisma from '@/lib/prisma'
-import { getEligibleCaregivers } from '@/lib/matching'
+import { getEligibleCaregiversWithOptions } from '@/lib/matching'
 import { assertSlotNotInPast } from '@/lib/date-utils'
 import { createNotification } from '@/lib/notifications'
 import { sendAssignmentEmail, sendCancellationEmail, sendOwnerAssignmentEmail } from '@/lib/email'
@@ -29,9 +29,12 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
+  const { searchParams } = new URL(req.url)
+  const includeUnavailable = searchParams.get('includeUnavailable') === '1'
+
   // Memoize eligible caregiver results within this request to avoid N+1 blowups
-  const eligibleCache = new Map<string, Awaited<ReturnType<typeof getEligibleCaregivers>>>()
-  const eligibleFor = async (input: Parameters<typeof getEligibleCaregivers>[0]) => {
+  const eligibleCache = new Map<string, Awaited<ReturnType<typeof getEligibleCaregiversWithOptions>>>()
+  const eligibleFor = async (input: Parameters<typeof getEligibleCaregiversWithOptions>[0]) => {
     const dateKey = new Date(input.date).toISOString().slice(0, 10)
     const key = [
       input.service,
@@ -39,15 +42,17 @@ export async function GET(req: NextRequest) {
       dateKey,
       (input.region ?? '').trim(),
       (input.postalCode ?? '').trim(),
+      includeUnavailable ? 'all' : 'available',
     ].join('|')
     const cached = eligibleCache.get(key)
     if (cached) return cached
-    const computed = await getEligibleCaregivers(input)
+    const computed = await getEligibleCaregiversWithOptions(input, {
+      requireAvailability: !includeUnavailable,
+    })
     eligibleCache.set(key, computed)
     return computed
   }
 
-  const { searchParams } = new URL(req.url)
   const limitParam = searchParams.get('limit')
   const offsetParam = searchParams.get('offset')
   const limit = Math.min(100, Math.max(10, Number(limitParam ?? 50) || 50))

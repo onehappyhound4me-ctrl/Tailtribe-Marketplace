@@ -314,15 +314,23 @@ export default function AdminPage() {
   const [dateFrom, setDateFrom] = useState('')
   const [dateTo, setDateTo] = useState('')
   const [searchTerm, setSearchTerm] = useState('')
+  const [showUnavailableCaregivers, setShowUnavailableCaregivers] = useState(false)
 
-  const load = async (options?: { includeProfiles?: boolean; includeInvoices?: boolean }) => {
+  const load = async (
+    options?: { includeProfiles?: boolean; includeInvoices?: boolean },
+    overrides?: { showUnavailableCaregivers?: boolean }
+  ) => {
     setLoading(true)
     setErrorMsg(null)
     try {
+      const showUnavailable = overrides?.showUnavailableCaregivers ?? showUnavailableCaregivers
+      const requestsUrl = showUnavailable
+        ? '/api/admin/requests?includeUnavailable=1'
+        : '/api/admin/requests'
       const [bRes, cRes, rRes] = await Promise.all([
         fetch('/api/admin/bookings', { cache: 'no-store' }),
         fetch('/api/admin/caregivers', { cache: 'no-store' }),
-        fetch('/api/admin/requests', { cache: 'no-store' }),
+        fetch(requestsUrl, { cache: 'no-store' }),
       ])
       if (!bRes.ok) throw new Error('Bookings fetch failed')
       const bJson = (await bRes.json()) as Booking[]
@@ -1972,9 +1980,23 @@ export default function AdminPage() {
         <div className="grid lg:grid-cols-12 gap-6">
           {/* Owner column */}
           <div className="lg:col-span-6 bg-white border rounded-2xl shadow-sm">
-            <div className="px-5 py-4 border-b flex items-center justify-between">
-              <h2 className="text-lg font-semibold text-gray-900">Aanvragen van eigenaars</h2>
-              <span className="text-xs text-gray-500">{filteredOwners.length} resultaten</span>
+            <div className="px-5 py-4 border-b flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+              <div className="flex items-center justify-between gap-3">
+                <h2 className="text-lg font-semibold text-gray-900">Aanvragen van eigenaars</h2>
+                <span className="text-xs text-gray-500">{filteredOwners.length} resultaten</span>
+              </div>
+              <label className="inline-flex items-center gap-2 text-sm text-gray-700 select-none">
+                <input
+                  type="checkbox"
+                  checked={showUnavailableCaregivers}
+                  onChange={(e) => {
+                    const next = e.target.checked
+                    setShowUnavailableCaregivers(next)
+                    void load({ includeProfiles: profilesLoaded, includeInvoices: invoicesLoaded }, { showUnavailableCaregivers: next })
+                  }}
+                />
+                Toon ook niet-beschikbare verzorgers
+              </label>
             </div>
             <div className="divide-y max-h-[70vh] overflow-auto">
               {filteredOwners.length === 0 && (

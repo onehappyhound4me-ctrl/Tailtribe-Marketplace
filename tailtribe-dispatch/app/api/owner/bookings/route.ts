@@ -6,6 +6,7 @@ import { getImpersonationContext } from '@/lib/impersonation'
 import { createNotification } from '@/lib/notifications'
 import { sendAdminOwnerConfirmedEmail, sendAssignmentEmail, sendOwnerAssignmentEmail } from '@/lib/email'
 import { SERVICE_LABELS } from '@/lib/services'
+import { getEligibleCaregiversWithOptions } from '@/lib/matching'
 
 export async function GET(request: NextRequest) {
   const session = await auth()
@@ -70,16 +71,50 @@ export async function GET(request: NextRequest) {
       },
     })
 
-    const payload = bookings.map((booking) => ({
-      ...booking,
-      offers: booking.offers.map((offer) => ({
-        id: offer.id,
-        caregiverId: offer.caregiver.id,
-        caregiver: offer.caregiver,
-        unit: offer.unit,
-        priceCents: offer.priceCents,
-      })),
-    }))
+    // Compute "any available caregiver" for owner visibility (only when no offers yet).
+    const eligibleCache = new Map<string, Awaited<ReturnType<typeof getEligibleCaregiversWithOptions>>>()
+    const eligibleFor = async (b: (typeof bookings)[number]) => {
+      const dateKey = new Date(b.date).toISOString().slice(0, 10)
+      const key = [b.service, b.timeWindow, dateKey, (b.region ?? '').trim(), (b.postalCode ?? '').trim()].join('|')
+      const cached = eligibleCache.get(key)
+      if (cached) return cached
+      const computed = await getEligibleCaregiversWithOptions(
+        {
+          service: b.service,
+          postalCode: b.postalCode,
+          region: b.region,
+          date: b.date,
+          timeWindow: b.timeWindow,
+        },
+        { requireAvailability: true }
+      )
+      eligibleCache.set(key, computed)
+      return computed
+    }
+
+    const payload = await Promise.all(
+      bookings.map(async (booking) => {
+        const offers = booking.offers.map((offer) => ({
+          id: offer.id,
+          caregiverId: offer.caregiver.id,
+          caregiver: offer.caregiver,
+          unit: offer.unit,
+          priceCents: offer.priceCents,
+        }))
+
+        let availableCaregiverCount: number | null = null
+        if (view === 'active' && !booking.caregiverId && offers.length === 0) {
+          const eligible = await eligibleFor(booking)
+          availableCaregiverCount = eligible.length
+        }
+
+        return {
+          ...booking,
+          offers,
+          availableCaregiverCount,
+        }
+      })
+    )
 
     return NextResponse.json(payload)
   } catch (error) {

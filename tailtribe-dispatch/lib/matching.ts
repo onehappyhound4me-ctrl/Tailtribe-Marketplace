@@ -8,6 +8,14 @@ type EligibleParams = {
   timeWindow: string
 }
 
+type EligibleOptions = {
+  /**
+   * If true: only return caregivers that explicitly marked availability
+   * for this date + timeWindow.
+   */
+  requireAvailability?: boolean
+}
+
 const normalize = (value?: string | null) => (value ?? '').trim().toLowerCase()
 
 const parseRegions = (value?: string | null) => {
@@ -58,26 +66,48 @@ const regionScore = (params: {
 }
 
 export async function getEligibleCaregivers(params: EligibleParams) {
+  return getEligibleCaregiversWithOptions(params, {})
+}
+
+export async function getEligibleCaregiversWithOptions(params: EligibleParams, options: EligibleOptions) {
   const { service, postalCode, region, date, timeWindow } = params
   const targetDate = new Date(date)
 
-  const caregivers = await prisma.caregiverProfile.findMany({
-    where: {
-      isApproved: true,
-      isActive: true,
-      user: { role: 'CAREGIVER' },
-    },
-    include: {
-      user: true,
-      availability: {
-        where: {
-          date: targetDate,
-          timeWindow,
-          isAvailable: true,
-        },
-      },
-    },
-  })
+  const caregivers = await prisma.caregiverProfile.findMany(
+    options.requireAvailability
+      ? {
+          where: {
+            isApproved: true,
+            isActive: true,
+            user: { role: 'CAREGIVER' },
+            availability: {
+              some: {
+                date: targetDate,
+                timeWindow,
+                isAvailable: true,
+              },
+            },
+          },
+          include: { user: true },
+        }
+      : {
+          where: {
+            isApproved: true,
+            isActive: true,
+            user: { role: 'CAREGIVER' },
+          },
+          include: {
+            user: true,
+            availability: {
+              where: {
+                date: targetDate,
+                timeWindow,
+                isAvailable: true,
+              },
+            },
+          },
+        }
+  )
 
   const ranked = caregivers
     .filter((cg) => parseServices(cg.services).includes(service))
@@ -89,7 +119,8 @@ export async function getEligibleCaregivers(params: EligibleParams) {
         targetRegion: region,
         targetPostal: postalCode,
       })
-      const hasAvailability = cg.availability.length > 0
+      const hasAvailability =
+        options.requireAvailability ? true : (cg as any).availability?.length > 0
       const score = rScore * 2 + (hasAvailability ? 1 : 0)
       const regionReason =
         region && rScore > 0 ? 'Zelfde provincie' : rScore > 1 ? 'Zelfde postcode' : rScore === 1 ? 'Nabije regio' : 'Regio onbekend'

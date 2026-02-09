@@ -20,6 +20,7 @@ type Booking = {
   status: string
   isRecurring: boolean
   createdAt: string
+  availableCaregiverCount?: number | null
   caregiver: {
     firstName: string
     lastName: string
@@ -440,6 +441,14 @@ export default function OwnerBookingsPage() {
                     key={booking.id}
                     className="bg-white rounded-2xl shadow-sm border border-black/5 p-6 hover:shadow-md transition"
                   >
+                    {view === 'active' &&
+                      !booking.caregiver &&
+                      (booking.offers ?? []).length === 0 &&
+                      booking.availableCaregiverCount === 0 && (
+                        <div className="mb-4 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+                          Voor deze dag is er momenteel geen verzorger beschikbaar.
+                        </div>
+                      )}
                     <div className="flex items-start justify-between gap-4 mb-4">
                       <div className="flex-1">
                         <div className="flex items-center gap-3 mb-2">
