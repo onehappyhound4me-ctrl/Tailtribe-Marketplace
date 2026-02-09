@@ -2066,30 +2066,65 @@ export default function AdminPage() {
                       <div className="font-semibold text-gray-900">
                         {cg.firstName} {cg.lastName}
                       </div>
-                      <span className="text-xs text-gray-500">
-                        {cg.city} ({cg.postalCode})
-                      </span>
-                    </div>
-                    <div className="text-xs text-gray-600 mt-1">
-                      {cg.email} {cg.phone ? `• ${cg.phone}` : ''}
+                      <div className="flex items-center gap-2">
+                        {selectedOwner ? (
+                          cg.hasMatch ? (
+                            <span className="px-2 py-1 rounded-full text-[11px] bg-emerald-100 text-emerald-800 font-semibold">
+                              Match
+                            </span>
+                          ) : (
+                            <span className="px-2 py-1 rounded-full text-[11px] bg-gray-100 text-gray-800 font-semibold">
+                              Geen match
+                            </span>
+                          )
+                        ) : null}
+                        <span className="text-xs text-gray-500">
+                          {cg.city} ({cg.postalCode})
+                        </span>
+                      </div>
                     </div>
                     <div className="text-xs text-gray-500 mt-1">
                       Diensten: {(cg.services ?? []).map(serviceLabel).join(', ') || 'Onbekend'}
                     </div>
-                    <div className="text-xs text-gray-500 mt-1">
-                      Tarieven: {formatPricingLines(cg.services, cg.servicePricing)}
-                    </div>
-                    <div className="text-xs text-gray-500 mt-1">
-                      {selectedOwner ? (
-                        cg.hasMatch ? (
-                          <span className="text-emerald-700 font-semibold">Match gevonden</span>
-                        ) : (
-                          'Geen match gevonden'
-                        )
-                      ) : (
-                        'Selecteer een aanvraag voor matchdetails'
-                      )}
-                    </div>
+                    {active ? (
+                      <>
+                        <div className="text-xs text-gray-600 mt-1">
+                          {cg.email} {cg.phone ? `• ${cg.phone}` : ''}
+                        </div>
+                        <div className="text-xs text-gray-500 mt-1">
+                          Tarieven: {formatPricingLines(cg.services, cg.servicePricing)}
+                        </div>
+                        {selectedOwner && (cg.matchReasons?.length || cg.matchWarnings?.length) ? (
+                          <details className="mt-2 rounded-xl border border-gray-200 bg-gray-50 p-3">
+                            <summary className="cursor-pointer text-sm font-semibold text-gray-800">
+                              Matchdetails
+                            </summary>
+                            <div className="pt-2 space-y-2 text-xs">
+                              {cg.matchReasons && cg.matchReasons.length > 0 ? (
+                                <div>
+                                  <div className="font-semibold text-gray-700 mb-1">Waarom match</div>
+                                  <ul className="list-disc pl-5 text-gray-600 space-y-0.5">
+                                    {cg.matchReasons.slice(0, 6).map((r, idx) => (
+                                      <li key={idx}>{r}</li>
+                                    ))}
+                                  </ul>
+                                </div>
+                              ) : null}
+                              {cg.matchWarnings && cg.matchWarnings.length > 0 ? (
+                                <div>
+                                  <div className="font-semibold text-amber-800 mb-1">Opgelet</div>
+                                  <ul className="list-disc pl-5 text-amber-800/80 space-y-0.5">
+                                    {cg.matchWarnings.slice(0, 6).map((w, idx) => (
+                                      <li key={idx}>{w}</li>
+                                    ))}
+                                  </ul>
+                                </div>
+                              ) : null}
+                            </div>
+                          </details>
+                        ) : null}
+                      </>
+                    ) : null}
                   </button>
                 )
               })}
