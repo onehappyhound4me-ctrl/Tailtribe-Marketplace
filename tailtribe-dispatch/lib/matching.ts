@@ -73,39 +73,34 @@ export async function getEligibleCaregiversWithOptions(params: EligibleParams, o
   const { service, postalCode, region, date, timeWindow } = params
   const targetDate = new Date(date)
 
-  const caregivers = await prisma.caregiverProfile.findMany(
-    options.requireAvailability
-      ? {
-          where: {
-            isApproved: true,
-            isActive: true,
-            user: { role: 'CAREGIVER' },
+  // NOTE: keep findMany() args shape stable to satisfy Prisma's TS types.
+  // We only toggle the `where.availability.some` filter.
+  const caregivers = await prisma.caregiverProfile.findMany({
+    where: {
+      isApproved: true,
+      isActive: true,
+      user: { role: 'CAREGIVER' },
+      ...(options.requireAvailability
+        ? {
             availability: {
               some: {
                 date: targetDate,
                 isAvailable: true,
               },
             },
-          },
-          include: { user: true },
-        }
-      : {
-          where: {
-            isApproved: true,
-            isActive: true,
-            user: { role: 'CAREGIVER' },
-          },
-          include: {
-            user: true,
-            availability: {
-              where: {
-                date: targetDate,
-                isAvailable: true,
-              },
-            },
-          },
-        }
-  )
+          }
+        : {}),
+    },
+    include: {
+      user: true,
+      availability: {
+        where: {
+          date: targetDate,
+          isAvailable: true,
+        },
+      },
+    },
+  })
 
   const ranked = caregivers
     .filter((cg) => parseServices(cg.services).includes(service))
@@ -117,8 +112,7 @@ export async function getEligibleCaregiversWithOptions(params: EligibleParams, o
         targetRegion: region,
         targetPostal: postalCode,
       })
-      const hasAvailability =
-        options.requireAvailability ? true : (cg as any).availability?.length > 0
+      const hasAvailability = cg.availability.length > 0
       const score = rScore * 2 + (hasAvailability ? 1 : 0)
       const regionReason =
         region && rScore > 0 ? 'Zelfde provincie' : rScore > 1 ? 'Zelfde postcode' : rScore === 1 ? 'Nabije regio' : 'Regio onbekend'
