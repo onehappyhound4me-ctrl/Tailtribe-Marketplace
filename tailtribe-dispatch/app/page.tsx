@@ -59,7 +59,7 @@ export default function HomePage() {
                 className="inline-block px-1.5 py-0.5 rounded bg-black/18 backdrop-blur-[3px] font-semibold"
                 style={{ color: '#eaffcc', textShadow: '0 3px 12px rgba(0,0,0,0.85)' }}
               >
-                ✓ Gescreende dierenverzorgers ✓ Snelle bevestiging ✓ Voor en door dierenverzorgers
+                Voor en door dierenverzorgers
               </span>
             </p>
             {/* Removed bottom line per request */}
