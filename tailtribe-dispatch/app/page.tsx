@@ -25,14 +25,12 @@ export default function HomePage() {
 
       {/* Hero with Image */}
       <section className="relative w-full min-h-[40vh] md:min-h-[50vh] overflow-hidden flex items-center">
-        <div
-          className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-          style={{
-            backgroundImage: `url("${HERO_IMG_URL}")`,
-            backgroundPosition: '50% 30%',
-            backgroundSize: 'cover',
-            filter: 'brightness(1.12) saturate(1.05) blur(2px)',
-          }}
+        <img
+          src={HERO_IMG_URL}
+          alt=""
+          aria-hidden="true"
+          className="absolute inset-0 h-full w-full object-cover object-[60%_35%] sm:object-[50%_30%] md:object-[50%_30%]"
+          style={{ filter: 'brightness(1.12) saturate(1.05) blur(2px)' }}
         />
         <div className="absolute inset-0 bg-black/12" />
 
