@@ -16,11 +16,26 @@ async function authorize(conversationId: string, userId?: string, role?: string)
   return { convo, error: null, status: 200 }
 }
 
+async function getConversationIdsForPair(convo: { ownerId: string; caregiverId: string }) {
+  const peers = await prisma.conversation.findMany({
+    where: { ownerId: convo.ownerId, caregiverId: convo.caregiverId },
+    select: { id: true, status: true, createdAt: true },
+    orderBy: { createdAt: 'asc' },
+  })
+  const ids = peers.map((c) => c.id)
+  const canonical = peers.find((c) => c.status === 'LOCKED') ?? peers[0] ?? null
+  return { ids, canonicalId: canonical?.id ?? null, canonicalStatus: canonical?.status ?? null }
+}
+
 export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
   const session = await auth()
   if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   const { convo, error, status } = await authorize(params.id, session.user?.id, session.user?.role)
   if (error || !convo) return NextResponse.json({ error }, { status })
+
+  // Combine all chats for the same owner+caregiver so users don't end up in separate threads per day.
+  const { ids } = await getConversationIdsForPair(convo)
+  const conversationIds = ids.length > 0 ? ids : [convo.id]
 
   const { searchParams } = new URL(req.url)
   const sinceParam = searchParams.get('since')
@@ -33,7 +48,7 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
   const offset = Math.max(0, Number(searchParams.get('offset') ?? 0) || 0)
 
   const messages = await prisma.message.findMany({
-    where: { conversationId: convo.id, ...sinceFilter },
+    where: { conversationId: { in: conversationIds }, ...sinceFilter },
     orderBy: { createdAt: 'asc' },
     take: limit,
     skip: offset,
@@ -54,7 +69,9 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
   if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   const { convo, error, status } = await authorize(params.id, session.user?.id, session.user?.role)
   if (error || !convo) return NextResponse.json({ error }, { status })
-  if (convo.status === 'LOCKED') {
+  const { canonicalId, canonicalStatus } = await getConversationIdsForPair(convo)
+  const targetConversationId = canonicalId ?? convo.id
+  if ((canonicalStatus ?? convo.status) === 'LOCKED') {
     return NextResponse.json({ error: 'Gesprek is vergrendeld door admin.' }, { status: 403 })
   }
 
@@ -65,7 +82,7 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
   if (!moderation.ok) {
     const msg = await prisma.message.create({
       data: {
-        conversationId: convo.id,
+        conversationId: targetConversationId,
         senderUserId: session.user!.id,
         senderRole: (session.user?.role ?? '').toUpperCase(),
         body: text,
@@ -85,7 +102,7 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
 
   const created = await prisma.message.create({
     data: {
-      conversationId: convo.id,
+      conversationId: targetConversationId,
       senderUserId: session.user!.id,
       senderRole: (session.user?.role ?? '').toUpperCase(),
       body: text,
@@ -100,9 +117,9 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
     await createNotification({
       userId: recipient,
       type: 'CHAT_MESSAGE',
-      title: 'Nieuw bericht over je booking',
+      title: 'Nieuw chatbericht',
       message: 'Je hebt een nieuw chatbericht.',
-      entityId: convo.id,
+      entityId: targetConversationId,
     })
   }
 

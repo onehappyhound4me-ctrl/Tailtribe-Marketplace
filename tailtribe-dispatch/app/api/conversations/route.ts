@@ -101,16 +101,28 @@ export async function GET(req: NextRequest) {
     )
   }
 
-  const convo = await prisma.conversation.upsert({
-    where: { bookingId: ctx.bookingId },
-    update: { ownerId: ctx.ownerId, caregiverId: ctx.caregiverId!, status: 'ACTIVE' },
-    create: {
-      bookingId: ctx.bookingId,
-      ownerId: ctx.ownerId,
-      caregiverId: ctx.caregiverId!,
-      status: 'ACTIVE',
-    },
+  // Professional behavior: use ONE chat thread per owner+caregiver, even if there are multiple booking days.
+  // We keep `Conversation.bookingId` as the first/anchor booking, but always reuse the same thread for the pair.
+  const existingForPair = await prisma.conversation.findFirst({
+    where: { ownerId: ctx.ownerId, caregiverId: ctx.caregiverId! },
+    orderBy: { createdAt: 'asc' },
   })
+
+  const convo = existingForPair
+    ? await prisma.conversation.update({
+        where: { id: existingForPair.id },
+        data: { ownerId: ctx.ownerId, caregiverId: ctx.caregiverId!, status: existingForPair.status ?? 'ACTIVE' },
+      })
+    : await prisma.conversation.upsert({
+        where: { bookingId: ctx.bookingId },
+        update: { ownerId: ctx.ownerId, caregiverId: ctx.caregiverId!, status: 'ACTIVE' },
+        create: {
+          bookingId: ctx.bookingId,
+          ownerId: ctx.ownerId,
+          caregiverId: ctx.caregiverId!,
+          status: 'ACTIVE',
+        },
+      })
 
   return NextResponse.json({
     ...convo,
