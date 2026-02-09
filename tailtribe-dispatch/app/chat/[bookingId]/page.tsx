@@ -41,15 +41,14 @@ export default function ChatPage() {
   const [conversation, setConversation] = useState<Conversation | null>(null)
   const [messages, setMessages] = useState<Message[]>([])
   const [lastMessageAt, setLastMessageAt] = useState<string | null>(null)
+  const lastMessageAtRef = useRef<string | null>(null)
   const [input, setInput] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
   const [isVisible, setIsVisible] = useState(true)
   const [sending, setSending] = useState(false)
-  const [inputFocused, setInputFocused] = useState(false)
 
   const inputValueRef = useRef('')
-  const inputFocusedRef = useRef(false)
 
   const loadConversation = useCallback(async () => {
     setError(null)
@@ -83,8 +82,10 @@ export default function ChatPage() {
     return parts.join(' • ')
   }, [conversation?.context])
 
+  const conversationId = conversation?.id ?? null
+
   const loadMessages = useCallback(async (force = false) => {
-    if (!conversation) return
+    if (!conversationId) return
     // Mobile Safari: updating messages while typing can cause the input caret/text to "jump/flip".
     // Pause polling updates while the user is actively typing.
     if (!force && inputValueRef.current.trim().length > 0) {
@@ -93,15 +94,16 @@ export default function ChatPage() {
       return
     }
     try {
-      const sinceParam = !force && lastMessageAt ? `&since=${encodeURIComponent(lastMessageAt)}` : ''
+      const since = lastMessageAtRef.current
+      const sinceParam = !force && since ? `&since=${encodeURIComponent(since)}` : ''
       const res = await fetch(
-        `/api/conversations/${conversation.id}/messages?limit=100&offset=0${sinceParam}`,
+        `/api/conversations/${conversationId}/messages?limit=100&offset=0${sinceParam}`,
         { cache: 'no-store' }
       )
       if (res.ok) {
         const data = await res.json()
         const items = data.items ?? []
-        if (!force && lastMessageAt) {
+        if (!force && lastMessageAtRef.current) {
           setMessages((prev) => {
             const seen = new Set(prev.map((msg) => msg.id))
             const merged = [...prev]
@@ -113,15 +115,16 @@ export default function ChatPage() {
         } else {
           setMessages(items.slice(-MAX_MESSAGES))
         }
-        const latest = items[items.length - 1]?.createdAt ?? lastMessageAt
+        const latest = items[items.length - 1]?.createdAt ?? lastMessageAtRef.current
         if (latest) {
+          lastMessageAtRef.current = latest
           setLastMessageAt(latest)
         }
       }
     } catch {
       // ignore
     }
-  }, [conversation, lastMessageAt])
+  }, [conversationId])
 
   useEffect(() => {
     const handleVisibility = () => {
@@ -138,13 +141,15 @@ export default function ChatPage() {
 
   useEffect(() => {
     if (!conversation) return
+    // Reset only when the conversation changes (not on every poll tick).
     setMessages([])
+    lastMessageAtRef.current = null
     setLastMessageAt(null)
     loadMessages(true)
     if (!isVisible) return undefined
     const id = setInterval(loadMessages, 4500)
     return () => clearInterval(id)
-  }, [conversation, loadMessages, isVisible])
+  }, [conversationId, isVisible, loadMessages])
 
   const handleSend = async () => {
     if (!conversation) return
@@ -196,13 +201,10 @@ export default function ChatPage() {
       <main className="max-w-3xl mx-auto px-4 py-8">
         <div className="bg-white rounded-2xl shadow-md border border-gray-100 overflow-hidden">
           <div className="bg-emerald-50 px-4 py-3 border-b">
-            <div className="text-sm text-gray-700 font-semibold">Chatregels</div>
+            <div className="text-sm text-gray-700 font-semibold">Chat</div>
             {contextLine ? (
               <div className="mt-0.5 text-xs text-gray-700 font-medium">{contextLine}</div>
             ) : null}
-            <div className="text-xs text-gray-600">
-              Je mag enkel je adres delen. Deel geen telefoonnummer, e-mail, links of social media.
-            </div>
           </div>
 
           {error && <div className="px-4 py-2 text-sm text-red-600 border-b bg-red-50">{error}</div>}
@@ -236,14 +238,6 @@ export default function ChatPage() {
                   const v = e.target.value
                   inputValueRef.current = v
                   setInput(v)
-                }}
-                onFocus={() => {
-                  inputFocusedRef.current = true
-                  setInputFocused(true)
-                }}
-                onBlur={() => {
-                  inputFocusedRef.current = false
-                  setInputFocused(false)
                 }}
                 // iOS Safari zoom/jump happens when input font-size < 16px.
                 // Use 16px on mobile to keep typing stable.

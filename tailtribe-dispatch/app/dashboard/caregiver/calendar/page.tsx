@@ -666,9 +666,6 @@ export default function CaregiverCalendarPage() {
                 <p className="text-lg font-medium text-orange-800">
                   {selectedBooking.owner.firstName} {selectedBooking.owner.lastName}
                 </p>
-                <p className="text-sm text-orange-800/80 mt-1">
-                  Je mag enkel je adres delen via de chat. Deel geen telefoonnummer, e-mail of links.
-                </p>
               </div>
 
               {/* Locatie */}

@@ -182,9 +182,6 @@ export default function CaregiverBookingsPage() {
                         <div className="font-medium text-gray-900">
                           {booking.owner.firstName} {booking.owner.lastName}
                         </div>
-                        <div className="text-xs text-gray-500">
-                          Je mag enkel je adres delen via de chat. Deel geen telefoonnummer, e-mail of links.
-                        </div>
                       </div>
                     </div>
 

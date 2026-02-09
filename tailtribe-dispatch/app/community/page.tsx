@@ -287,7 +287,6 @@ export default function CommunityPage() {
               <div className="bg-white rounded-2xl shadow-md border border-gray-100 p-6">
                 <h2 className="text-xl font-bold text-gray-900 mb-3">Communityregels</h2>
                 <ul className="text-sm text-gray-600 space-y-2">
-                  <li>Je mag enkel je adres delen. Deel geen telefoonnummer, e-mail, links of social media.</li>
                   <li>Respectvolle communicatie, focus op leren en delen.</li>
                   <li>Vragen of issues? Tag een beheerder in de chat.</li>
                 </ul>
@@ -340,9 +339,9 @@ export default function CommunityPage() {
                 <div className="text-sm text-gray-700 font-semibold">
                   {activeRoom ? activeRoom.name : 'Community'}
                 </div>
-                <div className="text-xs text-gray-600">
-                  {activeRoom?.description ?? 'Je mag enkel je adres delen. Deel geen telefoonnummer, e-mail, links of social media.'}
-                </div>
+                {activeRoom?.description ? (
+                  <div className="text-xs text-gray-600">{activeRoom.description}</div>
+                ) : null}
               </div>
 
               {error && <div className="px-4 py-2 text-sm text-red-600 border-b bg-red-50">{error}</div>}
