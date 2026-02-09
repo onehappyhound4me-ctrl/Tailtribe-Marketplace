@@ -4,6 +4,9 @@ import prisma from '@/lib/prisma'
 import { DISPATCH_SERVICES } from '@/lib/services'
 import { createNotification } from '@/lib/notifications'
 import { sendCaregiverOfferEmail, sendOwnerOfferEmail } from '@/lib/email'
+import { requireAdmin } from '@/lib/admin-api'
+import { parseJsonArray, parseJsonObject } from '@/lib/json'
+import { formatUserName } from '@/lib/format'
 
 const ALLOWED_UNITS = ['HALF_HOUR', 'HOUR', 'HALF_DAY', 'DAY'] as const
 export const runtime = 'nodejs'
@@ -16,9 +19,8 @@ function startOfToday() {
 
 export async function POST(req: NextRequest) {
   const session = await auth()
-  if (!session || session.user?.role !== 'ADMIN') {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-  }
+  const unauth = requireAdmin(session)
+  if (unauth) return unauth
 
   const body = await req.json().catch(() => ({}))
   const { bookingId, caregiverId } = body as { bookingId?: string; caregiverId?: string }
@@ -49,24 +51,12 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Verzorger niet gevonden' }, { status: 404 })
   }
 
-  let services: string[] = []
-  try {
-    services = JSON.parse(caregiverProfile.services || '[]')
-    if (!Array.isArray(services)) services = []
-  } catch {
-    services = []
-  }
+  const services = parseJsonArray(caregiverProfile.services, [])
   if (!services.includes(booking.service)) {
     return NextResponse.json({ error: 'Verzorger biedt deze dienst niet aan.' }, { status: 400 })
   }
 
-  let pricing: Record<string, { unit: string; priceCents: number }> = {}
-  try {
-    pricing = JSON.parse(caregiverProfile.servicePricing || '{}')
-    if (!pricing || typeof pricing !== 'object') pricing = {}
-  } catch {
-    pricing = {}
-  }
+  const pricing = parseJsonObject<Record<string, { unit: string; priceCents: number }>>(caregiverProfile.servicePricing, {})
   // SPEED/SHIP: allow bulk propose even if pricing isn't configured yet.
   // The owner UI will show "Prijs in overleg" when priceCents is 0.
   const priceEntryRaw = pricing[booking.service]
@@ -105,14 +95,12 @@ export async function POST(req: NextRequest) {
   // Notify once (best-effort)
   try {
     const serviceLabel = DISPATCH_SERVICES.find((s) => s.id === booking.service)?.name || booking.service
-    const ownerName =
-      `${booking.owner.firstName ?? ''} ${booking.owner.lastName ?? ''}`.trim() || booking.owner.email
+    const ownerName = formatUserName(booking.owner)
     const caregiver = await prisma.user.findUnique({
       where: { id: caregiverId },
       select: { id: true, email: true, firstName: true, lastName: true },
     })
-    const caregiverName =
-      caregiver ? `${caregiver.firstName ?? ''} ${caregiver.lastName ?? ''}`.trim() || caregiver.email : 'Verzorger'
+    const caregiverName = caregiver ? formatUserName(caregiver) : 'Verzorger'
 
     const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://tailtribe.be'
     const ownerLink = `${appUrl}/dashboard/owner/bookings`

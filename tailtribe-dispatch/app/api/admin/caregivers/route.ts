@@ -2,14 +2,15 @@ import { NextResponse } from 'next/server'
 import { auth } from '@/lib/auth'
 import prisma from '@/lib/prisma'
 import { provinceSlugFromPostalCode } from '@/data/be-geo'
+import { requireAdmin } from '@/lib/admin-api'
+import { parseJsonArray, parseJsonObject } from '@/lib/json'
 
 export const dynamic = 'force-dynamic'
 
 export async function GET() {
   const session = await auth()
-  if (!session || session.user.role !== 'ADMIN') {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-  }
+  const unauth = requireAdmin(session)
+  if (unauth) return unauth
 
   const today = new Date()
   today.setHours(0, 0, 0, 0)
@@ -48,27 +49,9 @@ export async function GET() {
   })
 
   const payload = caregivers.map((cg) => {
-    let services: string[] = []
-    try {
-      services = JSON.parse(cg.services || '[]')
-      if (!Array.isArray(services)) services = []
-    } catch {
-      services = []
-    }
-    let workRegions: string[] = []
-    try {
-      workRegions = JSON.parse(cg.workRegions || '[]')
-      if (!Array.isArray(workRegions)) workRegions = []
-    } catch {
-      workRegions = []
-    }
-    let servicePricing: Record<string, { unit: string; priceCents: number }> = {}
-    try {
-      servicePricing = JSON.parse(cg.servicePricing || '{}')
-      if (!servicePricing || typeof servicePricing !== 'object') servicePricing = {}
-    } catch {
-      servicePricing = {}
-    }
+    const services = parseJsonArray(cg.services, [])
+    const workRegions = parseJsonArray(cg.workRegions, [])
+    const servicePricing = parseJsonObject<Record<string, { unit: string; priceCents: number }>>(cg.servicePricing, {})
     return {
       id: cg.user.id,
       firstName: cg.user.firstName ?? '',
@@ -105,9 +88,8 @@ export async function GET() {
 
 export async function DELETE(req: Request) {
   const session = await auth()
-  if (!session || session.user.role !== 'ADMIN') {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-  }
+  const unauth = requireAdmin(session)
+  if (unauth) return unauth
 
   const body = await req.json().catch(() => ({}))
   const { caregiverId } = body as { caregiverId?: string }

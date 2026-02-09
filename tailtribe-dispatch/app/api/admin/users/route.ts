@@ -2,14 +2,16 @@ import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/lib/auth'
 import prisma from '@/lib/prisma'
 import { provinceSlugFromPostalCode } from '@/data/be-geo'
+import { requireAdmin } from '@/lib/admin-api'
+import { parseJsonArray } from '@/lib/json'
+import { formatUserName } from '@/lib/format'
 
 export const dynamic = 'force-dynamic'
 
 export async function GET() {
   const session = await auth()
-  if (!session || session.user.role !== 'ADMIN') {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-  }
+  const unauth = requireAdmin(session)
+  if (unauth) return unauth
 
   const [owners, caregivers] = await Promise.all([
     prisma.user.findMany({
@@ -26,7 +28,7 @@ export async function GET() {
 
   const ownersPayload = owners.map((owner) => ({
     id: owner.id,
-    name: `${owner.firstName ?? ''} ${owner.lastName ?? ''}`.trim() || owner.email,
+    name: formatUserName(owner),
     email: owner.email,
     phone: owner.phone ?? null,
     createdAt: owner.createdAt,
@@ -43,24 +45,12 @@ export async function GET() {
   }))
 
   const caregiversPayload = caregivers.map((caregiver) => {
-    let services: string[] = []
-    let workRegions: string[] = []
-    try {
-      services = JSON.parse(caregiver.caregiverProfile?.services || '[]')
-      if (!Array.isArray(services)) services = []
-    } catch {
-      services = []
-    }
-    try {
-      workRegions = JSON.parse(caregiver.caregiverProfile?.workRegions || '[]')
-      if (!Array.isArray(workRegions)) workRegions = []
-    } catch {
-      workRegions = []
-    }
+    const services = parseJsonArray(caregiver.caregiverProfile?.services, [])
+    const workRegions = parseJsonArray(caregiver.caregiverProfile?.workRegions, [])
 
     return {
       id: caregiver.id,
-      name: `${caregiver.firstName ?? ''} ${caregiver.lastName ?? ''}`.trim() || caregiver.email,
+      name: formatUserName(caregiver),
       email: caregiver.email,
       phone: caregiver.phone ?? null,
       createdAt: caregiver.createdAt,
@@ -90,9 +80,8 @@ export async function GET() {
 
 export async function DELETE(req: NextRequest) {
   const session = await auth()
-  if (!session || session.user.role !== 'ADMIN') {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-  }
+  const unauth = requireAdmin(session)
+  if (unauth) return unauth
 
   const body = await req.json().catch(() => ({}))
   const { userId } = body as { userId?: string }

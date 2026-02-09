@@ -2178,21 +2178,29 @@ export default function AdminPage() {
                     <div className="text-gray-800">{getStatusLabel(selectedOwner.recurringInfo)}</div>
                   </div>
                 ) : null}
-                <div className="sm:col-span-2 flex flex-wrap gap-2 pt-1">
+                <div className="sm:col-span-2 pt-1 space-y-2">
                   <button
                     onClick={archiveSelectedOwner}
                     disabled={!!actionLoading}
-                    className="px-3 py-2 rounded-lg border text-sm text-red-700 disabled:opacity-60"
+                    className="w-full sm:w-auto px-3 py-2 rounded-lg border text-sm text-red-700 disabled:opacity-60"
                   >
                     {selectedOwner.type === 'BOOKING' ? 'Archiveer aanvraag' : 'Verwijder aanvraag'}
                   </button>
-                  <button
-                    onClick={deleteSelectedOwnerUser}
-                    disabled={!!actionLoading || !selectedOwner.ownerId}
-                    className="px-3 py-2 rounded-lg border text-sm text-red-700 disabled:opacity-60"
-                  >
-                    Verwijder eigenaar
-                  </button>
+
+                  <details className="rounded-xl border border-gray-200 bg-gray-50 p-3">
+                    <summary className="cursor-pointer text-sm font-semibold text-gray-800">
+                      Geavanceerde acties
+                    </summary>
+                    <div className="pt-3 flex flex-wrap gap-2">
+                      <button
+                        onClick={deleteSelectedOwnerUser}
+                        disabled={!!actionLoading || !selectedOwner.ownerId}
+                        className="px-3 py-2 rounded-lg border text-sm text-red-700 disabled:opacity-60 bg-white"
+                      >
+                        Verwijder eigenaar
+                      </button>
+                    </div>
+                  </details>
                 </div>
               </div>
             ) : (
@@ -2276,15 +2284,20 @@ export default function AdminPage() {
                     Bio: <span className="text-gray-800">{selectedCaregiver.bio}</span>
                   </div>
                 ) : null}
-                <div className="flex gap-2 pt-2">
-                  <button
-                    onClick={deleteSelectedCaregiver}
-                    disabled={!!actionLoading}
-                    className="px-3 py-2 rounded-lg border text-sm text-red-700 disabled:opacity-60"
-                  >
-                    Verwijder verzorger
-                  </button>
-                </div>
+                <details className="rounded-xl border border-gray-200 bg-gray-50 p-3 mt-2">
+                  <summary className="cursor-pointer text-sm font-semibold text-gray-800">
+                    Geavanceerde acties
+                  </summary>
+                  <div className="pt-3 flex flex-wrap gap-2">
+                    <button
+                      onClick={deleteSelectedCaregiver}
+                      disabled={!!actionLoading}
+                      className="px-3 py-2 rounded-lg border text-sm text-red-700 disabled:opacity-60 bg-white"
+                    >
+                      Verwijder verzorger
+                    </button>
+                  </div>
+                </details>
               </>
             ) : (
               <div className="text-sm text-gray-500">Geen verzorger geselecteerd</div>
