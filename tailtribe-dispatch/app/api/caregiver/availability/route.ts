@@ -57,8 +57,13 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const body = await request.json()
-    const { date, timeWindows } = body
+    const body = await request.json().catch(() => ({}))
+    const { date } = body as { date?: string; timeWindows?: string[] }
+    const timeWindows = Array.isArray((body as any)?.timeWindows) ? (body as any).timeWindows : null
+
+    // Day-based availability: if no timeWindows provided, assume full day.
+    const FULL_DAY_WINDOWS = ['MORNING', 'AFTERNOON', 'EVENING', 'NIGHT']
+    const effectiveTimeWindows = timeWindows && timeWindows.length > 0 ? timeWindows : FULL_DAY_WINDOWS
 
     // Get caregiver profile
     const profile = await prisma.caregiverProfile.findUnique({
@@ -72,7 +77,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    if (!date || !timeWindows || !Array.isArray(timeWindows)) {
+    if (!date) {
       return NextResponse.json(
         { error: 'Ongeldige data' },
         { status: 400 }
@@ -92,7 +97,7 @@ export async function POST(request: NextRequest) {
     }
 
     try {
-      for (const tw of timeWindows) {
+      for (const tw of effectiveTimeWindows) {
         assertSlotNotInPast({ date, timeWindow: tw })
       }
     } catch (err: any) {
@@ -105,7 +110,7 @@ export async function POST(request: NextRequest) {
     // Create availability slots for each time window
     const utcDate = parseUTCDate(date)
     const slots = await Promise.all(
-      timeWindows.map((timeWindow: string) =>
+      effectiveTimeWindows.map((timeWindow: string) =>
         prisma.availability.upsert({
           where: {
             caregiverId_date_timeWindow: {

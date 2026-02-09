@@ -3,7 +3,7 @@ import prisma from '@/lib/prisma'
 type AvailabilityCheck = {
   caregiverUserId: string
   date: Date | string
-  timeWindow: string
+  timeWindow?: string
 }
 
 const toUtcDate = (input: Date | string) => {
@@ -15,7 +15,7 @@ const toUtcDate = (input: Date | string) => {
   return new Date(Date.UTC(input.getUTCFullYear(), input.getUTCMonth(), input.getUTCDate(), 0, 0, 0, 0))
 }
 
-export const isCaregiverAvailable = async ({ caregiverUserId, date, timeWindow }: AvailabilityCheck) => {
+export const isCaregiverAvailable = async ({ caregiverUserId, date }: AvailabilityCheck) => {
   const profile = await prisma.caregiverProfile.findUnique({
     where: { userId: caregiverUserId },
     select: { id: true },
@@ -27,7 +27,6 @@ export const isCaregiverAvailable = async ({ caregiverUserId, date, timeWindow }
     where: {
       caregiverId: profile.id,
       date: toUtcDate(date),
-      timeWindow,
       isAvailable: true,
     },
     select: { id: true },
@@ -39,6 +38,6 @@ export const isCaregiverAvailable = async ({ caregiverUserId, date, timeWindow }
 export const assertCaregiverAvailable = async (params: AvailabilityCheck) => {
   const ok = await isCaregiverAvailable(params)
   if (!ok) {
-    throw new Error('Verzorger is niet beschikbaar voor dit tijdsblok')
+    throw new Error('Verzorger is niet beschikbaar op deze dag')
   }
 }

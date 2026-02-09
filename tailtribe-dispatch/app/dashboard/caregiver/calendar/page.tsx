@@ -61,7 +61,6 @@ export default function CaregiverCalendarPage() {
   const [currentDate, setCurrentDate] = useState(new Date())
   const [selectedDate, setSelectedDate] = useState<Date | null>(null)
   const [showModal, setShowModal] = useState(false)
-  const [selectedTimeWindows, setSelectedTimeWindows] = useState<string[]>([])
   const [saving, setSaving] = useState(false)
   const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null)
   const [showBookingModal, setShowBookingModal] = useState(false)
@@ -172,24 +171,8 @@ export default function CaregiverCalendarPage() {
       alert('Je kan maximaal 60 dagen vooruit beschikbaarheid zetten.')
       return
     }
-    // Blokkeer dubbel toevoegen: als er al availability is voor deze dag, niets openen
-    const dateAvailability = getAvailabilityForDate(date)
-    if (dateAvailability.length > 0) {
-      alert('Deze dag heeft al beschikbaarheid. Pas aan via bulk of verwijder eerst.')
-      return
-    }
-
     setSelectedDate(date)
-    setSelectedTimeWindows([])
     setShowModal(true)
-  }
-
-  const handleToggleTimeWindow = (window: string) => {
-    setSelectedTimeWindows(prev => 
-      prev.includes(window) 
-        ? prev.filter(w => w !== window) 
-        : [...prev, window]
-    )
   }
 
   const handleSaveAvailability = async () => {
@@ -209,7 +192,8 @@ export default function CaregiverCalendarPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           date: dateStr,
-          timeWindows: selectedTimeWindows,
+          // Day-based availability: store as full-day windows under the hood.
+          timeWindows: ['MORNING', 'AFTERNOON', 'EVENING', 'NIGHT'],
         }),
       })
 
@@ -218,7 +202,6 @@ export default function CaregiverCalendarPage() {
         await fetchCalendarData()
         setShowModal(false)
         setSelectedDate(null)
-        setSelectedTimeWindows([])
       } else {
         alert('Er ging iets mis bij het opslaan')
       }
@@ -258,7 +241,6 @@ export default function CaregiverCalendarPage() {
       await fetchCalendarData()
       setShowModal(false)
       setSelectedDate(null)
-      setSelectedTimeWindows([])
     } catch (error) {
       console.error('Failed to delete availability:', error)
       alert('Er ging iets mis bij het verwijderen')
@@ -392,12 +374,6 @@ export default function CaregiverCalendarPage() {
                           {dayAvailability.length > 0 && (
                             <div className="text-[10px] bg-green-50 border-l-2 border-green-400 p-1 rounded">
                               <div className="font-medium text-green-700">Beschikbaar</div>
-                              <div className="text-green-600 hidden sm:block">
-                                {dayAvailability.map(a => TIME_WINDOW_LABELS[a.timeWindow]).join(', ')}
-                              </div>
-                              <div className="text-green-700 sm:hidden">
-                                {dayAvailability.length} blok{dayAvailability.length === 1 ? '' : 'ken'}
-                              </div>
                             </div>
                           )}
 
@@ -520,57 +496,10 @@ export default function CaregiverCalendarPage() {
             </div>
 
             <div className="mb-6">
-              <h3 className="font-semibold text-gray-900 mb-3">
-                Wanneer ben je beschikbaar?
-              </h3>
-              <div className="space-y-2">
-                {[
-                  { value: 'MORNING', label: 'Ochtend', hint: '07:00 - 12:00' },
-                  { value: 'AFTERNOON', label: 'Middag', hint: '12:00 - 18:00' },
-                  { value: 'EVENING', label: 'Avond', hint: '18:00 - 22:00' },
-                  { value: 'NIGHT', label: 'Nacht', hint: '22:00 - 07:00' },
-                ].map((window) => (
-                  <label
-                    key={window.value}
-                    className={`flex items-center gap-3 p-4 border-2 rounded-xl cursor-pointer transition ${
-                      selectedTimeWindows.includes(window.value)
-                        ? 'border-emerald-500 bg-emerald-50'
-                        : 'border-gray-200 hover:bg-gray-50'
-                    }`}
-                    onClick={(e) => e.preventDefault()}
-                  >
-                    <input
-                      type="checkbox"
-                      checked={selectedTimeWindows.includes(window.value)}
-                      onChange={() => handleToggleTimeWindow(window.value)}
-                      onClick={(e) => e.stopPropagation()}
-                      className="w-5 h-5 text-emerald-600 rounded"
-                    />
-                    <div className="flex-1">
-                      <div className="font-semibold text-gray-900">{window.label}</div>
-                      <div className="text-sm text-gray-600">{window.hint}</div>
-                    </div>
-                  </label>
-                ))}
-              </div>
-
-              <div className="mt-3 flex gap-2">
-                <button
-                  type="button"
-                  onClick={() => setSelectedTimeWindows(['MORNING', 'AFTERNOON', 'EVENING'])}
-                  className="text-sm text-emerald-600 hover:text-emerald-700 font-medium"
-                >
-                  Hele dag
-                </button>
-                <span className="text-gray-400">|</span>
-                <button
-                  type="button"
-                  onClick={() => setSelectedTimeWindows([])}
-                  className="text-sm text-gray-600 hover:text-gray-700 font-medium"
-                >
-                  Geen
-                </button>
-              </div>
+              <h3 className="font-semibold text-gray-900 mb-2">Beschikbaar op deze dag?</h3>
+              <p className="text-sm text-gray-600">
+                Je stelt je beschikbaarheid nu enkel per dag in.
+              </p>
             </div>
 
             <div className="flex gap-3">
@@ -585,10 +514,10 @@ export default function CaregiverCalendarPage() {
               )}
               <button
                 onClick={handleSaveAvailability}
-                disabled={saving || selectedTimeWindows.length === 0}
+                disabled={saving}
                 className="flex-1 px-4 py-3 bg-emerald-600 text-white rounded-xl font-semibold hover:bg-emerald-700 transition disabled:opacity-50"
               >
-                {saving ? 'Opslaan...' : 'Opslaan'}
+                {saving ? 'Opslaan...' : 'Markeer beschikbaar'}
               </button>
             </div>
           </div>

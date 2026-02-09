@@ -83,7 +83,6 @@ export async function getEligibleCaregiversWithOptions(params: EligibleParams, o
             availability: {
               some: {
                 date: targetDate,
-                timeWindow,
                 isAvailable: true,
               },
             },
@@ -101,7 +100,6 @@ export async function getEligibleCaregiversWithOptions(params: EligibleParams, o
             availability: {
               where: {
                 date: targetDate,
-                timeWindow,
                 isAvailable: true,
               },
             },
