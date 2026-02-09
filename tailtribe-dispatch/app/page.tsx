@@ -48,43 +48,8 @@ export default function HomePage() {
               voor je huisdier
             </h1>
 
-            {/* Desktop/tablet: keep hero copy + CTAs on the photo (as it was) */}
-            <div className="hidden md:block">
-              <p className="text-lg sm:text-xl md:text-2xl mt-4 mb-4 max-w-3xl mx-auto">
-                <span
-                  className="inline-block px-1.5 py-0.5 rounded bg-black/18 backdrop-blur-[3px] font-semibold"
-                  style={{ color: '#eaffcc', textShadow: '0 3px 12px rgba(0,0,0,0.85)' }}
-                >
-                  Hondenuitlaat, dierenoppas, dierenverzorging en meer bij jou in de buurt
-                </span>
-              </p>
-              <p className="text-base sm:text-lg mb-6 max-w-2xl mx-auto">
-                <span
-                  className="inline-block px-1.5 py-0.5 rounded bg-black/18 backdrop-blur-[3px] font-semibold"
-                  style={{ color: '#eaffcc', textShadow: '0 3px 12px rgba(0,0,0,0.85)' }}
-                >
-                  Voor en door dierenverzorgers
-                </span>
-              </p>
-
-              <div className="flex flex-col sm:flex-row gap-3 justify-center items-stretch sm:items-center">
-                <Link
-                  href={bookingHref}
-                  className="btn-brand w-full sm:w-auto inline-flex justify-center min-h-[48px]"
-                >
-                  Boek Nu
-                </Link>
-                <Link
-                  href="/verzorger-aanmelden"
-                  className="w-full sm:w-auto inline-flex items-center justify-center rounded-xl border border-emerald-200 bg-white px-5 py-3 text-sm font-semibold text-emerald-900 hover:bg-emerald-50 transition min-h-[48px]"
-                >
-                  Join our tribe: werk met dieren
-                </Link>
-              </div>
-            </div>
-
-            {/* Mobile: reserve the same vertical space so the H1 doesn't "sink" when we move copy/CTAs below the photo */}
-            <div className="md:hidden opacity-0 pointer-events-none select-none" aria-hidden="true">
+            {/* Reserve the same vertical space so the H1 doesn't "sink" when we move copy/CTAs below the photo */}
+            <div className="opacity-0 pointer-events-none select-none" aria-hidden="true">
               <p className="text-lg sm:text-xl md:text-2xl mt-4 mb-4 max-w-3xl mx-auto">
                 <span
                   className="inline-block px-1.5 py-0.5 rounded bg-black/18 backdrop-blur-[3px] font-semibold"
@@ -114,8 +79,8 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Mobile only: move hero copy + CTAs below the photo (no card/kader) */}
-      <section className="md:hidden pt-4 pb-8">
+      {/* Move hero copy + CTAs below the photo (no card/kader) */}
+      <section className="pt-4 pb-10">
         <div className="container mx-auto px-4 sm:px-6">
           <div className="max-w-4xl mx-auto text-center">
             <p className="text-sm sm:text-base text-gray-700 leading-relaxed">
@@ -125,7 +90,7 @@ export default function HomePage() {
               Voor en door dierenverzorgers
             </p>
 
-            <div className="mt-5 flex flex-col gap-3 justify-center items-stretch">
+            <div className="mt-5 flex flex-col sm:flex-row gap-3 justify-center items-stretch sm:items-center">
               <Link href={bookingHref} className="btn-brand w-full inline-flex justify-center min-h-[48px]">
                 Boek Nu
               </Link>
