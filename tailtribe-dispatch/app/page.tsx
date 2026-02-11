@@ -58,21 +58,21 @@ export default function HomePage() {
         </div>
 
         {/* heroText */}
-        <div className="container mx-auto px-4 sm:px-6 pt-7 sm:pt-9 pb-12">
+        <div className="container mx-auto px-4 sm:px-6 pt-8 sm:pt-10 pb-14 sm:pb-16">
           <div className="max-w-5xl mx-auto text-center">
             <div className="max-w-3xl mx-auto">
-              <p className="text-base sm:text-lg md:text-xl text-gray-700 leading-relaxed tracking-[-0.01em]">
+              <p className="text-lg sm:text-xl md:text-2xl text-gray-800 leading-relaxed tracking-[-0.01em]">
                 Hondenuitlaat, dierenoppas, dierenverzorging en meer bij jou in de buurt
               </p>
-              <p className="mt-2 text-base sm:text-lg md:text-xl text-emerald-900/90 font-semibold tracking-[-0.01em]">
+              <p className="mt-2 sm:mt-3 text-base sm:text-lg md:text-xl text-emerald-900/90 font-semibold tracking-[-0.01em]">
                 Voor en door dierenverzorgers
               </p>
             </div>
 
-            <div className="mt-6 sm:mt-8 flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center items-stretch sm:items-center">
+            <div className="mt-7 sm:mt-9 flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center items-stretch sm:items-center">
               <Link
                 href={bookingHref}
-                className="group w-full sm:w-auto inline-flex items-center justify-center rounded-full bg-gradient-to-r from-emerald-600 to-green-600 px-7 sm:px-9 py-4 text-base font-bold text-white shadow-lg shadow-emerald-600/25 hover:from-emerald-500 hover:to-green-500 transition focus:outline-none focus:ring-4 focus:ring-emerald-200 min-h-[54px]"
+                className="group w-full sm:w-auto inline-flex items-center justify-center rounded-full bg-gradient-to-r from-emerald-600 to-green-600 px-7 sm:px-10 py-4 text-base sm:text-[15px] font-bold text-white shadow-lg shadow-emerald-600/25 hover:from-emerald-500 hover:to-green-500 transition-transform duration-200 hover:-translate-y-0.5 active:translate-y-0 focus:outline-none focus:ring-4 focus:ring-emerald-200 min-h-[56px]"
               >
                 <span className="inline-flex items-center gap-2">
                   Boek Nu
@@ -88,9 +88,19 @@ export default function HomePage() {
               </Link>
               <Link
                 href="/verzorger-aanmelden"
-                className="w-full sm:w-auto inline-flex items-center justify-center rounded-full border border-emerald-200 bg-white px-7 sm:px-9 py-4 text-base font-semibold text-emerald-900 shadow-sm hover:bg-emerald-50 hover:border-emerald-300 transition focus:outline-none focus:ring-4 focus:ring-emerald-100 min-h-[54px]"
+                className="group w-full sm:w-auto inline-flex items-center justify-center rounded-full border border-emerald-200/90 bg-white/90 px-7 sm:px-10 py-4 text-base sm:text-[15px] font-semibold text-emerald-950 shadow-sm hover:bg-emerald-50 hover:border-emerald-300 transition-transform duration-200 hover:-translate-y-0.5 active:translate-y-0 focus:outline-none focus:ring-4 focus:ring-emerald-100 min-h-[56px]"
               >
-                Join our tribe: werk met dieren
+                <span className="inline-flex items-center gap-2 sm:whitespace-nowrap">
+                  Join our tribe: werk met dieren
+                  <svg
+                    className="h-5 w-5 opacity-70 transition-transform duration-200 group-hover:translate-x-0.5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
+                </span>
               </Link>
             </div>
           </div>
