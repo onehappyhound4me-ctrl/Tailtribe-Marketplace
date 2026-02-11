@@ -1,9 +1,10 @@
 'use client'
 
 import { useEffect, useMemo, useRef, useState, useCallback } from 'react'
-import { SiteHeader } from '@/components/SiteHeader'
-import { SiteFooter } from '@/components/SiteFooter'
-import { SERVICE_LABELS } from '@/lib/services'
+// Use relative imports to avoid path-alias resolution issues in some Vercel build configurations.
+import { SiteHeader } from '../../components/SiteHeader'
+import { SiteFooter } from '../../components/SiteFooter'
+import { SERVICE_LABELS } from '../../lib/services'
 // Use relative import to avoid path-alias resolution issues in some Vercel build configurations.
 import { getStatusLabel } from '../../lib/status-labels'
 
