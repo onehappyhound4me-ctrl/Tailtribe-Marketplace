@@ -39,10 +39,9 @@ export default function HomePage() {
             />
             <div className="absolute inset-0 bg-black/12" />
 
-            {/* Title on the photo: keep it long, but avoid covering the subject (woman + dog) */}
-            <div className="absolute inset-0 z-10 flex items-start justify-start px-5 sm:px-8 md:px-12 pt-6 sm:pt-8 md:pt-10 lg:pt-12">
-              {/* Keep the text in the left "empty" area so it never sits on top of the subject. */}
-              <div className="text-left max-w-[92%] sm:max-w-[75%] md:max-w-[60%] lg:max-w-[56%]">
+            {/* Title on the photo: centered and high, so it sits just above the subject */}
+            <div className="absolute inset-x-0 top-4 sm:top-6 md:top-8 lg:top-10 z-10 px-4 sm:px-8 md:px-12">
+              <div className="mx-auto text-center max-w-5xl">
                 <h1
                   className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-bold leading-tight text-white"
                   style={{ textShadow: '0 3px 12px rgba(0,0,0,0.55)' }}
