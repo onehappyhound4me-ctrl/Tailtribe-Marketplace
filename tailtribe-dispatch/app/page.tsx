@@ -42,7 +42,7 @@ export default function HomePage() {
             {/* Title on the photo: keep it long, but avoid covering the subject (woman + dog) */}
             <div className="absolute inset-0 z-10 flex items-start justify-start px-5 sm:px-8 md:px-12 pt-6 sm:pt-8 md:pt-10 lg:pt-12">
               {/* Keep the text in the left "empty" area so it never sits on top of the subject. */}
-              <div className="text-left pr-[30%] sm:pr-[35%] md:pr-[42%]">
+              <div className="text-left max-w-[92%] sm:max-w-[75%] md:max-w-[60%] lg:max-w-[56%]">
                 <h1
                   className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-bold leading-tight text-white"
                   style={{ textShadow: '0 3px 12px rgba(0,0,0,0.55)' }}
@@ -62,24 +62,34 @@ export default function HomePage() {
         <div className="container mx-auto px-4 sm:px-6 pt-7 sm:pt-9 pb-12">
           <div className="max-w-5xl mx-auto text-center">
             <div className="max-w-3xl mx-auto">
-              <p className="text-base sm:text-lg text-gray-700 leading-relaxed">
+              <p className="text-base sm:text-lg md:text-xl text-gray-700 leading-relaxed tracking-[-0.01em]">
                 Hondenuitlaat, dierenoppas, dierenverzorging en meer bij jou in de buurt
               </p>
-              <p className="mt-2 text-base sm:text-lg text-emerald-900/90 font-semibold">
+              <p className="mt-2 text-base sm:text-lg md:text-xl text-emerald-900/90 font-semibold tracking-[-0.01em]">
                 Voor en door dierenverzorgers
               </p>
             </div>
 
-            <div className="mt-7 flex flex-col sm:flex-row gap-3 justify-center items-stretch sm:items-center">
+            <div className="mt-6 sm:mt-8 flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center items-stretch sm:items-center">
               <Link
                 href={bookingHref}
-                className="w-full sm:w-auto inline-flex items-center justify-center rounded-full bg-gradient-to-r from-emerald-600 to-green-600 px-7 py-4 text-base font-bold text-white shadow-lg shadow-emerald-600/25 hover:from-emerald-500 hover:to-green-500 transition focus:outline-none focus:ring-4 focus:ring-emerald-200 min-h-[52px]"
+                className="group w-full sm:w-auto inline-flex items-center justify-center rounded-full bg-gradient-to-r from-emerald-600 to-green-600 px-7 sm:px-9 py-4 text-base font-bold text-white shadow-lg shadow-emerald-600/25 hover:from-emerald-500 hover:to-green-500 transition focus:outline-none focus:ring-4 focus:ring-emerald-200 min-h-[54px]"
               >
-                Boek Nu
+                <span className="inline-flex items-center gap-2">
+                  Boek Nu
+                  <svg
+                    className="h-5 w-5 opacity-90 transition-transform duration-200 group-hover:translate-x-0.5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                  </svg>
+                </span>
               </Link>
               <Link
                 href="/verzorger-aanmelden"
-                className="w-full sm:w-auto inline-flex items-center justify-center rounded-full border border-emerald-200 bg-white px-7 py-4 text-base font-semibold text-emerald-900 shadow-sm hover:bg-emerald-50 hover:border-emerald-300 transition focus:outline-none focus:ring-4 focus:ring-emerald-100 min-h-[52px]"
+                className="w-full sm:w-auto inline-flex items-center justify-center rounded-full border border-emerald-200 bg-white px-7 sm:px-9 py-4 text-base font-semibold text-emerald-900 shadow-sm hover:bg-emerald-50 hover:border-emerald-300 transition focus:outline-none focus:ring-4 focus:ring-emerald-100 min-h-[54px]"
               >
                 Join our tribe: werk met dieren
               </Link>

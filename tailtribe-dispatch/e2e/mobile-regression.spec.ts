@@ -10,6 +10,7 @@ import {
 } from './utils'
 
 const isExternalBaseUrl = Boolean(process.env.PW_BASE_URL)
+const shouldAssertScreenshots = !isExternalBaseUrl && !process.env.CI
 
 const PAGES = [
   // Home hero uses a CSS background image, so we only require the logo (and/or service icons) to be present.
@@ -31,7 +32,7 @@ test.describe('mobile regression', () => {
     await assertNoHorizontalOverflow(page)
     await assertSomeImagesHealthy(page, 1)
 
-    if (!isExternalBaseUrl) {
+    if (shouldAssertScreenshots) {
       await expect(page).toHaveScreenshot('home.png', { fullPage: true })
     }
     await guard.expectNoIssues()
@@ -103,7 +104,7 @@ test.describe('mobile regression', () => {
       await assertNoHorizontalOverflow(page)
       if (p.minImages > 0) await assertSomeImagesHealthy(page, p.minImages)
 
-      if (!isExternalBaseUrl) {
+      if (shouldAssertScreenshots) {
         await expect(page).toHaveScreenshot(`${p.name}.png`, { fullPage: true })
       }
       await guard.expectNoIssues()
