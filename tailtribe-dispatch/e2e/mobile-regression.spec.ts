@@ -12,6 +12,14 @@ import {
 const isExternalBaseUrl = Boolean(process.env.PW_BASE_URL)
 const shouldAssertScreenshots = !isExternalBaseUrl && !process.env.CI
 
+// Auth/session polling can produce harmless noise (aborted requests) during navigations,
+// especially in WebKit. Keep E2E strict for real issues, but ignore this known, non-actionable noise.
+const AUTH_NOISE_GUARD = {
+  ignoreConsoleErrors: [/ClientFetchError: Failed to fetch/i, /errors\.authjs\.dev#autherror/i],
+  ignoreRequestFailed: [/\/api\/auth\/session/i, /load request cancelled/i],
+  ignorePageErrors: [/Fetch API cannot load .*\/api\/auth\/session.*access control checks/i],
+} as const
+
 const PAGES = [
   // Home hero uses a CSS background image, so we only require the logo (and/or service icons) to be present.
   { path: '/', name: 'home', minImages: 1 },
@@ -23,7 +31,7 @@ const PAGES = [
 
 test.describe('mobile regression', () => {
   test('home loads, no console errors, no overflow, screenshots', async ({ page }, testInfo) => {
-    const guard = attachConsoleGuards(page, testInfo)
+    const guard = attachConsoleGuards(page, testInfo, AUTH_NOISE_GUARD)
     await seedCookieConsentAccepted(page)
     await page.goto('/')
     await acceptCookiesIfPresent(page)
@@ -39,7 +47,7 @@ test.describe('mobile regression', () => {
   })
 
   test('diensten icons load on mobile (no green-dot placeholders)', async ({ page }, testInfo) => {
-    const guard = attachConsoleGuards(page, testInfo)
+    const guard = attachConsoleGuards(page, testInfo, AUTH_NOISE_GUARD)
     await seedCookieConsentAccepted(page)
     await page.goto('/diensten')
     await acceptCookiesIfPresent(page)
@@ -50,14 +58,7 @@ test.describe('mobile regression', () => {
   })
 
   test('hamburger menu opens, closes and navigates', async ({ page }, testInfo) => {
-    const guard = attachConsoleGuards(page, testInfo, {
-      // NextAuth client session polling can log a transient ClientFetchError during navigation
-      // when a request is aborted mid-flight. This is noisy in E2E and not actionable.
-      ignoreConsoleErrors: [/ClientFetchError: Failed to fetch/i, /errors\.authjs\.dev#autherror/i],
-      // WebKit sometimes reports aborted session fetches as requestfailed/pageerror during navigation.
-      ignoreRequestFailed: [/\/api\/auth\/session/i, /load request cancelled/i],
-      ignorePageErrors: [/Fetch API cannot load .*\/api\/auth\/session.*access control checks/i],
-    })
+    const guard = attachConsoleGuards(page, testInfo, AUTH_NOISE_GUARD)
     await seedCookieConsentAccepted(page)
     await page.goto('/')
     await acceptCookiesIfPresent(page)
@@ -91,10 +92,16 @@ test.describe('mobile regression', () => {
 
   for (const p of PAGES) {
     test(`page: ${p.name}`, async ({ page }, testInfo) => {
-      const guard = attachConsoleGuards(page, testInfo, {
+      const ignoreConsoleErrors = [
+        ...(AUTH_NOISE_GUARD.ignoreConsoleErrors ?? []),
         // WebKit can inject inline styles into inputs before hydration, which shows up as a React hydration warning.
         // We keep this scoped to the login page to avoid masking real issues elsewhere.
-        ignoreConsoleErrors: p.name === 'login' ? [/Extra attributes from the server:.*style/i] : [],
+        ...(p.name === 'login' ? [/Extra attributes from the server:.*style/i] : []),
+      ]
+      const guard = attachConsoleGuards(page, testInfo, {
+        ignoreConsoleErrors,
+        ignoreRequestFailed: [...(AUTH_NOISE_GUARD.ignoreRequestFailed ?? [])],
+        ignorePageErrors: [...(AUTH_NOISE_GUARD.ignorePageErrors ?? [])],
       })
       await seedCookieConsentAccepted(page)
       await page.goto(p.path)
@@ -112,7 +119,7 @@ test.describe('mobile regression', () => {
   }
 
   test('boeken requires auth (redirects to login)', async ({ page }, testInfo) => {
-    const guard = attachConsoleGuards(page, testInfo)
+    const guard = attachConsoleGuards(page, testInfo, AUTH_NOISE_GUARD)
     await seedCookieConsentAccepted(page)
     await page.goto('/boeken')
     await acceptCookiesIfPresent(page)
