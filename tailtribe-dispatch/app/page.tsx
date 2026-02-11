@@ -60,48 +60,51 @@ export default function HomePage() {
         {/* heroText */}
         <div className="container mx-auto px-4 sm:px-6 pt-8 sm:pt-10 pb-14 sm:pb-16">
           <div className="max-w-5xl mx-auto">
-            <div className="mx-auto max-w-3xl text-center">
-              <p className="text-base sm:text-lg md:text-xl font-medium text-gray-800 leading-relaxed tracking-[-0.01em]">
-                Hondenuitlaat, dierenoppas, dierenverzorging en meer bij jou in de buurt
-              </p>
-              <p className="mt-2 sm:mt-3 text-sm sm:text-base md:text-lg text-emerald-950/90 font-semibold tracking-[-0.01em]">
-                Voor en door dierenverzorgers
-              </p>
-            </div>
+            <div className="mx-auto max-w-4xl">
+              {/* Sub-hero: marketplace-style copy + CTAs (below the image) */}
+              <div className="rounded-3xl bg-white/70 backdrop-blur-sm border border-emerald-100/70 shadow-[0_12px_40px_rgba(16,185,129,0.10)] px-5 py-6 sm:px-8 sm:py-7">
+                <div className="text-center">
+                  <p className="text-base sm:text-lg md:text-xl font-medium text-gray-800 leading-relaxed tracking-[-0.01em]">
+                    Hondenuitlaat, dierenoppas, dierenverzorging en meer bij jou in de buurt
+                  </p>
+                  <p className="mt-2 text-sm sm:text-base md:text-lg text-emerald-950/90 font-semibold tracking-[-0.01em]">
+                    Voor en door dierenverzorgers
+                  </p>
+                </div>
 
-            <div className="mt-7 sm:mt-9">
-              <div className="mx-auto max-w-2xl grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-                <Link
-                  href={bookingHref}
-                  className="group inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-emerald-600 to-green-600 px-6 py-4 text-base font-bold text-white shadow-lg shadow-emerald-600/20 ring-1 ring-emerald-600/20 transition-all duration-200 hover:-translate-y-0.5 hover:from-emerald-500 hover:to-green-500 hover:shadow-xl hover:shadow-emerald-600/25 active:translate-y-0 focus:outline-none focus:ring-4 focus:ring-emerald-200 min-h-[56px]"
-                >
-                  Boek Nu
-                  <svg
-                    className="h-5 w-5 opacity-90 transition-transform duration-200 group-hover:translate-x-0.5"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                    aria-hidden="true"
+                <div className="mt-6 sm:mt-7 flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center items-stretch sm:items-center">
+                  <Link
+                    href={bookingHref}
+                    className="group w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-full bg-gradient-to-r from-emerald-600 to-green-600 px-7 sm:px-9 py-4 text-[15px] font-bold text-white shadow-lg shadow-emerald-600/20 ring-1 ring-emerald-600/20 transition-all duration-200 hover:-translate-y-0.5 hover:from-emerald-500 hover:to-green-500 hover:shadow-xl hover:shadow-emerald-600/25 active:translate-y-0 focus:outline-none focus:ring-4 focus:ring-emerald-200 min-h-[56px]"
                   >
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                  </svg>
-                </Link>
+                    Boek Nu
+                    <svg
+                      className="h-5 w-5 opacity-90 transition-transform duration-200 group-hover:translate-x-0.5"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                      aria-hidden="true"
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                    </svg>
+                  </Link>
 
-                <Link
-                  href="/verzorger-aanmelden"
-                  className="group inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-white px-6 py-4 text-base font-semibold text-emerald-950 shadow-sm ring-1 ring-emerald-200/80 transition-all duration-200 hover:-translate-y-0.5 hover:bg-emerald-50 hover:ring-emerald-300 active:translate-y-0 focus:outline-none focus:ring-4 focus:ring-emerald-100 min-h-[56px]"
-                >
-                  <span className="sm:whitespace-nowrap">Join our tribe: werk met dieren</span>
-                  <svg
-                    className="h-5 w-5 opacity-70 transition-transform duration-200 group-hover:translate-x-0.5"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                    aria-hidden="true"
+                  <Link
+                    href="/verzorger-aanmelden"
+                    className="group w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-full bg-white px-7 sm:px-9 py-4 text-[15px] font-semibold text-emerald-950 shadow-sm ring-1 ring-emerald-200/80 transition-all duration-200 hover:-translate-y-0.5 hover:bg-emerald-50 hover:ring-emerald-300 active:translate-y-0 focus:outline-none focus:ring-4 focus:ring-emerald-100 min-h-[56px]"
                   >
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                  </svg>
-                </Link>
+                    <span className="sm:whitespace-nowrap">Join our tribe: werk met dieren</span>
+                    <svg
+                      className="h-5 w-5 opacity-70 transition-transform duration-200 group-hover:translate-x-0.5"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                      aria-hidden="true"
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                    </svg>
+                  </Link>
+                </div>
               </div>
             </div>
           </div>

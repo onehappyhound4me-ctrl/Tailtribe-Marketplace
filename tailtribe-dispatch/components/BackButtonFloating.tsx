@@ -30,17 +30,10 @@ export function BackButtonFloating() {
     // otherwise fall back to a sensible dashboard for logged-in users.
     try {
       const idx = (window.history.state as any)?.idx
-      const ref = document.referrer || ''
-      const sameOriginRef = (() => {
-        if (!ref) return false
-        try {
-          return new URL(ref).origin === window.location.origin
-        } catch {
-          return false
-        }
-      })()
-
-      if (typeof idx === 'number' && idx > 0 && sameOriginRef) {
+      // `document.referrer` is often empty for SPA navigations, so don't rely on it.
+      // Next.js app-router sets `history.state.idx` for in-app navigations; if it's > 0,
+      // we have something meaningful to go back to (e.g. Home after CTA click).
+      if (typeof idx === 'number' && idx > 0) {
         router.back()
         return
       }
