@@ -1,7 +1,7 @@
 'use client'
 
 import { usePathname, useRouter } from 'next/navigation'
-import { useMemo } from 'react'
+import { useEffect, useRef } from 'react'
 import { useSession } from 'next-auth/react'
 import { routes } from '@/lib/routes'
 
@@ -10,9 +10,33 @@ export function BackButtonFloating() {
   const pathname = usePathname()
   const { data: session } = useSession()
 
-  // Toon de knop niet op home
-  const show = useMemo(() => pathname && pathname !== '/', [pathname])
+  const storageKeyPrev = 'tt_prev_path'
+  const storageKeyLast = 'tt_last_path'
+  const lastRecordedRef = useRef<string | null>(null)
+  const fullPathRef = useRef<string>('')
 
+  useEffect(() => {
+    if (!pathname) return
+    // Avoid `useSearchParams()` here: it requires a Suspense boundary and can break prerendering.
+    // Reading from `window.location` is safe because this effect only runs on the client.
+    const currentFullPath = `${window.location.pathname}${window.location.search ?? ''}`
+    fullPathRef.current = currentFullPath
+    // Avoid double-writes in React strict mode / rapid rerenders.
+    if (lastRecordedRef.current === currentFullPath) return
+    lastRecordedRef.current = currentFullPath
+    try {
+      const last = window.sessionStorage.getItem(storageKeyLast)
+      if (last && last !== currentFullPath) {
+        window.sessionStorage.setItem(storageKeyPrev, last)
+      }
+      window.sessionStorage.setItem(storageKeyLast, currentFullPath)
+    } catch {
+      // ignore
+    }
+  }, [pathname])
+
+  // Toon de knop niet op home
+  const show = Boolean(pathname && pathname !== '/')
   if (!show) return null
 
   const fallbackHref = (() => {
@@ -20,8 +44,8 @@ export function BackButtonFloating() {
     if (role === 'ADMIN') return '/admin'
     if (role === 'OWNER') return '/dashboard/owner'
     if (role === 'CAREGIVER') return '/dashboard/caregiver'
-    // Public fallback should never be a generic home redirect (avoids "random" jumps to /).
-    return routes.diensten
+    // Public fallback: prefer home (better than jumping to /diensten).
+    return '/'
   })()
 
   const handleBack = () => {
@@ -41,9 +65,19 @@ export function BackButtonFloating() {
       // ignore and use fallback
     }
 
-    if (fallbackHref && fallbackHref !== pathname) {
-      router.push(fallbackHref)
+    // If history back isn't available (new tab, direct visit), fall back to the last in-app page.
+    try {
+      const prev = window.sessionStorage.getItem(storageKeyPrev)
+      const current = fullPathRef.current || `${window.location.pathname}${window.location.search ?? ''}`
+      if (prev && prev !== current) {
+        router.push(prev)
+        return
+      }
+    } catch {
+      // ignore
     }
+
+    if (fallbackHref && fallbackHref !== pathname) router.push(fallbackHref)
   }
 
   return (

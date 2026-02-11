@@ -64,7 +64,7 @@ export default function HomePage() {
               {/* Sub-hero: marketplace-style copy + CTAs (below the image) */}
               <div className="rounded-3xl bg-white/70 backdrop-blur-sm border border-emerald-100/70 shadow-[0_12px_40px_rgba(16,185,129,0.10)] px-5 py-6 sm:px-8 sm:py-7">
                 <div className="text-center">
-                  <p className="text-base sm:text-lg md:text-xl font-medium text-gray-800 leading-relaxed tracking-[-0.01em]">
+                  <p className="text-base sm:text-lg md:text-xl font-medium text-gray-900 leading-relaxed tracking-[-0.01em]">
                     Hondenuitlaat, dierenoppas, dierenverzorging en meer bij jou in de buurt
                   </p>
                   <p className="mt-2 text-sm sm:text-base md:text-lg text-emerald-950/90 font-semibold tracking-[-0.01em]">
@@ -75,8 +75,9 @@ export default function HomePage() {
                 <div className="mt-6 sm:mt-7 flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center items-stretch sm:items-center">
                   <Link
                     href={bookingHref}
-                    className="group w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-full bg-gradient-to-r from-emerald-600 to-green-600 px-7 sm:px-9 py-4 text-[15px] font-bold text-white shadow-lg shadow-emerald-600/20 ring-1 ring-emerald-600/20 transition-all duration-200 hover:-translate-y-0.5 hover:from-emerald-500 hover:to-green-500 hover:shadow-xl hover:shadow-emerald-600/25 active:translate-y-0 focus:outline-none focus:ring-4 focus:ring-emerald-200 min-h-[56px]"
+                    className="group relative w-full sm:w-auto inline-flex items-center justify-center gap-2 overflow-hidden rounded-full bg-gradient-to-r from-emerald-600 to-green-600 px-7 sm:px-9 py-4 text-[15px] font-bold text-white shadow-lg shadow-emerald-700/20 ring-1 ring-emerald-600/25 transition-all duration-200 hover:-translate-y-0.5 hover:from-emerald-500 hover:to-green-500 hover:shadow-xl hover:shadow-emerald-700/25 active:translate-y-0 focus:outline-none focus:ring-4 focus:ring-emerald-200 min-h-[56px]"
                   >
+                    <span className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-200 group-hover:opacity-100 bg-[radial-gradient(circle_at_30%_20%,rgba(255,255,255,0.22),transparent_55%)]" />
                     Boek Nu
                     <svg
                       className="h-5 w-5 opacity-90 transition-transform duration-200 group-hover:translate-x-0.5"
@@ -91,7 +92,7 @@ export default function HomePage() {
 
                   <Link
                     href="/verzorger-aanmelden"
-                    className="group w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-full bg-white px-7 sm:px-9 py-4 text-[15px] font-semibold text-emerald-950 shadow-sm ring-1 ring-emerald-200/80 transition-all duration-200 hover:-translate-y-0.5 hover:bg-emerald-50 hover:ring-emerald-300 active:translate-y-0 focus:outline-none focus:ring-4 focus:ring-emerald-100 min-h-[56px]"
+                    className="group w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-full bg-white px-7 sm:px-9 py-4 text-[15px] font-semibold text-emerald-950 shadow-sm ring-1 ring-emerald-200/90 transition-all duration-200 hover:-translate-y-0.5 hover:bg-white hover:ring-emerald-300 active:translate-y-0 focus:outline-none focus:ring-4 focus:ring-emerald-100 min-h-[56px]"
                   >
                     <span className="sm:whitespace-nowrap">Join our tribe: werk met dieren</span>
                     <svg
@@ -104,6 +105,21 @@ export default function HomePage() {
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                     </svg>
                   </Link>
+                </div>
+
+                <div className="mt-4 flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-xs sm:text-sm text-gray-600">
+                  <span className="inline-flex items-center gap-1.5">
+                    <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+                    Gescreende verzorgers
+                  </span>
+                  <span className="inline-flex items-center gap-1.5">
+                    <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+                    Snelle bevestiging
+                  </span>
+                  <span className="inline-flex items-center gap-1.5">
+                    <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+                    Afspraak op maat
+                  </span>
                 </div>
               </div>
             </div>
