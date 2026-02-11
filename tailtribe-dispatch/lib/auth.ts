@@ -76,8 +76,14 @@ function buildAuth() {
   const authDebug = isDev && process.env.AUTH_DEBUG === 'true'
 
   // Normalize base URL and validate trailing slashes (throws with a clear error).
-  // In serverless this effectively happens on first auth request per instance.
-  applyAuthBaseUrlEnv()
+  // In production/serverless this effectively happens on first auth request per instance.
+  //
+  // In local development, AUTH_URL/NEXTAUTH_URL can legitimately vary (127.0.0.1 vs LAN IP),
+  // and forcing a fixed base URL here can cause client-side session fetches to go cross-origin
+  // and fail under Playwright. The auth route already sets the base URL from the request origin.
+  if (process.env.NODE_ENV === 'production') {
+    applyAuthBaseUrlEnv()
+  }
 
   // In development (including testing over LAN on iPhone), we do NOT enforce a fixed NEXTAUTH_URL.
   // The auth route sets AUTH_URL/NEXTAUTH_URL from the request origin when env vars are missing.

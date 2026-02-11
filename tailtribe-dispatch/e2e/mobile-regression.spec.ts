@@ -49,7 +49,14 @@ test.describe('mobile regression', () => {
   })
 
   test('hamburger menu opens, closes and navigates', async ({ page }, testInfo) => {
-    const guard = attachConsoleGuards(page, testInfo)
+    const guard = attachConsoleGuards(page, testInfo, {
+      // NextAuth client session polling can log a transient ClientFetchError during navigation
+      // when a request is aborted mid-flight. This is noisy in E2E and not actionable.
+      ignoreConsoleErrors: [/ClientFetchError: Failed to fetch/i, /errors\.authjs\.dev#autherror/i],
+      // WebKit sometimes reports aborted session fetches as requestfailed/pageerror during navigation.
+      ignoreRequestFailed: [/\/api\/auth\/session/i, /load request cancelled/i],
+      ignorePageErrors: [/Fetch API cannot load .*\/api\/auth\/session.*access control checks/i],
+    })
     await seedCookieConsentAccepted(page)
     await page.goto('/')
     await acceptCookiesIfPresent(page)

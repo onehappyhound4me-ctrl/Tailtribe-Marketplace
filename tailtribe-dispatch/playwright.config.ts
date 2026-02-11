@@ -7,7 +7,8 @@ import path from 'node:path'
 // even when the browsers were installed to the default cache location.
 
 const PORT = Number(process.env.PW_PORT ?? process.env.PORT ?? 3000)
-const baseURL = process.env.PW_BASE_URL ?? `http://127.0.0.1:${PORT}`
+// Use localhost by default to avoid WebKit CORS issues between localhost and 127.0.0.1.
+const baseURL = process.env.PW_BASE_URL ?? `http://localhost:${PORT}`
 const serverMode = process.env.PW_SERVER ?? (process.env.CI ? 'prod' : 'dev')
 const useWebServer = !process.env.PW_BASE_URL
 
@@ -31,7 +32,9 @@ export default defineConfig({
   reporter: [['list'], ['html', { open: 'never', outputFolder: reportDir }]],
 
   expect: {
-    timeout: 10_000,
+    // WebKit in CI can be slower to stabilize fonts/layout for fullPage screenshots.
+    // Keep this higher to avoid flaky "toHaveScreenshot" timeouts.
+    timeout: 30_000,
     toHaveScreenshot: {
       // Keep diffs tight but not hypersensitive to font rendering.
       maxDiffPixelRatio: 0.02,

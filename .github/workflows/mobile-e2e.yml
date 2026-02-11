@@ -20,8 +20,8 @@ jobs:
       # Use a local SQLite DB for deterministic auth/session in CI.
       DATABASE_URL: file:./prisma/dev.db
       NEXTAUTH_SECRET: ci-nextauth-secret-please-change-32chars-minimum
-      NEXTAUTH_URL: http://127.0.0.1:3000
-      NEXT_PUBLIC_APP_URL: http://127.0.0.1:3000
+      NEXTAUTH_URL: http://localhost:3000
+      NEXT_PUBLIC_APP_URL: http://localhost:3000
       # Ensure Playwright uses build+start parity mode in CI.
       PW_SERVER: prod
 
