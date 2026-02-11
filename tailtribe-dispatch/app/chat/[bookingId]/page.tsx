@@ -140,7 +140,7 @@ export default function ChatPage() {
   }, [loadConversation])
 
   useEffect(() => {
-    if (!conversation) return
+    if (!conversationId) return
     // Reset only when the conversation changes (not on every poll tick).
     setMessages([])
     lastMessageAtRef.current = null

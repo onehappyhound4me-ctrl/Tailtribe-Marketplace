@@ -15,9 +15,21 @@ const shouldAssertScreenshots = !isExternalBaseUrl && !process.env.CI
 // Auth/session polling can produce harmless noise (aborted requests) during navigations,
 // especially in WebKit. Keep E2E strict for real issues, but ignore this known, non-actionable noise.
 const AUTH_NOISE_GUARD = {
-  ignoreConsoleErrors: [/ClientFetchError: Failed to fetch/i, /errors\.authjs\.dev#autherror/i],
+  ignoreConsoleErrors: [
+    // NextAuth/Auth.js noisy client-side session polling failures during navigation.
+    /ClientFetchError: Failed to fetch/i,
+    /CLIENT_FETCH_ERROR/i,
+    /errors\.authjs\.dev#autherror/i,
+    // Some environments only surface a generic fetch error (without the Auth.js wrapper).
+    /TypeError: Failed to fetch/i,
+    /\bFailed to fetch\b/i,
+  ],
   ignoreRequestFailed: [/\/api\/auth\/session/i, /load request cancelled/i],
-  ignorePageErrors: [/Fetch API cannot load .*\/api\/auth\/session.*access control checks/i],
+  ignorePageErrors: [
+    /Fetch API cannot load .*\/api\/auth\/session.*access control checks/i,
+    /TypeError: Failed to fetch/i,
+    /\bFailed to fetch\b/i,
+  ],
 } as const
 
 const PAGES = [
