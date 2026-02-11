@@ -27,9 +27,9 @@ export default function HomePage() {
       {/* Hero (image + text stacked, image never cropped) */}
       <section className="w-full">
         {/* heroMedia */}
-        <div className="w-full bg-black">
+        <div className="w-full">
           {/* Stable height to avoid CLS; image always fully visible */}
-          <div className="relative w-full aspect-[16/9]">
+          <div className="relative w-full aspect-[16/9] overflow-hidden bg-gradient-to-b from-green-50 via-white to-blue-50">
             <img
               src={HERO_IMG_URL}
               alt=""
@@ -39,9 +39,10 @@ export default function HomePage() {
             />
             <div className="absolute inset-0 bg-black/12" />
 
-            {/* Desktop: keep title on the photo, placed left + higher (avoid covering the subject) */}
-            <div className="absolute inset-0 z-10 flex items-start justify-start px-6 sm:px-10 md:px-16 pt-8 sm:pt-10 md:pt-12 lg:pt-14">
-              <div className="max-w-3xl text-left">
+            {/* Title on the photo: keep it long, but avoid covering the subject (woman + dog) */}
+            <div className="absolute inset-0 z-10 flex items-start justify-start px-5 sm:px-8 md:px-12 pt-6 sm:pt-8 md:pt-10 lg:pt-12">
+              {/* Keep the text in the left "empty" area so it never sits on top of the subject. */}
+              <div className="text-left pr-[30%] sm:pr-[35%] md:pr-[42%]">
                 <h1
                   className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-bold leading-tight text-white"
                   style={{ textShadow: '0 3px 12px rgba(0,0,0,0.55)' }}
@@ -58,22 +59,27 @@ export default function HomePage() {
         </div>
 
         {/* heroText */}
-        <div className="container mx-auto px-4 sm:px-6 pt-6 pb-10">
+        <div className="container mx-auto px-4 sm:px-6 pt-7 sm:pt-9 pb-12">
           <div className="max-w-5xl mx-auto text-center">
-            <p className="text-sm sm:text-base text-gray-700 leading-relaxed">
-              Hondenuitlaat, dierenoppas, dierenverzorging en meer bij jou in de buurt
-            </p>
-            <p className="mt-2 text-sm sm:text-base text-emerald-900/90 font-semibold">
-              Voor en door dierenverzorgers
-            </p>
+            <div className="max-w-3xl mx-auto">
+              <p className="text-base sm:text-lg text-gray-700 leading-relaxed">
+                Hondenuitlaat, dierenoppas, dierenverzorging en meer bij jou in de buurt
+              </p>
+              <p className="mt-2 text-base sm:text-lg text-emerald-900/90 font-semibold">
+                Voor en door dierenverzorgers
+              </p>
+            </div>
 
-            <div className="mt-5 flex flex-col sm:flex-row gap-3 justify-center items-stretch sm:items-center">
-              <Link href={bookingHref} className="btn-brand w-full inline-flex justify-center min-h-[48px]">
+            <div className="mt-7 flex flex-col sm:flex-row gap-3 justify-center items-stretch sm:items-center">
+              <Link
+                href={bookingHref}
+                className="w-full sm:w-auto inline-flex items-center justify-center rounded-full bg-gradient-to-r from-emerald-600 to-green-600 px-7 py-4 text-base font-bold text-white shadow-lg shadow-emerald-600/25 hover:from-emerald-500 hover:to-green-500 transition focus:outline-none focus:ring-4 focus:ring-emerald-200 min-h-[52px]"
+              >
                 Boek Nu
               </Link>
               <Link
                 href="/verzorger-aanmelden"
-                className="w-full inline-flex items-center justify-center rounded-xl border border-emerald-200 bg-white px-5 py-3 text-sm font-semibold text-emerald-900 hover:bg-emerald-50 transition min-h-[48px]"
+                className="w-full sm:w-auto inline-flex items-center justify-center rounded-full border border-emerald-200 bg-white px-7 py-4 text-base font-semibold text-emerald-900 shadow-sm hover:bg-emerald-50 hover:border-emerald-300 transition focus:outline-none focus:ring-4 focus:ring-emerald-100 min-h-[52px]"
               >
                 Join our tribe: werk met dieren
               </Link>
