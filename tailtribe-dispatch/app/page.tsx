@@ -24,37 +24,42 @@ export default function HomePage() {
     <div className="min-h-screen bg-gradient-to-b from-green-50 via-white to-blue-50">
       <SiteHeader primaryCtaHref={bookingHref} primaryCtaLabel="Boek Nu" />
 
-      {/* Hero with Image */}
-      <section className="relative w-full min-h-[40vh] md:min-h-[50vh] overflow-hidden flex items-start sm:items-center">
-        <img
-          src={HERO_IMG_URL}
-          alt=""
-          aria-hidden="true"
-          className="absolute inset-0 h-full w-full object-cover object-[60%_35%] sm:object-[50%_30%] md:object-[50%_30%]"
-          style={{ filter: 'brightness(1.08) saturate(1.04) blur(0.6px)' }}
-        />
-        <div className="absolute inset-0 bg-black/12" />
+      {/* Hero (image + text stacked, image never cropped) */}
+      <section className="w-full">
+        {/* heroMedia */}
+        <div className="w-full bg-black">
+          {/* Stable height to avoid CLS; image always fully visible */}
+          <div className="relative w-full aspect-[16/9]">
+            <img
+              src={HERO_IMG_URL}
+              alt=""
+              aria-hidden="true"
+              className="absolute inset-0 h-full w-full object-contain"
+              style={{ filter: 'brightness(1.08) saturate(1.04) blur(0.6px)' }}
+            />
+            <div className="absolute inset-0 bg-black/12" />
 
-        <div className="relative z-10 container mx-auto px-4 sm:px-6 pt-10 pb-12 sm:py-16 md:py-24">
-          <div className="max-w-5xl mx-auto text-center">
-            <h1
-              className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-bold mb-5 sm:mb-6 leading-tight text-white"
-              style={{ textShadow: '0 3px 12px rgba(0,0,0,0.55)' }}
-            >
-              Vind de juiste{' '}
-              <span className="text-green-200 transition-colors duration-200 hover:text-white hover:drop-shadow-[0_0_12px_rgba(74,222,128,0.85)]">
-                dierenoppasser
-              </span>{' '}
-              voor je huisdier
-            </h1>
+            {/* Desktop: keep title on the photo, placed left + higher (avoid covering the subject) */}
+            <div className="absolute inset-0 z-10 flex items-start justify-start px-6 sm:px-10 md:px-16 pt-8 sm:pt-10 md:pt-12 lg:pt-14">
+              <div className="max-w-3xl text-left">
+                <h1
+                  className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-bold leading-tight text-white"
+                  style={{ textShadow: '0 3px 12px rgba(0,0,0,0.55)' }}
+                >
+                  Vind de juiste{' '}
+                  <span className="text-green-200 transition-colors duration-200 hover:text-white hover:drop-shadow-[0_0_12px_rgba(74,222,128,0.85)]">
+                    dierenoppasser
+                  </span>{' '}
+                  voor je huisdier
+                </h1>
+              </div>
+            </div>
           </div>
         </div>
-      </section>
 
-      {/* Move hero copy + CTAs below the photo (no card/kader) */}
-      <section className="pt-4 pb-10">
-        <div className="container mx-auto px-4 sm:px-6">
-          <div className="max-w-4xl mx-auto text-center">
+        {/* heroText */}
+        <div className="container mx-auto px-4 sm:px-6 pt-6 pb-10">
+          <div className="max-w-5xl mx-auto text-center">
             <p className="text-sm sm:text-base text-gray-700 leading-relaxed">
               Hondenuitlaat, dierenoppas, dierenverzorging en meer bij jou in de buurt
             </p>
