@@ -38,6 +38,9 @@
     ".next-local/types/**/*.ts"
   ],
   "exclude": [
-    "node_modules"
+    "node_modules",
+    // Monorepo: Tailtribe Dispatch has its own tsconfig and Prisma client.
+    // Exclude it from the repo-root Next build/typecheck to avoid cross-package Prisma type conflicts.
+    "tailtribe-dispatch/**"
   ]
 }
