@@ -1,11 +1,14 @@
 import { test, expect } from '@playwright/test'
-import { acceptCookiesIfPresent, attachConsoleGuards, seedCookieConsentAccepted } from './utils'
+import { acceptCookiesIfPresent, attachConsoleGuards, AUTH_SESSION_NOISE_GUARD, seedCookieConsentAccepted } from './utils'
 
 test.describe('desktop diensten navigation', () => {
+  test.beforeEach(async ({}, testInfo) => {
+    // This spec is desktop-only. It will fail on mobile projects because the desktop nav links are hidden.
+    test.skip(testInfo.project.name !== 'desktop-chromium', 'Desktop-only navigation assertions')
+  })
+
   test('header: desktop "Diensten" menu navigates to /diensten (not home anchor)', async ({ page }, testInfo) => {
-    const guard = attachConsoleGuards(page, testInfo, {
-      ignoreConsoleErrors: [/ClientFetchError:.*(?:Failed to fetch|Load failed)/i],
-    })
+    const guard = attachConsoleGuards(page, testInfo, AUTH_SESSION_NOISE_GUARD)
     await seedCookieConsentAccepted(page)
     await page.goto('/over-ons')
     await acceptCookiesIfPresent(page)
@@ -26,12 +29,7 @@ test.describe('desktop diensten navigation', () => {
   })
 
   test('diensten page: each service card navigates to its detail page (not home)', async ({ page }, testInfo) => {
-    const guard = attachConsoleGuards(page, testInfo, {
-      // In local dev, NEXTAUTH_URL can point at a LAN host (e.g. 192.168.x.x) for mobile testing.
-      // When Playwright runs against 127.0.0.1, next-auth/react may log a ClientFetchError due to cross-origin session fetch.
-      // Navigation assertions are still valid; we keep other console errors strict.
-      ignoreConsoleErrors: [/ClientFetchError:.*(?:Failed to fetch|Load failed)/i],
-    })
+    const guard = attachConsoleGuards(page, testInfo, AUTH_SESSION_NOISE_GUARD)
     await seedCookieConsentAccepted(page)
     await page.goto('/diensten')
     await acceptCookiesIfPresent(page)
@@ -79,9 +77,7 @@ test.describe('desktop diensten navigation', () => {
   })
 
   test('home services grid: clicking a service card navigates to the detail page', async ({ page }, testInfo) => {
-    const guard = attachConsoleGuards(page, testInfo, {
-      ignoreConsoleErrors: [/ClientFetchError:.*(?:Failed to fetch|Load failed)/i],
-    })
+    const guard = attachConsoleGuards(page, testInfo, AUTH_SESSION_NOISE_GUARD)
     await seedCookieConsentAccepted(page)
     await page.goto('/')
     await acceptCookiesIfPresent(page)

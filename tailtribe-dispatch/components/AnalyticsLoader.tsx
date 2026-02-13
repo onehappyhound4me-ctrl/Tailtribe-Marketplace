@@ -12,12 +12,29 @@ export function AnalyticsLoader() {
   const [consent, setConsent] = useState<ConsentValue | null>(null)
 
   useEffect(() => {
-    const stored = window.localStorage.getItem(COOKIE_CONSENT_STORAGE_KEY)
-    if (stored === 'accepted' || stored === 'declined') {
-      setConsent(stored)
-      return
+    const readConsent = () => {
+      const stored = window.localStorage.getItem(COOKIE_CONSENT_STORAGE_KEY)
+      if (stored === 'accepted' || stored === 'declined') {
+        setConsent(stored)
+        return
+      }
+      setConsent(null)
     }
-    setConsent(null)
+
+    // Initial read.
+    readConsent()
+
+    // React immediately when the user accepts/declines (CookieConsent dispatches this).
+    const onConsent = () => readConsent()
+    window.addEventListener('tailtribe:cookie-consent', onConsent)
+
+    // Also listen to cross-tab updates and rare cases where storage changes outside our components.
+    window.addEventListener('storage', onConsent)
+
+    return () => {
+      window.removeEventListener('tailtribe:cookie-consent', onConsent)
+      window.removeEventListener('storage', onConsent)
+    }
   }, [])
 
   if ((!gaId && !gtmId) || consent !== 'accepted') return null

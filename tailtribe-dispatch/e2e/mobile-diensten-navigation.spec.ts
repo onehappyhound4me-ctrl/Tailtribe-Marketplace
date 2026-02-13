@@ -1,13 +1,9 @@
 import { test, expect } from '@playwright/test'
-import { acceptCookiesIfPresent, attachConsoleGuards, openMobileMenu, seedCookieConsentAccepted } from './utils'
+import { acceptCookiesIfPresent, attachConsoleGuards, AUTH_SESSION_NOISE_GUARD, openMobileMenu, seedCookieConsentAccepted } from './utils'
 
 test.describe('mobile diensten navigation', () => {
   test('mobile menu: "Diensten" navigates to /diensten (not home)', async ({ page }, testInfo) => {
-    const guard = attachConsoleGuards(page, testInfo, {
-      ignoreConsoleErrors: [/ClientFetchError:.*(?:Failed to fetch|Load failed)/i],
-      ignorePageErrors: [/\/api\/auth\/session/i, /access control checks/i],
-      ignoreRequestFailed: [/\/api\/auth\/session/i, /load request cancelled/i],
-    })
+    const guard = attachConsoleGuards(page, testInfo, AUTH_SESSION_NOISE_GUARD)
     await seedCookieConsentAccepted(page)
     await page.goto('/over-ons')
     await acceptCookiesIfPresent(page)
@@ -21,11 +17,7 @@ test.describe('mobile diensten navigation', () => {
   })
 
   test('diensten page: each service card navigates to its detail page', async ({ page }, testInfo) => {
-    const guard = attachConsoleGuards(page, testInfo, {
-      ignoreConsoleErrors: [/ClientFetchError:.*(?:Failed to fetch|Load failed)/i],
-      ignorePageErrors: [/\/api\/auth\/session/i, /access control checks/i],
-      ignoreRequestFailed: [/\/api\/auth\/session/i, /load request cancelled/i],
-    })
+    const guard = attachConsoleGuards(page, testInfo, AUTH_SESSION_NOISE_GUARD)
     await seedCookieConsentAccepted(page)
     await page.goto('/diensten')
     await acceptCookiesIfPresent(page)

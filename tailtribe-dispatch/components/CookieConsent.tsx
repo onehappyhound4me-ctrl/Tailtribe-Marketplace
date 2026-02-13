@@ -57,6 +57,12 @@ export function CookieConsent() {
   const handleChoice = (value: ConsentValue) => {
     window.localStorage.setItem(COOKIE_CONSENT_STORAGE_KEY, value)
     setConsent(value)
+    // Let other components (e.g. AnalyticsLoader) react immediately without requiring a reload.
+    try {
+      window.dispatchEvent(new Event('tailtribe:cookie-consent'))
+    } catch {
+      // ignore
+    }
   }
 
   return (

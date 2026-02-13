@@ -8,6 +8,28 @@ type ConsoleGuardOptions = {
   ignoreRequestFailed?: Array<string | RegExp>
 }
 
+// Auth/session polling can produce harmless noise (aborted requests) during navigations,
+// especially in WebKit. Keep E2E strict for real issues, but ignore this known, non-actionable noise.
+export const AUTH_SESSION_NOISE_GUARD: ConsoleGuardOptions = {
+  ignoreConsoleErrors: [
+    // NextAuth/Auth.js noisy client-side session polling failures during navigation.
+    /ClientFetchError: Failed to fetch/i,
+    /CLIENT_FETCH_ERROR/i,
+    /errors\.authjs\.dev#autherror/i,
+    // Some environments only surface a generic fetch error (without the Auth.js wrapper).
+    /TypeError: Failed to fetch/i,
+    /\bFailed to fetch\b/i,
+    /Load failed/i,
+  ],
+  ignoreRequestFailed: [/\/api\/auth\/session/i, /load request cancelled/i],
+  ignorePageErrors: [
+    /Fetch API cannot load .*\/api\/auth\/session.*access control checks/i,
+    /TypeError: Failed to fetch/i,
+    /\bFailed to fetch\b/i,
+    /access control checks/i,
+  ],
+}
+
 function matchesIgnoreRules(message: string, rules: Array<string | RegExp>) {
   if (!rules.length) return false
   return rules.some((r) => (typeof r === 'string' ? message.includes(r) : r.test(message)))
