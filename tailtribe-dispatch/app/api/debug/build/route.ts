@@ -23,6 +23,8 @@ export async function GET() {
     },
     configured: {
       nextPublicAppUrl: pick('NEXT_PUBLIC_APP_URL'),
+      hasGaId: Boolean(pick('NEXT_PUBLIC_GA_ID')),
+      hasGtmId: Boolean(pick('NEXT_PUBLIC_GTM_ID')),
       hasDatabaseUrl: Boolean(pick('DATABASE_URL')),
       hasNextAuthSecret: Boolean(pick('NEXTAUTH_SECRET')),
       hasResendKey: Boolean(pick('RESEND_API_KEY')),
