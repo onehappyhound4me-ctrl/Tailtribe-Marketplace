@@ -15,6 +15,11 @@ type Status = {
   collectResourceSeen: boolean
   dataLayerLen: number
   gaFetchProbe: 'unknown' | 'ok' | 'blocked'
+  gaFetchProbeRegion1: 'unknown' | 'ok' | 'blocked'
+  gaFetchProbeError: string | null
+  lastCspViolation: string | null
+  cspConnectSrc: string | null
+  cspScriptSrc: string | null
   lastGtagCalls: number
 }
 
@@ -34,6 +39,11 @@ export function AnalyticsDebugBadge() {
     collectResourceSeen: false,
     dataLayerLen: 0,
     gaFetchProbe: 'unknown',
+    gaFetchProbeRegion1: 'unknown',
+    gaFetchProbeError: null,
+    lastCspViolation: null,
+    cspConnectSrc: null,
+    cspScriptSrc: null,
     lastGtagCalls: 0,
   })
 
@@ -45,10 +55,12 @@ export function AnalyticsDebugBadge() {
   useEffect(() => {
     if (!shouldShow) return
 
+    const w = window as any
+
     // Expose a simple "force hit" function for manual testing.
-    ;(window as any).__tt_ga_test = () => {
+    w.__tt_ga_test = () => {
       try {
-        ;(window as any).gtag?.('event', 'page_view', {
+        w.gtag?.('event', 'page_view', {
           page_location: window.location.href,
           page_path: window.location.pathname + window.location.search,
           page_title: document.title,
@@ -61,7 +73,6 @@ export function AnalyticsDebugBadge() {
 
     // Wrap gtag to record last calls (debug only).
     try {
-      const w = window as any
       w.__tt_ga_calls = w.__tt_ga_calls ?? []
       if (typeof w.gtag === 'function' && !w.__tt_ga_wrapped) {
         const orig = w.gtag
@@ -80,14 +91,63 @@ export function AnalyticsDebugBadge() {
       // ignore
     }
 
+    // Listen for CSP violations to prove whether CSP is blocking GA.
+    try {
+      if (!w.__tt_csp_listener) {
+        const onV = (e: any) => {
+          const msg = `${String(e?.effectiveDirective ?? e?.violatedDirective ?? '')} blocked ${String(
+            e?.blockedURI ?? ''
+          )}`.trim()
+          w.__tt_last_csp_violation = msg || 'unknown'
+          console.warn('[csp] securitypolicyviolation', {
+            blockedURI: e?.blockedURI,
+            violatedDirective: e?.violatedDirective,
+            effectiveDirective: e?.effectiveDirective,
+          })
+        }
+        window.addEventListener('securitypolicyviolation', onV as any)
+        w.__tt_csp_listener = true
+      }
+    } catch {
+      // ignore
+    }
+
+    // Read EFFECTIVE CSP header from same-origin response (best effort).
+    ;(async () => {
+      try {
+        const res = await fetch('/', { method: 'HEAD', cache: 'no-store' })
+        const csp = res.headers.get('content-security-policy') || ''
+        const pick = (directive: string) => {
+          const re = new RegExp(`(?:^|;\\s*)${directive}\\s+([^;]+)`, 'i')
+          const m = csp.match(re)
+          return m?.[1]?.trim() ?? null
+        }
+        w.__tt_csp_connect_src = pick('connect-src')
+        w.__tt_csp_script_src = pick('script-src')
+      } catch {
+        // ignore
+      }
+    })()
+
     // Probe whether the browser is allowed to initiate GA connections (CSP/adblock hint).
     // NOTE: This is not a valid measurement hit (no tid/cid); it's only a connectivity probe.
     ;(async () => {
       try {
         await fetch('https://www.google-analytics.com/g/collect?v=2', { mode: 'no-cors', keepalive: true })
-        setStatus((s) => ({ ...s, gaFetchProbe: 'ok' }))
+        w.__tt_ga_probe_status = 'ok'
+        w.__tt_ga_probe_error = null
+      } catch (e) {
+        w.__tt_ga_probe_status = 'blocked'
+        w.__tt_ga_probe_error = String((e as any)?.message ?? e)
+      }
+    })()
+
+    ;(async () => {
+      try {
+        await fetch('https://region1.google-analytics.com/g/collect?v=2', { mode: 'no-cors', keepalive: true })
+        w.__tt_ga_probe_region1_status = 'ok'
       } catch {
-        setStatus((s) => ({ ...s, gaFetchProbe: 'blocked' }))
+        w.__tt_ga_probe_region1_status = 'blocked'
       }
     })()
 
@@ -129,7 +189,12 @@ export function AnalyticsDebugBadge() {
         gtagJsLoadFlag,
         collectResourceSeen,
         dataLayerLen,
-        gaFetchProbe: status.gaFetchProbe,
+        gaFetchProbe: (w.__tt_ga_probe_status as any) || 'unknown',
+        gaFetchProbeRegion1: (w.__tt_ga_probe_region1_status as any) || 'unknown',
+        gaFetchProbeError: (w.__tt_ga_probe_error as any) || null,
+        lastCspViolation: (w.__tt_last_csp_violation as any) || null,
+        cspConnectSrc: (w.__tt_csp_connect_src as any) || null,
+        cspScriptSrc: (w.__tt_csp_script_src as any) || null,
         lastGtagCalls,
       })
     }
@@ -137,7 +202,7 @@ export function AnalyticsDebugBadge() {
     read()
     const id = window.setInterval(read, 1000)
     return () => window.clearInterval(id)
-  }, [shouldShow, hasGaId, gaId, status.gaFetchProbe])
+  }, [shouldShow, hasGaId, gaId])
 
   if (!status.show) return null
 
@@ -174,6 +239,18 @@ export function AnalyticsDebugBadge() {
         </div>
         <div>
           GA probe: <span className="font-mono">{status.gaFetchProbe}</span>
+        </div>
+        <div>
+          GA probe r1: <span className="font-mono">{status.gaFetchProbeRegion1}</span>
+        </div>
+        <div className="max-w-[280px]">
+          CSP connect-src: <span className="font-mono break-all">{String(status.cspConnectSrc)}</span>
+        </div>
+        <div className="max-w-[280px]">
+          CSP script-src: <span className="font-mono break-all">{String(status.cspScriptSrc)}</span>
+        </div>
+        <div className="max-w-[280px]">
+          CSP violation: <span className="font-mono break-all">{String(status.lastCspViolation)}</span>
         </div>
       </div>
     </div>

@@ -12,11 +12,45 @@ function safeTitle() {
   }
 }
 
+function readCookie(name: string) {
+  try {
+    const m = document.cookie.match(new RegExp(`(?:^|;\\s*)${name}=([^;]+)`))
+    return m ? decodeURIComponent(m[1]) : null
+  } catch {
+    return null
+  }
+}
+
+function getOrCreateClientId() {
+  // Prefer GA cookie format: GA1.1.1541961393.1770992030 -> 1541961393.1770992030
+  const ga = readCookie('_ga')
+  if (ga) {
+    const parts = ga.split('.')
+    if (parts.length >= 4) return `${parts[2]}.${parts[3]}`
+  }
+
+  try {
+    const key = 'tt_ga_cid'
+    const existing = window.localStorage.getItem(key)
+    if (existing) return existing
+    const rand =
+      typeof crypto !== 'undefined' && 'getRandomValues' in crypto
+        ? String(crypto.getRandomValues(new Uint32Array(1))[0])
+        : String(Math.floor(Math.random() * 1e9))
+    const cid = `${rand}.${Date.now()}`
+    window.localStorage.setItem(key, cid)
+    return cid
+  } catch {
+    return `0.${Date.now()}`
+  }
+}
+
 export function AnalyticsPageView() {
   const pathname = usePathname()
   const searchParams = useSearchParams()
   const lastSentRef = useRef<string | null>(null)
   const pendingRef = useRef<string | null>(null)
+  const probeRanRef = useRef(false)
 
   const pagePath = useMemo(() => {
     const qs = searchParams?.toString?.() ?? ''
@@ -29,6 +63,51 @@ export function AnalyticsPageView() {
     pendingRef.current = pagePath
 
     const debugMode = new URLSearchParams(window.location.search).has('debugga')
+
+    const ensureProbe = async () => {
+      // If the debug badge already ran probes, reuse that result.
+      const w = window as any
+      if (w.__tt_ga_probe_status === 'ok' || w.__tt_ga_probe_status === 'blocked') return w.__tt_ga_probe_status
+      if (probeRanRef.current) return w.__tt_ga_probe_status ?? 'unknown'
+      probeRanRef.current = true
+      try {
+        await fetch('https://www.google-analytics.com/g/collect?v=2', { mode: 'no-cors', keepalive: true })
+        w.__tt_ga_probe_status = 'ok'
+      } catch {
+        w.__tt_ga_probe_status = 'blocked'
+      }
+      return w.__tt_ga_probe_status
+    }
+
+    const sendViaProxy = async (p: string) => {
+      const consent = window.localStorage.getItem(COOKIE_CONSENT_STORAGE_KEY)
+      if (consent !== 'accepted') return
+
+      try {
+        const client_id = getOrCreateClientId()
+        await fetch('/api/ga/collect', {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          keepalive: true,
+          body: JSON.stringify({
+            client_id,
+            events: [
+              {
+                name: 'page_view',
+                params: {
+                  page_location: window.location.href,
+                  page_path: p,
+                  page_title: safeTitle(),
+                  ...(debugMode ? { debug_mode: true } : {}),
+                },
+              },
+            ],
+          }),
+        })
+      } catch {
+        // ignore
+      }
+    }
 
     const trySend = () => {
       const consent = window.localStorage.getItem(COOKIE_CONSENT_STORAGE_KEY)
@@ -44,12 +123,22 @@ export function AnalyticsPageView() {
       if (lastSentRef.current === p) return true
       lastSentRef.current = p
 
-      gtag('event', 'page_view', {
-        page_location: window.location.href,
-        page_path: p,
-        page_title: safeTitle(),
-        ...(debugMode ? { debug_mode: true } : {}),
+      // If GA endpoints are blocked by the client (adblock/privacy), fall back to our first-party proxy.
+      // We still call gtag to keep behavior consistent for non-blocked clients.
+      void ensureProbe().then((probe) => {
+        if (probe === 'blocked') void sendViaProxy(p)
       })
+
+      try {
+        gtag('event', 'page_view', {
+          page_location: window.location.href,
+          page_path: p,
+          page_title: safeTitle(),
+          ...(debugMode ? { debug_mode: true } : {}),
+        })
+      } catch {
+        // ignore
+      }
 
       return true
     }

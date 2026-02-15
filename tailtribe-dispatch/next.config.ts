@@ -93,6 +93,8 @@ const nextConfig: NextConfig = {
       "https://region1.google-analytics.com",
       "https://region2.google-analytics.com",
       "https://stats.g.doubleclick.net",
+      // Some setups fetch additional resources via GTM/gtag.
+      "https://www.googletagmanager.com",
       // Keep existing allowances for the app (avoid breaking other HTTPS/WSS calls).
       "https:",
       "wss:",

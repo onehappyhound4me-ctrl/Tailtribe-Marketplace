@@ -36,6 +36,12 @@ GOOGLE_CLIENT_SECRET=
 # Optioneel: email via Resend
 RESEND_API_KEY=
 
+# Optioneel: GA4 first-party fallback (Measurement Protocol proxy)
+# Alleen nodig als browsers/extensions `google-analytics.com/g/collect` blokkeren.
+# Maak een API secret in GA4: Admin → Gegevensstreams → (Web) → Measurement Protocol API secrets
+GA_MEASUREMENT_ID=G-7CN7YKXQB3
+GA_API_SECRET=
+
 # Afzender (belangrijk voor deliverability, vooral Gmail):
 # Gebruik een verified domain/sender in Resend (SPF/DKIM).
 DISPATCH_EMAIL_FROM=TailTribe <noreply@tailtribe.be>
