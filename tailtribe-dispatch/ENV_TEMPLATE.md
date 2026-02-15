@@ -42,6 +42,10 @@ RESEND_API_KEY=
 GA_MEASUREMENT_ID=G-7CN7YKXQB3
 GA_API_SECRET=
 
+# Optioneel: Admin emergency password reset (zet dit enkel tijdelijk)
+# Gebruik een lange random value. Verwijder nadien of draai opnieuw.
+RESET_PASSWORD_ADMIN_KEY=
+
 # Afzender (belangrijk voor deliverability, vooral Gmail):
 # Gebruik een verified domain/sender in Resend (SPF/DKIM).
 DISPATCH_EMAIL_FROM=TailTribe <noreply@tailtribe.be>
