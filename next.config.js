@@ -35,6 +35,21 @@ const nextConfig = {
     caseSensitiveRoutes: false,
   },
   async headers() {
+    const csp = [
+      "default-src 'self'",
+      // Next.js uses inline scripts for hydration/runtime; keep unsafe-inline.
+      // IMPORTANT: do not allow unsafe-eval in production.
+      "script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://www.google-analytics.com https://vercel.live https://cdn.vercel-insights.com https://vitals.vercel-insights.com",
+      "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+      "font-src 'self' https://fonts.gstatic.com data:",
+      "img-src 'self' blob: data: https: https://www.google-analytics.com https://stats.g.doubleclick.net",
+      // GA4 measurement hits must be allowed here (connect-src).
+      "connect-src 'self' https://www.tailtribe.nl https://tailtribe.nl https://tailtribe.be https://www.tailtribe.be https://vitals.vercel-insights.com https://vercel.live https://www.google-analytics.com https://region1.google-analytics.com https://region2.google-analytics.com https://stats.g.doubleclick.net https://www.googletagmanager.com",
+      "frame-ancestors 'self'",
+      "object-src 'none'",
+      "base-uri 'self'",
+    ].join('; ')
+
     return [
       {
         source: '/:path*',
@@ -53,16 +68,7 @@ const nextConfig = {
           },
           {
             key: 'Content-Security-Policy',
-            value: [
-              "default-src 'self'",
-              "script-src 'self' 'unsafe-eval' 'unsafe-inline' https://www.googletagmanager.com https://www.google-analytics.com https://vercel.live https://cdn.vercel-insights.com https://vitals.vercel-insights.com",
-              "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
-              "font-src 'self' https://fonts.gstatic.com data:",
-              "img-src 'self' blob: data: https:",
-              "connect-src 'self' https://www.tailtribe.nl https://tailtribe.nl https://tailtribe.be https://www.tailtribe.be https://vitals.vercel-insights.com https://vercel.live",
-              "frame-ancestors 'self'",
-              "object-src 'none'",
-            ].join('; '),
+            value: csp,
           },
         ],
       },
@@ -83,16 +89,7 @@ const nextConfig = {
           },
           {
             key: 'Content-Security-Policy',
-            value: [
-              "default-src 'self'",
-              "script-src 'self' 'unsafe-eval' 'unsafe-inline' https://www.googletagmanager.com https://www.google-analytics.com https://vercel.live https://cdn.vercel-insights.com https://vitals.vercel-insights.com",
-              "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
-              "font-src 'self' https://fonts.gstatic.com data:",
-              "img-src 'self' blob: data: https:",
-              "connect-src 'self' https://www.tailtribe.nl https://tailtribe.nl https://tailtribe.be https://www.tailtribe.be https://vitals.vercel-insights.com https://vercel.live",
-              "frame-ancestors 'self'",
-              "object-src 'none'",
-            ].join('; '),
+            value: csp,
           },
         ],
       },
