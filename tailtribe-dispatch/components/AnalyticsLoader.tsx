@@ -10,6 +10,7 @@ export function AnalyticsLoader() {
   const gaId = (process.env.NEXT_PUBLIC_GA_ID ?? '').trim()
   const gtmId = (process.env.NEXT_PUBLIC_GTM_ID ?? '').trim()
   const [consent, setConsent] = useState<ConsentValue | null>(null)
+  const debugMode = typeof window !== 'undefined' && new URLSearchParams(window.location.search).has('debugga')
 
   useEffect(() => {
     const readConsent = () => {
@@ -64,14 +65,25 @@ export function AnalyticsLoader() {
       ) : null}
       {gaId ? (
         <>
-          <Script src={`https://www.googletagmanager.com/gtag/js?id=${gaId}`} strategy="afterInteractive" />
+          <Script
+            src={`https://www.googletagmanager.com/gtag/js?id=${gaId}`}
+            strategy="afterInteractive"
+            onLoad={() => {
+              ;(window as any).__tt_gtagjs_loaded = true
+              if (debugMode) console.log('[analytics] gtag.js loaded')
+            }}
+            onError={() => {
+              ;(window as any).__tt_gtagjs_error = true
+              if (debugMode) console.warn('[analytics] gtag.js failed to load (blocked?)')
+            }}
+          />
           <Script id="ga-init" strategy="afterInteractive">
             {`
               window.dataLayer = window.dataLayer || [];
               function gtag(){dataLayer.push(arguments);}
               gtag('js', new Date());
               // We send page_view manually on App Router navigations.
-              gtag('config', '${gaId}', { anonymize_ip: true, send_page_view: false });
+              gtag('config', '${gaId}', { anonymize_ip: true, send_page_view: false${debugMode ? ', debug_mode: true' : ''} });
             `}
           </Script>
         </>
