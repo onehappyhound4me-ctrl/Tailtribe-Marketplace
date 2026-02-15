@@ -33,6 +33,14 @@ export function SiteHeader({ primaryCtaHref = '/boeken', primaryCtaLabel = 'Boek
   const isHome = pathname === '/'
   const [mounted, setMounted] = useState(false)
 
+  const dashboardHref = (() => {
+    const role = session?.user?.role
+    if (role === 'ADMIN') return '/admin'
+    if (role === 'OWNER') return '/dashboard/owner'
+    if (role === 'CAREGIVER') return '/dashboard/caregiver'
+    return '/dashboard'
+  })()
+
   const unlockBodyScroll = () => {
     if (!prevBodyStyle.current) return
     const prev = prevBodyStyle.current
@@ -285,8 +293,8 @@ export function SiteHeader({ primaryCtaHref = '/boeken', primaryCtaLabel = 'Boek
             {session ? (
               <div className="space-y-2">
                 <a
-                  href="/dashboard"
-                  onClick={onMobileNavClick('/dashboard')}
+                  href={dashboardHref}
+                  onClick={onMobileNavClick(dashboardHref)}
                   className="rounded-xl border border-blue-200 bg-white px-4 py-3 text-sm font-semibold text-gray-900 hover:bg-blue-50 transition min-h-[44px] flex items-center justify-between"
                 >
                   Dashboard
@@ -411,7 +419,7 @@ export function SiteHeader({ primaryCtaHref = '/boeken', primaryCtaLabel = 'Boek
             <div className="hidden md:flex md:items-center md:gap-3 lg:gap-4">
               {session && (
                 <Link
-                  href="/dashboard"
+                  href={dashboardHref}
                   className="text-gray-700 hover:text-blue-600 font-medium transition whitespace-nowrap"
                 >
                   Dashboard

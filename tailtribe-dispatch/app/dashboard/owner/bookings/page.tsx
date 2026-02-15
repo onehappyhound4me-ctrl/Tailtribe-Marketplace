@@ -89,6 +89,7 @@ export default function OwnerBookingsPage() {
   const [bulkApproveProgress, setBulkApproveProgress] = useState<{ done: number; total: number } | null>(null)
   const [focusMsg, setFocusMsg] = useState<string | null>(null)
   const [focusError, setFocusError] = useState<string | null>(null)
+  const [fromParam, setFromParam] = useState('')
 
   const dismissSuccess = () => {
     window.history.replaceState({}, '', '/dashboard/owner/bookings')
@@ -111,6 +112,11 @@ export default function OwnerBookingsPage() {
     if (caregiver) {
       setFocusCaregiverId(caregiver)
     }
+  }, [])
+
+  useEffect(() => {
+    // Used by BackButton (via ?from=) when chat is opened in a new tab (no history).
+    setFromParam(encodeURIComponent(`${window.location.pathname}${window.location.search ?? ''}`))
   }, [])
 
   useEffect(() => {
@@ -560,7 +566,7 @@ export default function OwnerBookingsPage() {
                             )}
                             {CHAT_ELIGIBLE_STATUSES.has(booking.status) && (
                               <Link
-                                href={`/chat/${booking.id}`}
+                                href={fromParam ? `/chat/${booking.id}?from=${fromParam}` : `/chat/${booking.id}`}
                                 className="text-sm text-emerald-700 font-semibold hover:underline"
                               >
                               Chat

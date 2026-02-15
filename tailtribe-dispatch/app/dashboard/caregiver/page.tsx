@@ -53,6 +53,7 @@ export default function CaregiverDashboardPage() {
   const [bookings, setBookings] = useState<Booking[]>([])
   const [loading, setLoading] = useState(true)
   const [impersonationLoading, setImpersonationLoading] = useState(false)
+  const [fromParam, setFromParam] = useState('')
 
   useEffect(() => {
     if (status === 'authenticated') {
@@ -60,6 +61,11 @@ export default function CaregiverDashboardPage() {
       fetchBookings()
     }
   }, [status])
+
+  useEffect(() => {
+    // Used by BackButton (via ?from=) when chat is opened in a new tab (no history).
+    setFromParam(encodeURIComponent(`${window.location.pathname}${window.location.search ?? ''}`))
+  }, [])
 
   const fetchProfile = async () => {
     try {
@@ -268,7 +274,7 @@ export default function CaregiverDashboardPage() {
                             </span>
                             {['CONFIRMED', 'COMPLETED'].includes(booking.status) && (
                               <Link
-                                href={`/chat/${booking.id}`}
+                                href={fromParam ? `/chat/${booking.id}?from=${fromParam}` : `/chat/${booking.id}`}
                                 className="text-xs font-semibold text-emerald-700 hover:underline whitespace-nowrap"
                               >
                                 Chat

@@ -90,6 +90,7 @@ export default function OwnerDashboardPage() {
   const [approveProgress, setApproveProgress] = useState<{ done: number; total: number } | null>(null)
   const [rejectLoadingCaregiverId, setRejectLoadingCaregiverId] = useState<string | null>(null)
   const [rejectError, setRejectError] = useState<string | null>(null)
+  const [fromParam, setFromParam] = useState('')
 
   const notificationsLoadingRef = useRef(false)
 
@@ -155,6 +156,11 @@ export default function OwnerDashboardPage() {
       fetchNotifications()
     }
   }, [status, fetchProfile, fetchBookings, fetchNotifications])
+
+  useEffect(() => {
+    // Used by BackButton (via ?from=) when chat is opened in a new tab (no history).
+    setFromParam(encodeURIComponent(`${window.location.pathname}${window.location.search ?? ''}`))
+  }, [])
 
   const markNotificationsRead = async (ids: string[]) => {
     if (!ids || ids.length === 0) return
@@ -723,7 +729,7 @@ export default function OwnerDashboardPage() {
                           <div className="flex flex-col items-end gap-2">
                             {booking.caregiver && CHAT_ELIGIBLE_STATUSES.has(booking.status) && (
                               <Link
-                                href={`/chat/${booking.id}`}
+                                href={fromParam ? `/chat/${booking.id}?from=${fromParam}` : `/chat/${booking.id}`}
                                 className="text-sm text-emerald-700 font-semibold hover:underline"
                               >
                                 Chat

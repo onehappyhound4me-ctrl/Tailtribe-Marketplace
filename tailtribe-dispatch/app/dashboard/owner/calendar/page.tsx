@@ -66,9 +66,15 @@ export default function OwnerCalendarPage() {
   const [currentDate, setCurrentDate] = useState(new Date())
   const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null)
   const [showBookingModal, setShowBookingModal] = useState(false)
+  const [fromParam, setFromParam] = useState('')
 
   useEffect(() => {
     fetchBookings()
+  }, [])
+
+  useEffect(() => {
+    // Used by BackButton (via ?from=) when chat is opened in a new tab (no history).
+    setFromParam(encodeURIComponent(`${window.location.pathname}${window.location.search ?? ''}`))
   }, [])
 
   const fetchBookings = async () => {
@@ -434,7 +440,7 @@ export default function OwnerCalendarPage() {
             <div className="mt-6 flex flex-wrap gap-3 justify-end">
               {selectedBooking.caregiver && ['CONFIRMED', 'COMPLETED'].includes(selectedBooking.status) ? (
                 <a
-                  href={`/chat/${selectedBooking.id}`}
+                  href={fromParam ? `/chat/${selectedBooking.id}?from=${fromParam}` : `/chat/${selectedBooking.id}`}
                   className="px-6 py-3 bg-emerald-600 text-white rounded-xl font-semibold hover:bg-emerald-700 transition"
                 >
                   Chat

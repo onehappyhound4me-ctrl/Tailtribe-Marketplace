@@ -5,6 +5,7 @@ import prisma from '@/lib/prisma'
 import { DISPATCH_SERVICES } from '@/lib/services'
 import { SiteHeader } from '@/components/SiteHeader'
 import { SiteFooter } from '@/components/SiteFooter'
+import { BackButton } from '@/components/navigation/BackButton'
 
 export const runtime = 'nodejs'
 
@@ -84,9 +85,14 @@ export default async function OwnerCaregiverProfilePage({
       <main className="container mx-auto px-4" style={{ paddingTop: '3rem', paddingBottom: '5rem' }}>
         <div className="max-w-3xl mx-auto">
           <div className="mb-4">
-            <Link href="/dashboard/owner" className="text-sm font-semibold text-emerald-700 hover:underline">
-              ← Terug naar dashboard
-            </Link>
+            <BackButton
+              fallbackHref="/dashboard/owner"
+              ariaLabel="Terug naar dashboard"
+              className="text-sm font-semibold text-emerald-700 hover:underline inline-flex items-center gap-2"
+            >
+              <span aria-hidden="true">←</span>
+              <span>Terug naar dashboard</span>
+            </BackButton>
           </div>
 
           <div className="bg-white rounded-2xl shadow-sm border border-black/5 p-6">

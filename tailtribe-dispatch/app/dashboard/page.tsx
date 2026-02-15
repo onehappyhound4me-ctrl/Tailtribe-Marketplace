@@ -12,20 +12,20 @@ export default function DashboardPage() {
     if (status === 'loading') return
 
     if (!session) {
-      router.push('/login')
+      router.replace('/login')
       return
     }
 
     // Redirect based on role
     const role = session.user.role
     if (role === 'ADMIN') {
-      router.push('/admin')
+      router.replace('/admin')
     } else if (role === 'CAREGIVER') {
-      router.push('/dashboard/caregiver')
+      router.replace('/dashboard/caregiver')
     } else if (role === 'OWNER') {
-      router.push('/dashboard/owner')
+      router.replace('/dashboard/owner')
     } else {
-      router.push('/login')
+      router.replace('/login')
     }
   }, [session, status, router])
 
