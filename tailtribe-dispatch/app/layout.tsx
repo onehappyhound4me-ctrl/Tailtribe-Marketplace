@@ -5,6 +5,7 @@ import { BackButtonFloating } from '@/components/BackButtonFloating'
 import { CookieConsent } from '@/components/CookieConsent'
 import { NavigationClickGuards } from '@/components/NavigationClickGuards'
 import { AnalyticsLoader } from '../components/AnalyticsLoader'
+import { AnalyticsDebugBadge } from '@/components/AnalyticsDebugBadge'
 import { getPublicAppUrl } from '@/lib/env'
 
 const appUrl = getPublicAppUrl()
@@ -65,6 +66,7 @@ export default function RootLayout({
         <SessionProvider>
           <NavigationClickGuards />
           <AnalyticsLoader />
+          <AnalyticsDebugBadge />
           <BackButtonFloating />
           <CookieConsent />
           <script
