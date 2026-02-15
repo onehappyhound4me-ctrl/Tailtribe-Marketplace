@@ -70,7 +70,8 @@ export function AnalyticsLoader() {
               window.dataLayer = window.dataLayer || [];
               function gtag(){dataLayer.push(arguments);}
               gtag('js', new Date());
-              gtag('config', '${gaId}', { anonymize_ip: true });
+              // We send page_view manually on App Router navigations.
+              gtag('config', '${gaId}', { anonymize_ip: true, send_page_view: false });
             `}
           </Script>
         </>

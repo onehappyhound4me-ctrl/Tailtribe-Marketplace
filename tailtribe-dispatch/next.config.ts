@@ -2,9 +2,9 @@ import type { NextConfig } from "next";
 
 const isDev = process.env.NODE_ENV !== "production";
 const isProd = !isDev;
-const hasAnalytics = Boolean(
-  String(process.env.NEXT_PUBLIC_GA_ID ?? "").trim() || String(process.env.NEXT_PUBLIC_GTM_ID ?? "").trim()
-)
+const gaId = String(process.env.NEXT_PUBLIC_GA_ID ?? "").trim()
+const gtmId = String(process.env.NEXT_PUBLIC_GTM_ID ?? "").trim()
+const hasAnalytics = Boolean(gaId || gtmId)
 
 function assertNoTrailingSlashEnv(name: string) {
   const v = String(process.env[name] ?? "").trim();
@@ -76,6 +76,28 @@ const nextConfig: NextConfig = {
     ];
   },
   async headers() {
+    const scriptSrc = [
+      "'self'",
+      "'unsafe-inline'",
+      // GA4 / GTM loader
+      "https://www.googletagmanager.com",
+      // GA endpoints
+      "https://www.google-analytics.com",
+      // Allow future GA subresources without opening up eval.
+    ]
+
+    const connectSrc = [
+      "'self'",
+      // GA measurement hits (v2)
+      "https://www.google-analytics.com",
+      "https://region1.google-analytics.com",
+      "https://region2.google-analytics.com",
+      "https://stats.g.doubleclick.net",
+      // Keep existing allowances for the app (avoid breaking other HTTPS/WSS calls).
+      "https:",
+      "wss:",
+    ]
+
     const csp = [
       "default-src 'self'",
       "base-uri 'self'",
@@ -86,9 +108,9 @@ const nextConfig: NextConfig = {
       "style-src 'self' 'unsafe-inline' https:",
       // Next.js uses some inline scripts for hydration/runtime. Without 'unsafe-inline',
       // browsers can block JS and the UI can get stuck on "Laden...".
-      // GA4 / gtag can require eval/new Function in some environments; allow unsafe-eval only when analytics is enabled.
-      `script-src 'self' 'unsafe-inline'${isDev || hasAnalytics ? " 'unsafe-eval'" : ""} https:`,
-      "connect-src 'self' https: wss:",
+      // IMPORTANT: keep production strict (no unsafe-eval). Only allowlist GA/GTM script origins.
+      `script-src ${scriptSrc.join(" ")}`,
+      `connect-src ${connectSrc.join(" ")}`,
     ].join("; ");
 
     return [

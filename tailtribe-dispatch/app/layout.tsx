@@ -1,10 +1,12 @@
 import type { Metadata } from 'next'
 import './globals.css'
+import { Suspense } from 'react'
 import { SessionProvider } from '@/components/SessionProvider'
 import { BackButtonFloating } from '@/components/BackButtonFloating'
 import { CookieConsent } from '@/components/CookieConsent'
 import { NavigationClickGuards } from '@/components/NavigationClickGuards'
 import { AnalyticsLoader } from '../components/AnalyticsLoader'
+import { AnalyticsPageView } from '@/components/AnalyticsPageView'
 import { AnalyticsDebugBadge } from '@/components/AnalyticsDebugBadge'
 import { getPublicAppUrl } from '@/lib/env'
 
@@ -66,6 +68,9 @@ export default function RootLayout({
         <SessionProvider>
           <NavigationClickGuards />
           <AnalyticsLoader />
+          <Suspense fallback={null}>
+            <AnalyticsPageView />
+          </Suspense>
           <AnalyticsDebugBadge />
           <BackButtonFloating />
           <CookieConsent />
