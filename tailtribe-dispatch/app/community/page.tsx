@@ -219,12 +219,6 @@ export default function CommunityPage() {
             <section className="bg-white rounded-2xl shadow-md border border-gray-100 p-6 space-y-5">
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <h2 className="text-xl font-bold text-gray-900">Topics</h2>
-                <button
-                  onClick={() => setView('chat')}
-                  className="px-4 py-2 rounded-full bg-emerald-600 text-white text-sm font-semibold hover:bg-emerald-700 transition"
-                >
-                  Naar chat
-                </button>
               </div>
               <div className="grid sm:grid-cols-2 gap-4">
                 {rooms.map((room) => (
