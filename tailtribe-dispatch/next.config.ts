@@ -2,6 +2,9 @@ import type { NextConfig } from "next";
 
 const isDev = process.env.NODE_ENV !== "production";
 const isProd = !isDev;
+const hasAnalytics = Boolean(
+  String(process.env.NEXT_PUBLIC_GA_ID ?? "").trim() || String(process.env.NEXT_PUBLIC_GTM_ID ?? "").trim()
+)
 
 function assertNoTrailingSlashEnv(name: string) {
   const v = String(process.env[name] ?? "").trim();
@@ -83,7 +86,8 @@ const nextConfig: NextConfig = {
       "style-src 'self' 'unsafe-inline' https:",
       // Next.js uses some inline scripts for hydration/runtime. Without 'unsafe-inline',
       // browsers can block JS and the UI can get stuck on "Laden...".
-      `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ""} https:`,
+      // GA4 / gtag can require eval/new Function in some environments; allow unsafe-eval only when analytics is enabled.
+      `script-src 'self' 'unsafe-inline'${isDev || hasAnalytics ? " 'unsafe-eval'" : ""} https:`,
       "connect-src 'self' https: wss:",
     ].join("; ");
 
