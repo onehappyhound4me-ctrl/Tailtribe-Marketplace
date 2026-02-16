@@ -54,6 +54,26 @@ function randomId() {
   return `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`
 }
 
+function setLastEmailStatus(status: {
+  ok: boolean
+  provider: 'resend' | 'smtp' | 'none'
+  toMasked: string
+  subject: string
+  requestId: string
+  detail?: string
+  meta?: Record<string, string>
+}) {
+  try {
+    ;(globalThis as any).__tt_last_email_status = {
+      at: new Date().toISOString(),
+      ...status,
+      detail: status.detail ? String(status.detail).slice(0, 800) : undefined,
+    }
+  } catch {
+    // ignore
+  }
+}
+
 function assertEmailConfig({ required, resendKey, smtpHost, smtpUser, smtpPass }: { required?: boolean; resendKey: string; smtpHost?: string; smtpUser?: string; smtpPass?: string }) {
   if (!required) return
   const hasResend = Boolean(resendKey)
@@ -136,9 +156,19 @@ export async function sendTransactionalEmail({ to, subject, html, text, replyTo,
             response: body.slice(0, 2000),
           })
         )
+        setLastEmailStatus({
+          ok: false,
+          provider: 'resend',
+          toMasked,
+          subject,
+          requestId,
+          detail: `Resend ${res.status}: ${body}`.slice(0, 800),
+          meta,
+        })
         throw new Error(`Resend email failed (${res.status}) from="${fromOverride}": ${body}`.slice(0, 2000))
       }
       console.log(JSON.stringify({ ...baseLog, level: 'info', provider: 'resend', from: fromOverride, status: res.status, ok: true }))
+      setLastEmailStatus({ ok: true, provider: 'resend', toMasked, subject, requestId, meta })
     }
 
     const shouldStripReplyTo = (errMessage: string) => {
@@ -183,6 +213,15 @@ export async function sendTransactionalEmail({ to, subject, html, text, replyTo,
 
   if (!smtpHost || !smtpUser) {
     console.log('Email not configured:', { to, subject })
+    setLastEmailStatus({
+      ok: false,
+      provider: 'none',
+      toMasked,
+      subject,
+      requestId,
+      detail: 'Email not configured (missing RESEND_API_KEY or SMTP_HOST/SMTP_USER)',
+      meta,
+    })
     if (required) {
       throw new Error('Email not configured (missing RESEND_API_KEY or SMTP_HOST/SMTP_USER)')
     }
@@ -221,8 +260,18 @@ export async function sendTransactionalEmail({ to, subject, html, text, replyTo,
       ...(finalReplyTo ? { replyTo: finalReplyTo } : {}),
     })
     console.log(JSON.stringify({ ...baseLog, level: 'info', provider: 'smtp', ok: true }))
+    setLastEmailStatus({ ok: true, provider: 'smtp', toMasked, subject, requestId, meta })
   } catch (error) {
     console.error('SMTP email failed:', error)
+    setLastEmailStatus({
+      ok: false,
+      provider: 'smtp',
+      toMasked,
+      subject,
+      requestId,
+      detail: error instanceof Error ? error.message : String(error),
+      meta,
+    })
     if (required) throw error
   }
 }
