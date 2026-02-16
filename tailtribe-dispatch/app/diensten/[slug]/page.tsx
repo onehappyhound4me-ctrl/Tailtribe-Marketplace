@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { SiteHeader } from '@/components/SiteHeader'
 import { SiteFooter } from '@/components/SiteFooter'
+import { ProviderSpotlight } from '@/components/ProviderSpotlight'
 import { DISPATCH_SERVICES, getDispatchServiceBySlug } from '@/lib/services'
 import { SERVICE_ICON_FILTER, withAssetVersion } from '@/lib/service-icons'
 import { routes } from '@/lib/routes'
@@ -184,6 +185,17 @@ export default function DienstDetailPage({ params }: Props) {
           </header>
 
           <section className="mt-8 md:mt-10 space-y-6 md:space-y-8">
+            {service.providerSpotlight ? (
+              <ProviderSpotlight
+                name={service.providerSpotlight.name}
+                href={service.providerSpotlight.href}
+                label={service.providerSpotlight.label}
+                areas={service.providerSpotlight.areas}
+                availabilityText={service.providerSpotlight.availabilityText}
+                ctaLabel={service.providerSpotlight.ctaLabel}
+                note={service.providerSpotlight.note}
+              />
+            ) : null}
             <div className="bg-white rounded-2xl shadow-sm border border-black/5 p-5 sm:p-6 md:p-8">
               <h2 className="text-xl sm:text-2xl md:text-3xl font-semibold text-transparent bg-clip-text bg-gradient-to-r from-emerald-700 to-blue-700 mb-4">
                 Waarom deze dienst?

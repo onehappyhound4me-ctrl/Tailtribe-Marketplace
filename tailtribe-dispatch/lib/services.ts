@@ -23,6 +23,29 @@ export type DispatchService = {
     includesText?: string
     tips?: string[]
   }
+  /**
+   * Optional: highlight an external provider/brand that currently delivers this service in a specific area.
+   * This lets TailTribe scale to multiple providers later without hardcoding UI logic per page.
+   */
+  providerSpotlight?: {
+    name: string
+    href: string
+    label?: string
+    /**
+     * Short, human-friendly availability sentence shown on the service page.
+     * Example: "Momenteel beschikbaar in Antwerpen (rand) en Noord Antwerpen (Kapellen–Brasschaat–Kalmthout)."
+     */
+    availabilityText?: string
+    /**
+     * Optional list of areas (kept for future filtering/expansion).
+     */
+    areas: string[]
+    /**
+     * Button text override for the external link.
+     */
+    ctaLabel?: string
+    note?: string
+  }
 }
 
 // Canonical services list (match SaaS labels + use original assets)
@@ -66,6 +89,14 @@ export const DISPATCH_SERVICES: DispatchService[] = [
     slug: 'groepsuitlaat',
     image: '/assets/groepsuitlaat.png',
     detailTitle: 'Groepsuitlaat-avontuurlijke daguitstappen',
+    providerSpotlight: {
+      name: 'One Happy Hound',
+      href: 'https://onehappyhound.be/?utm_source=tailtribe&utm_medium=referral&utm_campaign=groepsuitlaat',
+      label: 'onehappyhound.be',
+      areas: ['Kalmthout', 'Kapellen', 'Brasschaat', 'Antwerpen (rand)'],
+      availabilityText: 'Momenteel beschikbaar in Antwerpen (+rand) en Antwerpen Noord (Kapellen-Brasschaat-Kalmthout).',
+      ctaLabel: 'Boek via onehappyhound.be',
+    },
     longDescription: {
       why: [
         'Ideaal voor honden die sociaal zijn en graag samen wandelen.',
