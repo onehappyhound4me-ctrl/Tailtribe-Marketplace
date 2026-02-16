@@ -4,9 +4,11 @@ import { prisma } from '@/lib/prisma'
 import { getTodayStringInZone } from '@/lib/date-utils'
 import { getImpersonationContext } from '@/lib/impersonation'
 import { createNotification } from '@/lib/notifications'
-import { sendAdminOwnerConfirmedEmail, sendAssignmentEmail, sendOwnerAssignmentEmail } from '@/lib/email'
+import { buildAdminBookingReceivedEmail, sendAdminOwnerConfirmedEmail, sendAssignmentEmail, sendOwnerAssignmentEmail } from '@/lib/email'
+import { sendTransactionalEmail } from '@/lib/mailer'
 import { SERVICE_LABELS } from '@/lib/services'
 import { getEligibleCaregiversWithOptions } from '@/lib/matching'
+import { getPublicAppUrl } from '@/lib/env'
 
 export async function GET(request: NextRequest) {
   const session = await auth()
@@ -207,6 +209,50 @@ export async function POST(request: NextRequest) {
         status: 'PENDING',
       },
     })
+
+    // Notify admin (best-effort)
+    void (async () => {
+      try {
+        const owner = await prisma.user.findUnique({
+          where: { id: session.user.id },
+          select: { email: true, firstName: true, lastName: true, phone: true },
+        })
+        const appUrl = getPublicAppUrl()
+        const adminEmail = process.env.DISPATCH_ADMIN_EMAIL ?? 'steven@tailtribe.be'
+        const serviceLabel = SERVICE_LABELS[service as keyof typeof SERVICE_LABELS] ?? String(service)
+        const timeWindowLabel =
+          { MORNING: 'Ochtend', AFTERNOON: 'Namiddag', EVENING: 'Avond', NIGHT: 'Nacht' }[String(timeWindow)] ?? String(timeWindow)
+        const slotsText = `${date} • ${timeWindowLabel}${time ? ` • ${time}` : ''}`
+        const contactPreferenceLabel =
+          { email: 'E-mail', phone: 'Telefoon', whatsapp: 'WhatsApp' }[String(contactPreference || 'email')] ??
+          String(contactPreference || 'email')
+
+        const payload = buildAdminBookingReceivedEmail({
+          firstName: owner?.firstName ?? 'Owner',
+          lastName: owner?.lastName ?? '',
+          serviceLabel,
+          slotsText,
+          city,
+          postalCode,
+          email: owner?.email ?? '',
+          phone: owner?.phone ?? undefined,
+          contactPreferenceLabel,
+          petName,
+          petType,
+          message: message || null,
+          appUrl,
+        })
+
+        await sendTransactionalEmail({
+          to: adminEmail,
+          subject: payload.subject,
+          html: payload.html,
+          replyTo: owner?.email ?? undefined,
+        })
+      } catch (e) {
+        console.error('Failed to send admin email for owner booking:', e)
+      }
+    })()
 
     return NextResponse.json(booking)
   } catch (error) {
