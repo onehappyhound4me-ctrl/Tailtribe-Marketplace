@@ -34,7 +34,11 @@ export function ProviderSpotlight({
               Momenteel beschikbaar in: <span className="font-semibold text-gray-900">{areas.join(' • ')}</span>
             </p>
           )}
-          {note ? <p className="mt-3 text-sm text-gray-600 leading-relaxed">{note}</p> : null}
+          {note ? (
+            <div className="mt-3 inline-flex items-center rounded-xl bg-white/80 border border-emerald-100 px-3 py-2 text-sm font-semibold text-emerald-900">
+              {note}
+            </div>
+          ) : null}
         </div>
 
         <div className="flex-shrink-0">

@@ -416,7 +416,59 @@ type AdminOwnerConfirmedEmailInput = {
   link?: string
 }
 
-const ADMIN_NOTIFICATION_EMAIL = 'steven@tailtribe.be'
+function adminNotificationEmail() {
+  const fromDispatch = String(process.env.DISPATCH_ADMIN_EMAIL ?? '').trim()
+  if (fromDispatch) return fromDispatch
+
+  // Reasonable fallback: the credentials-admin email (if configured).
+  const fromAdminLogin = String(process.env.ADMIN_LOGIN_EMAIL ?? '').trim()
+  if (fromAdminLogin) return fromAdminLogin
+
+  // Safe last resort.
+  return 'steven@tailtribe.be'
+}
+
+type AdminUserRegisteredEmailInput = {
+  email: string
+  firstName: string
+  lastName: string
+  role: 'OWNER' | 'CAREGIVER'
+  city?: string | null
+  postalCode?: string | null
+}
+
+export async function sendAdminUserRegisteredEmail(input: AdminUserRegisteredEmailInput) {
+  const subject = `Nieuwe registratie – ${input.role} (${input.firstName} ${input.lastName})`
+  const html = `
+    <div style="font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; line-height: 1.5; color: #111827;">
+      <h2 style="margin: 0 0 12px 0;">Nieuwe registratie</h2>
+      <div style="background:#F9FAFB;border:1px solid #E5E7EB;border-radius:12px;padding:14px;">
+        <p style="margin:0 0 6px 0;"><strong>Rol:</strong> ${input.role}</p>
+        <p style="margin:0 0 6px 0;"><strong>Naam:</strong> ${escapeHtml(input.firstName)} ${escapeHtml(input.lastName)}</p>
+        <p style="margin:0 0 6px 0;"><strong>E-mail:</strong> ${escapeHtml(input.email)}</p>
+        ${
+          input.city || input.postalCode
+            ? `<p style="margin:0;"><strong>Locatie:</strong> ${escapeHtml(String(input.city ?? ''))}${
+                input.postalCode ? `, ${escapeHtml(String(input.postalCode))}` : ''
+              }</p>`
+            : ''
+        }
+      </div>
+      <p style="margin:16px 0 0 0;">
+        <a href="${baseUrl()}/admin" style="display:inline-block;background:#10B981;color:white;text-decoration:none;padding:10px 14px;border-radius:10px;font-weight:600;">
+          Open admin dashboard
+        </a>
+      </p>
+    </div>
+  `
+
+  await sendTransactionalEmail({
+    to: adminNotificationEmail(),
+    subject,
+    html,
+    meta: { kind: 'admin-user-registered' },
+  })
+}
 
 export async function sendAdminOwnerConfirmedEmail(input: AdminOwnerConfirmedEmailInput) {
   const { service, date, timeWindow, time, ownerName, caregiverName, location, link } = input
@@ -446,7 +498,7 @@ export async function sendAdminOwnerConfirmedEmail(input: AdminOwnerConfirmedEma
   `
 
   await sendTransactionalEmail({
-    to: ADMIN_NOTIFICATION_EMAIL,
+    to: adminNotificationEmail(),
     subject,
     html,
   })

@@ -50,6 +50,14 @@ RESET_PASSWORD_ADMIN_KEY=
 # Gebruik een verified domain/sender in Resend (SPF/DKIM).
 DISPATCH_EMAIL_FROM=TailTribe <noreply@tailtribe.be>
 DISPATCH_EMAIL_REPLY_TO=support@tailtribe.be
+
+# Admin notificaties (aanvragen/aanmeldingen/registraties)
+# Default fallback in code is steven@tailtribe.be, maar zet dit expliciet in productie.
+DISPATCH_ADMIN_EMAIL=steven@tailtribe.be
+
+# (Optioneel) Admin testmail endpoint
+# Gebruik dezelfde RESET_PASSWORD_ADMIN_KEY als Bearer token om een testmail te triggeren via:
+# POST /api/admin/test-email
 ```
 
 ## Local iPhone testing (Google OAuth)

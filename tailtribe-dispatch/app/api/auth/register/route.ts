@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import bcrypt from 'bcryptjs'
 import crypto from 'crypto'
-import { sendVerificationEmail } from '@/lib/email'
+import { sendAdminUserRegisteredEmail, sendVerificationEmail } from '@/lib/email'
 import { checkRateLimit } from '@/lib/rate-limit'
 
 function normalizeEmail(value: unknown) {
@@ -192,6 +192,22 @@ export async function POST(request: NextRequest) {
         { status: 500 }
       )
     }
+
+    // Notify admin (best-effort; never block registration).
+    void (async () => {
+      try {
+        await sendAdminUserRegisteredEmail({
+          email: emailNormalized,
+          firstName: String(firstName).trim(),
+          lastName: String(lastName).trim(),
+          role,
+          city: role === 'OWNER' ? String(city).trim() : null,
+          postalCode: role === 'OWNER' ? String(postalCode).trim() : null,
+        })
+      } catch (notifyErr) {
+        console.error('Failed to send admin registration notification email:', notifyErr)
+      }
+    })()
 
     return NextResponse.json({
       success: true,

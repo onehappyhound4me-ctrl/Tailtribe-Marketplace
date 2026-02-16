@@ -96,6 +96,7 @@ export const DISPATCH_SERVICES: DispatchService[] = [
       areas: ['Kalmthout', 'Kapellen', 'Brasschaat', 'Antwerpen (rand)'],
       availabilityText: 'Momenteel beschikbaar in Antwerpen (+rand) en Antwerpen Noord (Kapellen-Brasschaat-Kalmthout).',
       ctaLabel: 'Boek via onehappyhound.be',
+      note: 'Boeken kan via One Happy Hound.',
     },
     longDescription: {
       why: [
