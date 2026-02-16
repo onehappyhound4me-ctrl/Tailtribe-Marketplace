@@ -57,11 +57,13 @@ function randomId() {
 function setLastEmailStatus(status: {
   ok: boolean
   provider: 'resend' | 'smtp' | 'none'
+  to?: string
   toMasked: string
   subject: string
   requestId: string
   detail?: string
   meta?: Record<string, string>
+  replyTo?: string
 }) {
   try {
     ;(globalThis as any).__tt_last_email_status = {
@@ -159,16 +161,18 @@ export async function sendTransactionalEmail({ to, subject, html, text, replyTo,
         setLastEmailStatus({
           ok: false,
           provider: 'resend',
+          to,
           toMasked,
           subject,
           requestId,
           detail: `Resend ${res.status}: ${body}`.slice(0, 800),
           meta,
+          replyTo: replyToOverride || undefined,
         })
         throw new Error(`Resend email failed (${res.status}) from="${fromOverride}": ${body}`.slice(0, 2000))
       }
       console.log(JSON.stringify({ ...baseLog, level: 'info', provider: 'resend', from: fromOverride, status: res.status, ok: true }))
-      setLastEmailStatus({ ok: true, provider: 'resend', toMasked, subject, requestId, meta })
+      setLastEmailStatus({ ok: true, provider: 'resend', to, toMasked, subject, requestId, meta, replyTo: replyToOverride || undefined })
     }
 
     const shouldStripReplyTo = (errMessage: string) => {
@@ -216,11 +220,13 @@ export async function sendTransactionalEmail({ to, subject, html, text, replyTo,
     setLastEmailStatus({
       ok: false,
       provider: 'none',
+      to,
       toMasked,
       subject,
       requestId,
       detail: 'Email not configured (missing RESEND_API_KEY or SMTP_HOST/SMTP_USER)',
       meta,
+      replyTo: finalReplyTo || undefined,
     })
     if (required) {
       throw new Error('Email not configured (missing RESEND_API_KEY or SMTP_HOST/SMTP_USER)')
@@ -266,11 +272,13 @@ export async function sendTransactionalEmail({ to, subject, html, text, replyTo,
     setLastEmailStatus({
       ok: false,
       provider: 'smtp',
+      to,
       toMasked,
       subject,
       requestId,
       detail: error instanceof Error ? error.message : String(error),
       meta,
+      replyTo: finalReplyTo || undefined,
     })
     if (required) throw error
   }
