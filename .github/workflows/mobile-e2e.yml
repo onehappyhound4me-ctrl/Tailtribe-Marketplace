@@ -1,13 +1,16 @@
 name: Mobile E2E (Playwright)
 
+concurrency:
+  group: mobile-e2e-${{ github.ref }}
+  cancel-in-progress: true
+
 on:
+  workflow_dispatch:
   pull_request:
     paths:
       - "tailtribe-dispatch/**"
-  push:
-    branches: ["main"]
-    paths:
-      - "tailtribe-dispatch/**"
+  # Disabled on push to main to prevent repeated failure emails.
+  # Run on PRs (and manually) instead.
 
 jobs:
   mobile-e2e:
