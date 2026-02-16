@@ -166,6 +166,13 @@ export async function sendTransactionalEmail({ to, subject, html, text, replyTo,
           return
         } catch (fallbackError) {
           console.error('Resend fallback sender failed:', fallbackError)
+          const fallbackMsg =
+            fallbackError instanceof Error ? fallbackError.message : typeof fallbackError === 'string' ? fallbackError : String(fallbackError)
+          if (required) {
+            throw new Error(
+              `Resend primary send failed; fallback also failed. primary="${errMsg.slice(0, 800)}" fallback="${fallbackMsg.slice(0, 800)}"`
+            )
+          }
         }
       }
 
