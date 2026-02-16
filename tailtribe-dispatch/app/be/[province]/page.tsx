@@ -4,13 +4,14 @@ import { notFound } from 'next/navigation'
 import { SiteHeader } from '@/components/SiteHeader'
 import { SiteFooter } from '@/components/SiteFooter'
 import { getProvinceBySlug, getPlacesByProvince } from '@/data/be-geo'
+import { getPublicAppUrl } from '@/lib/env'
 
 type Props = {
   params: { province: string }
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://tailtribe.be'
+  const baseUrl = getPublicAppUrl()
   const province = getProvinceBySlug(params.province)
   if (!province) {
     return { title: 'Streek niet gevonden', description: 'De opgevraagde streek bestaat niet.' }
@@ -38,7 +39,7 @@ export default function ProvinceLandingPage({ params }: Props) {
   if (!province) notFound()
 
   const places = getPlacesByProvince(params.province)
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://tailtribe.be'
+  const baseUrl = getPublicAppUrl()
   const canonicalUrl = `${baseUrl}/be/${province.slug}`
 
   const breadcrumbJsonLd = {
@@ -134,6 +135,46 @@ export default function ProvinceLandingPage({ params }: Props) {
             </h1>
             {/* Offerte CTA verwijderd op verzoek */}
           </header>
+
+          {province.slug === 'antwerpen' ? (
+            <section className="bg-white rounded-2xl shadow-sm border border-black/5 p-6 mb-6">
+              <h2 className="text-2xl font-semibold text-gray-900 mb-2">Groepsuitlaat in Antwerpen</h2>
+              <p className="text-gray-700 leading-relaxed">
+                Actief in Groot Antwerpen (+rand) en Antwerpen Noord (Kapellen–Brasschaat–Kalmthout).
+                Kies je gemeente hieronder of lees eerst meer over de service.
+              </p>
+              <div className="mt-5 flex flex-col sm:flex-row gap-3">
+                <Link href="/boeken?service=GROUP_DOG_WALKING" className="btn-brand inline-flex">
+                  Boek groepsuitlaat
+                </Link>
+                <Link
+                  href="/diensten/groepsuitlaat"
+                  className="inline-flex items-center justify-center px-6 py-3 rounded-tt border border-emerald-200 bg-white text-emerald-900 hover:bg-emerald-50 transition"
+                >
+                  Info over groepsuitlaat
+                </Link>
+              </div>
+              <div className="mt-5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                {[
+                  { slug: 'antwerpen', label: 'Antwerpen' },
+                  { slug: 'berchem', label: 'Berchem' },
+                  { slug: 'wilrijk', label: 'Wilrijk' },
+                  { slug: 'brasschaat', label: 'Brasschaat' },
+                  { slug: 'kapellen', label: 'Kapellen' },
+                  { slug: 'kalmthout', label: 'Kalmthout' },
+                ].map((p) => (
+                  <Link
+                    key={p.slug}
+                    href={`/be/antwerpen/${p.slug}`}
+                    className="group bg-gray-50 rounded-xl border border-black/5 px-4 py-3 text-gray-800 hover:bg-white hover:shadow-sm transition"
+                  >
+                    <div className="font-semibold group-hover:text-green-700 transition-colors">{p.label}</div>
+                    <div className="text-xs text-gray-500 mt-1">Groepsuitlaat →</div>
+                  </Link>
+                ))}
+              </div>
+            </section>
+          ) : null}
 
           <section className="bg-white rounded-2xl shadow-sm border border-black/5 p-6 mb-6">
             <h2 className="text-2xl font-semibold text-gray-900 mb-3">Lokale verzorgers in {province.name}</h2>

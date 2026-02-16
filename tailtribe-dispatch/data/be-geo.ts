@@ -16,9 +16,19 @@ export type BEProvince = {
 // Flanders - comprehensive coverage
 const antwerpenPlaces: BEPlace[] = [
   { name: 'Antwerpen', slug: 'antwerpen', lat: 51.2194, lng: 4.4025 },
+  // Antwerp city districts (useful for local landing pages)
+  { name: 'Berchem', slug: 'berchem', lat: 51.1985, lng: 4.4310 },
+  { name: 'Wilrijk', slug: 'wilrijk', lat: 51.1680, lng: 4.3990 },
+  { name: 'Deurne', slug: 'deurne', lat: 51.2210, lng: 4.4660 },
+  { name: 'Borgerhout', slug: 'borgerhout', lat: 51.2140, lng: 4.4450 },
+  { name: 'Merksem', slug: 'merksem', lat: 51.2510, lng: 4.4460 },
+  { name: 'Hoboken', slug: 'hoboken', lat: 51.1770, lng: 4.3520 },
+  { name: 'Ekeren', slug: 'ekeren', lat: 51.2800, lng: 4.4180 },
   { name: 'Mechelen', slug: 'mechelen', lat: 51.0259, lng: 4.4775 },
   { name: 'Turnhout', slug: 'turnhout', lat: 51.3227, lng: 4.9447 },
   { name: 'Mol', slug: 'mol', lat: 51.1925, lng: 5.1167 },
+  { name: 'Kalmthout', slug: 'kalmthout', lat: 51.3847, lng: 4.4751 },
+  { name: 'Kapellen', slug: 'kapellen', lat: 51.3136, lng: 4.4372 },
   { name: 'Heist-op-den-Berg', slug: 'heist-op-den-berg', lat: 51.0708, lng: 4.7281 },
   { name: 'Lier', slug: 'lier', lat: 51.1314, lng: 4.5697 },
   { name: 'Hoogstraten', slug: 'hoogstraten', lat: 51.4, lng: 4.7597 },

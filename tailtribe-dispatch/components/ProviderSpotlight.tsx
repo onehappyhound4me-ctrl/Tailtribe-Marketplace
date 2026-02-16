@@ -8,6 +8,7 @@ type ProviderSpotlightProps = {
   availabilityText?: string
   ctaLabel?: string
   note?: string
+  showCta?: boolean
 }
 
 export function ProviderSpotlight({
@@ -18,10 +19,11 @@ export function ProviderSpotlight({
   availabilityText,
   ctaLabel,
   note,
+  showCta = true,
 }: ProviderSpotlightProps) {
   return (
     <aside className="bg-gradient-to-br from-emerald-50 to-blue-50 rounded-2xl border border-black/5 p-6 md:p-8">
-      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div className="min-w-0">
           <div className="inline-flex items-center gap-2 rounded-full bg-white/80 border border-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-900">
             Uitgevoerd door
@@ -41,16 +43,18 @@ export function ProviderSpotlight({
           ) : null}
         </div>
 
-        <div className="flex-shrink-0">
-          <ExternalLink
-            href={href}
-            className="btn-brand min-h-[44px]"
-            data-nav="external"
-            data-component="ProviderSpotlight"
-          >
-            {ctaLabel ?? `Bezoek ${label ?? 'website'}`}
-          </ExternalLink>
-        </div>
+        {showCta ? (
+          <div className="flex-shrink-0">
+            <ExternalLink
+              href={href}
+              className="btn-brand min-h-[44px] w-full sm:w-auto"
+              data-nav="external"
+              data-component="ProviderSpotlight"
+            >
+              {ctaLabel ?? `Bezoek ${label ?? 'website'}`}
+            </ExternalLink>
+          </div>
+        ) : null}
       </div>
     </aside>
   )

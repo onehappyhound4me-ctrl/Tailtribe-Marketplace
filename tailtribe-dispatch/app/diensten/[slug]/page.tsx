@@ -4,6 +4,7 @@ import { notFound } from 'next/navigation'
 import { SiteHeader } from '@/components/SiteHeader'
 import { SiteFooter } from '@/components/SiteFooter'
 import { ProviderSpotlight } from '@/components/ProviderSpotlight'
+import { ExternalLink } from '@/components/ExternalLink'
 import { DISPATCH_SERVICES, getDispatchServiceBySlug } from '@/lib/services'
 import { SERVICE_ICON_FILTER, withAssetVersion } from '@/lib/service-icons'
 import { routes } from '@/lib/routes'
@@ -171,6 +172,16 @@ export default function DienstDetailPage({ params }: Props) {
                 {service.desc}
               </p>
               <div className="mt-6 flex flex-col sm:flex-row gap-3 justify-center md:justify-start">
+                {service.id === 'GROUP_DOG_WALKING' && service.providerSpotlight ? (
+                  <ExternalLink
+                    href={service.providerSpotlight.href}
+                    className="btn-brand inline-flex"
+                    data-nav="external"
+                    data-component="DienstDetailPage.HeaderProviderCta"
+                  >
+                    {service.providerSpotlight.ctaLabel ?? `Bezoek ${service.providerSpotlight.label ?? 'website'}`}
+                  </ExternalLink>
+                ) : null}
                 <Link href={`/boeken?service=${service.id}`} className="btn-brand inline-block">
                   Aanvraag indienen
                 </Link>
@@ -194,6 +205,7 @@ export default function DienstDetailPage({ params }: Props) {
                 availabilityText={service.providerSpotlight.availabilityText}
                 ctaLabel={service.providerSpotlight.ctaLabel}
                 note={service.providerSpotlight.note}
+                showCta={service.id !== 'GROUP_DOG_WALKING'}
               />
             ) : null}
             <div className="bg-white rounded-2xl shadow-sm border border-black/5 p-5 sm:p-6 md:p-8">

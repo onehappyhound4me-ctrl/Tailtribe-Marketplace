@@ -94,7 +94,7 @@ export const DISPATCH_SERVICES: DispatchService[] = [
       href: 'https://onehappyhound.be/?utm_source=tailtribe&utm_medium=referral&utm_campaign=groepsuitlaat',
       label: 'onehappyhound.be',
       areas: ['Kalmthout', 'Kapellen', 'Brasschaat', 'Antwerpen (rand)'],
-      availabilityText: 'Momenteel beschikbaar in Antwerpen (+rand) en Antwerpen Noord (Kapellen-Brasschaat-Kalmthout).',
+      availabilityText: 'Actief in Groot Antwerpen (+rand) en Antwerpen Noord (Kapellen–Brasschaat–Kalmthout).',
       ctaLabel: 'Boek via onehappyhound.be',
       note: 'Boeken kan via One Happy Hound.',
     },
