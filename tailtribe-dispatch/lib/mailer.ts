@@ -96,14 +96,14 @@ export async function sendTransactionalEmail({ to, subject, html, text, replyTo,
       if (required) throw new Error(msg)
     }
 
-    const sendViaResend = async (fromOverride: string) => {
+    const sendViaResend = async (fromOverride: string, replyToOverride?: string | null) => {
       console.log(
         JSON.stringify({
           ...baseLog,
           level: 'info',
           provider: 'resend',
           from: fromOverride,
-          replyTo: finalReplyTo || undefined,
+          replyTo: replyToOverride || undefined,
           hasText: Boolean(text),
         })
       )
@@ -119,7 +119,7 @@ export async function sendTransactionalEmail({ to, subject, html, text, replyTo,
           subject,
           html,
           ...(text ? { text } : {}),
-          ...(finalReplyTo ? { reply_to: finalReplyTo } : {}),
+          ...(replyToOverride ? { reply_to: replyToOverride } : {}),
           ...(headers ? { headers } : {}),
         }),
         cache: 'no-store',
@@ -141,11 +141,19 @@ export async function sendTransactionalEmail({ to, subject, html, text, replyTo,
       console.log(JSON.stringify({ ...baseLog, level: 'info', provider: 'resend', from: fromOverride, status: res.status, ok: true }))
     }
 
+    const shouldStripReplyTo = (errMessage: string) => {
+      const msg = String(errMessage || '')
+      // Resend can reject both From and Reply-To when the domain isn't verified.
+      // When this happens, retry with a verified Resend sender AND without reply_to.
+      return /domain is not verified/i.test(msg) || /validation_error/i.test(msg)
+    }
+
     try {
-      await sendViaResend(from)
+      await sendViaResend(from, finalReplyTo)
       return
     } catch (error) {
       console.error('Resend email failed:', error)
+      const errMsg = error instanceof Error ? error.message : String(error)
 
       // Safety fallback: if a custom domain sender is not verified, Resend can reject.
       // Retry once with Resend's verified onboarding sender to keep verification emails working.
@@ -153,7 +161,8 @@ export async function sendTransactionalEmail({ to, subject, html, text, replyTo,
       if (from !== fallbackFrom) {
         try {
           console.log(JSON.stringify({ ...baseLog, level: 'warn', provider: 'resend', message: 'Retrying with Resend fallback sender.' }))
-          await sendViaResend(fallbackFrom)
+          const replyToForFallback = shouldStripReplyTo(errMsg) ? undefined : finalReplyTo
+          await sendViaResend(fallbackFrom, replyToForFallback)
           return
         } catch (fallbackError) {
           console.error('Resend fallback sender failed:', fallbackError)
