@@ -328,18 +328,7 @@ export default function HomePage() {
             ))}
           </div>
 
-          <div className="text-center mt-10">
-            {/* Always route via internal page for reliability (avoids iOS Safari white Google page). */}
-            <Link
-              href="/google-reviews"
-              className="inline-flex items-center justify-center gap-2 text-emerald-800 font-semibold hover:text-emerald-600 transition-colors"
-            >
-              Bekijk alle Google reviews (binnenkort)
-              <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="m9 5 7 7-7 7" />
-              </svg>
-            </Link>
-          </div>
+          {/* "Bekijk alle Google reviews" link tijdelijk verborgen. */}
         </div>
       </section>
 
