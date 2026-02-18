@@ -74,7 +74,8 @@ export function VisibilityDebugClient() {
   const gaId = (process.env.NEXT_PUBLIC_GA_ID ?? '').trim()
   const gtmId = (process.env.NEXT_PUBLIC_GTM_ID ?? '').trim()
 
-  const gtagType = typeof (window as any)?.gtag
+  const gtagType =
+    typeof window === 'undefined' ? 'undefined' : typeof (window as any).gtag
   const lastEvents = typeof window !== 'undefined' ? getLastTrackedEvents(20) : []
 
   return (
