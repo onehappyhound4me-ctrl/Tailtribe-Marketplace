@@ -16,7 +16,7 @@ export default async function middleware(req: NextRequest) {
   // Always allow static files (images, videos, source maps, etc.).
   // Otherwise middleware may redirect asset requests to /login (e.g. /tailtribe_logo_*.png),
   // which makes images "disappear" on mobile Safari.
-  if (/\.(?:png|jpg|jpeg|gif|webp|svg|ico|txt|xml|json|map|mp4|webm|css|js|mjs|woff2?|ttf|eot)$/i.test(pathname)) {
+  if (/\.(?:png|jpg|jpeg|gif|webp|svg|ico|txt|xml|json|map|mp4|webm|css|js|mjs|webmanifest|woff2?|ttf|eot)$/i.test(pathname)) {
     return NextResponse.next()
   }
 
@@ -80,6 +80,8 @@ export default async function middleware(req: NextRequest) {
     '/privacy',
     '/terms',
     '/cookies',
+    // Debug / health helpers (noindex via route metadata)
+    '/debug',
   ]
 
   const isPublicRoute =
