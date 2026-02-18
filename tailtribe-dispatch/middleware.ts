@@ -94,22 +94,20 @@ export default async function middleware(req: NextRequest) {
     return NextResponse.next()
   }
 
-  // Booking flow: only OWNER can use /boeken, everyone else must go via auth/dashboard.
+  // Booking page is public for SEO; only redirect for signed-in users.
   if (pathname === '/boeken') {
-    if (!isAuthed) {
-      const loginUrl = new URL('/login', req.url)
-      loginUrl.searchParams.set('callbackUrl', pathWithQuery)
-      return NextResponse.redirect(loginUrl)
-    }
-
-    if (role === 'OWNER') {
+    if (isAuthed && role === 'OWNER') {
       const url = new URL('/dashboard/owner/new-booking', req.url)
       const service = req.nextUrl.searchParams.get('service')
       if (service) url.searchParams.set('service', service)
       return NextResponse.redirect(url)
     }
 
-    return NextResponse.redirect(new URL('/dashboard', req.url))
+    if (isAuthed) {
+      return NextResponse.redirect(new URL('/dashboard', req.url))
+    }
+
+    return NextResponse.next()
   }
 
   // Admin routes: always require admin
