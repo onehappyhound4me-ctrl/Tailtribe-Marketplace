@@ -2,6 +2,7 @@ import type { NextConfig } from "next";
 
 const isDev = process.env.NODE_ENV !== "production";
 const isProd = !isDev;
+const vercelEnv = String(process.env.VERCEL_ENV ?? '').trim().toLowerCase()
 const gaId = String(process.env.NEXT_PUBLIC_GA_ID ?? "").trim()
 const gtmId = String(process.env.NEXT_PUBLIC_GTM_ID ?? "").trim()
 const hasAnalytics = Boolean(gaId || gtmId)
@@ -15,9 +16,12 @@ function assertNoTrailingSlashEnv(name: string) {
 }
 
 // Production parity checks at build time (fail fast, avoid "works in dev, breaks in prod").
-if (isProd) {
+// IMPORTANT: Vercel Preview deployments also build with NODE_ENV=production.
+// Only require production-only env vars on real production deployments.
+const isVercelProduction = vercelEnv === 'production'
+if (isProd && isVercelProduction) {
   if (!process.env.NEXT_PUBLIC_APP_URL) {
-    throw new Error("[env] NEXT_PUBLIC_APP_URL ontbreekt. Zet dit in Vercel (Production) en redeploy.");
+    throw new Error("[env] NEXT_PUBLIC_APP_URL ontbreekt. Zet dit in Vercel (Production) en redeploy.")
   }
   assertNoTrailingSlashEnv("NEXT_PUBLIC_APP_URL");
   assertNoTrailingSlashEnv("AUTH_URL");
