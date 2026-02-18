@@ -8,8 +8,11 @@ import { sendAssignmentEmail, sendCancellationEmail, sendOwnerAssignmentEmail } 
 import { assertCaregiverAvailable } from '@/lib/availability'
 import { SERVICE_LABELS } from '@/lib/services'
 import { provinceSlugFromPostalCode } from '@/data/be-geo'
+import { getPublicAppUrl } from '@/lib/env'
 
 export const dynamic = 'force-dynamic'
+
+const appUrl = getPublicAppUrl()
 
 async function ensureConversation(bookingId: string, ownerId: string, caregiverId: string) {
   await prisma.conversation.upsert({
@@ -265,7 +268,7 @@ export async function PATCH(req: NextRequest) {
               : ''
           }`.trim()
           const petNotes = occurrence.adminNotes || occurrence.request?.notes || undefined
-          const link = `${process.env.NEXT_PUBLIC_APP_URL ?? 'https://tailtribe.be'}/dashboard/caregiver`
+          const link = `${appUrl}/dashboard/caregiver`
 
           await createNotification({
             userId: caregiverId,
@@ -307,7 +310,7 @@ export async function PATCH(req: NextRequest) {
               caregiverName,
               caregiverContact: caregiver.email,
               location: location || 'Onbekend',
-              link: `${process.env.NEXT_PUBLIC_APP_URL ?? 'https://tailtribe.be'}/dashboard/owner/bookings`,
+              link: `${appUrl}/dashboard/owner/bookings`,
             })
           }
         }
@@ -359,7 +362,7 @@ export async function DELETE(req: NextRequest) {
             ? ` ${occurrence.postalCode ?? occurrence.request?.postalCode}`
             : ''
         }`.trim()
-        const ownerLink = `${process.env.NEXT_PUBLIC_APP_URL ?? 'https://tailtribe.be'}/dashboard/owner/bookings`
+        const ownerLink = `${appUrl}/dashboard/owner/bookings`
         await createNotification({
           userId: occurrence.request.owner.id,
           type: 'CANCELLED',
@@ -386,7 +389,7 @@ export async function DELETE(req: NextRequest) {
             ? ` ${occurrence.postalCode ?? occurrence.request?.postalCode}`
             : ''
         }`.trim()
-        const caregiverLink = `${process.env.NEXT_PUBLIC_APP_URL ?? 'https://tailtribe.be'}/dashboard/caregiver`
+        const caregiverLink = `${appUrl}/dashboard/caregiver`
         await createNotification({
           userId: occurrence.assignedCaregiver.id,
           type: 'CANCELLED',
@@ -425,7 +428,7 @@ export async function DELETE(req: NextRequest) {
       if (request?.owner?.id && request.owner.email) {
         const serviceLabel =
           SERVICE_LABELS[request.service as keyof typeof SERVICE_LABELS] ?? request.service
-        const ownerLink = `${process.env.NEXT_PUBLIC_APP_URL ?? 'https://tailtribe.be'}/dashboard/owner/bookings`
+        const ownerLink = `${appUrl}/dashboard/owner/bookings`
         await createNotification({
           userId: request.owner.id,
           type: 'CANCELLED',
@@ -445,7 +448,7 @@ export async function DELETE(req: NextRequest) {
         })
       }
       if (request?.occurrences?.length) {
-        const caregiverLink = `${process.env.NEXT_PUBLIC_APP_URL ?? 'https://tailtribe.be'}/dashboard/caregiver`
+        const caregiverLink = `${appUrl}/dashboard/caregiver`
         const notified = new Set<string>()
         for (const occ of request.occurrences) {
           const caregiver = occ.assignedCaregiver

@@ -3,9 +3,10 @@ import Link from 'next/link'
 import { SiteHeader } from '@/components/SiteHeader'
 import { SiteFooter } from '@/components/SiteFooter'
 import { PROVINCES } from '@/data/be-geo'
+import { getPublicAppUrl } from '@/lib/env'
 
-const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://tailtribe.be'
-const canonicalUrl = `${baseUrl}/be`
+const appUrl = getPublicAppUrl()
+const canonicalUrl = new URL('/be', appUrl).toString()
 
 export const metadata: Metadata = {
   title: 'Dierenverzorging per streek in België | TailTribe',
@@ -28,7 +29,7 @@ export default function BelgiumLandingPage() {
     '@context': 'https://schema.org',
     '@type': 'BreadcrumbList',
     itemListElement: [
-      { '@type': 'ListItem', position: 1, name: 'Home', item: baseUrl },
+      { '@type': 'ListItem', position: 1, name: 'Home', item: appUrl },
       { '@type': 'ListItem', position: 2, name: 'België', item: canonicalUrl },
     ],
   }
@@ -37,7 +38,7 @@ export default function BelgiumLandingPage() {
     '@type': 'ListItem',
     position: index + 1,
     name: province.name,
-    item: `${baseUrl}/be/${province.slug}`,
+    item: new URL(`/be/${province.slug}`, appUrl).toString(),
   }))
 
   const itemListJsonLd = {

@@ -4,6 +4,7 @@ import prisma from '@/lib/prisma'
 import { DISPATCH_SERVICES } from '@/lib/services'
 import { createNotification } from '@/lib/notifications'
 import { sendCaregiverOfferEmail, sendOwnerOfferEmail } from '@/lib/email'
+import { getPublicAppUrl } from '@/lib/env'
 
 const ALLOWED_UNITS = ['HALF_HOUR', 'HOUR', 'HALF_DAY', 'DAY'] as const
 export const runtime = 'nodejs'
@@ -106,7 +107,7 @@ export async function POST(req: NextRequest) {
         ? `${caregiver.firstName ?? ''} ${caregiver.lastName ?? ''}`.trim() || caregiver.email
         : 'Verzorger'
 
-    const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://tailtribe.be'
+    const appUrl = getPublicAppUrl()
     const ownerLink = `${appUrl}/dashboard/owner/bookings`
     const caregiverLink = `${appUrl}/dashboard/caregiver`
 

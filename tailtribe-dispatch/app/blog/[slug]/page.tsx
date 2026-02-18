@@ -6,13 +6,14 @@ import { SiteFooter } from '@/components/SiteFooter'
 import { getBlogPostBySlug, getBlogPostSlugs } from '@/lib/blog.server'
 import { SafeImage } from '@/components/SafeImage'
 import { getStockCoverImage, resolveCoverImage } from '@/lib/cover-image'
+import { getPublicAppUrl } from '@/lib/env'
 
 type Props = {
   params: { slug: string }
 }
 
-const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://tailtribe.be'
-const toAbsoluteUrl = (url: string) => (url.startsWith('http') ? url : `${baseUrl}${url}`)
+const appUrl = getPublicAppUrl()
+const toAbsoluteUrl = (url: string) => (url.startsWith('http') ? url : new URL(url, appUrl).toString())
 
 export function generateStaticParams() {
   return getBlogPostSlugs().map((slug) => ({ slug }))
@@ -24,7 +25,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     return { title: 'Artikel niet gevonden', description: 'Dit artikel bestaat niet.' }
   }
 
-  const canonicalUrl = `${baseUrl}/blog/${post.slug}`
+  const canonicalUrl = new URL(`/blog/${post.slug}`, appUrl).toString()
   const coverImage = resolveCoverImage(post)
 
   return {
@@ -61,7 +62,7 @@ export default function BlogPostPage({ params }: Props) {
   const post = getBlogPostBySlug(params.slug)
   if (!post) notFound()
 
-  const canonicalUrl = `${baseUrl}/blog/${post.slug}`
+  const canonicalUrl = new URL(`/blog/${post.slug}`, appUrl).toString()
   const coverImage = resolveCoverImage(post)
   const jsonLd = {
     '@context': 'https://schema.org',
@@ -73,14 +74,14 @@ export default function BlogPostPage({ params }: Props) {
     author: {
       '@type': 'Organization',
       name: 'TailTribe',
-      url: baseUrl,
+      url: appUrl,
     },
     publisher: {
       '@type': 'Organization',
       name: 'TailTribe',
       logo: {
         '@type': 'ImageObject',
-        url: `${baseUrl}/tailtribe_logo_masked_1751977129022.png`,
+        url: new URL('/tailtribe_logo_masked_1751977129022.png', appUrl).toString(),
       },
     },
     mainEntityOfPage: canonicalUrl,

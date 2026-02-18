@@ -8,6 +8,21 @@ export function SiteFooter() {
     .map((slug) => PROVINCES.find((p) => p.slug === slug))
     .filter(Boolean)
 
+  const keyServices = [
+    { label: 'Hondenuitlaatservice', href: '/diensten/hondenuitlaat' },
+    { label: 'Groepsuitlaat (Antwerpen)', href: '/diensten/groepsuitlaat' },
+    { label: 'Dierenoppas aan huis', href: '/diensten/dierenoppas' },
+    { label: 'Dierenopvang', href: '/diensten/dierenopvang' },
+  ]
+
+  const keyRegions = [
+    { label: 'Antwerpen (provincie)', href: '/be/antwerpen' },
+    { label: 'Antwerpen (stad)', href: '/be/antwerpen/antwerpen' },
+    { label: 'Kalmthout', href: '/be/antwerpen/kalmthout' },
+    { label: 'Kapellen', href: '/be/antwerpen/kapellen' },
+    { label: 'Brasschaat', href: '/be/antwerpen/brasschaat' },
+  ]
+
   // Keep footer short + avoid duplicates like "Antwerpen" (province + city)
   const popularProvincesShort = popular.slice(0, 3)
   const provinceNames = new Set(popularProvincesShort.map((p) => String(p!.name).toLowerCase()))
@@ -30,7 +45,7 @@ export function SiteFooter() {
   return (
     <footer className="bg-gradient-to-br from-slate-800 via-slate-900 to-gray-900 text-slate-100 border-t border-slate-700">
       <div className="container mx-auto px-4 py-4 md:py-6">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 pt-3 md:pt-4 pb-4 md:pb-6">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 md:gap-6 pt-3 md:pt-4 pb-4 md:pb-6">
           <div>
             <div className="mt-0 flex items-center mb-0 overflow-hidden rounded-lg">
               <Image
@@ -51,8 +66,36 @@ export function SiteFooter() {
           </div>
 
           <div>
+            <h4 className="font-semibold text-white mb-2">Populaire diensten</h4>
+            <ul className="space-y-1 text-sm">
+              {keyServices.map((s) => (
+                <li key={s.href}>
+                  <Link href={s.href} className="text-slate-300 hover:text-white">
+                    {s.label}
+                  </Link>
+                </li>
+              ))}
+              <li className="pt-1">
+                <Link href="/diensten" className="text-emerald-300 hover:text-white font-medium">
+                  Alle diensten →
+                </Link>
+              </li>
+            </ul>
+          </div>
+
+          <div>
             <h4 className="font-semibold text-white mb-2">Streken (België)</h4>
             <ul className="space-y-1 text-sm">
+              {keyRegions.map((r) => (
+                <li key={r.href}>
+                  <Link href={r.href} className="text-slate-300 hover:text-white">
+                    {r.label}
+                  </Link>
+                </li>
+              ))}
+              <li className="pt-1">
+                <span className="text-slate-500">—</span>
+              </li>
               {popularProvincesShort.map((p) => (
                 <li key={p!.slug}>
                   <Link href={`/be/${p!.slug}`} className="text-slate-300 hover:text-white">

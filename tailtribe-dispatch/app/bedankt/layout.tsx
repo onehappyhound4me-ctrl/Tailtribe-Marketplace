@@ -1,7 +1,8 @@
 import type { Metadata } from 'next'
+import { getPublicAppUrl } from '@/lib/env'
 
-const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://tailtribe.be'
-const canonicalUrl = `${baseUrl}/bedankt`
+const appUrl = getPublicAppUrl()
+const canonicalUrl = new URL('/bedankt', appUrl).toString()
 
 export const metadata: Metadata = {
   title: 'Aanvraag ontvangen',

@@ -1,9 +1,10 @@
 import type { Metadata } from 'next'
 import { SiteHeader } from '@/components/SiteHeader'
 import { SiteFooter } from '@/components/SiteFooter'
+import { getPublicAppUrl } from '@/lib/env'
 
-const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://tailtribe.be'
-const canonicalUrl = `${baseUrl}/terms`
+const appUrl = getPublicAppUrl()
+const canonicalUrl = new URL('/terms', appUrl).toString()
 
 export const metadata: Metadata = {
   title: 'Algemene voorwaarden',

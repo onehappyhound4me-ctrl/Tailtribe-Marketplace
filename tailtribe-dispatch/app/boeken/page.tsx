@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useSession } from 'next-auth/react'
@@ -23,6 +23,7 @@ export default function BookingPage() {
   const searchParams = useSearchParams()
   const { data: session, status } = useSession()
   const [step, setStep] = useState(1)
+  const bookingStartSentRef = useRef(false)
   const [loading, setLoading] = useState(false)
   const [submitError, setSubmitError] = useState<string | null>(null)
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({})
@@ -53,6 +54,16 @@ export default function BookingPage() {
       router.push(nextUrl)
     }
   }, [status, session, router, serviceParam])
+
+  // Track booking_start once (GA4 proof).
+  useEffect(() => {
+    if (bookingStartSentRef.current) return
+    bookingStartSentRef.current = true
+    trackEvent('booking_start', {
+      where: '/boeken',
+      service_param: serviceParam ?? undefined,
+    })
+  }, [serviceParam])
 
 
   useEffect(() => {
@@ -85,6 +96,16 @@ export default function BookingPage() {
   })
 
   const [dateDraft, setDateDraft] = useState('')
+
+  // Track the start of the booking flow (page view).
+  useEffect(() => {
+    trackEvent('booking_start', {
+      flow: 'public',
+      entry: 'boeken',
+      service_prefill: serviceParam ?? undefined,
+    })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   const addDate = () => {
     const d = (dateDraft ?? '').trim()
@@ -148,6 +169,13 @@ export default function BookingPage() {
       
       if (response.ok) {
         trackEvent('booking_request_submitted', {
+          service: formData.service,
+          time_windows: JSON.stringify(formData.timeWindows ?? []),
+          dates: JSON.stringify(formData.dates ?? []),
+          has_exact_time: Boolean(formData.time?.trim()),
+        })
+        trackEvent('booking_complete', {
+          flow: 'public',
           service: formData.service,
           time_windows: JSON.stringify(formData.timeWindows ?? []),
           dates: JSON.stringify(formData.dates ?? []),

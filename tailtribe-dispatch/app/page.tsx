@@ -12,6 +12,30 @@ import { routes } from '@/lib/routes'
 // Cache-buster query om harde refresh te forceren bij updates.
 const HERO_IMG_PRIMARY = '/assets/hero-marketplace.jpg?v=1'
 const HERO_IMG_URL = encodeURI(HERO_IMG_PRIMARY)
+
+const HOME_FAQS = [
+  {
+    q: 'In welke regio werken jullie?',
+    a: 'We werken in België. Voor hondenuitlaatservice en groepsuitlaat focussen we sterk op Antwerpen (+rand) en Antwerpen Noord (Kapellen–Brasschaat–Kalmthout).',
+  },
+  {
+    q: 'Hoe snel nemen jullie contact op?',
+    a: 'Na je aanvraag nemen we doorgaans binnen 2 uur contact op tijdens kantooruren om alles af te stemmen.',
+  },
+  {
+    q: 'Is er online betaling?',
+    a: 'Nee. We spreken prijs en details af na contact. Zo blijft elke aanvraag op maat (duur, frequentie, locatie, extra zorg).',
+  },
+  {
+    q: 'Doen jullie ook dierenoppas aan huis?',
+    a: 'Ja. Dierenoppas en verzorging aan huis kan voor honden, katten en kleine huisdieren, met duidelijke afspraken rond routine en toegang.',
+  },
+  {
+    q: 'Kan ik last-minute boeken?',
+    a: 'Soms wel, afhankelijk van capaciteit. Vermeld “spoed” in je aanvraag, dan kijken we meteen wat haalbaar is.',
+  },
+] as const
+
 export default function HomePage() {
   const { data: session } = useSession()
   
@@ -20,9 +44,20 @@ export default function HomePage() {
     ? '/dashboard/owner/new-booking' 
     : '/boeken'
 
+  const faqJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: HOME_FAQS.map((f) => ({
+      '@type': 'Question',
+      name: f.q,
+      acceptedAnswer: { '@type': 'Answer', text: f.a },
+    })),
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-green-50 via-white to-blue-50">
       <SiteHeader primaryCtaHref={bookingHref} primaryCtaLabel="Boek Nu" />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }} />
 
       {/* Hero (image + text stacked, image never cropped) */}
       <section className="w-full">
@@ -65,7 +100,8 @@ export default function HomePage() {
               <div className="rounded-3xl bg-white/70 backdrop-blur-sm border border-emerald-100/70 shadow-[0_12px_40px_rgba(16,185,129,0.10)] px-5 py-6 sm:px-8 sm:py-7">
                 <div className="text-center">
                   <p className="text-base sm:text-lg md:text-xl font-medium text-gray-900 leading-relaxed tracking-[-0.01em]">
-                    Hondenuitlaat, dierenoppas, dierenverzorging en meer bij jou in de buurt
+                    Professionele hondenuitlaatservice en dierenoppas in Antwerpen en omgeving (Kalmthout, Kapellen, Brasschaat).
+                    Vraag snel een hondenoppas of verzorging op maat aan — wij regelen de match en opvolging.
                   </p>
                   <p className="mt-2 text-sm sm:text-base md:text-lg text-emerald-950/90 font-semibold tracking-[-0.01em]">
                     Voor en door dierenverzorgers
@@ -329,6 +365,34 @@ export default function HomePage() {
           </div>
 
           {/* "Bekijk alle Google reviews" link tijdelijk verborgen. */}
+        </div>
+      </section>
+
+      {/* FAQ (home quick wins) */}
+      <section className="pb-16 px-4 sm:px-6 lg:px-8">
+        <div className="container mx-auto max-w-5xl">
+          <div className="bg-white rounded-2xl shadow-sm border border-black/5 p-6 sm:p-8">
+            <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-4">Veelgestelde vragen</h2>
+            <div className="space-y-4">
+              {HOME_FAQS.map((f) => (
+                <div key={f.q} className="rounded-xl border border-black/5 p-5">
+                  <h3 className="font-semibold text-gray-900 mb-2">{f.q}</h3>
+                  <p className="text-gray-700 leading-relaxed">{f.a}</p>
+                </div>
+              ))}
+            </div>
+            <div className="mt-6 flex flex-col sm:flex-row gap-3">
+              <Link href="/boeken" className="btn-brand inline-flex">
+                Start je aanvraag
+              </Link>
+              <Link
+                href={routes.diensten}
+                className="inline-flex items-center justify-center px-6 py-3 rounded-tt border border-emerald-200 bg-white text-emerald-900 hover:bg-emerald-50 transition"
+              >
+                Bekijk alle diensten
+              </Link>
+            </div>
+          </div>
         </div>
       </section>
 

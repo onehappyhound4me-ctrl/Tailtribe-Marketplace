@@ -7,8 +7,11 @@ import { sendAssignmentEmail, sendOwnerAssignmentEmail } from '../../../../lib/e
 import { assertCaregiverAvailable } from '../../../../lib/availability'
 import { SERVICE_LABELS } from '../../../../lib/services'
 import { provinceSlugFromPostalCode } from '../../../../data/be-geo'
+import { getPublicAppUrl } from '../../../../lib/env'
 
 export const dynamic = 'force-dynamic'
+
+const appUrl = getPublicAppUrl()
 
 async function ensureConversation(bookingId: string, ownerId: string, caregiverId: string) {
   await prisma.conversation.upsert({
@@ -202,7 +205,7 @@ export async function PATCH(req: NextRequest) {
                     `${caregiver.firstName ?? ''} ${caregiver.lastName ?? ''}`.trim() || caregiver.email
                   const location = `${booking.city ?? ''}${booking.postalCode ? ` ${booking.postalCode}` : ''}`.trim()
                   const petNotes = booking.petDetails || booking.message || undefined
-                  const link = `${process.env.NEXT_PUBLIC_APP_URL ?? 'https://tailtribe.be'}/dashboard/caregiver`
+                  const link = `${appUrl}/dashboard/caregiver`
                   await createNotification({
                     userId: caregiverId,
                     type: 'ASSIGNMENT',
@@ -240,7 +243,7 @@ export async function PATCH(req: NextRequest) {
                     caregiverName,
                     caregiverContact: caregiver.email,
                     location: location || 'Onbekend',
-                    link: `${process.env.NEXT_PUBLIC_APP_URL ?? 'https://tailtribe.be'}/dashboard/owner/bookings`,
+                    link: `${appUrl}/dashboard/owner/bookings`,
                   })
                 }
               } catch (notifyErr) {

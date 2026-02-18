@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef } from 'react'
 import { usePathname, useSearchParams } from 'next/navigation'
 import { COOKIE_CONSENT_STORAGE_KEY } from '@/lib/cookie-consent'
+import { recordEvent } from '@/lib/analytics'
 
 function safeTitle() {
   try {
@@ -139,6 +140,14 @@ export function AnalyticsPageView() {
       } catch {
         // ignore
       }
+
+      // Keep local proof buffer for /debug/visibility (without sending an extra GA hit).
+      recordEvent('page_view', {
+        page_location: window.location.href,
+        page_path: p,
+        page_title: safeTitle(),
+        ...(debugMode ? { debug_mode: true } : {}),
+      })
 
       return true
     }

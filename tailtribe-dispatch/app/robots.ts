@@ -9,7 +9,8 @@ export default function robots(): MetadataRoute.Robots {
       {
         userAgent: '*',
         allow: '/',
-        disallow: ['/admin', '/dashboard', '/login', '/register', '/chat', '/community', '/api', '/bedankt'],
+        // Only block private / non-index-worthy routes.
+        disallow: ['/dashboard', '/admin', '/api', '/auth', '/checkout', '/account', '/chat', '/community', '/bedankt'],
       },
     ],
     sitemap: `${appUrl}/sitemap.xml`,

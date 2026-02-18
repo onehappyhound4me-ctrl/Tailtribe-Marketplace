@@ -70,7 +70,7 @@ const nextConfig: NextConfig = {
       // Ensure /favicon.ico never shows the default Vercel icon.
       {
         source: "/favicon.ico",
-        destination: "/tailtribe_logo_masked_1751977129022.png",
+        destination: "/favicon.svg",
         permanent: true,
       },
     ];
