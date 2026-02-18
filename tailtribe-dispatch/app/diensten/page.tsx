@@ -5,9 +5,10 @@ import { SiteFooter } from '@/components/SiteFooter'
 import { DISPATCH_SERVICES } from '@/lib/services'
 import { SERVICE_ICON_FILTER, withAssetVersion } from '@/lib/service-icons'
 import { routes } from '@/lib/routes'
+import { getPublicAppUrl } from '@/lib/env'
 
-const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://tailtribe.be'
-const canonicalUrl = `${baseUrl}/diensten`
+const appUrl = getPublicAppUrl()
+const canonicalUrl = new URL('/diensten', appUrl).toString()
 export const metadata: Metadata = {
   title: 'Diensten',
   description:
@@ -29,7 +30,7 @@ export default function DienstenPage() {
     '@context': 'https://schema.org',
     '@type': 'BreadcrumbList',
     itemListElement: [
-      { '@type': 'ListItem', position: 1, name: 'Home', item: baseUrl },
+      { '@type': 'ListItem', position: 1, name: 'Home', item: appUrl },
       { '@type': 'ListItem', position: 2, name: 'Diensten', item: canonicalUrl },
     ],
   }
@@ -41,7 +42,7 @@ export default function DienstenPage() {
       '@type': 'ListItem',
       position: index + 1,
       name: service.name,
-      item: `${baseUrl}/diensten/${service.slug}`,
+      item: new URL(`/diensten/${service.slug}`, appUrl).toString(),
     })),
   }
 

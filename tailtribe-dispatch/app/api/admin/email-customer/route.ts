@@ -3,6 +3,7 @@ import { DISPATCH_SERVICES } from '@/lib/services'
 import { auth } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { sendTransactionalEmail } from '@/lib/mailer'
+import { getPublicAppUrl } from '@/lib/env'
 
 export const dynamic = 'force-dynamic'
 
@@ -11,7 +12,7 @@ function ensureAdmin(session: any) {
 }
 
 function getAppUrl() {
-  return process.env.NEXT_PUBLIC_APP_URL ?? 'https://tailtribe.be'
+  return getPublicAppUrl()
 }
 
 function formatServiceLabel(serviceId: string) {

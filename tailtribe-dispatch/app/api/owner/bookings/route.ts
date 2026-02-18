@@ -341,7 +341,7 @@ export async function PATCH(request: NextRequest) {
       message: `${location} • ${new Date(booking.date).toLocaleDateString('nl-BE')}`,
       entityId: booking.id,
     })
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://tailtribe.be'
+    const baseUrl = getPublicAppUrl()
     await sendAssignmentEmail({
       caregiverEmail: offer.caregiver.email,
       service: serviceLabel,

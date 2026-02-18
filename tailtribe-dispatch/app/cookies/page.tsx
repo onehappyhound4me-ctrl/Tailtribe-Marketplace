@@ -2,9 +2,10 @@ import type { Metadata } from 'next'
 import { SiteHeader } from '@/components/SiteHeader'
 import { SiteFooter } from '@/components/SiteFooter'
 import { CookiePreferencesButton } from '@/components/CookiePreferencesButton'
+import { getPublicAppUrl } from '@/lib/env'
 
-const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://tailtribe.be'
-const canonicalUrl = `${baseUrl}/cookies`
+const appUrl = getPublicAppUrl()
+const canonicalUrl = new URL('/cookies', appUrl).toString()
 
 export const metadata: Metadata = {
   title: 'Cookiebeleid',

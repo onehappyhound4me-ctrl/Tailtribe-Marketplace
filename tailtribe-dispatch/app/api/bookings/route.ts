@@ -6,6 +6,7 @@ import { buildAdminBookingReceivedEmail, buildOwnerBookingReceivedEmail } from '
 import { prisma } from '@/lib/prisma'
 import { checkRateLimit } from '@/lib/rate-limit'
 import { sendTransactionalEmail } from '@/lib/mailer'
+import { getPublicAppUrl } from '@/lib/env'
 
 export const dynamic = 'force-dynamic'
 
@@ -115,7 +116,7 @@ async function postcodeMatchesCityBE(postalCode: string, city: string): Promise<
 }
 
 function getAppUrl() {
-  return process.env.NEXT_PUBLIC_APP_URL ?? 'https://tailtribe.be'
+  return getPublicAppUrl()
 }
 
 function formatServiceLabel(serviceId: string) {

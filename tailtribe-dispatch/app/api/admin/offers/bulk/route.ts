@@ -7,6 +7,7 @@ import { sendCaregiverOfferEmail, sendOwnerOfferEmail } from '@/lib/email'
 import { requireAdmin } from '@/lib/admin-api'
 import { parseJsonArray, parseJsonObject } from '@/lib/json'
 import { formatUserName } from '@/lib/format'
+import { getPublicAppUrl } from '@/lib/env'
 
 const ALLOWED_UNITS = ['HALF_HOUR', 'HOUR', 'HALF_DAY', 'DAY'] as const
 export const runtime = 'nodejs'
@@ -102,7 +103,7 @@ export async function POST(req: NextRequest) {
     })
     const caregiverName = caregiver ? formatUserName(caregiver) : 'Verzorger'
 
-    const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://tailtribe.be'
+    const appUrl = getPublicAppUrl()
     const ownerLink = `${appUrl}/dashboard/owner/bookings`
     const caregiverLink = `${appUrl}/dashboard/caregiver`
 

@@ -8,6 +8,7 @@ import { NavigationClickGuards } from '@/components/NavigationClickGuards'
 import { AnalyticsLoader } from '../components/AnalyticsLoader'
 import { AnalyticsPageView } from '@/components/AnalyticsPageView'
 import { AnalyticsDebugBadge } from '@/components/AnalyticsDebugBadge'
+import { AnalyticsEventCapture } from '@/components/AnalyticsEventCapture'
 import { getPublicAppUrl } from '@/lib/env'
 
 const appUrl = getPublicAppUrl()
@@ -21,10 +22,12 @@ export const metadata: Metadata = {
     template: '%s | TailTribe',
   },
   description: 'Vraag betrouwbare dierenverzorging aan in België. Hondenuitlaat, dierenoppas, opvang en meer.',
+  manifest: '/manifest.webmanifest',
+  themeColor: '#10b981',
   icons: {
     // Make favicon explicit so browsers don't fall back to Vercel's default.
-    icon: ['/tailtribe_logo_masked_1751977129022.png'],
-    shortcut: ['/tailtribe_logo_masked_1751977129022.png'],
+    icon: ['/favicon.svg', '/tailtribe_logo_masked_1751977129022.png'],
+    shortcut: ['/favicon.svg'],
   },
   alternates: {
     canonical: '/',
@@ -63,11 +66,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="nl" className="h-full">
+    <html lang="nl-BE" className="h-full">
       <body className="h-full antialiased font-sans">
         <SessionProvider>
           <NavigationClickGuards />
           <AnalyticsLoader />
+          <AnalyticsEventCapture />
           <Suspense fallback={null}>
             <AnalyticsPageView />
           </Suspense>
@@ -79,11 +83,21 @@ export default function RootLayout({
             dangerouslySetInnerHTML={{
               __html: JSON.stringify({
                 '@context': 'https://schema.org',
-                '@type': 'Organization',
+                '@type': ['Organization', 'LocalBusiness'],
                 name: 'TailTribe',
                 url: appUrl,
                 logo: orgLogoUrl,
                 description: 'Professionele dierenverzorging in België.',
+                areaServed: { '@type': 'Country', name: 'België' },
+                sameAs: ['https://www.instagram.com/1happyhound/?hl=nl'],
+                contactPoint: [
+                  {
+                    '@type': 'ContactPoint',
+                    contactType: 'customer support',
+                    email: 'steven@tailtribe.be',
+                    availableLanguage: ['nl', 'en'],
+                  },
+                ],
               }),
             }}
           />

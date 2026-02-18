@@ -395,6 +395,12 @@ export function SiteHeader({ primaryCtaHref = '/boeken', primaryCtaLabel = 'Boek
               Diensten
             </Link>
             <Link
+              href="/be"
+              className="hidden md:block text-gray-700 hover:text-green-700 font-medium transition whitespace-nowrap"
+            >
+              Streken
+            </Link>
+            <Link
               href="/over-ons"
               className="hidden md:block text-gray-700 hover:text-green-700 font-medium transition whitespace-nowrap"
             >
@@ -473,6 +479,8 @@ export function SiteHeader({ primaryCtaHref = '/boeken', primaryCtaLabel = 'Boek
               {/* Primary CTA - altijd zichtbaar */}
               <Link
                 href={primaryCtaHref}
+                data-tt-event="booking_start"
+                data-tt-params={JSON.stringify({ href: primaryCtaHref, component: 'SiteHeader.PrimaryCta' })}
                 className="inline-flex items-center justify-center bg-gradient-to-r from-green-600 to-blue-600 text-white px-5 md:px-6 h-11 md:h-auto py-0 md:py-2.5 rounded-full font-semibold hover:from-green-700 hover:to-blue-700 transition shadow-lg hover:shadow-xl text-sm md:text-base whitespace-nowrap"
               >
                 {primaryCtaLabel}

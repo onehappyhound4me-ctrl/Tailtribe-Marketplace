@@ -3,9 +3,10 @@ import Link from 'next/link'
 import { SiteHeader } from '@/components/SiteHeader'
 import { SiteFooter } from '@/components/SiteFooter'
 import { withAssetVersion } from '@/lib/service-icons'
+import { getPublicAppUrl } from '@/lib/env'
 
-const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://tailtribe.be'
-const canonicalUrl = `${baseUrl}/over-ons`
+const appUrl = getPublicAppUrl()
+const canonicalUrl = new URL('/over-ons', appUrl).toString()
 
 export const metadata: Metadata = {
   title: 'Over ons',

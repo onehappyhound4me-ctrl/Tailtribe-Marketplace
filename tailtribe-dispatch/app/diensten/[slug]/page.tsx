@@ -8,6 +8,7 @@ import { ExternalLink } from '@/components/ExternalLink'
 import { DISPATCH_SERVICES, getDispatchServiceBySlug } from '@/lib/services'
 import { SERVICE_ICON_FILTER, withAssetVersion } from '@/lib/service-icons'
 import { routes } from '@/lib/routes'
+import { getPublicAppUrl } from '@/lib/env'
 
 type Props = {
   params: { slug: string }
@@ -18,14 +19,14 @@ export function generateStaticParams() {
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://tailtribe.be'
+  const baseUrl = getPublicAppUrl()
   const service = getDispatchServiceBySlug(params.slug)
   if (!service) {
     return { title: 'Dienst niet gevonden', description: 'Deze dienst bestaat niet.' }
   }
 
   const pageTitle = service.detailTitle ?? service.name
-  const canonicalUrl = `${baseUrl}/diensten/${service.slug}`
+  const canonicalUrl = new URL(`/diensten/${service.slug}`, baseUrl).toString()
 
   return {
     title: pageTitle,
@@ -95,9 +96,9 @@ export default function DienstDetailPage({ params }: Props) {
     )
   }
 
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://tailtribe.be'
-  const canonicalUrl = `${baseUrl}/diensten/${service.slug}`
-  const imageUrl = `${baseUrl}${service.image}`
+  const baseUrl = getPublicAppUrl()
+  const canonicalUrl = new URL(`/diensten/${service.slug}`, baseUrl).toString()
+  const imageUrl = new URL(service.image, baseUrl).toString()
 
   const serviceJsonLd = {
     '@context': 'https://schema.org',
@@ -127,6 +128,108 @@ export default function DienstDetailPage({ params }: Props) {
 
   const related = DISPATCH_SERVICES.filter((s) => s.id !== service.id).slice(0, 6)
 
+  const localIntro =
+    service.id === 'DOG_WALKING'
+      ? 'Hondenuitlaatservice nodig in Antwerpen en omgeving? We stemmen tempo, duur en routine af op jouw hond. Ook mogelijk als vaste hondenoppas op weekdagen.'
+      : service.id === 'GROUP_DOG_WALKING'
+        ? 'Groepsuitlaat in Antwerpen (+rand) en Antwerpen Noord (Kapellen–Brasschaat–Kalmthout). Ideaal voor sociale honden die graag samen wandelen en mentaal uitgedaagd worden.'
+        : service.id === 'PET_SITTING'
+          ? 'Dierenoppas aan huis is ideaal als je huisdier het best in de eigen omgeving blijft. We volgen jouw routine en spreken duidelijke afspraken af voor voeding, wandelen en updates.'
+          : service.id === 'PET_BOARDING'
+            ? 'Dierenopvang in een veilige omgeving, met afspraken op maat (routine, voeding en rust). Geschikt voor vakantie, langere periodes of extra ondersteuning.'
+            : null
+
+  const faqs =
+    service.id === 'DOG_WALKING'
+      ? [
+          {
+            q: 'Wat is inbegrepen in de hondenuitlaatservice?',
+            a: 'Een wandeling op maat (duur/tempo), veilige handling en duidelijke afspraken. Op verzoek een korte update na afloop.',
+          },
+          {
+            q: 'Doen jullie vaste dagen (wekelijks)?',
+            a: 'Ja, dat kan. Vermeld je voorkeur (dagen/tijdsblokken) in je aanvraag, dan plannen we zo consistent mogelijk.',
+          },
+          {
+            q: 'Kan mijn hond met andere honden mee?',
+            a: 'Soms, als het past bij karakter en veiligheid. Bij twijfel kiezen we voor solo of een klein, passend duo.',
+          },
+          {
+            q: 'Werken jullie in Antwerpen en rand?',
+            a: 'Ja. We plannen op basis van jouw locatie en beschikbaarheid. Voor sommige diensten ligt de focus op Groot Antwerpen en Antwerpen Noord.',
+          },
+        ]
+      : service.id === 'GROUP_DOG_WALKING'
+        ? [
+            {
+              q: 'Voor welke honden is groepsuitlaat geschikt?',
+              a: 'Voor sociale honden die vlot omgaan met andere honden en prikkels. We bekijken dit via intake en (indien nodig) een testmoment.',
+            },
+            {
+              q: 'In welke regio gaat groepsuitlaat door?',
+              a: 'Focus: Antwerpen (+rand) en Antwerpen Noord (Kapellen–Brasschaat–Kalmthout).',
+            },
+            {
+              q: 'Hoe zit het met veiligheid en loslopen?',
+              a: 'Veiligheid staat voorop. Loslopen gebeurt alleen waar het mag en wanneer het veilig is, met aandacht voor de groep en omgeving.',
+            },
+            {
+              q: 'Hoe start ik?',
+              a: 'Dien je aanvraag in of boek via de partnerlink. Daarna stemmen we intake, planning en verwachtingen af.',
+            },
+          ]
+        : service.id === 'PET_SITTING'
+          ? [
+              {
+                q: 'Komt de dierenoppas bij mij thuis?',
+                a: 'Ja. Dierenoppas gebeurt in het comfort van je eigen woonst, volgens jouw routine en afspraken.',
+              },
+              {
+                q: 'Krijg ik updates?',
+                a: 'Op verzoek sturen we een korte update (bericht/foto) na het bezoek of op afgesproken momenten.',
+              },
+              {
+                q: 'Wat moet ik klaarleggen?',
+                a: 'Voeding, (eventuele) medicatie-instructies, contactgegevens en duidelijke afspraken rond toegang/sleutel.',
+              },
+              {
+                q: 'Doen jullie ook kattenoppas?',
+                a: 'Ja. We plannen bezoeken op maat (voeding, water, kattenbak, aandacht en controle).',
+              },
+            ]
+          : service.id === 'PET_BOARDING'
+            ? [
+                {
+                  q: 'Waaruit bestaat dierenopvang?',
+                  a: 'Opvang met aandacht voor routine, rust en veiligheid. We stemmen vooraf voeding, planning en afspraken af.',
+                },
+                {
+                  q: 'Is opvang geschikt voor langere periodes?',
+                  a: 'Ja. Geef je data en wensen door, dan bekijken we wat haalbaar is en hoe we het best plannen.',
+                },
+                {
+                  q: 'Wat met medicatie of speciale zorgen?',
+                  a: 'Meld dit in je aanvraag. We bespreken vooraf wat nodig is zodat er geen verrassingen zijn.',
+                },
+                {
+                  q: 'Hoe start ik een aanvraag?',
+                  a: 'Klik “Aanvraag indienen” en geef je planning, locatie en info over je huisdier door.',
+                },
+              ]
+            : null
+
+  const faqJsonLd = faqs
+    ? {
+        '@context': 'https://schema.org',
+        '@type': 'FAQPage',
+        mainEntity: faqs.map((f) => ({
+          '@type': 'Question',
+          name: f.q,
+          acceptedAnswer: { '@type': 'Answer', text: f.a },
+        })),
+      }
+    : null
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-green-50 via-white to-blue-50">
       <SiteHeader primaryCtaHref="/boeken" primaryCtaLabel="Boek Nu" />
@@ -140,6 +243,9 @@ export default function DienstDetailPage({ params }: Props) {
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
         />
+        {faqJsonLd ? (
+          <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }} />
+        ) : null}
         <div className="max-w-6xl mx-auto">
           <nav className="flex items-center space-x-2 text-xs sm:text-sm text-gray-500 mb-5 sm:mb-6">
             <Link href="/" className="hover:text-gray-700">
@@ -171,6 +277,11 @@ export default function DienstDetailPage({ params }: Props) {
               <p className="text-sm sm:text-base md:text-lg leading-relaxed text-gray-600 max-w-2xl">
                 {service.desc}
               </p>
+              {localIntro ? (
+                <p className="mt-3 text-sm sm:text-base leading-relaxed text-emerald-900/85 max-w-2xl">
+                  {localIntro}
+                </p>
+              ) : null}
               <div className="mt-6 flex flex-col sm:flex-row gap-3 justify-center md:justify-start">
                 {service.id === 'GROUP_DOG_WALKING' && service.providerSpotlight ? (
                   <ExternalLink
@@ -418,6 +529,25 @@ export default function DienstDetailPage({ params }: Props) {
                 </Link>
               </div>
             </div>
+
+            {faqs ? (
+              <div className="bg-white rounded-2xl shadow-sm border border-black/5 p-6 md:p-8">
+                <h2 className="text-2xl md:text-3xl font-semibold text-gray-900 mb-4">Veelgestelde vragen</h2>
+                <div className="space-y-4 text-gray-700">
+                  {faqs.map((f) => (
+                    <div key={f.q} className="rounded-xl border border-black/5 p-5">
+                      <h3 className="font-semibold text-gray-900 mb-2">{f.q}</h3>
+                      <p className="leading-relaxed">{f.a}</p>
+                    </div>
+                  ))}
+                </div>
+                <div className="mt-6">
+                  <Link href={`/boeken?service=${service.id}`} className="btn-brand inline-flex">
+                    Start je aanvraag
+                  </Link>
+                </div>
+              </div>
+            ) : null}
           </section>
 
           <section className="mt-12 pb-10 md:pb-16">

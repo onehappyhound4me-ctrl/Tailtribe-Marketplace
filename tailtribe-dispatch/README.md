@@ -2,6 +2,29 @@
 
 Simpele dispatch site voor dierenverzorging - zonder SaaS complexiteit.
 
+## 🔎 Visibility / SEO / Analytics (proof checklist)
+
+Belangrijkste URLs:
+
+- **Robots**: `/robots.txt`
+- **Sitemap**: `/sitemap.xml`
+- **SEO health JSON**: `/api/health/seo`
+- **Visibility debug pagina**: `/debug/visibility`
+
+Google Search Console (GSC) setup:
+
+- **Sitemap indienen**: voeg `https://www.tailtribe.be/sitemap.xml` toe in GSC → Sitemaps.
+- **Indexing check**: GSC → URL-inspectie → “Live URL testen” → “Indexering aanvragen”.
+- **Snelle sanity check**: Google zoeken op `site:tailtribe.be` (kan dagen/weken duren bij nieuwe sites/landing pages).
+
+GA4 proof:
+
+- Voeg `?debugga=1` toe aan eender welke pagina om de **Analytics debug badge** te zien.
+- Open `/debug/visibility` om te zien:
+  - consent state
+  - of `page_view` en custom events in-memory geregistreerd worden
+  - server check of `robots.txt`/`sitemap.xml` bereikbaar zijn
+
 ## ✨ Wat zit erin
 
 - **Homepage** (`/`) - Moderne landingspagina met services

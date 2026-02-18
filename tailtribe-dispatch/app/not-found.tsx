@@ -26,6 +26,24 @@ export default function NotFound() {
               Terug naar home
             </Link>
           </div>
+
+          <div className="mt-8 text-left">
+            <div className="text-sm font-semibold text-gray-900 mb-3">Handige links</div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
+              <Link href="/diensten" className="text-emerald-700 hover:underline">
+                Dienstenoverzicht
+              </Link>
+              <Link href="/be/antwerpen" className="text-emerald-700 hover:underline">
+                Dierenverzorging in Antwerpen
+              </Link>
+              <Link href="/be/antwerpen/kalmthout" className="text-emerald-700 hover:underline">
+                Groepsuitlaat in Kalmthout
+              </Link>
+              <Link href="/contact" className="text-emerald-700 hover:underline">
+                Contact
+              </Link>
+            </div>
+          </div>
         </div>
       </main>
 
