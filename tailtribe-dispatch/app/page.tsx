@@ -16,7 +16,7 @@ const HERO_IMG_URL = encodeURI(HERO_IMG_PRIMARY)
 const HOME_FAQS = [
   {
     q: 'In welke regio werken jullie?',
-    a: 'We werken in België. Voor hondenuitlaatservice en groepsuitlaat focussen we sterk op Antwerpen (+rand) en Antwerpen Noord (Kapellen–Brasschaat–Kalmthout).',
+    a: 'We werken in België. Beschikbaarheid kan per dienst en regio verschillen; na je aanvraag bevestigen we snel wat haalbaar is.',
   },
   {
     q: 'Hoe snel nemen jullie contact op?',
@@ -99,9 +99,12 @@ export default function HomePage() {
               {/* Sub-hero: marketplace-style copy + CTAs (below the image) */}
               <div className="rounded-3xl bg-white/70 backdrop-blur-sm border border-emerald-100/70 shadow-[0_12px_40px_rgba(16,185,129,0.10)] px-5 py-6 sm:px-8 sm:py-7">
                 <div className="text-center">
-                  <p className="text-base sm:text-lg md:text-xl font-medium text-gray-900 leading-relaxed tracking-[-0.01em]">
-                    Professionele hondenuitlaatservice en dierenoppas in Antwerpen en omgeving (Kalmthout, Kapellen, Brasschaat).
-                    Vraag snel een hondenoppas of verzorging op maat aan — wij regelen de match en opvolging.
+                  {/* Keep hero copy short on mobile; richer SEO copy on larger screens. */}
+                  <p className="text-base font-medium text-gray-900 leading-relaxed tracking-[-0.01em] sm:hidden">
+                    Professionele dierenoppas en hondenuitlaatservice in België. Start je aanvraag op maat — wij regelen de match en opvolging.
+                  </p>
+                  <p className="hidden sm:block sm:text-lg md:text-xl font-medium text-gray-900 leading-relaxed tracking-[-0.01em]">
+                    Professionele dierenoppas en hondenuitlaatservice in België. Start je aanvraag op maat — wij regelen de match en opvolging.
                   </p>
                   <p className="mt-2 text-sm sm:text-base md:text-lg text-emerald-950/90 font-semibold tracking-[-0.01em]">
                     Voor en door dierenverzorgers
