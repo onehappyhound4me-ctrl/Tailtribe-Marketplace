@@ -100,11 +100,11 @@ export default function HomePage() {
               <div className="rounded-3xl bg-white/70 backdrop-blur-sm border border-emerald-100/70 shadow-[0_12px_40px_rgba(16,185,129,0.10)] px-5 py-6 sm:px-8 sm:py-7">
                 <div className="text-center">
                   {/* Keep hero copy short on mobile; richer SEO copy on larger screens. */}
-                  <p className="text-base font-medium text-gray-900 leading-relaxed tracking-[-0.01em] sm:hidden">
+                  <p className="text-base font-heading font-medium text-gray-900 leading-relaxed tracking-[-0.01em] sm:hidden">
                     Van hondenuitlaat en dierenoppas tot dierenopvang en verzorging aan huis. Start je aanvraag op maat — wij regelen de match en
                     opvolging.
                   </p>
-                  <p className="hidden sm:block sm:text-lg md:text-xl font-medium text-gray-900 leading-relaxed tracking-[-0.01em]">
+                  <p className="hidden sm:block sm:text-lg md:text-xl font-heading font-medium text-gray-900 leading-relaxed tracking-[-0.01em]">
                     Van hondenuitlaat en dierenoppas tot dierenopvang en verzorging aan huis. Start je aanvraag op maat — wij regelen de match en
                     opvolging.
                   </p>
