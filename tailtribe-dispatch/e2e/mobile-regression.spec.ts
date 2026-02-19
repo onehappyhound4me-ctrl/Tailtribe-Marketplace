@@ -111,12 +111,13 @@ test.describe('mobile regression', () => {
     })
   }
 
-  test('boeken requires auth (redirects to login)', async ({ page }, testInfo) => {
+  test('boeken is public (no login redirect)', async ({ page }, testInfo) => {
     const guard = attachConsoleGuards(page, testInfo, AUTH_SESSION_NOISE_GUARD)
     await seedCookieConsentAccepted(page)
     await page.goto('/boeken')
     await acceptCookiesIfPresent(page)
-    await expect(page).toHaveURL(/\/login/)
+    await expect(page).toHaveURL(/\/boeken/)
+    await expect(page.getByRole('heading', { level: 2, name: 'Welke dienst heb je nodig?' })).toBeVisible()
     await guard.expectNoIssues()
   })
 })

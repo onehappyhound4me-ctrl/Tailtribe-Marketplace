@@ -16,7 +16,7 @@ const HERO_IMG_URL = encodeURI(HERO_IMG_PRIMARY)
 const HOME_FAQS = [
   {
     q: 'In welke regio werken jullie?',
-    a: 'We werken in België. Beschikbaarheid kan per dienst en regio verschillen; na je aanvraag bevestigen we snel wat haalbaar is.',
+    a: 'Beschikbaarheid kan per dienst en regio verschillen; na je aanvraag bevestigen we snel wat haalbaar is.',
   },
   {
     q: 'Hoe snel nemen jullie contact op?',
@@ -101,10 +101,12 @@ export default function HomePage() {
                 <div className="text-center">
                   {/* Keep hero copy short on mobile; richer SEO copy on larger screens. */}
                   <p className="text-base font-medium text-gray-900 leading-relaxed tracking-[-0.01em] sm:hidden">
-                    Professionele dierenoppas en hondenuitlaatservice in België. Start je aanvraag op maat — wij regelen de match en opvolging.
+                    Van hondenuitlaat en dierenoppas tot dierenopvang en verzorging aan huis. Start je aanvraag op maat — wij regelen de match en
+                    opvolging.
                   </p>
                   <p className="hidden sm:block sm:text-lg md:text-xl font-medium text-gray-900 leading-relaxed tracking-[-0.01em]">
-                    Professionele dierenoppas en hondenuitlaatservice in België. Start je aanvraag op maat — wij regelen de match en opvolging.
+                    Van hondenuitlaat en dierenoppas tot dierenopvang en verzorging aan huis. Start je aanvraag op maat — wij regelen de match en
+                    opvolging.
                   </p>
                   <p className="mt-2 text-sm sm:text-base md:text-lg text-emerald-950/90 font-semibold tracking-[-0.01em]">
                     Voor en door dierenverzorgers
