@@ -101,12 +101,10 @@ export default function HomePage() {
                 <div className="text-center">
                   {/* Keep hero copy short on mobile; richer SEO copy on larger screens. */}
                   <p className="text-base font-heading font-medium text-gray-900 leading-relaxed tracking-[-0.01em] sm:hidden">
-                    Van hondenuitlaat en dierenoppas tot dierenopvang en verzorging aan huis. Start je aanvraag op maat — wij regelen de match en
-                    opvolging.
+                    Van hondenuitlaat en dierenoppas tot dierenopvang en verzorging aan huis. Wij regelen de match en opvolging.
                   </p>
                   <p className="hidden sm:block sm:text-lg md:text-xl font-heading font-medium text-gray-900 leading-relaxed tracking-[-0.01em]">
-                    Van hondenuitlaat en dierenoppas tot dierenopvang en verzorging aan huis. Start je aanvraag op maat — wij regelen de match en
-                    opvolging.
+                    Van hondenuitlaat en dierenoppas tot dierenopvang en verzorging aan huis. Wij regelen de match en opvolging.
                   </p>
                   <p className="mt-2 text-sm sm:text-base md:text-lg text-emerald-950/90 font-semibold tracking-[-0.01em]">
                     Voor en door dierenverzorgers
