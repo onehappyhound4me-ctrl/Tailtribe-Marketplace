@@ -23,9 +23,10 @@ export function SiteFooter() {
     { label: 'Brasschaat', href: '/be/antwerpen/brasschaat' },
   ]
 
-  // Keep footer short + avoid duplicates like "Antwerpen" (province + city)
+  // Keep footer short + avoid obvious duplicates (province + city + key places)
   const popularProvincesShort = popular.slice(0, 3)
   const provinceNames = new Set(popularProvincesShort.map((p) => String(p!.name).toLowerCase()))
+  const keyRegionHrefs = new Set(keyRegions.map((r) => r.href))
 
   const popularPlaces = popularProvincesShort
     .flatMap((p) => (p?.topPlaces ?? []).map((pl) => ({ province: p!.slug, provinceName: p!.name, ...pl })))
@@ -96,22 +97,26 @@ export function SiteFooter() {
               <li className="pt-1">
                 <span className="text-slate-500">—</span>
               </li>
-              {popularProvincesShort.map((p) => (
-                <li key={p!.slug}>
-                  <Link href={`/be/${p!.slug}`} className="text-slate-300 hover:text-white">
-                    {p!.name}
-                  </Link>
-                </li>
-              ))}
-              {popularPlaces.length > 0 && (
+              {popularProvincesShort
+                .filter((p) => !keyRegionHrefs.has(`/be/${p!.slug}`))
+                .map((p) => (
+                  <li key={p!.slug}>
+                    <Link href={`/be/${p!.slug}`} className="text-slate-300 hover:text-white">
+                      {p!.name}
+                    </Link>
+                  </li>
+                ))}
+              {popularPlaces.filter((pl) => !keyRegionHrefs.has(`/be/${pl.province}/${pl.slug}`)).length > 0 && (
                 <>
-                  {popularPlaces.map((pl) => (
-                    <li key={`${pl.province}:${pl.slug}`}>
-                      <Link href={`/be/${pl.province}/${pl.slug}`} className="text-slate-300 hover:text-white">
-                        {pl.name}
-                      </Link>
-                    </li>
-                  ))}
+                  {popularPlaces
+                    .filter((pl) => !keyRegionHrefs.has(`/be/${pl.province}/${pl.slug}`))
+                    .map((pl) => (
+                      <li key={`${pl.province}:${pl.slug}`}>
+                        <Link href={`/be/${pl.province}/${pl.slug}`} className="text-slate-300 hover:text-white">
+                          {pl.name}
+                        </Link>
+                      </li>
+                    ))}
                 </>
               )}
               <li className="pt-1">
