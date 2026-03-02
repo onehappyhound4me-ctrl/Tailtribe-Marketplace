@@ -395,12 +395,6 @@ export function SiteHeader({ primaryCtaHref = '/boeken', primaryCtaLabel = 'Boek
               Diensten
             </Link>
             <Link
-              href="/be"
-              className="hidden md:block text-gray-700 hover:text-green-700 font-medium transition whitespace-nowrap"
-            >
-              Streken
-            </Link>
-            <Link
               href="/over-ons"
               className="hidden md:block text-gray-700 hover:text-green-700 font-medium transition whitespace-nowrap"
             >
