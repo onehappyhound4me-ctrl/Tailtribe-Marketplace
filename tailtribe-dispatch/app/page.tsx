@@ -8,10 +8,10 @@ import { DISPATCH_SERVICES } from '@/lib/services'
 import { SERVICE_ICON_FILTER, withAssetVersion } from '@/lib/service-icons'
 import { routes } from '@/lib/routes'
 
-// Gebruik een lokale hero-afbeelding uit /public.
-// Cache-buster query om harde refresh te forceren bij updates.
 const HERO_IMG_PRIMARY = '/assets/hero-marketplace.jpg?v=1'
 const HERO_IMG_URL = encodeURI(HERO_IMG_PRIMARY)
+
+const GOOGLE_REVIEWS_URL = `https://maps.google.com/?cid=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_CID || '3943987553262873468'}&hl=nl&gl=BE`
 
 const HOME_FAQS = [
   {
@@ -368,15 +368,17 @@ export default function HomePage() {
           </div>
 
           <div className="mt-10 text-center">
-            <Link
-              href="/google-reviews"
-              className="inline-flex items-center justify-center gap-2 rounded-full bg-emerald-50 border border-emerald-200 px-5 py-3 text-sm font-semibold text-emerald-800 hover:bg-emerald-100 hover:border-emerald-300 transition"
+            <a
+              href={GOOGLE_REVIEWS_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center justify-center gap-2 rounded-xl border border-emerald-200 bg-white px-6 py-3 text-sm font-semibold text-emerald-800 shadow-sm transition hover:border-emerald-300 hover:bg-emerald-50/80 hover:shadow-md"
             >
-              Bekijk alle Google reviews
-              <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              Bekijk onze reviews op Google
+              <svg className="h-4 w-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
               </svg>
-            </Link>
+            </a>
           </div>
         </div>
       </section>
