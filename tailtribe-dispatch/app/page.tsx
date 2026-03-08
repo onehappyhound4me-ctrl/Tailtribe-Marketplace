@@ -114,12 +114,12 @@ export default function HomePage() {
                 <div className="mt-6 sm:mt-7 flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center items-stretch sm:items-center">
                   <Link
                     href={bookingHref}
-                    className="group relative w-full sm:w-auto inline-flex items-center justify-center gap-2 overflow-hidden rounded-full bg-gradient-to-r from-emerald-600 to-green-600 px-7 sm:px-9 py-4 text-[15px] font-bold text-white shadow-lg shadow-emerald-700/20 ring-1 ring-emerald-600/25 transition-all duration-200 hover:-translate-y-0.5 hover:from-emerald-500 hover:to-green-500 hover:shadow-xl hover:shadow-emerald-700/25 active:translate-y-0 focus:outline-none focus:ring-4 focus:ring-emerald-200 min-h-[56px]"
+                    className="group relative w-full sm:w-auto inline-flex items-center justify-center gap-1.5 overflow-hidden rounded-full bg-gradient-to-r from-emerald-600 to-green-600 px-5 sm:px-6 py-3 text-[14px] font-semibold text-white shadow-md ring-1 ring-emerald-600/20 transition-all duration-200 hover:-translate-y-0.5 hover:from-emerald-500 hover:to-green-500 hover:shadow-lg active:translate-y-0 focus:outline-none focus:ring-2 focus:ring-emerald-300 min-h-[44px]"
                   >
-                    <span className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-200 group-hover:opacity-100 bg-[radial-gradient(circle_at_30%_20%,rgba(255,255,255,0.22),transparent_55%)]" />
+                    <span className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-200 group-hover:opacity-100 bg-[radial-gradient(circle_at_30%_20%,rgba(255,255,255,0.18),transparent_55%)]" />
                     Boek Nu
                     <svg
-                      className="h-5 w-5 opacity-90 transition-transform duration-200 group-hover:translate-x-0.5"
+                      className="h-4 w-4 opacity-90 transition-transform duration-200 group-hover:translate-x-0.5"
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
@@ -131,11 +131,11 @@ export default function HomePage() {
 
                   <Link
                     href="/verzorger-aanmelden"
-                    className="group w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-full bg-gradient-to-r from-amber-500 to-amber-600 px-7 sm:px-9 py-4 text-[15px] sm:text-[16px] font-bold text-white shadow-lg shadow-amber-600/25 ring-2 ring-amber-400/50 transition-all duration-200 hover:-translate-y-0.5 hover:from-amber-400 hover:to-amber-500 hover:shadow-xl hover:ring-amber-300/70 active:translate-y-0 focus:outline-none focus:ring-4 focus:ring-amber-200 min-h-[56px]"
+                    className="group w-full sm:w-auto inline-flex items-center justify-center gap-1.5 rounded-full bg-emerald-50 border border-emerald-200 px-5 sm:px-6 py-3 text-[14px] font-semibold text-emerald-800 shadow-sm ring-1 ring-emerald-200/80 transition-all duration-200 hover:bg-emerald-100 hover:border-emerald-300 hover:ring-emerald-300/80 active:translate-y-0 focus:outline-none focus:ring-2 focus:ring-emerald-200 min-h-[44px]"
                   >
                     <span className="sm:whitespace-nowrap">Join our tribe: werk met dieren</span>
                     <svg
-                      className="h-5 w-5 opacity-90 transition-transform duration-200 group-hover:translate-x-0.5"
+                      className="h-4 w-4 text-emerald-700 transition-transform duration-200 group-hover:translate-x-0.5"
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
