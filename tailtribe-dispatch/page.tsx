@@ -294,7 +294,17 @@ export default function HomePage() {
             ))}
           </div>
 
-          {/* "Bekijk alle Google reviews" link tijdelijk verborgen. */}
+          <div className="mt-10 text-center">
+            <Link
+              href="/google-reviews"
+              className="inline-flex items-center justify-center gap-2 rounded-full bg-emerald-50 border border-emerald-200 px-5 py-3 text-sm font-semibold text-emerald-800 hover:bg-emerald-100 hover:border-emerald-300 transition"
+            >
+              Bekijk alle Google reviews
+              <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
+            </Link>
+          </div>
         </div>
       </section>
 
