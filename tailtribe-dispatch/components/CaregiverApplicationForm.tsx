@@ -177,7 +177,7 @@ export function CaregiverApplicationForm({ successRedirectTo = '/verzorger-aanme
 
         <div className="grid md:grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium mb-2">Ondernemingsnummer / btw-nummer</label>
+            <label className="block text-sm font-medium mb-2">Ondernemingsnummer / btw-nummer (optioneel)</label>
             <input
               value={formData.enterpriseNumber}
               onChange={(e) => setFormData({ ...formData, enterpriseNumber: e.target.value })}

@@ -105,12 +105,11 @@ export default function CaregiverApplyPage() {
         <div className="max-w-3xl mx-auto">
           <div className="mb-8 text-center">
             <h1 className="text-4xl font-bold text-gray-900 mb-3">Aanmelden als dierenverzorger</h1>
-            <p className="text-gray-600">
-              TailTribe werkt uitsluitend met zelfstandige dierenverzorgers (freelancers). Vul je gegevens in en selecteer
-              de services die je aanbiedt. We nemen contact op voor de volgende stappen.
-              <span className="block mt-2 text-gray-700">
-                Extra voordeel: je werkt samen met ervaren dierenverzorgers, zodat je sneller en sterker kan starten.
-              </span>
+            <p className="text-gray-700 text-lg leading-relaxed max-w-2xl mx-auto">
+              Vul je gegevens in en geef aan welke diensten je aanbiedt. We nemen daarna contact met je op om de aanmelding af te ronden en je te koppelen aan het netwerk.
+            </p>
+            <p className="mt-3 text-emerald-800/90 font-medium text-base">
+              Je werkt samen met ervaren dierenverzorgers en kunt snel en gestructureerd starten.
             </p>
           </div>
 
