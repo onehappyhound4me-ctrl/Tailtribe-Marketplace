@@ -139,6 +139,24 @@ npm run test:e2e:report
 4. **WhatsApp/SMS**
    - Direct contact met klanten
 
+## 🔐 Inloggen met Gmail (Google OAuth)
+
+Als “Inloggen met Gmail” niet werkt, controleer het volgende:
+
+1. **Env-variabelen** (lokaal: `.env.local`; productie: Vercel Environment Variables):
+   - `GOOGLE_CLIENT_ID` en `GOOGLE_CLIENT_SECRET` moeten beide gezet zijn (zonder aanhalingstekens).
+   - `NEXTAUTH_URL` of `AUTH_URL`: exact je site-URL **zonder** trailing slash (bv. `https://tailtribe.be`).
+
+2. **Google Cloud Console** → APIs & Services → Credentials → jouw OAuth 2.0 Client:
+   - Onder **Authorized redirect URIs** moet exact staan:  
+     `https://jouw-domein/api/auth/callback/google`  
+     (lokaal: `http://localhost:3000/api/auth/callback/google`).
+   - Geen extra slash, geen andere path.
+
+3. **OAuth consent screen**: als de app in “Testing” staat, alleen test-users kunnen inloggen. Voeg het Gmail-adres toe als test user, of zet de app op “Production”.
+
+Na een fout bij Google-login toont de loginpagina de verwachte redirect-URI; vergelijk die met wat in Google Console staat.
+
 ## 🚀 Deploy naar Vercel
 
 Belangrijk: **SQLite is niet geschikt op Vercel** (filesystem is read-only / niet persistent).  

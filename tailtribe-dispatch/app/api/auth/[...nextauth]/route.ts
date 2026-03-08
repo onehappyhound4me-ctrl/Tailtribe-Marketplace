@@ -1,7 +1,6 @@
 import type { NextRequest } from 'next/server'
 import { NextResponse } from 'next/server'
 import { handlers } from '@/lib/auth'
-import { applyAuthBaseUrlEnv } from '@/lib/auth-base-url'
 
 // Force node runtime (bcrypt incompatible with Edge)
 export const runtime = 'nodejs'
@@ -9,9 +8,9 @@ export const runtime = 'nodejs'
 function ensureAuthEnv() {
   const isDev = process.env.NODE_ENV === 'development'
 
-  // NOTE: we intentionally validate/normalize the base URL centrally.
-  // If AUTH_URL or NEXTAUTH_URL ends with '/', we throw a clear error (prevents vague "Configuration").
-  applyAuthBaseUrlEnv()
+  // Do NOT call applyAuthBaseUrlEnv() here — the route handler already set AUTH_URL/NEXTAUTH_URL
+  // from the request origin. Re-applying without reqOrigin would overwrite with env and break
+  // OAuth callback on tailtribe.be when env points to vercel.app or differs.
 
   // Development convenience:
   // For local + iPhone testing we don't want /api/auth/session to hard-fail.
@@ -63,16 +62,22 @@ function ensureAuthEnv() {
   return null
 }
 
+/** Set AUTH_URL/NEXTAUTH_URL from the incoming request so OAuth callback URL is always correct (e.g. https://tailtribe.be). */
+function setAuthUrlFromRequest(req: NextRequest): void {
+  const forwardedProto = (req.headers.get('x-forwarded-proto') ?? '').split(',')[0]?.trim()
+  const forwardedHost = (req.headers.get('x-forwarded-host') ?? '').split(',')[0]?.trim()
+  const host = forwardedHost || req.headers.get('host') || req.nextUrl.host
+  const proto = forwardedProto || req.nextUrl.protocol.replace(':', '') || 'https'
+  const origin = host ? `${proto}://${host}` : req.nextUrl.origin
+  const base = origin.replace(/\/+$/, '')
+  process.env.AUTH_URL = base
+  process.env.NEXTAUTH_URL = base
+  process.env.AUTH_TRUST_HOST = 'true'
+}
+
 export async function GET(req: NextRequest) {
   try {
-    // Use the *real* public origin as fallback (important on Vercel custom domains).
-    // nextUrl.origin can still reflect the internal *.vercel.app host in some setups.
-    const forwardedProto = (req.headers.get('x-forwarded-proto') ?? '').split(',')[0]?.trim()
-    const forwardedHost = (req.headers.get('x-forwarded-host') ?? '').split(',')[0]?.trim()
-    const host = forwardedHost || req.headers.get('host') || req.nextUrl.host
-    const proto = forwardedProto || req.nextUrl.protocol.replace(':', '') || 'https'
-    const reqOrigin = host ? `${proto}://${host}` : req.nextUrl.origin
-    applyAuthBaseUrlEnv({ reqOrigin })
+    setAuthUrlFromRequest(req)
   } catch (err: any) {
     return NextResponse.json(
       {
@@ -90,12 +95,7 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
-    const forwardedProto = (req.headers.get('x-forwarded-proto') ?? '').split(',')[0]?.trim()
-    const forwardedHost = (req.headers.get('x-forwarded-host') ?? '').split(',')[0]?.trim()
-    const host = forwardedHost || req.headers.get('host') || req.nextUrl.host
-    const proto = forwardedProto || req.nextUrl.protocol.replace(':', '') || 'https'
-    const reqOrigin = host ? `${proto}://${host}` : req.nextUrl.origin
-    applyAuthBaseUrlEnv({ reqOrigin })
+    setAuthUrlFromRequest(req)
   } catch (err: any) {
     return NextResponse.json(
       {

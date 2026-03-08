@@ -96,9 +96,9 @@ function buildAuth() {
     (process.env.NEXTAUTH_SECRET ?? process.env.AUTH_SECRET ?? '').trim() || undefined
 
   const googleClientId =
-    (process.env.GOOGLE_CLIENT_ID ?? process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID ?? '').trim() ||
+    normalizeEnvValue(process.env.GOOGLE_CLIENT_ID ?? process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID) ||
     undefined
-  const googleClientSecret = (process.env.GOOGLE_CLIENT_SECRET ?? '').trim() || undefined
+  const googleClientSecret = normalizeEnvValue(process.env.GOOGLE_CLIENT_SECRET) || undefined
 
   // IMPORTANT: don't throw at module import time; only validate when auth is used.
   const assertNextAuthSecret = () => {
@@ -236,6 +236,18 @@ function buildAuth() {
       },
     },
     callbacks: {
+      async redirect({ url, baseUrl }) {
+        assertNextAuthSecret()
+        // Allow relative callbackUrl (e.g. /dashboard) and ensure we stay on same origin.
+        if (url.startsWith('/')) return `${baseUrl.replace(/\/+$/, '')}${url}`
+        try {
+          const u = new URL(url)
+          if (u.origin === baseUrl.replace(/\/+$/, '')) return url
+        } catch {
+          // ignore
+        }
+        return baseUrl.replace(/\/+$/, '') || '/dashboard'
+      },
       async signIn({ user, account }) {
         assertNextAuthSecret()
         if (authDebug) {

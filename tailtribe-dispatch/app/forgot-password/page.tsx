@@ -128,7 +128,9 @@ export default function ForgotPasswordPage() {
                   </label>
                   <input
                     id="email"
+                    name="email"
                     type="email"
+                    autoComplete="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     required
@@ -155,7 +157,9 @@ export default function ForgotPasswordPage() {
                   </label>
                   <input
                     id="newPassword"
+                    name="newPassword"
                     type="password"
+                    autoComplete="new-password"
                     value={newPassword}
                     onChange={(e) => setNewPassword(e.target.value)}
                     required
@@ -169,7 +173,9 @@ export default function ForgotPasswordPage() {
                   </label>
                   <input
                     id="confirmPassword"
+                    name="confirmPassword"
                     type="password"
+                    autoComplete="new-password"
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
                     required

@@ -555,6 +555,8 @@ export default function CaregiverProfilePage() {
                 <label className="block text-sm font-medium text-gray-700 mb-1">Huidig wachtwoord</label>
                 <input
                   type="password"
+                  name="currentPassword"
+                  autoComplete="current-password"
                   value={currentPassword}
                   onChange={(e) => setCurrentPassword(e.target.value)}
                   required
@@ -566,6 +568,8 @@ export default function CaregiverProfilePage() {
                   <label className="block text-sm font-medium text-gray-700 mb-1">Nieuw wachtwoord</label>
                   <input
                     type="password"
+                    name="newPassword"
+                    autoComplete="new-password"
                     value={newPassword}
                     onChange={(e) => setNewPassword(e.target.value)}
                     required
@@ -577,6 +581,8 @@ export default function CaregiverProfilePage() {
                   <label className="block text-sm font-medium text-gray-700 mb-1">Bevestig wachtwoord</label>
                   <input
                     type="password"
+                    name="confirmPassword"
+                    autoComplete="new-password"
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
                     required

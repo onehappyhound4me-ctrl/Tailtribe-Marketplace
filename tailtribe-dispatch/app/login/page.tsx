@@ -19,9 +19,11 @@ export default function LoginPage() {
 
   const debug = searchParams.get('debug') === '1'
   const pwReset = searchParams.get('pwreset') === '1'
+  const [callbackOrigin, setCallbackOrigin] = useState<string>('')
 
   const verified = searchParams.get('verified')
   const errorParam = searchParams.get('error')
+  const isGoogleConfigError = errorParam === 'Configuration' || errorParam === 'OAuthCallback'
   const oauthErrorMessage = errorParam
     ? {
         Configuration:
@@ -42,6 +44,10 @@ export default function LoginPage() {
     rawCallbackUrl && rawCallbackUrl.startsWith('/') && !rawCallbackUrl.startsWith('//')
       ? rawCallbackUrl
       : '/dashboard'
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') setCallbackOrigin(window.location.origin)
+  }, [])
 
   // Prefetch available providers so we can disable the Google button when not configured on THIS server (local dev).
   useEffect(() => {
@@ -133,17 +139,9 @@ export default function LoginPage() {
         setLoading(false)
         return
       }
-      const result = await signIn(provider, { callbackUrl, redirect: false })
-      if (result?.error) {
-        setError('Inloggen via externe provider lukt niet. Probeer opnieuw.')
-        setLoading(false)
-        return
-      }
-      if (result?.url) {
-        window.location.href = result.url
-        return
-      }
-      window.location.href = `/api/auth/signin/${provider}?callbackUrl=${encodeURIComponent(callbackUrl)}`
+      // redirect: true = full page navigation to Google, then back to our callback (most reliable).
+      await signIn(provider, { callbackUrl, redirect: true })
+      setLoading(false)
     } catch {
       setError('Inloggen via externe provider lukt niet. Probeer opnieuw.')
       setLoading(false)
@@ -189,8 +187,17 @@ export default function LoginPage() {
             )}
 
             {oauthErrorMessage && !['invalid_token', 'token_expired'].includes(errorParam ?? '') && (
-              <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-800 text-sm">
-                {oauthErrorMessage}
+              <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-800 text-sm space-y-2">
+                <p>{oauthErrorMessage}</p>
+                {isGoogleConfigError && callbackOrigin && (
+                  <p className="text-xs mt-2 pt-2 border-t border-red-200">
+                    Voeg in Google Cloud Console (APIs &amp; Services → Credentials → jouw OAuth 2.0 Client) onder &quot;Authorized redirect URIs&quot; exact deze URL toe:{' '}
+                    <code className="bg-red-100 px-1 rounded break-all">{callbackOrigin}/api/auth/callback/google</code>
+                  </p>
+                )}
+                <p className="text-xs mt-2 pt-2 border-t border-red-200">
+                  Tip: sta cookies voor deze site toe en zet tracking‑ of scriptblokkering uit voor dit domein, daarna opnieuw proberen.
+                </p>
               </div>
             )}
 
@@ -223,7 +230,7 @@ export default function LoginPage() {
               <div className="text-center text-xs text-gray-400">of</div>
             </div>
 
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <form onSubmit={handleSubmit} className="space-y-4" autoComplete="on">
               <div>
                 <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
                   E-mailadres
@@ -231,6 +238,8 @@ export default function LoginPage() {
                 <input
                   id="email"
                   type="email"
+                  name="email"
+                  autoComplete="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
@@ -246,6 +255,8 @@ export default function LoginPage() {
                 <input
                   id="password"
                   type="password"
+                  name="password"
+                  autoComplete="current-password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required

@@ -341,6 +341,8 @@ export default function BookingPage() {
                       <div className="flex flex-col md:flex-row gap-2">
                         <input
                           type="date"
+                          name="date"
+                          autoComplete="off"
                           value={dateDraft}
                           onChange={(e) => setDateDraft(e.target.value)}
                           min={todayStr}
@@ -378,6 +380,8 @@ export default function BookingPage() {
                       <label className="block text-sm font-medium mb-2">Exact tijdstip (optioneel)</label>
                       <input
                         type="time"
+                        name="time"
+                        autoComplete="off"
                         value={formData.time}
                         onChange={(e) => setFormData({ ...formData, time: e.target.value })}
                         className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-brand focus:border-transparent"
@@ -415,6 +419,8 @@ export default function BookingPage() {
                         <label className="block text-sm font-medium mb-2">Voornaam</label>
                         <input
                           type="text"
+                          name="firstName"
+                          autoComplete="given-name"
                           required
                           value={formData.firstName}
                           onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
@@ -426,6 +432,8 @@ export default function BookingPage() {
                         <label className="block text-sm font-medium mb-2">Achternaam</label>
                         <input
                           type="text"
+                          name="lastName"
+                          autoComplete="family-name"
                           required
                           value={formData.lastName}
                           onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
@@ -438,6 +446,8 @@ export default function BookingPage() {
                       <label className="block text-sm font-medium mb-2">Email</label>
                       <input
                         type="email"
+                        name="email"
+                        autoComplete="email"
                         required
                         value={formData.email}
                         onChange={(e) => setFormData({ ...formData, email: e.target.value })}
@@ -449,6 +459,8 @@ export default function BookingPage() {
                       <label className="block text-sm font-medium mb-2">Telefoon</label>
                       <input
                         type="tel"
+                        name="phone"
+                        autoComplete="tel"
                         value={formData.phone}
                         onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                         className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-brand"
@@ -490,6 +502,8 @@ export default function BookingPage() {
                         <label className="block text-sm font-medium mb-2">Stad</label>
                         <input
                           type="text"
+                          name="city"
+                          autoComplete="address-level2"
                           required
                           value={formData.city}
                           onChange={(e) => setFormData({ ...formData, city: e.target.value })}
@@ -501,6 +515,8 @@ export default function BookingPage() {
                         <label className="block text-sm font-medium mb-2">Postcode</label>
                         <input
                           type="text"
+                          name="postalCode"
+                          autoComplete="postal-code"
                           required
                           value={formData.postalCode}
                           onChange={(e) => setFormData({ ...formData, postalCode: e.target.value })}
@@ -539,6 +555,8 @@ export default function BookingPage() {
                       <label className="block text-sm font-medium mb-2">Naam huisdier</label>
                       <input
                         type="text"
+                        name="petName"
+                        autoComplete="off"
                         required
                         value={formData.petName}
                         onChange={(e) => setFormData({ ...formData, petName: e.target.value })}

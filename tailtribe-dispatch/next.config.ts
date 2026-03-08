@@ -83,11 +83,12 @@ const nextConfig: NextConfig = {
     const scriptSrc = [
       "'self'",
       "'unsafe-inline'",
+      // NextAuth OAuth (Google) client bundle uses eval; without this, Gmail login stays loading and returns to /login.
+      "'unsafe-eval'",
       // GA4 / GTM loader
       "https://www.googletagmanager.com",
       // GA endpoints
       "https://www.google-analytics.com",
-      // Allow future GA subresources without opening up eval.
     ]
 
     const connectSrc = [

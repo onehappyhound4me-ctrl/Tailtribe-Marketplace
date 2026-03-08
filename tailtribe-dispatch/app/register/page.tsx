@@ -384,7 +384,9 @@ export default function RegisterPage() {
               <div className="flex items-start gap-3">
                 <input
                   id="acceptTerms"
+                  name="acceptTerms"
                   type="checkbox"
+                  autoComplete="off"
                   checked={formData.acceptTerms}
                   onChange={(e) => setFormData({ ...formData, acceptTerms: e.target.checked })}
                   className="mt-1 h-4 w-4 rounded border-gray-300 text-emerald-600 focus:ring-emerald-500"
