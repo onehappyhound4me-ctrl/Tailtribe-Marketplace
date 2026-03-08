@@ -147,7 +147,7 @@ export default function TermsPage() {
               <h2 className="text-xl font-semibold text-gray-900 mb-2">9. Aansprakelijkheidsstelling</h2>
               <ul className="list-disc pl-5 space-y-1">
                 <li>TailTribe treedt op als platform, organisator en tussenpersoon. De feitelijke uitvoering gebeurt door TailTribe en/of aangesloten zelfstandige Dienstverleners.</li>
-                <li>TailTribe is niet aansprakelijk voor handelingen/nalatigheden/fouten van Dienstverleners, behalve bij bewezen opzet of zware fout van TailTribe zelf.</li>
+                <li>TailTribe is niet aansprakelijk voor handelingen/nalatigheden/fouten van Dienstverleners.</li>
                 <li>Geen aansprakelijkheid voor keuze, matching, beschikbaarheid, geschiktheid of vervanging van Dienstverleners; geen garantie op uitvoering door Dienstverleners.</li>
                 <li>Inspanningsverbintenis, geen resultaatsverbintenis: geen garantie op gedrag/gezondheid/welzijn/evolutie van het huisdier.</li>
                 <li>Geen aansprakelijkheid voor ziekte, ongeval, letsel of overlijden van het huisdier; weglopen/ontsnappen; besmetting (vlooien, wormen, andere ziektes); stress/gedragsverandering; schade door het huisdier aan dieren/personen/eigendommen; schade aan woning/inboedel veroorzaakt door het huisdier.</li>
