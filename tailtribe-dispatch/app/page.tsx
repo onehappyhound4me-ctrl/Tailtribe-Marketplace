@@ -131,11 +131,11 @@ export default function HomePage() {
 
                   <Link
                     href="/verzorger-aanmelden"
-                    className="group w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-full bg-white px-7 sm:px-9 py-4 text-[15px] font-semibold text-emerald-950 shadow-sm ring-1 ring-emerald-200/90 transition-all duration-200 hover:-translate-y-0.5 hover:bg-white hover:ring-emerald-300 active:translate-y-0 focus:outline-none focus:ring-4 focus:ring-emerald-100 min-h-[56px]"
+                    className="group w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-full bg-gradient-to-r from-amber-500 to-amber-600 px-7 sm:px-9 py-4 text-[15px] sm:text-[16px] font-bold text-white shadow-lg shadow-amber-600/25 ring-2 ring-amber-400/50 transition-all duration-200 hover:-translate-y-0.5 hover:from-amber-400 hover:to-amber-500 hover:shadow-xl hover:ring-amber-300/70 active:translate-y-0 focus:outline-none focus:ring-4 focus:ring-amber-200 min-h-[56px]"
                   >
                     <span className="sm:whitespace-nowrap">Join our tribe: werk met dieren</span>
                     <svg
-                      className="h-5 w-5 opacity-70 transition-transform duration-200 group-hover:translate-x-0.5"
+                      className="h-5 w-5 opacity-90 transition-transform duration-200 group-hover:translate-x-0.5"
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"

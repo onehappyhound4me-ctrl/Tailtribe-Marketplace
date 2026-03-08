@@ -443,6 +443,14 @@ export function SiteHeader({ primaryCtaHref = '/boeken', primaryCtaLabel = 'Boek
               )}
             </div>
             
+            {/* Desktop: Word dierenoppasser (alleen PC, net voor Boek Nu) */}
+            <Link
+              href="/verzorger-aanmelden"
+              className="hidden md:inline-flex items-center justify-center px-4 lg:px-5 h-11 py-2.5 rounded-full font-semibold text-amber-900 bg-amber-100/90 border border-amber-300/80 hover:bg-amber-200/90 hover:border-amber-400 transition shadow-sm text-sm whitespace-nowrap"
+            >
+              Word dierenoppasser
+            </Link>
+
             {/* Mobile & Shared Buttons */}
             <div className="flex items-center gap-2 md:gap-3">
               {/* Mobile menu toggle */}
