@@ -102,16 +102,22 @@ export default function CaregiverApplyPage() {
       <SiteHeader primaryCtaHref="/" primaryCtaLabel="Terug" />
 
       <main className="container mx-auto px-4 py-12 pb-28">
-        <div className="max-w-3xl mx-auto">
-          <div className="mb-8 text-center">
-            <h1 className="text-4xl font-bold text-gray-900 mb-3">Aanmelden als dierenverzorger</h1>
-            <p className="text-gray-700 text-lg leading-relaxed max-w-2xl mx-auto">
-              Vul je gegevens in en geef aan welke diensten je aanbiedt. We nemen daarna contact met je op om de aanmelding af te ronden en je te koppelen aan het netwerk.
-            </p>
-            <p className="mt-3 text-emerald-800/90 font-medium text-base">
-              Je werkt samen met ervaren dierenverzorgers en kunt snel en gestructureerd starten.
-            </p>
-          </div>
+          <div className="max-w-3xl mx-auto">
+            <div className="mb-8 text-center px-2 sm:px-0">
+              <p className="text-xs font-semibold tracking-wide text-emerald-700 uppercase mb-2">
+                Voor dierenverzorgers
+              </p>
+              <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-3">
+                Aanmelden als dierenverzorger
+              </h1>
+              <p className="text-gray-700 text-base sm:text-lg leading-relaxed max-w-2xl mx-auto">
+                Vul je gegevens in en geef aan welke diensten je aanbiedt. We nemen daarna contact met je op om de
+                aanmelding af te ronden en je te koppelen aan het netwerk.
+              </p>
+              <p className="mt-4 text-emerald-800/90 font-medium text-sm sm:text-base">
+                Je sluit je aan bij een netwerk van ervaren dierenverzorgers en kunt snel en gestructureerd starten.
+              </p>
+            </div>
 
           <div className="bg-white rounded-2xl shadow-tt p-8">
             <CaregiverApplicationForm />
