@@ -147,11 +147,11 @@ export function SiteFooter() {
               </li>
               <li className="pt-1">
                 <a
-                  href="https://www.instagram.com/1happyhound/?hl=nl"
+                  href="https://www.instagram.com/tailtribe_/"
                   target="_blank"
                   rel="noreferrer noopener"
                   className="inline-flex items-center gap-2 text-emerald-300 hover:text-white font-medium"
-                  aria-label="Instagram"
+                  aria-label="TailTribe op Instagram"
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className="w-6 h-6 fill-current">
                     <path d="M7 3h10a4 4 0 0 1 4 4v10a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4V7a4 4 0 0 1 4-4Zm0 2a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2H7Zm10.25 1.25a1.25 1.25 0 1 1-2.5 0 1.25 1.25 0 0 1 2.5 0ZM12 8.5A3.5 3.5 0 1 1 8.5 12 3.5 3.5 0 0 1 12 8.5Zm0 2a1.5 1.5 0 1 0 1.5 1.5A1.5 1.5 0 0 0 12 10.5Z" />

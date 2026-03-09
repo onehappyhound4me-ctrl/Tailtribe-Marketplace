@@ -89,7 +89,7 @@ export default function RootLayout({
                 logo: orgLogoUrl,
                 description: 'Professionele dierenverzorging in België.',
                 areaServed: { '@type': 'Country', name: 'België' },
-                sameAs: ['https://www.instagram.com/1happyhound/?hl=nl'],
+                sameAs: ['https://www.instagram.com/tailtribe_/'],
                 contactPoint: [
                   {
                     '@type': 'ContactPoint',
