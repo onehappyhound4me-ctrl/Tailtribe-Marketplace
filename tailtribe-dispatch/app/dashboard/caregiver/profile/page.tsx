@@ -356,7 +356,7 @@ export default function CaregiverProfilePage() {
                       <div className="text-xs text-gray-600">{service.desc}</div>
                       {isGroupWalk && (
                         <div className="mt-2 text-xs text-emerald-700 font-semibold">
-                          Groepsuitlaat – opleiding voorzien indien gewenst!
+                          Hondenuitlaatservice – opleiding voorzien indien gewenst!
                         </div>
                       )}
                     </div>

@@ -70,7 +70,7 @@ const faqs = [
     a: 'We werken in België. Beschrijf je locatie en timing; we zoeken de dichtstbijzijnde beschikbare verzorger.',
   },
   {
-    q: 'Hoe werkt groepsuitlaat en veiligheid?',
+    q: 'Hoe werkt hondenuitlaatservice en veiligheid?',
     a: 'We doen een geschiktheidsscreening (sociaal, basisgehoorzaamheid) en volgen de lokale regels. Loslopen alleen waar het mag en als het veilig is.',
   },
   {

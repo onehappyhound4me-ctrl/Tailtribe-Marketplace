@@ -132,7 +132,7 @@ export default function DienstDetailPage({ params }: Props) {
     service.id === 'DOG_WALKING'
       ? 'Hondenuitlaatservice nodig in Antwerpen en omgeving? We stemmen tempo, duur en routine af op jouw hond. Ook mogelijk als vaste hondenoppas op weekdagen.'
       : service.id === 'GROUP_DOG_WALKING'
-        ? 'Groepsuitlaat in Antwerpen (+rand) en Antwerpen Noord (Kapellen–Brasschaat–Kalmthout). Ideaal voor sociale honden die graag samen wandelen en mentaal uitgedaagd worden.'
+        ? 'Hondenuitlaatservice in Antwerpen (+rand) en Antwerpen Noord (Kapellen–Brasschaat–Kalmthout). Ideaal voor sociale honden die graag samen wandelen en mentaal uitgedaagd worden.'
         : service.id === 'PET_SITTING'
           ? 'Dierenoppas aan huis is ideaal als je huisdier het best in de eigen omgeving blijft. We volgen jouw routine en spreken duidelijke afspraken af voor voeding, wandelen en updates.'
           : service.id === 'PET_BOARDING'
@@ -162,11 +162,11 @@ export default function DienstDetailPage({ params }: Props) {
       : service.id === 'GROUP_DOG_WALKING'
         ? [
             {
-              q: 'Voor welke honden is groepsuitlaat geschikt?',
+              q: 'Voor welke honden is hondenuitlaatservice geschikt?',
               a: 'Voor sociale honden die vlot omgaan met andere honden en prikkels. We bekijken dit via intake en (indien nodig) een testmoment.',
             },
             {
-              q: 'In welke regio gaat groepsuitlaat door?',
+              q: 'In welke regio gaat hondenuitlaatservice door?',
               a: 'Focus: Antwerpen (+rand) en Antwerpen Noord (Kapellen–Brasschaat–Kalmthout).',
             },
             {
@@ -344,7 +344,7 @@ export default function DienstDetailPage({ params }: Props) {
                   <div className="relative w-[88vw] max-w-[560px] sm:w-[65vw] md:w-[38vw] lg:w-[26vw] aspect-[4/3] bg-white rounded-[calc(1.5rem-3px)] overflow-hidden border border-white/60">
                   <img
                     src={withAssetVersion('/assets/groepsuitlaat-hero.jpg')}
-                    alt="Groepsuitlaat in actie"
+                    alt="Hondenuitlaatservice in actie"
                     loading="lazy"
                     decoding="async"
                     className="h-full w-full object-cover md:[filter:brightness(1.08)]"

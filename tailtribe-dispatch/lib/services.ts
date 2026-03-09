@@ -84,11 +84,11 @@ export const DISPATCH_SERVICES: DispatchService[] = [
   },
   {
     id: 'GROUP_DOG_WALKING',
-    name: 'Groepsuitlaat',
+    name: 'Hondenuitlaatservice',
     desc: 'Sociale uitstapjes met andere honden',
     slug: 'groepsuitlaat',
     image: '/assets/groepsuitlaat.png',
-    detailTitle: 'Groepsuitlaat-avontuurlijke daguitstappen',
+    detailTitle: 'Hondenuitlaatservice – avontuurlijke daguitstappen',
     providerSpotlight: {
       name: 'One Happy Hound',
       href: 'https://onehappyhound.be/?utm_source=tailtribe&utm_medium=referral&utm_campaign=groepsuitlaat',
@@ -106,7 +106,7 @@ export const DISPATCH_SERVICES: DispatchService[] = [
       whyText:
         'Verveelt je hond zich als hij alleen thuis is of wanneer je bent gaan werken? Heb je gewoon even wat weinig tijd voor je viervoeter? Zou je ook graag een iets kalmere hond willen op het einde van de dag? Denk je dat je hond te dik is en kampt hij met overgewicht? Kauwt hij je meubels stuk?\n\nGeen nood, je kan nu beroep doen op onze uitlaatservice voor honden! Uw hond wordt opgehaald en na een volledige dagtocht moe en voldaan terug gebracht. Op die manier krijgt het baasje na een werkdag een kalme en zelfverzekerde hond terug.\n\nWetenschappelijke bevindingen tonen immers aan dat honden voldoende activiteit en contact nodig hebben met prikkels uit de omgeving. Hierbij hebben ze contact nodig met zowel andere honden als de natuur en mensen. Dit is wat wij deze dieren dan ook aanbieden.',
       includesText:
-        'Je hond komt terecht in een groep van sociale honden waar er veel interactie is.\n\nVia veilig transport worden de honden ’s voormiddags bij de eigenaar opgepikt en ’s namiddags weer thuis afgezet.\n\nDe honden in de groep worden fysiek en mentaal uitgedaagd door allerlei activiteiten, zoals lopen, balspelletjes, wandelingen in bossen en velden, en uitdagingen met water om het natuurlijke gedrag van de hond te stimuleren. Uiteraard lassen we regelmatig rustpauzes in en houden we rekening met oudere honden, kleine honden en pups (vanaf 8–9 maanden).\n\nVeiligheid van hond en omstanders is een prioriteit en wordt voortdurend opgevolgd.\n\nVoor verzorgers die groepsuitlaat aanbieden voorzien we een kort zorg- & veiligheidstraject (gedrag, risico-inschatting en klantcommunicatie), zodat kwaliteit en veiligheid consistent blijven.\n\nHet kennismakingsgesprek is volledig gratis. Zo kan je meer te weten komen zonder verplichtingen. Hierbij kijken we ook of je hond geschikt is om mee te gaan met een groep honden. Is dat positief, dan volgt er een testdag. Daarna kan je hond mee op de uitlaatdagen.',
+        'Je hond komt terecht in een groep van sociale honden waar er veel interactie is.\n\nVia veilig transport worden de honden ’s voormiddags bij de eigenaar opgepikt en ’s namiddags weer thuis afgezet.\n\nDe honden in de groep worden fysiek en mentaal uitgedaagd door allerlei activiteiten, zoals lopen, balspelletjes, wandelingen in bossen en velden, en uitdagingen met water om het natuurlijke gedrag van de hond te stimuleren. Uiteraard lassen we regelmatig rustpauzes in en houden we rekening met oudere honden, kleine honden en pups (vanaf 8–9 maanden).\n\nVeiligheid van hond en omstanders is een prioriteit en wordt voortdurend opgevolgd.\n\nVoor verzorgers die hondenuitlaatservice aanbieden voorzien we een kort zorg- & veiligheidstraject (gedrag, risico-inschatting en klantcommunicatie), zodat kwaliteit en veiligheid consistent blijven.\n\nHet kennismakingsgesprek is volledig gratis. Zo kan je meer te weten komen zonder verplichtingen. Hierbij kijken we ook of je hond geschikt is om mee te gaan met een groep honden. Is dat positief, dan volgt er een testdag. Daarna kan je hond mee op de uitlaatdagen.',
       includes: [
         'Afstemming op karakter en energie (indien mogelijk).',
         'Duidelijke afspraken over ophalen/terugbrengen en timing.',

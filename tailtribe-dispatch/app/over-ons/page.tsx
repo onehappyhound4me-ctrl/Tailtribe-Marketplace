@@ -96,7 +96,7 @@ export default function OverOnsPage() {
                 Gebouwd vanuit praktijkervaring
               </h2>
               <p>
-                TailTribe is geen theorie, maar praktijk. Jaren ervaring met groepsuitlaat, gedrag en dagelijkse zorg bepalen onze
+                TailTribe is geen theorie, maar praktijk. Jaren ervaring met hondenuitlaatservice, gedrag en dagelijkse zorg bepalen onze
                 standaarden. We weten wat werkt in het veld en vertalen dat naar veilige, professionele begeleiding.
               </p>
               <h2 className="text-xl sm:text-2xl font-semibold text-transparent bg-clip-text bg-gradient-to-r from-emerald-700 to-blue-700 mt-6">

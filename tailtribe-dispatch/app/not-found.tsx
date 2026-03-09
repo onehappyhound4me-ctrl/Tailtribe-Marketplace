@@ -37,7 +37,7 @@ export default function NotFound() {
                 Dierenverzorging in Antwerpen
               </Link>
               <Link href="/be/antwerpen/kalmthout" className="text-emerald-700 hover:underline">
-                Groepsuitlaat in Kalmthout
+                Hondenuitlaatservice in Kalmthout
               </Link>
               <Link href="/contact" className="text-emerald-700 hover:underline">
                 Contact

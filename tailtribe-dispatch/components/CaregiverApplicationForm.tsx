@@ -301,7 +301,7 @@ export function CaregiverApplicationForm({ successRedirectTo = '/verzorger-aanme
                   <div className="text-sm text-gray-600">{s.desc}</div>
                   {isGroupWalk && (
                     <div className="mt-2 text-xs text-emerald-700 font-semibold">
-                      Groepsuitlaat – opleiding voorzien indien gewenst!
+                      Hondenuitlaatservice – opleiding voorzien indien gewenst!
                     </div>
                   )}
                 </button>

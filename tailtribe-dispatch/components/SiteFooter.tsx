@@ -10,7 +10,7 @@ export function SiteFooter() {
 
   const keyServices = [
     { label: 'Hondenuitlaatservice', href: '/diensten/hondenuitlaat' },
-    { label: 'Groepsuitlaat (Antwerpen)', href: '/diensten/groepsuitlaat' },
+    { label: 'Hondenuitlaatservice (Antwerpen)', href: '/diensten/groepsuitlaat' },
     { label: 'Dierenoppas aan huis', href: '/diensten/dierenoppas' },
     { label: 'Dierenopvang', href: '/diensten/dierenopvang' },
   ]
