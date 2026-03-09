@@ -35,10 +35,12 @@ export default function DienstenPage() {
     ],
   }
 
+  const visibleServices = DISPATCH_SERVICES.filter((service) => service.slug !== 'kattenoppas')
+
   const itemListJsonLd = {
     '@context': 'https://schema.org',
-    '@type': 'ItemList',
-    itemListElement: DISPATCH_SERVICES.map((service, index) => ({
+      '@type': 'ItemList',
+      itemListElement: visibleServices.map((service, index) => ({
       '@type': 'ListItem',
       position: index + 1,
       name: service.name,
@@ -73,7 +75,7 @@ export default function DienstenPage() {
           </header>
 
           <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 mb-12">
-            {DISPATCH_SERVICES.map((service) => (
+            {visibleServices.map((service) => (
               <Link
                 key={service.id}
                 href={routes.dienst(service.slug)}

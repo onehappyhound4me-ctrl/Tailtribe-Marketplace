@@ -4,7 +4,6 @@ export type DispatchService = {
     | 'GROUP_DOG_WALKING'
     | 'DOG_TRAINING'
     | 'PET_SITTING'
-    | 'CAT_SITTING'
     | 'PET_BOARDING'
     | 'HOME_CARE'
     | 'PET_TRANSPORT'
@@ -159,32 +158,6 @@ export const DISPATCH_SERVICES: DispatchService[] = [
         'Neem favoriete voeding/snacks mee (en vermeld eventuele allergieën).',
         'Geef duidelijke instructies rond routine en grenzen (bench, sofa, bezoek, …).',
         'Noteer noodcontacten en dierenartsgegevens (voor de zekerheid).',
-      ],
-    },
-  },
-  {
-    id: 'CAT_SITTING',
-    name: 'Kattenoppas',
-    desc: 'Oppas en verzorging voor katten in hun vertrouwde omgeving',
-    slug: 'kattenoppas',
-    image: '/assets/kattenoppas.png',
-    longDescription: {
-      why: [
-        'Katten voelen zich het veiligst in hun eigen territorium en routine.',
-        'Thuisoppas voorkomt onnodige stress door verplaatsingen of vreemde omgevingen.',
-      ],
-      whyText:
-        'Veel katten hechten sterk aan hun eigen omgeving: geuren, looproutes, verstopplekjes en vaste rustplaatsen. Een kattenoppas aan huis sluit daar perfect bij aan. In plaats van je kat te verhuizen naar een pension, blijft ze in haar vertrouwde territorium en komt de oppas langs volgens duidelijke afspraken.\n\nDat is rustiger voor katten die gevoelig zijn aan prikkels, nieuwe geuren of andere dieren. Ook voor kittens, senioren of katten met een medische voorgeschiedenis biedt thuisoppas meer voorspelbaarheid. We volgen jouw routine zo nauw mogelijk (voeding, speeltijd, rustmomenten) en letten op subtiele signalen in gedrag en eetlust. Bij twijfel over gezondheid wordt er altijd eerst met jou afgestemd.',
-      includes: [
-        'Bezoeken op maat (1 of meerdere keren per dag, volgens afspraak).',
-        'Voeding, vers water, kattenbakonderhoud en basiscontrole van huis en omgeving.',
-      ],
-      includesText:
-        'Tijdens een bezoek van de kattenoppas zorgen we voor:\n- voeding en vers water volgens jouw schema\n- uitscheppen en schoonhouden van de kattenbak(ken)\n- aandacht, spel en knuffels (als je kat dat fijn vindt)\n- korte visuele welzijnscheck (eetlust, vacht, gedrag)\n\nJe kan extra wensen doorgeven, zoals planten water geven, rolluiken bedienen of post binnenhalen. In overleg spreken we ook af hoe vaak je een update wil (bericht of foto), zodat je met een gerust hart weg bent. Bij opvallende veranderingen in gedrag of gezondheid nemen we onmiddellijk contact met je op.',
-      tips: [
-        'Laat duidelijke instructies achter over voeding, porties en favoriete snacks.',
-        'Noteer dierenartsgegevens en noodcontact voor het geval er iets onverwachts gebeurt.',
-        'Vermeld of je kat binnen blijft of (onder voorwaarden) naar buiten mag.',
       ],
     },
   },
