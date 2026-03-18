@@ -399,6 +399,20 @@ export default function BookingPage() {
                           max={maxBookingDateStr}
                           className="flex-1 px-4 py-3 h-11 md:h-auto border border-gray-300 rounded-xl focus:ring-2 focus:ring-brand focus:border-transparent"
                         />
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setDateDraft('')
+                            setFormData((prev) => ({ ...prev, dates: [] }))
+                            setFieldErrors((prev) => {
+                              const { dates, date, ...rest } = prev
+                              return rest
+                            })
+                          }}
+                          className="px-4 py-3 h-11 md:h-auto rounded-xl border border-gray-300 bg-white font-semibold text-gray-700 hover:bg-gray-50 inline-flex items-center justify-center text-sm"
+                        >
+                          Reset datums
+                        </button>
                       </div>
                       <div className="mt-3 flex flex-wrap gap-2">
                         {(formData.dates ?? []).length === 0 ? (
