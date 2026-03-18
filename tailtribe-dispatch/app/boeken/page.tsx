@@ -156,6 +156,10 @@ export default function BookingPage() {
     setFieldErrors({})
 
     if (step < 4) {
+      if (step === 1 && !formData.service) {
+        setSubmitError('Kies eerst een dienst om verder te gaan.')
+        return
+      }
       setStep((prev) => Math.min(prev + 1, 4))
       return
     }
@@ -238,15 +242,30 @@ export default function BookingPage() {
           {/* Form Card */}
           <div className="bg-white rounded-2xl shadow-tt p-6 sm:p-8">
             {submitted && (
-              <div className="mb-6 rounded-2xl border border-emerald-200 bg-emerald-50 px-5 py-4 text-emerald-950">
-                <div className="text-lg font-bold">Bedankt! We hebben je aanvraag ontvangen.</div>
-                <div className="mt-1 text-sm leading-relaxed text-emerald-950/80">
-                  We nemen zo snel mogelijk contact op via je gekozen kanaal. Je wordt nu doorgestuurd.
-                </div>
-                <div className="mt-3 text-sm">
-                  <Link href="/contact" className="font-semibold underline underline-offset-2">
-                    Liever meteen iets extra doorgeven?
-                  </Link>
+              <div className="mb-6 rounded-2xl border border-emerald-200 bg-gradient-to-br from-emerald-50 to-blue-50 px-5 py-5 sm:px-6 sm:py-6 text-emerald-950">
+                <div className="flex flex-col items-center text-center gap-3">
+                  <div className="h-12 w-12 rounded-full bg-emerald-600 text-white flex items-center justify-center shadow-sm">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" className="h-6 w-6 fill-current">
+                      <path
+                        fillRule="evenodd"
+                        d="M16.704 5.29a1 1 0 0 1 .006 1.414l-7.5 7.56a1 1 0 0 1-1.425.002L3.29 9.77A1 1 0 1 1 4.704 8.35l3.08 3.08 6.79-6.84a1 1 0 0 1 1.414-.006Z"
+                        clipRule="evenodd"
+                      />
+                    </svg>
+                  </div>
+                  <div>
+                    <div className="text-lg sm:text-xl font-bold tracking-[-0.01em]">
+                      Bedankt! Je aanvraag is goed ontvangen.
+                    </div>
+                    <div className="mt-1 text-sm sm:text-base leading-relaxed text-emerald-950/80 max-w-xl">
+                      We nemen zo snel mogelijk contact op via je gekozen kanaal. Je wordt nu automatisch doorgestuurd naar de bevestigingspagina.
+                    </div>
+                  </div>
+                  <div className="text-sm">
+                    <Link href="/contact" className="font-semibold underline underline-offset-2">
+                      Iets vergeten? Voeg info toe via contact.
+                    </Link>
+                  </div>
                 </div>
               </div>
             )}
@@ -283,7 +302,6 @@ export default function BookingPage() {
                         type="button"
                         onClick={() => {
                           setFormData({ ...formData, service: service.id })
-                          setStep(2)
                         }}
                         className={`p-4 sm:p-6 rounded-xl border-2 transition text-left ${
                           formData.service === service.id
@@ -309,6 +327,23 @@ export default function BookingPage() {
                         </div>
                       </button>
                     ))}
+                  </div>
+                  <div className="flex gap-4 mt-6">
+                    <button
+                      type="button"
+                      onClick={() => router.back()}
+                      className="px-6 py-3 border-2 border-gray-300 rounded-xl font-medium hover:bg-gray-50"
+                    >
+                      Terug
+                    </button>
+                    <button
+                      type="submit"
+                      formNoValidate
+                      disabled={!formData.service}
+                      className="flex-1 btn-brand disabled:opacity-50"
+                    >
+                      Volgende
+                    </button>
                   </div>
                 </div>
               )}

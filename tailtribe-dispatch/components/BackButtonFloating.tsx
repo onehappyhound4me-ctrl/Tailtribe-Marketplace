@@ -13,6 +13,8 @@ export function BackButtonFloating() {
   if (!show) return null
 
   const fallbackHref = (() => {
+    // Public booking flow: if there's no history, "back" should not dump users to home.
+    if (pathname === '/boeken') return '/diensten'
     const role = session?.user?.role
     if (role === 'ADMIN') return '/admin'
     if (role === 'OWNER') return '/dashboard/owner'
