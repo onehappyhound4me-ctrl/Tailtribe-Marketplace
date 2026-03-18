@@ -433,24 +433,46 @@ export async function POST(request: NextRequest) {
       contactPreferenceLabel,
     })
 
-    void sendTransactionalEmail({
+    // IMPORTANT: admin notification email must not silently fail.
+    // If email isn't configured in Vercel, we want an explicit error instead of "no mail received".
+    await sendTransactionalEmail({
       to: adminEmail,
       subject: adminEmailPayload.subject,
       html: adminEmailPayload.html,
       replyTo: validated.data.email,
+      required: true,
+      meta: {
+        kind: 'booking-received-admin',
+        service: String(validated.data.service ?? ''),
+      },
     })
+
+    // Owner confirmation email is best-effort (don't block booking success on email deliverability).
     void sendTransactionalEmail({
       to: validated.data.email,
       subject: ownerEmailPayload.subject,
       html: ownerEmailPayload.html,
+      required: false,
+      meta: {
+        kind: 'booking-received-owner',
+        service: String(validated.data.service ?? ''),
+      },
     })
 
     return NextResponse.json({ success: true, bookings })
   } catch (error) {
-    return NextResponse.json(
-      { error: 'Failed to create booking' },
-      { status: 500 }
-    )
+    const msg = error instanceof Error ? error.message : String(error)
+    if (/EMAIL_NOT_CONFIGURED|EMAIL_SMTP_PASS_MISSING|EMAIL_FROM_INVALID/i.test(msg)) {
+      return NextResponse.json(
+        {
+          error: 'EMAIL_NOT_CONFIGURED',
+          message:
+            'E-mail verzending is niet geconfigureerd. Zet RESEND_API_KEY of SMTP_HOST/SMTP_USER/SMTP_PASS in Vercel en redeploy.',
+        },
+        { status: 500 }
+      )
+    }
+    return NextResponse.json({ error: 'Failed to create booking' }, { status: 500 })
   }
 }
 
