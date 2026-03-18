@@ -638,12 +638,24 @@ export function buildOwnerBookingReceivedEmail(input: BookingOwnerEmailInput) {
   const subject = 'Aanvraag ontvangen – TailTribe'
 
   const slotsBlock = input.slotsText?.trim()
-    ? `<tr>
-         <td style="padding:4px 0;font-size:14px;color:#374151;">
-           <strong>Gekozen momenten</strong><br/>
-           <span style="white-space:pre-line;">${escapeHtml(input.slotsText)}</span>
-         </td>
-       </tr>`
+    ? (() => {
+        const lines = escapeHtml(input.slotsText)
+          .split('\n')
+          .map((l) => l.trim())
+          .filter(Boolean)
+        const list =
+          lines.length > 0
+            ? `<ul style="margin:4px 0 0 0;padding:0 0 0 18px;font-size:13px;color:#4B5563;">${lines
+                .map((l) => `<li style="margin:2px 0;">${l}</li>`)
+                .join('')}</ul>`
+            : ''
+        return `<tr>
+                  <td style="padding:4px 0;font-size:14px;color:#374151;">
+                    <strong>Gekozen momenten</strong>
+                    ${list}
+                  </td>
+                </tr>`
+      })()
     : `<tr>
          <td style="padding:4px 0;font-size:14px;color:#374151;">
            <strong>Datum / tijd</strong><br/>
@@ -652,11 +664,11 @@ export function buildOwnerBookingReceivedEmail(input: BookingOwnerEmailInput) {
        </tr>`
 
   const html = `
-    <div style="background-color:#F3F4F6;padding:20px 0;">
-      <div style="max-width:640px;margin:0 auto;background:white;border-radius:16px;border:1px solid #E5E7EB;overflow:hidden;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;color:#111827;">
-        <div style="padding:20px 20px 16px 20px;border-bottom:1px solid #E5E7EB;background:linear-gradient(135deg,#ECFDF3,#DBEAFE);">
+    <div style="background-color:#ECFDF3;padding:20px 0;">
+      <div style="max-width:640px;margin:0 auto;background:white;border-radius:18px;border:1px solid #A7F3D0;overflow:hidden;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;color:#111827;">
+        <div style="padding:20px 20px 16px 20px;border-bottom:1px solid #BAE6FD;background:linear-gradient(135deg,#ECFDF3,#DBEAFE);">
           <h1 style="margin:0;font-size:20px;line-height:1.4;color:#065F46;">We hebben je aanvraag ontvangen</h1>
-          <p style="margin:6px 0 0 0;font-size:14px;color:#065F46;">TailTribe – dierenverzorging op maat</p>
+          <p style="margin:6px 0 0 0;font-size:14px;color:#047857;">TailTribe – dierenverzorging op maat</p>
         </div>
         <div style="padding:20px;">
           <p style="margin:0 0 10px 0;font-size:15px;">Hoi ${input.firstName},</p>
@@ -664,23 +676,23 @@ export function buildOwnerBookingReceivedEmail(input: BookingOwnerEmailInput) {
             Bedankt voor je aanvraag bij TailTribe. We nemen zo spoedig mogelijk contact met je op om alles te bevestigen.
           </p>
 
-          <table width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;margin:12px 0 0 0;">
+          <table width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;margin:12px 0 0 0;border-radius:12px;background:#F9FAFB;border:1px solid #D1FAE5;">
             <tbody>
               <tr>
-                <td style="padding:4px 0;font-size:14px;color:#374151;">
+                <td style="padding:8px 12px;font-size:14px;color:#064E3B;border-bottom:1px solid #E5E7EB;">
                   <strong>Dienst</strong><br/>
                   ${input.serviceLabel}
                 </td>
               </tr>
               ${slotsBlock}
               <tr>
-                <td style="padding:4px 0;font-size:14px;color:#374151;">
+                <td style="padding:8px 12px;font-size:14px;color:#374151;border-top:1px solid #E5E7EB;">
                   <strong>Locatie</strong><br/>
                   ${input.city}, ${input.postalCode}
                 </td>
               </tr>
               <tr>
-                <td style="padding:4px 0;font-size:14px;color:#374151;">
+                <td style="padding:8px 12px;font-size:14px;color:#374151;border-top:1px solid #E5E7EB;">
                   <strong>Contact</strong><br/>
                   We nemen contact op via <strong>${input.contactPreferenceLabel}</strong>.
                 </td>
