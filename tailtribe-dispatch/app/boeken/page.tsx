@@ -112,7 +112,19 @@ export default function BookingPage() {
   const addDateValue = (raw: string) => {
     const d = (raw ?? '').trim()
     if (!d) return
-    if (d < todayStr || d > maxBookingDateStr) return
+    if (d < todayStr) {
+      setFieldErrors((prev) => ({ ...prev, date: 'Kies een datum vanaf vandaag (niet in het verleden).' }))
+      return
+    }
+    if (d > maxBookingDateStr) {
+      setFieldErrors((prev) => ({ ...prev, date: 'Je kan maximaal 60 dagen vooruit boeken.' }))
+      return
+    }
+    setFieldErrors((prev) => {
+      if (!prev.date) return prev
+      const { date, ...rest } = prev
+      return rest
+    })
     setFormData((prev) => {
       const next = Array.from(new Set([...(prev.dates ?? []), d])).sort()
       // Keep the list reasonable
@@ -260,7 +272,7 @@ export default function BookingPage() {
             {submitted && (
               <div className="mb-6 rounded-2xl border border-emerald-200 bg-gradient-to-br from-emerald-50 to-blue-50 px-5 py-5 sm:px-6 sm:py-6 text-emerald-950">
                 <div className="flex flex-col items-center text-center gap-3">
-                  <div className="h-12 w-12 rounded-full bg-emerald-600 text-white flex items-center justify-center shadow-sm">
+                  <div className="h-12 w-12 rounded-full bg-emerald-700 text-white flex items-center justify-center shadow-sm ring-2 ring-white/70">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" className="h-6 w-6 fill-current">
                       <path
                         fillRule="evenodd"
@@ -534,7 +546,7 @@ export default function BookingPage() {
                         className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-brand"
                       />
                       <p className="text-xs text-gray-500 mt-1 leading-relaxed">
-                        Optioneel. Als je “Telefoon” of “WhatsApp” kiest, helpt dit om sneller te contacteren.
+                        Optioneel. Met telefoon kunnen we sneller afstemmen indien nodig.
                       </p>
                       {fieldErrors.phone && <p className="text-sm text-red-700 mt-2">{fieldErrors.phone}</p>}
                     </div>
@@ -543,11 +555,10 @@ export default function BookingPage() {
                       {fieldErrors.contactPreference && (
                         <p className="text-sm text-red-700 mb-2">{fieldErrors.contactPreference}</p>
                       )}
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                         {[
                           { value: 'email', label: 'E-mail', helper: 'We antwoorden per mail' },
                           { value: 'telefoon', label: 'Telefoon', helper: 'We bellen je op' },
-                          { value: 'whatsapp', label: 'WhatsApp', helper: 'We sturen een bericht' },
                         ].map((opt) => (
                           <button
                             key={opt.value}
@@ -567,7 +578,7 @@ export default function BookingPage() {
                     </div>
                     <div className="grid md:grid-cols-2 gap-4">
                       <div>
-                        <label className="block text-sm font-medium mb-2">Stad</label>
+                        <label className="block text-sm font-medium mb-2">Plaats (stad of dorp)</label>
                         <input
                           type="text"
                           name="city"

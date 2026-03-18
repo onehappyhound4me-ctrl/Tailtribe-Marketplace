@@ -354,7 +354,7 @@ export function SiteHeader({ primaryCtaHref = '/boeken', primaryCtaLabel = 'Boek
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_28%_52%,rgba(37,99,235,0.18),transparent_65%)]" />
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_78%_50%,rgba(16,185,129,0.16),transparent_60%)]" />
 
-      <nav className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10 overflow-visible">
+      <nav className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10 overflow-visible pl-[calc(1rem+env(safe-area-inset-left))] pr-[calc(1rem+env(safe-area-inset-right))] sm:pl-[calc(1.5rem+env(safe-area-inset-left))] sm:pr-[calc(1.5rem+env(safe-area-inset-right))] lg:pl-[calc(2rem+env(safe-area-inset-left))] lg:pr-[calc(2rem+env(safe-area-inset-right))]">
         <div className="flex items-center justify-between h-20 md:h-24 py-4">
           <Link
             href="/"

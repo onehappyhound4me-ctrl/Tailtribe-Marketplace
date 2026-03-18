@@ -30,19 +30,19 @@ export default function ThankYouPage() {
               <h2 className="text-base font-bold text-emerald-950">Wat gebeurt er nu?</h2>
               <ul className="mt-3 space-y-2 text-sm sm:text-base text-emerald-950/85">
                 <li className="flex gap-2">
-                  <span className="mt-0.5 h-5 w-5 flex items-center justify-center rounded-full bg-white border border-emerald-200 text-emerald-700 flex-shrink-0">1</span>
+                  <span className="mt-0.5 h-5 w-5 flex items-center justify-center rounded-full bg-emerald-700 border border-emerald-700 text-white flex-shrink-0 shadow-sm">1</span>
                   <span>We bekijken je aanvraag en je voorkeuren.</span>
                 </li>
                 <li className="flex gap-2">
-                  <span className="mt-0.5 h-5 w-5 flex items-center justify-center rounded-full bg-white border border-emerald-200 text-emerald-700 flex-shrink-0">2</span>
+                  <span className="mt-0.5 h-5 w-5 flex items-center justify-center rounded-full bg-emerald-700 border border-emerald-700 text-white flex-shrink-0 shadow-sm">2</span>
                   <span>We zoeken een passende verzorger in jouw buurt.</span>
                 </li>
                 <li className="flex gap-2">
-                  <span className="mt-0.5 h-5 w-5 flex items-center justify-center rounded-full bg-white border border-emerald-200 text-emerald-700 flex-shrink-0">3</span>
+                  <span className="mt-0.5 h-5 w-5 flex items-center justify-center rounded-full bg-emerald-700 border border-emerald-700 text-white flex-shrink-0 shadow-sm">3</span>
                   <span>Je krijgt een update via e-mail en/of telefoon (volgens jouw voorkeur).</span>
                 </li>
                 <li className="flex gap-2">
-                  <span className="mt-0.5 h-5 w-5 flex items-center justify-center rounded-full bg-white border border-emerald-200 text-emerald-700 flex-shrink-0">4</span>
+                  <span className="mt-0.5 h-5 w-5 flex items-center justify-center rounded-full bg-emerald-700 border border-emerald-700 text-white flex-shrink-0 shadow-sm">4</span>
                   <span>We stemmen de details af (prijs, timing, locatie, routine).</span>
                 </li>
               </ul>
