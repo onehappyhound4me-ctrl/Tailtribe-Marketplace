@@ -352,6 +352,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Allow public bookings (lead form). If not signed in, upsert an OWNER user by email.
+    // Keep this minimal: do NOT create nested profiles here (avoids DB/schema mismatch issues).
     const ownerUser = session?.user?.id
       ? await prisma.user.findUnique({ where: { id: session.user.id } })
       : await prisma.user.upsert({
@@ -369,15 +370,6 @@ export async function POST(request: NextRequest) {
             lastName: validated.data.lastName.trim(),
             phone: validated.data.phone?.trim() || null,
             emailVerified: null,
-            ownerProfile: {
-              create: {
-                city: validated.data.city.trim(),
-                postalCode: validated.data.postalCode.trim(),
-                region: null,
-                address: null,
-                petsInfo: null,
-              },
-            },
           },
         })
 
@@ -503,7 +495,11 @@ export async function POST(request: NextRequest) {
         { status: 500 }
       )
     }
-    return NextResponse.json({ error: 'Failed to create booking' }, { status: 500 })
+    console.error('[api/bookings] create failed:', msg)
+    return NextResponse.json(
+      { error: 'Failed to create booking', detail: msg.slice(0, 500) },
+      { status: 500 }
+    )
   }
 }
 
