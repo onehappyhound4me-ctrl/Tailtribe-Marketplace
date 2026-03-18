@@ -325,13 +325,10 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   const session = await auth()
-  if (!session || session.user?.role !== 'OWNER') {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-  }
 
   try {
     const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown'
-    const rateKey = session.user?.id ? `booking:${session.user.id}` : `booking:${ip}`
+    const rateKey = session?.user?.id ? `booking:${session.user.id}` : `booking:${ip}`
     const rate = await checkRateLimit(rateKey, 10, 10 * 60 * 1000)
     if (!rate.allowed) {
       return NextResponse.json(
@@ -352,6 +349,40 @@ export async function POST(request: NextRequest) {
         { error: 'VALIDATION_ERROR', fieldErrors: validated.fieldErrors },
         { status: 400 }
       )
+    }
+
+    // Allow public bookings (lead form). If not signed in, upsert an OWNER user by email.
+    const ownerUser = session?.user?.id
+      ? await prisma.user.findUnique({ where: { id: session.user.id } })
+      : await prisma.user.upsert({
+          where: { email: validated.data.email.trim().toLowerCase() },
+          update: {
+            firstName: validated.data.firstName.trim(),
+            lastName: validated.data.lastName.trim(),
+            phone: validated.data.phone?.trim() || undefined,
+            role: 'OWNER',
+          },
+          create: {
+            email: validated.data.email.trim().toLowerCase(),
+            role: 'OWNER',
+            firstName: validated.data.firstName.trim(),
+            lastName: validated.data.lastName.trim(),
+            phone: validated.data.phone?.trim() || null,
+            emailVerified: null,
+            ownerProfile: {
+              create: {
+                city: validated.data.city.trim(),
+                postalCode: validated.data.postalCode.trim(),
+                region: null,
+                address: null,
+                petsInfo: null,
+              },
+            },
+          },
+        })
+
+    if (!ownerUser?.id) {
+      return NextResponse.json({ error: 'Failed to resolve owner' }, { status: 500 })
     }
 
     // Best-effort postcode ↔ city check (avoid obvious mismatches)
@@ -379,7 +410,7 @@ export async function POST(request: NextRequest) {
       slots.map((s) =>
         prisma.booking.create({
           data: {
-            ownerId: session.user.id,
+            ownerId: ownerUser.id,
             service: validated.data.service,
             date: s.slotStart,
             time: timeTrimmed || null,
