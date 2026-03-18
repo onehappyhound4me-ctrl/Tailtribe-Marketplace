@@ -25,7 +25,6 @@ export default function BookingPage() {
   const [step, setStep] = useState(1)
   const bookingStartSentRef = useRef(false)
   const [loading, setLoading] = useState(false)
-  const [submitted, setSubmitted] = useState(false)
   const [submitError, setSubmitError] = useState<string | null>(null)
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({})
   const formTopRef = useRef<HTMLDivElement | null>(null)
@@ -201,7 +200,6 @@ export default function BookingPage() {
       })
       
       if (response.ok) {
-        setSubmitted(true)
         trackEvent('booking_request_submitted', {
           service: formData.service,
           time_windows: JSON.stringify(formData.timeWindows ?? []),
@@ -215,8 +213,8 @@ export default function BookingPage() {
           dates: JSON.stringify(formData.dates ?? []),
           has_exact_time: Boolean(formData.time?.trim()),
         })
-        // Show an immediate on-page confirmation, then redirect to the thank-you page.
-        setTimeout(() => router.push('/bedankt'), 700)
+        // Go directly to the thank-you page (avoid showing a "double" thank-you screen).
+        router.replace('/bedankt')
         return
       }
 
@@ -269,40 +267,12 @@ export default function BookingPage() {
 
           {/* Form Card */}
           <div className="bg-white rounded-2xl shadow-tt p-6 sm:p-8" ref={formTopRef}>
-            {submitted && (
-              <div className="mb-6 rounded-2xl border border-emerald-200 bg-gradient-to-br from-emerald-50 to-blue-50 px-5 py-5 sm:px-6 sm:py-6 text-emerald-950">
-                <div className="flex flex-col items-center text-center gap-3">
-                  <div className="h-12 w-12 rounded-full bg-emerald-700 text-white flex items-center justify-center shadow-sm ring-2 ring-white/70">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" className="h-6 w-6 fill-current">
-                      <path
-                        fillRule="evenodd"
-                        d="M16.704 5.29a1 1 0 0 1 .006 1.414l-7.5 7.56a1 1 0 0 1-1.425.002L3.29 9.77A1 1 0 1 1 4.704 8.35l3.08 3.08 6.79-6.84a1 1 0 0 1 1.414-.006Z"
-                        clipRule="evenodd"
-                      />
-                    </svg>
-                  </div>
-                  <div>
-                    <div className="text-lg sm:text-xl font-bold tracking-[-0.01em]">
-                      Bedankt! Je aanvraag is goed ontvangen.
-                    </div>
-                    <div className="mt-1 text-sm sm:text-base leading-relaxed text-emerald-950/80 max-w-xl">
-                      We nemen zo snel mogelijk contact op via je gekozen kanaal. Je wordt nu automatisch doorgestuurd naar de bevestigingspagina.
-                    </div>
-                  </div>
-                  <div className="text-sm">
-                    <Link href="/contact" className="font-semibold underline underline-offset-2">
-                      Iets vergeten? Voeg info toe via contact.
-                    </Link>
-                  </div>
-                </div>
-              </div>
-            )}
             {submitError && (
               <div className="mb-6 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-red-800">
                 {submitError}
               </div>
             )}
-            <form onSubmit={handleSubmit} aria-busy={loading || submitted}>
+            <form onSubmit={handleSubmit} aria-busy={loading}>
               {/* Honeypot (spam) - keep hidden from users */}
               <div className="hidden">
                 <label>
@@ -429,13 +399,6 @@ export default function BookingPage() {
                           max={maxBookingDateStr}
                           className="flex-1 px-4 py-3 h-11 md:h-auto border border-gray-300 rounded-xl focus:ring-2 focus:ring-brand focus:border-transparent"
                         />
-                        <button
-                          type="button"
-                          onClick={addDate}
-                          className="px-4 py-3 h-11 md:h-auto rounded-xl border border-gray-300 bg-white font-semibold text-gray-900 hover:bg-gray-50 inline-flex items-center justify-center"
-                        >
-                          Datum toevoegen
-                        </button>
                       </div>
                       <div className="mt-3 flex flex-wrap gap-2">
                         {(formData.dates ?? []).length === 0 ? (
