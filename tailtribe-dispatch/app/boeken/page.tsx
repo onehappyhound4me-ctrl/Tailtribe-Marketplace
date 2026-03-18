@@ -96,6 +96,13 @@ export default function BookingPage() {
     website: ''
   })
 
+  const resolvedPetTypeOptions = (() => {
+    if (formData.service === 'DOG_WALKING' || formData.service === 'GROUP_DOG_WALKING' || formData.service === 'DOG_TRAINING') {
+      return ['Hond']
+    }
+    return ['Hond', 'Kat', 'Konijn', 'Vogel', 'Anders']
+  })()
+
   const [dateDraft, setDateDraft] = useState('')
 
   // Track the start of the booking flow (page view).
@@ -628,12 +635,16 @@ export default function BookingPage() {
                         onChange={(e) => setFormData({ ...formData, petType: e.target.value })}
                         className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-brand"
                       >
-                        <option value="">Selecteer...</option>
-                        <option value="Hond">Hond</option>
-                        <option value="Kat">Kat</option>
-                        <option value="Konijn">Konijn</option>
-                        <option value="Vogel">Vogel</option>
-                        <option value="Anders">Anders</option>
+                        <option value="">
+                          {formData.service === 'DOG_WALKING' || formData.service === 'GROUP_DOG_WALKING' || formData.service === 'DOG_TRAINING'
+                            ? 'Enkel hond mogelijk voor deze dienst'
+                            : 'Selecteer...'}
+                        </option>
+                        {resolvedPetTypeOptions.map((opt) => (
+                          <option key={opt} value={opt}>
+                            {opt}
+                          </option>
+                        ))}
                       </select>
                       {fieldErrors.petType && <p className="text-sm text-red-700 mt-2">{fieldErrors.petType}</p>}
                     </div>
