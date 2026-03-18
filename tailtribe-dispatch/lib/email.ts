@@ -638,29 +638,66 @@ export function buildOwnerBookingReceivedEmail(input: BookingOwnerEmailInput) {
   const subject = 'Aanvraag ontvangen – TailTribe'
 
   const slotsBlock = input.slotsText?.trim()
-    ? `<p style="margin:0 0 6px 0;"><strong>Gekozen momenten:</strong></p>
-       <pre style="margin:0;white-space:pre-wrap;background:#fff;border:1px solid #E5E7EB;border-radius:10px;padding:10px;">${escapeHtml(
-         input.slotsText
-       )}</pre>`
-    : `<p style="margin:0 0 6px 0;"><strong>Datum/Tijd:</strong> ${input.date ?? ''}${input.time ? ' om ' + input.time : ''}</p>
-       <p style="margin:0 0 6px 0;"><strong>Tijdsblok:</strong> ${input.timeWindowLabel ?? ''}</p>`
+    ? `<tr>
+         <td style="padding:4px 0;font-size:14px;color:#374151;">
+           <strong>Gekozen momenten</strong><br/>
+           <span style="white-space:pre-line;">${escapeHtml(input.slotsText)}</span>
+         </td>
+       </tr>`
+    : `<tr>
+         <td style="padding:4px 0;font-size:14px;color:#374151;">
+           <strong>Datum / tijd</strong><br/>
+           ${input.date ?? ''}${input.time ? ' om ' + input.time : ''} – ${input.timeWindowLabel ?? ''}
+         </td>
+       </tr>`
 
   const html = `
-    <div style="font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; line-height: 1.5; color: #111827;">
-      <h2 style="margin: 0 0 12px 0;">We hebben je aanvraag ontvangen</h2>
-      <p style="margin: 0 0 12px 0;">Hoi ${input.firstName},</p>
-      <p style="margin: 0 0 12px 0;">
-        Bedankt voor je aanvraag bij TailTribe. We nemen zo spoedig mogelijk contact met je op om alles te bevestigen.
-      </p>
-      <div style="background:#F9FAFB;border:1px solid #E5E7EB;border-radius:12px;padding:14px;">
-        <p style="margin:0 0 6px 0;"><strong>Dienst:</strong> ${input.serviceLabel}</p>
-        ${slotsBlock}
-        <p style="margin:0;"><strong>Locatie:</strong> ${input.city}, ${input.postalCode}</p>
+    <div style="background-color:#F3F4F6;padding:20px 0;">
+      <div style="max-width:640px;margin:0 auto;background:white;border-radius:16px;border:1px solid #E5E7EB;overflow:hidden;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;color:#111827;">
+        <div style="padding:20px 20px 16px 20px;border-bottom:1px solid #E5E7EB;background:linear-gradient(135deg,#ECFDF3,#DBEAFE);">
+          <h1 style="margin:0;font-size:20px;line-height:1.4;color:#065F46;">We hebben je aanvraag ontvangen</h1>
+          <p style="margin:6px 0 0 0;font-size:14px;color:#065F46;">TailTribe – dierenverzorging op maat</p>
+        </div>
+        <div style="padding:20px;">
+          <p style="margin:0 0 10px 0;font-size:15px;">Hoi ${input.firstName},</p>
+          <p style="margin:0 0 14px 0;font-size:14px;color:#4B5563;">
+            Bedankt voor je aanvraag bij TailTribe. We nemen zo spoedig mogelijk contact met je op om alles te bevestigen.
+          </p>
+
+          <table width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;margin:12px 0 0 0;">
+            <tbody>
+              <tr>
+                <td style="padding:4px 0;font-size:14px;color:#374151;">
+                  <strong>Dienst</strong><br/>
+                  ${input.serviceLabel}
+                </td>
+              </tr>
+              ${slotsBlock}
+              <tr>
+                <td style="padding:4px 0;font-size:14px;color:#374151;">
+                  <strong>Locatie</strong><br/>
+                  ${input.city}, ${input.postalCode}
+                </td>
+              </tr>
+              <tr>
+                <td style="padding:4px 0;font-size:14px;color:#374151;">
+                  <strong>Contact</strong><br/>
+                  We nemen contact op via <strong>${input.contactPreferenceLabel}</strong>.
+                </td>
+              </tr>
+            </tbody>
+          </table>
+
+          <p style="margin:18px 0 0 0;font-size:13px;color:#6B7280;">
+            Als je nog extra informatie over je huisdier of planning wil doorgeven, kan je altijd antwoorden op deze e-mail.
+          </p>
+
+          <p style="margin:18px 0 0 0;font-size:14px;">
+            Met vriendelijke groet,<br/>
+            <span style="font-weight:600;">Team TailTribe</span>
+          </p>
+        </div>
       </div>
-      <p style="margin:12px 0 0 0;">We nemen contact op via <strong>${input.contactPreferenceLabel}</strong>.</p>
-      <p style="margin:16px 0 0 0;">
-        Met vriendelijke groet,<br/>TailTribe
-      </p>
     </div>
   `
 

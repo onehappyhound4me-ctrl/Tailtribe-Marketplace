@@ -5,7 +5,7 @@ import { SiteFooter } from '@/components/SiteFooter'
 export default function ThankYouPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-blue-50">
-      <SiteHeader primaryCtaHref="/boeken" primaryCtaLabel="Nieuwe aanvraag" />
+      <SiteHeader />
       <div className="px-4 py-10 sm:py-12">
         <div className="mx-auto max-w-2xl">
           <div className="bg-white rounded-2xl shadow-tt-lg p-6 sm:p-10 text-center">
