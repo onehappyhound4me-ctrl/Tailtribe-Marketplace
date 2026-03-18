@@ -25,6 +25,7 @@ export default function BookingPage() {
   const [step, setStep] = useState(1)
   const bookingStartSentRef = useRef(false)
   const [loading, setLoading] = useState(false)
+  const [submitted, setSubmitted] = useState(false)
   const [submitError, setSubmitError] = useState<string | null>(null)
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({})
   
@@ -168,6 +169,7 @@ export default function BookingPage() {
       })
       
       if (response.ok) {
+        setSubmitted(true)
         trackEvent('booking_request_submitted', {
           service: formData.service,
           time_windows: JSON.stringify(formData.timeWindows ?? []),
@@ -181,15 +183,12 @@ export default function BookingPage() {
           dates: JSON.stringify(formData.dates ?? []),
           has_exact_time: Boolean(formData.time?.trim()),
         })
-        router.push('/bedankt')
+        // Show an immediate on-page confirmation, then redirect to the thank-you page.
+        setTimeout(() => router.push('/bedankt'), 700)
         return
       }
 
       const data = await response.json().catch(() => null)
-      if (response.status === 401) {
-        router.replace('/login?callbackUrl=/boeken')
-        return
-      }
       if (data?.error === 'VALIDATION_ERROR' && data?.fieldErrors) {
         setFieldErrors(data.fieldErrors)
         setSubmitError('Controleer de velden hieronder en probeer opnieuw.')
@@ -238,12 +237,25 @@ export default function BookingPage() {
 
           {/* Form Card */}
           <div className="bg-white rounded-2xl shadow-tt p-6 sm:p-8">
+            {submitted && (
+              <div className="mb-6 rounded-2xl border border-emerald-200 bg-emerald-50 px-5 py-4 text-emerald-950">
+                <div className="text-lg font-bold">Bedankt! We hebben je aanvraag ontvangen.</div>
+                <div className="mt-1 text-sm leading-relaxed text-emerald-950/80">
+                  We nemen zo snel mogelijk contact op via je gekozen kanaal. Je wordt nu doorgestuurd.
+                </div>
+                <div className="mt-3 text-sm">
+                  <Link href="/contact" className="font-semibold underline underline-offset-2">
+                    Liever meteen iets extra doorgeven?
+                  </Link>
+                </div>
+              </div>
+            )}
             {submitError && (
               <div className="mb-6 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-red-800">
                 {submitError}
               </div>
             )}
-            <form onSubmit={handleSubmit}>
+            <form onSubmit={handleSubmit} aria-busy={loading || submitted}>
               {/* Honeypot (spam) - keep hidden from users */}
               <div className="hidden">
                 <label>
