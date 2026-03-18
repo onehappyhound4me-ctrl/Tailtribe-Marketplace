@@ -385,7 +385,7 @@ export default function BookingPage() {
                     <div>
                       <label className="block text-sm font-medium mb-2">Datum(s)</label>
                       <div className="text-xs text-gray-500 mb-2">
-                        Kies een datum en die wordt meteen toegevoegd. Je kan meerdere dagen kiezen (max 10).
+                        Kies een datum en klik vervolgens op “Datum toevoegen”. Je kan meerdere dagen kiezen (max 10).
                       </div>
                       {(fieldErrors.dates || fieldErrors.date) && (
                         <p className="text-sm text-red-700 mb-2">{fieldErrors.dates || fieldErrors.date}</p>
@@ -399,13 +399,20 @@ export default function BookingPage() {
                           onChange={(e) => {
                             const v = e.target.value
                             setDateDraft(v)
-                            // Make it user-friendly: selecting a date adds it immediately.
-                            if (v) addDateValue(v)
                           }}
                           min={todayStr}
                           max={maxBookingDateStr}
                           className="flex-1 px-4 py-3 h-11 md:h-auto border border-gray-300 rounded-xl focus:ring-2 focus:ring-brand focus:border-transparent"
                         />
+                        <button
+                          type="button"
+                          onClick={() => {
+                            if (dateDraft) addDateValue(dateDraft)
+                          }}
+                          className="px-4 py-3 h-11 md:h-auto rounded-xl border border-gray-300 bg-white font-semibold text-gray-900 hover:bg-gray-50 inline-flex items-center justify-center text-sm"
+                        >
+                          Datum toevoegen
+                        </button>
                         <button
                           type="button"
                           onClick={() => {
