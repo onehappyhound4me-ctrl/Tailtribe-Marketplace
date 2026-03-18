@@ -8,13 +8,11 @@ export function BackButtonFloating() {
   const pathname = usePathname()
   const { data: session } = useSession()
 
-  // Toon de knop niet op home
-  const show = Boolean(pathname && pathname !== '/')
+  // Toon de knop niet op home, en ook niet in de booking flow (die heeft eigen "Terug" knoppen per stap).
+  const show = Boolean(pathname && pathname !== '/' && pathname !== '/boeken')
   if (!show) return null
 
   const fallbackHref = (() => {
-    // Public booking flow: if there's no history, "back" should not dump users to home.
-    if (pathname === '/boeken') return '/diensten'
     const role = session?.user?.role
     if (role === 'ADMIN') return '/admin'
     if (role === 'OWNER') return '/dashboard/owner'

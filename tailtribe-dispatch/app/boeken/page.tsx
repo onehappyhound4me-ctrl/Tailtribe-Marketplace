@@ -28,6 +28,7 @@ export default function BookingPage() {
   const [submitted, setSubmitted] = useState(false)
   const [submitError, setSubmitError] = useState<string | null>(null)
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({})
+  const formTopRef = useRef<HTMLDivElement | null>(null)
   
   const serviceParam = searchParams.get('service')
   const todayStr = (() => {
@@ -72,7 +73,7 @@ export default function BookingPage() {
     const valid = DISPATCH_SERVICES.some((service) => service.id === serviceParam)
     if (!valid) return
     setFormData((prev) => ({ ...prev, service: serviceParam }))
-    setStep(2)
+    // Don't auto-advance; let the user confirm with "Volgende".
   }, [serviceParam])
 
   const [formData, setFormData] = useState({
@@ -108,8 +109,8 @@ export default function BookingPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  const addDate = () => {
-    const d = (dateDraft ?? '').trim()
+  const addDateValue = (raw: string) => {
+    const d = (raw ?? '').trim()
     if (!d) return
     if (d < todayStr || d > maxBookingDateStr) return
     setFormData((prev) => {
@@ -120,6 +121,21 @@ export default function BookingPage() {
     })
     setDateDraft('')
   }
+
+  const addDate = () => addDateValue(dateDraft)
+
+  const scrollFormToTop = () => {
+    const el = formTopRef.current
+    if (!el) return
+    el.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  }
+
+  // Whenever step changes, keep the user at the top of the form (avoid landing near the footer).
+  useEffect(() => {
+    // Wait for the next paint so the new step content exists.
+    window.requestAnimationFrame(() => scrollFormToTop())
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [step])
 
   const removeDate = (d: string) => {
     setFormData((prev) => ({ ...prev, dates: (prev.dates ?? []).filter((x) => x !== d) }))
@@ -240,7 +256,7 @@ export default function BookingPage() {
           </div>
 
           {/* Form Card */}
-          <div className="bg-white rounded-2xl shadow-tt p-6 sm:p-8">
+          <div className="bg-white rounded-2xl shadow-tt p-6 sm:p-8" ref={formTopRef}>
             {submitted && (
               <div className="mb-6 rounded-2xl border border-emerald-200 bg-gradient-to-br from-emerald-50 to-blue-50 px-5 py-5 sm:px-6 sm:py-6 text-emerald-950">
                 <div className="flex flex-col items-center text-center gap-3">
@@ -380,7 +396,7 @@ export default function BookingPage() {
                     <div>
                       <label className="block text-sm font-medium mb-2">Datum(s)</label>
                       <div className="text-xs text-gray-500 mb-2">
-                        Je kan maximaal 60 dagen vooruit boeken.
+                        Kies een datum en die wordt meteen toegevoegd. Je kan meerdere dagen kiezen (max 10).
                       </div>
                       {(fieldErrors.dates || fieldErrors.date) && (
                         <p className="text-sm text-red-700 mb-2">{fieldErrors.dates || fieldErrors.date}</p>
@@ -391,7 +407,12 @@ export default function BookingPage() {
                           name="date"
                           autoComplete="off"
                           value={dateDraft}
-                          onChange={(e) => setDateDraft(e.target.value)}
+                          onChange={(e) => {
+                            const v = e.target.value
+                            setDateDraft(v)
+                            // Make it user-friendly: selecting a date adds it immediately.
+                            if (v) addDateValue(v)
+                          }}
                           min={todayStr}
                           max={maxBookingDateStr}
                           className="flex-1 px-4 py-3 h-11 md:h-auto border border-gray-300 rounded-xl focus:ring-2 focus:ring-brand focus:border-transparent"
@@ -401,7 +422,7 @@ export default function BookingPage() {
                           onClick={addDate}
                           className="px-4 py-3 h-11 md:h-auto rounded-xl border border-gray-300 bg-white font-semibold text-gray-900 hover:bg-gray-50 inline-flex items-center justify-center"
                         >
-                          Voeg toe
+                          Datum toevoegen
                         </button>
                       </div>
                       <div className="mt-3 flex flex-wrap gap-2">
