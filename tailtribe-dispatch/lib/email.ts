@@ -650,14 +650,14 @@ export function buildOwnerBookingReceivedEmail(input: BookingOwnerEmailInput) {
       <h2 style="margin: 0 0 12px 0;">We hebben je aanvraag ontvangen</h2>
       <p style="margin: 0 0 12px 0;">Hoi ${input.firstName},</p>
       <p style="margin: 0 0 12px 0;">
-        Bedankt voor je aanvraag bij TailTribe. We nemen binnen <strong>2 uur</strong> contact met je op om alles te bevestigen.
+        Bedankt voor je aanvraag bij TailTribe. We nemen zo spoedig mogelijk contact met je op om alles te bevestigen.
       </p>
       <div style="background:#F9FAFB;border:1px solid #E5E7EB;border-radius:12px;padding:14px;">
         <p style="margin:0 0 6px 0;"><strong>Dienst:</strong> ${input.serviceLabel}</p>
         ${slotsBlock}
         <p style="margin:0;"><strong>Locatie:</strong> ${input.city}, ${input.postalCode}</p>
       </div>
-      <p style="margin:12px 0 0 0;">We nemen contact op via <strong>${input.contactPreferenceLabel}</strong> binnen het gekozen tijdsblok.</p>
+      <p style="margin:12px 0 0 0;">We nemen contact op via <strong>${input.contactPreferenceLabel}</strong>.</p>
       <p style="margin:16px 0 0 0;">
         Met vriendelijke groet,<br/>TailTribe
       </p>
