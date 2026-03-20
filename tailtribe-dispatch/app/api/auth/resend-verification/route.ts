@@ -79,12 +79,9 @@ export async function POST(req: NextRequest) {
                 return String(emailError)
               }
             })()
+    console.error('[resend-verification] email send failed:', String(detail).slice(0, 500))
     return NextResponse.json(
-      {
-        error: 'Kon geen verificatiemail versturen. (code: EMAIL_SEND_FAILED)',
-        detail: String(detail).slice(0, 300),
-        hint: 'Controleer RESEND_API_KEY en DISPATCH_EMAIL_FROM (verified sender/domain).',
-      },
+      { error: 'We konden geen e-mail sturen. Probeer het later opnieuw of neem contact met ons op.' },
       { status: 500 }
     )
   }

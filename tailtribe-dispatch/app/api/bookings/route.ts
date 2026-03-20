@@ -7,6 +7,7 @@ import { prisma } from '@/lib/prisma'
 import { checkRateLimit } from '@/lib/rate-limit'
 import { sendTransactionalEmail } from '@/lib/mailer'
 import { getPublicAppUrl } from '@/lib/env'
+import { PUBLIC_MESSAGES } from '@/lib/public-user-message'
 
 export const dynamic = 'force-dynamic'
 
@@ -374,7 +375,7 @@ export async function POST(request: NextRequest) {
         })
 
     if (!ownerUser?.id) {
-      return NextResponse.json({ error: 'Failed to resolve owner' }, { status: 500 })
+      return NextResponse.json({ error: PUBLIC_MESSAGES.bookingFailed }, { status: 500 })
     }
 
     // Best-effort postcode ↔ city check (avoid obvious mismatches)
@@ -486,20 +487,10 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     const msg = error instanceof Error ? error.message : String(error)
     if (/EMAIL_NOT_CONFIGURED|EMAIL_SMTP_PASS_MISSING|EMAIL_FROM_INVALID/i.test(msg)) {
-      return NextResponse.json(
-        {
-          error: 'EMAIL_NOT_CONFIGURED',
-          message:
-            'E-mail verzending is niet geconfigureerd. Zet RESEND_API_KEY of SMTP_HOST/SMTP_USER/SMTP_PASS in Vercel en redeploy.',
-        },
-        { status: 500 }
-      )
+      return NextResponse.json({ error: PUBLIC_MESSAGES.emailUnavailable }, { status: 500 })
     }
     console.error('[api/bookings] create failed:', msg)
-    return NextResponse.json(
-      { error: 'Failed to create booking', detail: msg.slice(0, 500) },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: PUBLIC_MESSAGES.bookingFailed }, { status: 500 })
   }
 }
 

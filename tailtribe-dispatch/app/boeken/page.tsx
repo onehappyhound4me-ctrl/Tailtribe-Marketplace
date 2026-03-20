@@ -232,7 +232,12 @@ export default function BookingPage() {
         return
       }
 
-      setSubmitError('Er ging iets mis. Probeer opnieuw.')
+      if (typeof data?.error === 'string' && data.error.trim()) {
+        setSubmitError(data.error)
+        return
+      }
+
+      setSubmitError('Er ging iets mis. Probeer het later opnieuw of neem contact met ons op.')
     } catch (error) {
       setSubmitError('Er ging iets mis. Probeer opnieuw.')
     } finally {

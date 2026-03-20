@@ -134,8 +134,13 @@ export default function RegisterPage() {
 
       if (!response.ok) {
         setError(data.error || 'Registratie mislukt')
-        setErrorDetail(typeof data?.detail === 'string' ? data.detail : null)
-        setErrorHint(typeof data?.hint === 'string' ? data.hint : null)
+        if (debug) {
+          setErrorDetail(typeof data?.detail === 'string' ? data.detail : null)
+          setErrorHint(typeof data?.hint === 'string' ? data.hint : null)
+        } else {
+          setErrorDetail(null)
+          setErrorHint(null)
+        }
         setLoading(false)
         return
       }
@@ -164,8 +169,13 @@ export default function RegisterPage() {
       const data = await res.json().catch(() => ({}))
       if (!res.ok) {
         setError(data?.error ?? 'Kon geen e-mail opnieuw sturen. Probeer later opnieuw.')
-        setErrorDetail(typeof data?.detail === 'string' ? data.detail : null)
-        setErrorHint(typeof data?.hint === 'string' ? data.hint : null)
+        if (debug) {
+          setErrorDetail(typeof data?.detail === 'string' ? data.detail : null)
+          setErrorHint(typeof data?.hint === 'string' ? data.hint : null)
+        } else {
+          setErrorDetail(null)
+          setErrorHint(null)
+        }
         setResendLoading(false)
         return
       }
@@ -200,12 +210,12 @@ export default function RegisterPage() {
             {error && (
               <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-800 text-sm">
                 <div>{error}</div>
-                {errorDetail && (
+                {debug && errorDetail && (
                   <div className="mt-2 text-xs text-red-700 break-words">
                     <strong>Detail:</strong> {errorDetail}
                   </div>
                 )}
-                {errorHint && (
+                {debug && errorHint && (
                   <div className="mt-2 text-xs text-red-700">
                     <strong>Tip:</strong> {errorHint}
                   </div>

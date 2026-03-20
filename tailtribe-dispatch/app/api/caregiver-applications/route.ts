@@ -428,7 +428,28 @@ export async function POST(request: NextRequest) {
       })
     )
 
-    const userId = await upsertPendingApplication(rec)
+    let userId: string
+    try {
+      userId = await upsertPendingApplication(rec)
+    } catch (e) {
+      const msg = getErrorMessage(e)
+      if (msg.includes('ander type gebruiker')) {
+        return NextResponse.json(
+          {
+            error:
+              'Dit e-mailadres hoort al bij een bestaand account. Log in of gebruik een ander e-mailadres om je aan te melden als verzorger.',
+          },
+          { status: 400 }
+        )
+      }
+      if (msg.includes('Je hebt al een verzorgersaccount')) {
+        return NextResponse.json(
+          { error: 'Je hebt al een verzorgersaccount. Gebruik je dashboard om je profiel te beheren.' },
+          { status: 403 }
+        )
+      }
+      throw e
+    }
     rec.id = userId
 
     const adminEmail = process.env.DISPATCH_ADMIN_EMAIL ?? 'steven@tailtribe.be'
@@ -539,14 +560,12 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ success: true, id: userId })
   } catch (e) {
     const message = getErrorMessage(e)
-    const detail = message
-    const hint = 'Check Vercel logs voor requestId en error stack.'
 
     console.error(
       JSON.stringify({
         msg: 'caregiver_application.submit_failed',
         requestId,
-        detail,
+        detail: message,
         ts: new Date().toISOString(),
       })
     )
@@ -555,7 +574,10 @@ export async function POST(request: NextRequest) {
     }
 
     return NextResponse.json(
-      { error: 'Failed to submit application', code: 'CAREGIVER_APPLICATION_FAILED', requestId, detail, hint },
+      {
+        error:
+          'Je aanmelding kon niet worden verstuurd. Probeer het later opnieuw of neem contact met ons op.',
+      },
       { status: 500 }
     )
   }

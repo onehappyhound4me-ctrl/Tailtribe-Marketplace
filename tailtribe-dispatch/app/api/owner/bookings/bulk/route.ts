@@ -39,7 +39,10 @@ export async function POST(request: NextRequest) {
   try {
     const session = await auth()
     if (!session || session.user.role !== 'OWNER') {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+      return NextResponse.json(
+        { error: 'Je bent niet ingelogd of je sessie is verlopen. Log opnieuw in.' },
+        { status: 401 }
+      )
     }
 
     const ownerProfile = await prisma.ownerProfile.findUnique({
@@ -54,10 +57,7 @@ export async function POST(request: NextRequest) {
     const { bookings } = await request.json()
 
     if (!Array.isArray(bookings) || bookings.length === 0) {
-      return NextResponse.json(
-        { error: 'Bookings array is required' },
-        { status: 400 }
-      )
+      return NextResponse.json({ error: 'Geen geldige aanvraag. Vul het formulier opnieuw in.' }, { status: 400 })
     }
 
     // Valideer dat alle bookings de vereiste velden hebben

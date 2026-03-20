@@ -126,16 +126,14 @@ export default function LoginPage() {
     setLoading(true)
     try {
       if (provider === 'google' && googleEnabled === false) {
-        setError(
-          'Google login is op deze server nog niet geconfigureerd. Zet GOOGLE_CLIENT_ID en GOOGLE_CLIENT_SECRET in tailtribe-dispatch/.env.local en herstart de dev server.'
-        )
+        setError('Inloggen met Google is momenteel niet beschikbaar. Gebruik je e-mailadres en wachtwoord of probeer later opnieuw.')
         setLoading(false)
         return
       }
       const res = await fetch('/api/auth/providers')
       const providers = await res.json().catch(() => ({}))
       if (!providers?.[provider]) {
-        setError('Deze login is nog niet geconfigureerd. Controleer de env-variabelen.')
+        setError('Deze manier van inloggen is momenteel niet beschikbaar. Probeer opnieuw met e-mail en wachtwoord.')
         setLoading(false)
         return
       }

@@ -4,6 +4,7 @@ import bcrypt from 'bcryptjs'
 import crypto from 'crypto'
 import { sendAdminUserRegisteredEmail, sendVerificationEmail } from '@/lib/email'
 import { checkRateLimit } from '@/lib/rate-limit'
+import { PUBLIC_MESSAGES } from '@/lib/public-user-message'
 
 function normalizeEmail(value: unknown) {
   return String(value ?? '')
@@ -17,12 +18,12 @@ function toSafeErrorResponse(err: any) {
   // We *do* include a short code so you can quickly diagnose production issues.
   const mapped: Record<string, string> = {
     P2002: 'Dit e-mailadres is al geregistreerd.',
-    P2021: 'Database probleem (tabel ontbreekt). Probeer later opnieuw.',
-    P2022: 'Database probleem (kolom ontbreekt). Probeer later opnieuw.',
-    P1001: 'Database is niet bereikbaar. Probeer later opnieuw.',
-    P1002: 'Database timeout. Probeer later opnieuw.',
+    P2021: PUBLIC_MESSAGES.genericTryLater,
+    P2022: PUBLIC_MESSAGES.genericTryLater,
+    P1001: PUBLIC_MESSAGES.genericTryLater,
+    P1002: PUBLIC_MESSAGES.genericTryLater,
   }
-  const message = code ? mapped[code] ?? 'Er ging iets mis bij de registratie.' : 'Er ging iets mis bij de registratie.'
+  const message = code ? mapped[code] ?? PUBLIC_MESSAGES.genericTryLater : PUBLIC_MESSAGES.genericTryLater
   return { message, code }
 }
 
@@ -50,10 +51,7 @@ export async function POST(request: NextRequest) {
     }
 
     if (!['OWNER', 'CAREGIVER'].includes(role)) {
-      return NextResponse.json(
-        { error: 'Ongeldige rol' },
-        { status: 400 }
-      )
+      return NextResponse.json({ error: 'Ongeldige aanvraag.' }, { status: 400 })
     }
 
     if (!acceptTerms) {
@@ -99,10 +97,7 @@ export async function POST(request: NextRequest) {
     // Product requirement: registration requires email verification.
     // If email sending isn't configured, fail fast to avoid "account exists but no email" lockouts.
     if (!emailConfigured) {
-      return NextResponse.json(
-        { error: 'E-mail verzending is niet geconfigureerd. Registratie is tijdelijk niet mogelijk.' },
-        { status: 500 }
-      )
+      return NextResponse.json({ error: PUBLIC_MESSAGES.registrationUnavailable }, { status: 500 })
     }
 
     // Hash password
@@ -182,15 +177,8 @@ export async function POST(request: NextRequest) {
       } catch {
         // ignore
       }
-      return NextResponse.json(
-        {
-          error: 'Kon geen verificatiemail versturen. (code: EMAIL_SEND_FAILED)',
-          // Keep it short + safe; helps debug live issues without digging in Vercel logs.
-          detail: String(detail).slice(0, 300),
-          hint: 'Controleer RESEND_API_KEY en DISPATCH_EMAIL_FROM (verified sender/domain).',
-        },
-        { status: 500 }
-      )
+      console.error('[register] verification email send failed:', String(detail).slice(0, 500))
+      return NextResponse.json({ error: PUBLIC_MESSAGES.verificationEmailFailed }, { status: 500 })
     }
 
     // Notify admin (best-effort; never block registration).
@@ -229,11 +217,9 @@ export async function POST(request: NextRequest) {
     }
     console.error('Registration error:', error)
     const safe = toSafeErrorResponse(error)
-    return NextResponse.json(
-      {
-        error: safe.code ? `${safe.message} (code: ${safe.code})` : safe.message,
-      },
-      { status: 500 }
-    )
+    if (safe.code) {
+      console.error('[register] prisma/server error:', safe.code)
+    }
+    return NextResponse.json({ error: safe.message }, { status: 500 })
   }
 }

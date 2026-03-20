@@ -22,8 +22,6 @@ export function CaregiverApplicationForm({ successRedirectTo = '/verzorger-aanme
   const router = useRouter()
   const [loading, setLoading] = useState(false)
   const [submitError, setSubmitError] = useState<string | null>(null)
-  const [errorDetail, setErrorDetail] = useState<string | null>(null)
-  const [errorHint, setErrorHint] = useState<string | null>(null)
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({})
 
   const [formData, setFormData] = useState({
@@ -102,9 +100,11 @@ export function CaregiverApplicationForm({ successRedirectTo = '/verzorger-aanme
         setSubmitError('Controleer de velden hieronder en probeer opnieuw.')
         return
       }
-      setSubmitError(data?.error || 'Er ging iets mis. Probeer opnieuw.')
-      setErrorDetail(typeof data?.detail === 'string' ? data.detail : null)
-      setErrorHint(typeof data?.hint === 'string' ? data.hint : null)
+      setSubmitError(
+        typeof data?.error === 'string' && data.error.trim()
+          ? data.error
+          : 'Er ging iets mis. Probeer het later opnieuw.'
+      )
     } catch {
       setSubmitError('Er ging iets mis. Probeer opnieuw.')
     } finally {
@@ -117,16 +117,6 @@ export function CaregiverApplicationForm({ successRedirectTo = '/verzorger-aanme
       {submitError && (
         <div className="mb-6 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-red-800">
           <div>{submitError}</div>
-          {errorDetail && (
-            <div className="mt-2 text-xs text-red-700 break-words">
-              <strong>Detail:</strong> {errorDetail}
-            </div>
-          )}
-          {errorHint && (
-            <div className="mt-2 text-xs text-red-700">
-              <strong>Tip:</strong> {errorHint}
-            </div>
-          )}
         </div>
       )}
 
