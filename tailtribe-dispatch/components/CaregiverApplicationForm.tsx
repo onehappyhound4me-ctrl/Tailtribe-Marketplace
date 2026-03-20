@@ -78,8 +78,6 @@ export function CaregiverApplicationForm({ successRedirectTo = '/verzorger-aanme
     e.preventDefault()
     setLoading(true)
     setSubmitError(null)
-    setErrorDetail(null)
-    setErrorHint(null)
     setFieldErrors({})
 
     try {
