@@ -50,12 +50,15 @@ export default function ThankYouPage() {
 
             <div className="mt-6 rounded-2xl border border-gray-200 bg-gray-50 p-5 sm:p-6 text-left">
               <div className="text-sm font-bold text-gray-900">Tip</div>
-              <p className="mt-2 text-sm sm:text-base text-gray-600 leading-relaxed">
-                Kijk ook even in je spam/ongewenste e-mail. Geen bericht binnen een redelijke tijd? Neem gerust contact op via{' '}
-                <Link href="/contact" className="text-emerald-700 hover:underline font-semibold">
-                  contact
+              <p className="mt-2 text-sm sm:text-base text-gray-600 leading-relaxed text-balance">
+                Kijk ook even in je spam- of ongewenste post. Geen reactie na een tijdje?{' '}
+                <Link
+                  href="/contact"
+                  className="font-semibold text-emerald-700 underline decoration-emerald-300 underline-offset-2 hover:text-emerald-800 hover:decoration-emerald-500"
+                >
+                  Open de contactpagina
                 </Link>
-                .
+                {' '}— daar vind je alle manieren om ons te bereiken.
               </p>
             </div>
 
