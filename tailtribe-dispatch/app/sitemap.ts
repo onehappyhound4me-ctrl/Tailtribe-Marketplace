@@ -23,6 +23,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: abs('/terms'), lastModified, changeFrequency: 'yearly', priority: 0.2 },
     { url: abs('/privacy'), lastModified, changeFrequency: 'yearly', priority: 0.2 },
     { url: abs('/cookies'), lastModified, changeFrequency: 'yearly', priority: 0.2 },
+    { url: abs('/google-reviews'), lastModified, changeFrequency: 'monthly', priority: 0.5 },
   ]
 
   const servicePages = DISPATCH_SERVICES.map((s) => ({

@@ -83,19 +83,32 @@ export default function RootLayout({
             dangerouslySetInnerHTML={{
               __html: JSON.stringify({
                 '@context': 'https://schema.org',
-                '@type': ['Organization', 'LocalBusiness'],
-                name: 'TailTribe',
-                url: appUrl,
-                logo: orgLogoUrl,
-                description: 'Professionele dierenverzorging in België.',
-                areaServed: { '@type': 'Country', name: 'België' },
-                sameAs: ['https://www.instagram.com/tailtribe_/'],
-                contactPoint: [
+                '@graph': [
                   {
-                    '@type': 'ContactPoint',
-                    contactType: 'customer support',
-                    email: 'steven@tailtribe.be',
-                    availableLanguage: ['nl', 'en'],
+                    '@type': ['Organization', 'LocalBusiness'],
+                    '@id': `${appUrl}/#organization`,
+                    name: 'TailTribe',
+                    url: appUrl,
+                    logo: orgLogoUrl,
+                    description: 'Professionele dierenverzorging in België.',
+                    areaServed: { '@type': 'Country', name: 'België' },
+                    sameAs: ['https://www.instagram.com/tailtribe_/'],
+                    contactPoint: [
+                      {
+                        '@type': 'ContactPoint',
+                        contactType: 'customer support',
+                        email: 'steven@tailtribe.be',
+                        availableLanguage: ['nl', 'en'],
+                      },
+                    ],
+                  },
+                  {
+                    '@type': 'WebSite',
+                    '@id': `${appUrl}/#website`,
+                    url: appUrl,
+                    name: 'TailTribe',
+                    inLanguage: 'nl-BE',
+                    publisher: { '@id': `${appUrl}/#organization` },
                   },
                 ],
               }),

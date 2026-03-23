@@ -13,7 +13,16 @@ Belangrijkste URLs:
 
 Google Search Console (GSC) setup:
 
-- **Sitemap indienen**: voeg `https://www.tailtribe.be/sitemap.xml` toe in GSC → Sitemaps.
+- **Canonical domein**: `www.tailtribe.be` wordt server-side doorgestuurd naar `https://tailtribe.be` (308). Gebruik in GSC voorkeursdomein **apex** (`tailtribe.be`) en dien de sitemap daar in.
+- **Sitemap indienen**: voeg `https://tailtribe.be/sitemap.xml` toe in GSC → Sitemaps.
+
+Recente SEO-aanpassingen in code:
+
+- Homepage: server-`metadata` op `/` + client-UI in `app/home-client.tsx` (betere indexeerbare title/description; hero met beschrijvende `alt`).
+- `WebSite` JSON-LD (`@graph`) naast Organization/LocalBusiness in root layout.
+- `robots.txt`: `/debug` expliciet `disallow` (naast noindex).
+- `/google-reviews` in sitemap + eigen metadata/canonical.
+- Copy: “binnen 2 uur” vervangen door neutrale “zo snel / zo spoedig mogelijk” waar relevant.
 - **Indexing check**: GSC → URL-inspectie → “Live URL testen” → “Indexering aanvragen”.
 - **Snelle sanity check**: Google zoeken op `site:tailtribe.be` (kan dagen/weken duren bij nieuwe sites/landing pages).
 

@@ -30,11 +30,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   return {
     title: pageTitle,
-    description: `${service.desc}. Vraag eenvoudig een offerte aan — we nemen binnen 2 uur contact op.`,
+    description: `${service.desc}. Vraag eenvoudig een offerte aan — we nemen zo spoedig mogelijk contact op.`,
     alternates: { canonical: canonicalUrl },
     openGraph: {
       title: pageTitle,
-      description: `${service.desc}. Vraag eenvoudig een offerte aan — we nemen binnen 2 uur contact op.`,
+      description: `${service.desc}. Vraag eenvoudig een offerte aan — we nemen zo spoedig mogelijk contact op.`,
       url: canonicalUrl,
       siteName: 'TailTribe',
       locale: 'nl_BE',
@@ -330,7 +330,7 @@ export default function DienstDetailPage({ params }: Props) {
                   {(service.longDescription?.why ?? [
                     'We stemmen de details persoonlijk met je af.',
                     'Duidelijke afspraken vooraf, geen online betaling.',
-                    'Snelle opvolging: binnen 2 uur contact.',
+                    'Snelle opvolging: we reageren zo spoedig mogelijk.',
                   ]).map((t) => (
                     <li key={t}>{t}</li>
                   ))}

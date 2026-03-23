@@ -33,6 +33,14 @@ export default async function middleware(req: NextRequest) {
     url.host = 'tailtribe.be'
     return NextResponse.redirect(url, 308)
   }
+
+  // Canonical host: apex only (single domain for SEO / caching).
+  if (host === 'www.tailtribe.be') {
+    const url = new URL(req.url)
+    url.hostname = 'tailtribe.be'
+    url.protocol = 'https:'
+    return NextResponse.redirect(url, 308)
+  }
   const impersonateRole = req.cookies.get('impersonateRole')?.value
   const impersonateUserId = req.cookies.get('impersonateUserId')?.value
 

@@ -1,9 +1,28 @@
+import type { Metadata } from 'next'
 import Link from 'next/link'
 import { SiteHeader } from '@/components/SiteHeader'
 import { SiteFooter } from '@/components/SiteFooter'
+import { getPublicAppUrl } from '@/lib/env'
 
 const GOOGLE_MAPS_CID = process.env.NEXT_PUBLIC_GOOGLE_MAPS_CID || '3943987553262873468'
 const GOOGLE_MAPS_WEB_URL = `https://maps.google.com/?cid=${GOOGLE_MAPS_CID}&hl=nl&gl=BE`
+
+const baseUrl = getPublicAppUrl()
+const canonicalUrl = new URL('/google-reviews', baseUrl).toString()
+
+export const metadata: Metadata = {
+  title: 'Google reviews',
+  description: 'Lees wat klanten over TailTribe zeggen en bekijk onze reviews op Google Maps.',
+  alternates: { canonical: canonicalUrl },
+  openGraph: {
+    title: 'TailTribe — Google reviews',
+    description: 'Lees wat klanten over TailTribe zeggen en bekijk onze reviews op Google Maps.',
+    url: canonicalUrl,
+    siteName: 'TailTribe',
+    locale: 'nl_BE',
+    type: 'website',
+  },
+}
 
 export default function GoogleReviewsPage() {
   return (

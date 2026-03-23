@@ -23,7 +23,7 @@ export const metadata: Metadata = {
 const faqs = [
   {
     q: 'Hoe snel nemen jullie contact op?',
-    a: 'We mikken op een reactie binnen 2 uur tijdens kantooruren om je aanvraag te bevestigen en af te stemmen.',
+    a: 'We streven ernaar tijdens kantooruren zo snel mogelijk te reageren om je aanvraag te bevestigen en af te stemmen.',
   },
   {
     q: 'Hoe werkt betaling?',

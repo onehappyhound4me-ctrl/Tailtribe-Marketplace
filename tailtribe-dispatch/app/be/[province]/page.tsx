@@ -21,11 +21,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   return {
     title: `Dierenverzorging in ${province.name} | TailTribe`,
-    description: `Vraag dierenverzorging aan in ${province.name}. Hondenuitlaat, dierenoppas, opvang en meer — binnen 2 uur bevestiging.`,
+    description: `Vraag dierenverzorging aan in ${province.name}. Hondenuitlaat, dierenoppas, opvang en meer — snelle opvolging na je aanvraag.`,
     alternates: { canonical: canonicalUrl },
     openGraph: {
       title: `Dierenverzorging in ${province.name} | TailTribe`,
-      description: `Vraag dierenverzorging aan in ${province.name}. Hondenuitlaat, dierenoppas, opvang en meer — binnen 2 uur bevestiging.`,
+      description: `Vraag dierenverzorging aan in ${province.name}. Hondenuitlaat, dierenoppas, opvang en meer — snelle opvolging na je aanvraag.`,
       url: canonicalUrl,
       siteName: 'TailTribe',
       locale: 'nl_BE',
@@ -85,7 +85,7 @@ export default function ProvinceLandingPage({ params }: Props) {
         name: 'Hoe snel krijg ik bevestiging?',
         acceptedAnswer: {
           '@type': 'Answer',
-          text: 'We nemen meestal binnen 2 uur contact op om de details te bevestigen en een verzorger in te plannen.',
+          text: 'We nemen zo snel mogelijk contact op om de details te bevestigen en een verzorger in te plannen.',
         },
       },
       {
@@ -183,7 +183,7 @@ export default function ProvinceLandingPage({ params }: Props) {
               opvang, training of transport. Je krijgt snel duidelijkheid over beschikbaarheid en planning.
             </p>
             <p className="text-gray-700 leading-relaxed mt-3">
-              Vermeld je gewenste dienst, datum en locatie. We nemen doorgaans binnen 2 uur contact op om alles te
+              Vermeld je gewenste dienst, datum en locatie. We nemen zo snel mogelijk contact op om alles te
               bevestigen en de juiste match te maken.
             </p>
           </section>
@@ -222,7 +222,7 @@ export default function ProvinceLandingPage({ params }: Props) {
               </div>
               <div>
                 <div className="font-semibold text-gray-900">Hoe snel krijg ik bevestiging?</div>
-                <p>We nemen meestal binnen 2 uur contact op om de details en planning af te stemmen.</p>
+                <p>We nemen zo snel mogelijk contact op om de details en planning af te stemmen.</p>
               </div>
               <div>
                 <div className="font-semibold text-gray-900">Welke diensten kan ik aanvragen?</div>

@@ -307,8 +307,8 @@ export default function PlaceLandingPage({ params }: Props) {
                   training of transport nodig hebt: we stemmen de details af op jouw timing en locatie.
                 </p>
                 <p className="text-gray-700 leading-relaxed mt-3">
-                  Na je aanvraag nemen we doorgaans binnen 2 uur contact op om alles te bevestigen en de juiste match
-                  te plannen.
+                  Na je aanvraag nemen we zo snel mogelijk contact op om alles te bevestigen en de juiste match te
+                  plannen.
                 </p>
               </>
             )}
