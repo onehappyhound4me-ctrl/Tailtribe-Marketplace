@@ -185,12 +185,12 @@ export default function OverOnsPage() {
                 </p>
               </div>
               <div className="flex flex-col sm:flex-row gap-3 justify-center items-center">
-                <Link href="/boeken" className="btn-brand text-center">
+                <Link href="/boeken" className="btn-brand-compact">
                   Aanvraag indienen
                 </Link>
                 <Link
                   href="/verzorger-aanmelden"
-                  className="inline-flex items-center justify-center px-6 py-3 rounded-tt border border-emerald-200 bg-white text-gray-900 hover:bg-gray-50 transition"
+                  className="btn-secondary-compact"
                 >
                   Aanmelden als verzorger
                 </Link>

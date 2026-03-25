@@ -404,12 +404,12 @@ export default function HomePageClient() {
               ))}
             </div>
             <div className="mt-6 flex flex-col sm:flex-row gap-3">
-              <Link href="/boeken" className="btn-brand inline-flex">
+              <Link href="/boeken" className="btn-brand-compact">
                 Start je aanvraag
               </Link>
               <Link
                 href={routes.diensten}
-                className="inline-flex items-center justify-center px-6 py-3 rounded-tt border border-emerald-200 bg-white text-emerald-900 hover:bg-emerald-50 transition"
+                className="btn-secondary-compact"
               >
                 Bekijk alle diensten
               </Link>

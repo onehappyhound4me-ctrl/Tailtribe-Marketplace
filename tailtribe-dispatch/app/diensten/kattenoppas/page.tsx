@@ -95,13 +95,13 @@ export default function KattenoppasPage() {
             <div className="mt-6 flex flex-col sm:flex-row gap-3">
               <Link
                 href="/boeken?service=PET_SITTING"
-                className="btn-brand inline-flex items-center justify-center"
+                className="btn-brand-compact"
               >
                 Vraag een kattenoppas aan
               </Link>
               <Link
                 href="/diensten/dierenoppas"
-                className="inline-flex items-center justify-center px-6 py-3 rounded-tt border border-emerald-200 bg-white text-emerald-900 hover:bg-emerald-50 transition"
+                className="btn-secondary-compact"
               >
                 Meer over dierenoppas
               </Link>
@@ -191,7 +191,7 @@ export default function KattenoppasPage() {
             <div className="mt-6 text-center">
               <Link
                 href="/boeken?service=PET_SITTING"
-                className="btn-brand inline-flex items-center justify-center"
+                className="btn-brand-compact"
               >
                 Vraag een kattenoppas aan
               </Link>
@@ -277,7 +277,7 @@ export default function KattenoppasPage() {
             <div className="mt-2">
               <Link
                 href="/boeken?service=PET_SITTING"
-                className="btn-brand inline-flex items-center justify-center"
+                className="btn-brand-compact"
               >
                 Vraag een offerte voor kattenoppas
               </Link>

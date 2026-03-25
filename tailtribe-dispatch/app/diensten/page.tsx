@@ -68,7 +68,7 @@ export default function DienstenPage() {
               Klik op een dienst voor meer uitleg. Wil je meteen boeken? Dien je aanvraag in en wij nemen contact op.
             </p>
             <div className="mt-6">
-              <Link href="/boeken" className="btn-brand inline-block">
+              <Link href="/boeken" className="btn-brand-compact">
                 Aanvraag indienen
               </Link>
             </div>

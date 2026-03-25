@@ -286,19 +286,19 @@ export default function DienstDetailPage({ params }: Props) {
                 {service.id === 'GROUP_DOG_WALKING' && service.providerSpotlight ? (
                   <ExternalLink
                     href={service.providerSpotlight.href}
-                    className="btn-brand inline-flex"
+                    className="btn-brand-compact"
                     data-nav="external"
                     data-component="DienstDetailPage.HeaderProviderCta"
                   >
                     {service.providerSpotlight.ctaLabel ?? `Bezoek ${service.providerSpotlight.label ?? 'website'}`}
                   </ExternalLink>
                 ) : null}
-                <Link href={`/boeken?service=${service.id}`} className="btn-brand inline-block">
+                <Link href={`/boeken?service=${service.id}`} className="btn-brand-compact">
                   Aanvraag indienen
                 </Link>
                 <Link
                   href={routes.diensten}
-                  className="inline-block px-6 py-3 rounded-tt border border-white/10 bg-white text-gray-900 hover:bg-gray-50 transition"
+                  className="btn-secondary-compact"
                 >
                   Alle diensten
                 </Link>
@@ -524,7 +524,7 @@ export default function DienstDetailPage({ params }: Props) {
                 ))}
               </div>
               <div className="text-center mt-8">
-                <Link href="/boeken" className="btn-brand inline-block">
+                <Link href="/boeken" className="btn-brand-compact">
                   Start je aanvraag
                 </Link>
               </div>
@@ -542,7 +542,7 @@ export default function DienstDetailPage({ params }: Props) {
                   ))}
                 </div>
                 <div className="mt-6">
-                  <Link href={`/boeken?service=${service.id}`} className="btn-brand inline-flex">
+                  <Link href={`/boeken?service=${service.id}`} className="btn-brand-compact">
                     Start je aanvraag
                   </Link>
                 </div>

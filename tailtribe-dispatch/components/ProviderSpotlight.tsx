@@ -53,7 +53,7 @@ export function ProviderSpotlight({
           <div className="flex-shrink-0">
             <ExternalLink
               href={href}
-              className="btn-brand min-h-[44px] w-full sm:w-auto"
+              className="btn-brand-compact w-full sm:w-auto"
               data-nav="external"
               data-component="ProviderSpotlight"
             >
