@@ -144,12 +144,12 @@ export default function ProvinceLandingPage({ params }: Props) {
               <p className="text-sm font-semibold tracking-[0.02em] text-emerald-800">Regiofocus</p>
               <h2 className="mt-2 text-2xl font-semibold text-gray-900 mb-2">Hondenuitlaatservice in regio Antwerpen</h2>
               <p className="text-gray-700 leading-relaxed max-w-3xl">
-                Actief in Groot Antwerpen (+rand) en Antwerpen Noord (Kapellen–Brasschaat–Kalmthout).
-                Kies hieronder je gemeente of start meteen met een aanvraag. Wij bekijken welke service het best past.
+                Actief in Groot Antwerpen (+rand) en Antwerpen Noord (Kapellen–Brasschaat–Kalmthout). Kies hieronder je
+                gemeente als je specifiek op zoek bent naar hondenuitlaatservice in jouw buurt.
               </p>
               <div className="mt-5">
-                <Link href="/boeken" className="btn-brand-compact">
-                  Vind de juiste service voor je huisdier
+                <Link href="/boeken?service=GROUP_DOG_WALKING" className="btn-brand-compact">
+                  Bekijk beschikbaarheid voor hondenuitlaatservice
                 </Link>
               </div>
               <div className="mt-5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
