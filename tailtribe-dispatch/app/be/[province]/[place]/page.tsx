@@ -28,17 +28,17 @@ function isGroepsuitlaatFocus(provinceSlug: string, placeSlug: string) {
   ].includes(placeSlug)
 }
 
-function groepsuitlaatTitle(placeName: string) {
+function hondenuitlaatserviceTitle(placeName: string) {
   return `Hondenuitlaatservice in ${placeName} | TailTribe`
 }
 
-function groepsuitlaatDescription(placeName: string) {
+function hondenuitlaatserviceDescription(placeName: string) {
   return `Zoek je een hondenuitlaatservice in ${placeName}? Dien je aanvraag in via TailTribe — we nemen snel contact op en stemmen planning, ophalen/terugbrengen en voorkeuren af.`
 }
 
 const SERVICE_SECTIONS = [
   { id: 'DOG_WALKING', name: 'Hondenuitlaat', slug: 'hondenuitlaat' },
-  { id: 'GROUP_DOG_WALKING', name: 'Hondenuitlaatservice', slug: 'groepsuitlaat' },
+  { id: 'GROUP_DOG_WALKING', name: 'Hondenuitlaatservice', slug: 'hondenuitlaatservice' },
   { id: 'DOG_TRAINING', name: 'Hondentraining', slug: 'hondentraining' },
   { id: 'PET_SITTING', name: 'Dierenoppas (incl. kattenoppas)', slug: 'dierenoppas' },
   { id: 'PET_BOARDING', name: 'Dierenopvang', slug: 'dierenopvang' },
@@ -69,7 +69,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     ? `Hondenuitlaat, hondenuitlaatservice en dierenoppas in ${place.name} | TailTribe`
     : `Hondenuitlaat, dierenoppas en huisdierenzorg in ${place.name} | TailTribe`
   const description = focus
-    ? groepsuitlaatDescription(place.name)
+    ? hondenuitlaatserviceDescription(place.name)
     : `Vraag hondenuitlaat, dierenoppas of andere huisdierenzorg aan in ${place.name}. We nemen snel contact op en plannen een verzorger in jouw buurt.`
 
   return {
@@ -118,7 +118,7 @@ export default function PlaceLandingPage({ params }: Props) {
     '@type': 'Service',
     name: `Hondenuitlaat en dierenverzorging in ${place.name}`,
     description: focus
-      ? `Hondenuitlaatservice in ${place.name}, ${province.name}. Vraag planning en beschikbaarheid aan via TailTribe.`
+      ? `Hondenuitlaatservice in ${place.name}, ${province.name}. Vraag planning, beschikbaarheid en praktische info aan via TailTribe.`
       : `Dierenverzorging in ${place.name}, ${province.name}. Hondenuitlaat, dierenoppas, opvang en meer.`,
     serviceType:
       'Dog walking, group dog walking, dog training, pet sitting, pet boarding, in-home pet care, pet transport, farm animal care, event companion services',
@@ -228,10 +228,10 @@ export default function PlaceLandingPage({ params }: Props) {
                     Boek hondenuitlaatservice
                   </Link>
                   <Link
-                    href="/diensten/groepsuitlaat"
+                    href="/diensten/hondenuitlaatservice"
                     className="inline-flex items-center justify-center px-6 py-3 rounded-tt border border-emerald-200 bg-white text-emerald-900 hover:bg-emerald-50 transition"
                   >
-                    Meer info
+                    Meer info over hondenuitlaatservice
                   </Link>
                 </div>
                 <div className="mt-4 text-sm text-gray-600">
@@ -288,7 +288,7 @@ export default function PlaceLandingPage({ params }: Props) {
             {focus ? (
               <>
                 <p className="text-gray-700 leading-relaxed">
-                  We organiseren hondenuitlaatservice voor sociale honden. Je hond gaat mee met een passende groep, met
+                  We bieden hondenuitlaatservice voor sociale honden. Je hond gaat mee met een passende groep, met
                   aandacht voor veiligheid, rustmomenten en een fijne ervaring.
                 </p>
                 <div className="mt-4 rounded-xl border border-emerald-100 bg-emerald-50/60 p-4 text-sm text-emerald-900">
@@ -335,10 +335,10 @@ export default function PlaceLandingPage({ params }: Props) {
                   Boek hondenuitlaatservice in {place.name}
                 </Link>
                 <Link
-                  href="/diensten/groepsuitlaat"
+                  href="/diensten/hondenuitlaatservice"
                   className="inline-flex items-center justify-center px-6 py-3 rounded-tt border border-emerald-200 bg-white text-emerald-900 hover:bg-emerald-50 transition"
                 >
-                  Lees meer over de service
+                  Lees meer over hondenuitlaatservice
                 </Link>
               </div>
             ) : null}

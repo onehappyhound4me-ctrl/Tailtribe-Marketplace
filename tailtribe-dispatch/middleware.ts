@@ -41,6 +41,13 @@ export default async function middleware(req: NextRequest) {
     url.protocol = 'https:'
     return NextResponse.redirect(url, 308)
   }
+
+  // Keep the old service URL working after the slug rename.
+  if (pathname === '/diensten/groepsuitlaat' || pathname === '/diensten/groepsuitlaat/') {
+    const url = new URL(req.url)
+    url.pathname = '/diensten/hondenuitlaatservice'
+    return NextResponse.redirect(url, 308)
+  }
   const impersonateRole = req.cookies.get('impersonateRole')?.value
   const impersonateUserId = req.cookies.get('impersonateUserId')?.value
 

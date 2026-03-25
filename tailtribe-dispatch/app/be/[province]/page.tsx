@@ -138,7 +138,7 @@ export default function ProvinceLandingPage({ params }: Props) {
 
           {province.slug === 'antwerpen' ? (
             <section className="bg-white rounded-2xl shadow-sm border border-black/5 p-6 mb-6">
-              <h2 className="text-2xl font-semibold text-gray-900 mb-2">Hondenuitlaatservice in Antwerpen</h2>
+              <h2 className="text-2xl font-semibold text-gray-900 mb-2">Hondenuitlaatservice in regio Antwerpen</h2>
               <p className="text-gray-700 leading-relaxed">
                 Actief in Groot Antwerpen (+rand) en Antwerpen Noord (Kapellen–Brasschaat–Kalmthout).
                 Kies je gemeente hieronder of lees eerst meer over de service.
@@ -148,7 +148,7 @@ export default function ProvinceLandingPage({ params }: Props) {
                   Boek hondenuitlaatservice
                 </Link>
                 <Link
-                  href="/diensten/groepsuitlaat"
+                  href="/diensten/hondenuitlaatservice"
                   className="inline-flex items-center justify-center px-6 py-3 rounded-tt border border-emerald-200 bg-white text-emerald-900 hover:bg-emerald-50 transition"
                 >
                   Info over hondenuitlaatservice
@@ -169,7 +169,7 @@ export default function ProvinceLandingPage({ params }: Props) {
                     className="group bg-gray-50 rounded-xl border border-black/5 px-4 py-3 text-gray-800 hover:bg-white hover:shadow-sm transition"
                   >
                     <div className="font-semibold group-hover:text-green-700 transition-colors">{p.label}</div>
-                    <div className="text-xs text-gray-500 mt-1">Hondenuitlaatservice →</div>
+                    <div className="text-xs text-gray-500 mt-1">Bekijk hondenuitlaatservice →</div>
                   </Link>
                 ))}
               </div>
