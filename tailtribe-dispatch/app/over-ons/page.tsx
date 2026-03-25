@@ -129,9 +129,6 @@ export default function OverOnsPage() {
           </section>
 
           <section className="bg-white rounded-2xl border border-black/5 p-5 sm:p-8 shadow-sm">
-            <h2 className="text-xl sm:text-2xl font-semibold text-transparent bg-clip-text bg-gradient-to-r from-emerald-700 to-blue-700 mb-4">
-              Team
-            </h2>
             <p className="text-emerald-900/85 mb-4 text-sm sm:text-base leading-relaxed">
               De visie achter TailTribe is nauw verbonden met de achtergrond van oprichter Steven Van Gucht. Zijn interesse in
               dierengedrag begon op jonge leeftijd en groeide uit tot internationale praktijkervaring in dierenzorg en
@@ -168,7 +165,7 @@ export default function OverOnsPage() {
               <ul className="list-disc pl-5 space-y-1">
                 <li>Bachelor Agro-biotechnologie, optie dierenzorg (Gent, 2008) – Thesis: De effecten van hondengedrag op menselijke feedback.</li>
                 <li>Hondenuitlaatservices en gedragstraining (California Bay Area); wildlife rescue (Thailand); dierenartsassistent (Antwerpen); greyhound rescue (Spanje).</li>
-                <li>7+ jaar owner One Happy Hound: team, opvang, training en avontuurlijke daguitstappen.</li>
+                <li>7+ jaar teamwork bij One Happy Hound: opvang, training en avontuurlijke daguitstappen.</li>
               </ul>
             </div>
           </section>
