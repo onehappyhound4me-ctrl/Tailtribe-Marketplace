@@ -261,7 +261,7 @@ export default function PlaceLandingPage({ params }: Props) {
             </h1>
             <p className="mx-auto max-w-2xl text-lg leading-8 text-gray-600 md:text-xl">
               {focus
-                ? `Zoek je een betrouwbare dierenoppasser voor hondenuitlaatservice aan huis in ${place.name}? Wij helpen met sociale daguitstappen, ophalen en terugbrengen en een zorgvuldige match voor honden die graag samen op pad gaan.`
+                ? `Zoek je hondenuitlaatservice aan huis in ${place.name}? Wij helpen met sociale daguitstappen, ophalen en terugbrengen, en een zorgvuldige planning voor honden die graag samen op pad gaan.`
                 : `Zoek je een betrouwbare dierenoppasser in ${place.name}? Van hondenuitlaat en dierenoppas tot dierenopvang en verzorging aan huis: hier vind je sneller de juiste match voor je huisdier.`}
             </p>
             <div className="mt-5 flex flex-wrap items-center justify-center gap-2">
@@ -298,78 +298,73 @@ export default function PlaceLandingPage({ params }: Props) {
           </header>
 
           <section className="mb-8 rounded-3xl border border-emerald-100 bg-gradient-to-br from-white via-emerald-50/70 to-sky-50 p-6 shadow-sm md:p-10">
-            <div className="grid gap-6 lg:grid-cols-[1.45fr_0.95fr] lg:items-start">
-              <div>
-                <p className="text-sm font-semibold uppercase tracking-[0.14em] text-emerald-800">
-                  {focus ? 'Lokale focus' : 'Voor huisdiereigenaars'}
-                </p>
-                <h2 className="mt-3 max-w-2xl text-2xl font-semibold leading-tight text-gray-900 md:text-3xl">
-                  {focus
-                    ? `Een betrouwbare dierenoppasser voor hondenuitlaatservice in ${place.name}`
-                    : `Snel duidelijkheid over de juiste hulp voor je huisdier in ${place.name}`}
-                </h2>
-                <p className="mt-4 max-w-2xl text-base leading-8 text-gray-700">
-                  {focus
-                    ? `Voor honden in ${place.name} en omgeving die graag samen op pad gaan, zoeken we een passende groep, duidelijke planning en veilige routes. We halen je hond aan huis op, bekijken karakter en energie en bevestigen pas wanneer de match met de juiste dierenoppasser klopt.`
-                    : `We bekijken je aanvraag en zoeken de juiste match in jouw regio. Van hondenuitlaat en dierenoppas tot dierenopvang en verzorging aan huis: je krijgt een voorstel dat past bij je dier, je planning en je locatie.`}
-                </p>
-                <div className="mt-5 flex flex-wrap gap-2">
-                  {(focus
-                    ? ['Aan huis ophalen', 'Sociale daguitstappen', 'Zorgvuldige matching', 'Veilige routes']
-                    : ['Hondenuitlaat', 'Dierenoppas', 'Dierenopvang', 'Verzorging aan huis']
-                  ).map((label) => (
-                    <span
-                      key={label}
-                      className="inline-flex items-center rounded-full border border-emerald-100 bg-white/90 px-3 py-1.5 text-sm font-medium text-gray-700"
-                    >
-                      {label}
-                    </span>
-                  ))}
+            <p className="text-sm font-semibold uppercase tracking-[0.14em] text-emerald-800">
+              {focus ? 'Lokale focus' : 'Voor huisdiereigenaars'}
+            </p>
+            <h2 className="mt-3 max-w-2xl text-2xl font-semibold leading-tight text-gray-900 md:text-3xl">
+              {focus
+                ? `Hondenuitlaatservice aan huis in ${place.name}, helder en praktisch geregeld`
+                : `Snel duidelijkheid over de juiste hulp voor je huisdier in ${place.name}`}
+            </h2>
+            <p className="mt-4 max-w-2xl text-base leading-8 text-gray-700">
+              {focus
+                ? `Voor honden in ${place.name} en omgeving die graag samen op pad gaan, zorgen we voor een duidelijke planning, veilige routes en een aanpak die past bij karakter en energie. We halen je hond aan huis op en bevestigen pas wanneer alles praktisch goed zit.`
+                : `We bekijken je aanvraag en zoeken de juiste match in jouw regio. Van hondenuitlaat en dierenoppas tot dierenopvang en verzorging aan huis: je krijgt een voorstel dat past bij je dier, je planning en je locatie.`}
+            </p>
+            <div className="mt-5 flex flex-wrap gap-2">
+              {(focus
+                ? ['Aan huis ophalen', 'Sociale daguitstappen', 'Zorgvuldige matching', 'Veilige routes']
+                : ['Hondenuitlaat', 'Dierenoppas', 'Dierenopvang', 'Verzorging aan huis']
+              ).map((label) => (
+                <span
+                  key={label}
+                  className="inline-flex items-center rounded-full border border-emerald-100 bg-white/90 px-3 py-1.5 text-sm font-medium text-gray-700"
+                >
+                  {label}
+                </span>
+              ))}
+            </div>
+            <div className="mt-6">
+              <Link href={focus ? '/boeken?service=GROUP_DOG_WALKING' : '/boeken'} className="btn-brand-compact">
+                {focus ? 'Bekijk beschikbaarheid aan huis' : 'Vind de juiste service voor je huisdier'}
+              </Link>
+            </div>
+            <div className="mt-8 grid gap-4 md:grid-cols-3">
+              {(focus
+                ? [
+                    {
+                      title: 'Duidelijke intake',
+                      text: `We luisteren eerst naar het karakter, ritme en de noden van je hond in ${place.name}.`,
+                    },
+                    {
+                      title: 'Heldere planning',
+                      text: 'Ophalen, terugbrengen en praktische afspraken worden vooraf duidelijk afgestemd.',
+                    },
+                    {
+                      title: 'Rust voor baasjes',
+                      text: 'Je hoeft niet zelf eindeloos te zoeken of te twijfelen wat het best past.',
+                    },
+                  ]
+                : [
+                    {
+                      title: 'Lokale matching',
+                      text: `We zoeken hulp die praktisch haalbaar is in ${place.name} en omgeving.`,
+                    },
+                    {
+                      title: 'Gerichte hulp',
+                      text: 'Je krijgt geen overload aan keuzes, maar duidelijke hulp op basis van je aanvraag.',
+                    },
+                    {
+                      title: 'Vertrouwen voorop',
+                      text: 'Voor veel baasjes telt vooral rust: iemand vinden die goed voelt voor hun huisdier.',
+                    },
+                  ]
+              ).map((item) => (
+                <div key={item.title} className="rounded-2xl border border-white/80 bg-white/90 p-5 shadow-sm">
+                  <h3 className="text-base font-semibold leading-snug text-gray-900">{item.title}</h3>
+                  <p className="mt-2 text-sm leading-7 text-gray-700">{item.text}</p>
                 </div>
-                <div className="mt-6">
-                  <Link href={focus ? '/boeken?service=GROUP_DOG_WALKING' : '/boeken'} className="btn-brand-compact">
-                    {focus ? 'Bekijk beschikbaarheid aan huis' : 'Vind de juiste service voor je huisdier'}
-                  </Link>
-                </div>
-              </div>
-
-              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-1">
-                {(focus
-                  ? [
-                      {
-                        title: 'Duidelijke intake',
-                        text: `We luisteren eerst naar het karakter, ritme en de noden van je hond in ${place.name}.`,
-                      },
-                      {
-                        title: 'Betrouwbare planning',
-                        text: 'Ophalen, terugbrengen en praktische afspraken worden vooraf helder afgestemd.',
-                      },
-                      {
-                        title: 'Rust voor baasjes',
-                        text: 'Je hoeft niet zelf eindeloos te zoeken naar een geschikte dierenoppasser of service.',
-                      },
-                    ]
-                  : [
-                      {
-                        title: 'Lokale matching',
-                        text: `We zoeken hulp die praktisch haalbaar is in ${place.name} en omgeving.`,
-                      },
-                      {
-                        title: 'Owner-first aanpak',
-                        text: 'Je krijgt geen overload aan keuzes, maar gerichte hulp op basis van je aanvraag.',
-                      },
-                      {
-                        title: 'Vertrouwen voorop',
-                        text: 'Voor veel baasjes telt vooral rust: iemand vinden die goed voelt voor hun huisdier.',
-                      },
-                    ]
-                ).map((item) => (
-                  <div key={item.title} className="rounded-2xl border border-white/80 bg-white/90 p-5 shadow-sm">
-                    <h3 className="text-base font-semibold leading-snug text-gray-900">{item.title}</h3>
-                    <p className="mt-2 text-sm leading-7 text-gray-700">{item.text}</p>
-                  </div>
-                ))}
-              </div>
+              ))}
             </div>
           </section>
 
@@ -453,30 +448,56 @@ export default function PlaceLandingPage({ params }: Props) {
             {focus ? (
               <div className="grid gap-4 md:grid-cols-3">
                 {[
-                  'Vertel ons waar je woont, wanneer je hulp zoekt en wat voor hond je hebt.',
-                  'We bekijken of hondenuitlaatservice aan huis in jouw zone praktisch en inhoudelijk past.',
-                  'Na akkoord plannen we de eerste uitlaatmomenten en de afspraken rond ophalen.',
-                ].map((text, index) => (
-                  <div key={text} className="rounded-2xl border border-black/5 bg-slate-50/70 p-5">
-                    <div className="mb-3 inline-flex h-8 w-8 items-center justify-center rounded-full bg-white text-sm font-semibold text-gray-900 shadow-sm">
-                      {index + 1}
+                  {
+                    step: '01',
+                    title: 'Vertel kort wat je zoekt',
+                    text: 'Geef door waar je woont, wanneer je hulp nodig hebt en wat voor hond je hebt.',
+                  },
+                  {
+                    step: '02',
+                    title: 'We bekijken wat haalbaar is',
+                    text: 'We checken of hondenuitlaatservice aan huis in jouw zone praktisch en inhoudelijk past.',
+                  },
+                  {
+                    step: '03',
+                    title: 'We plannen alles duidelijk in',
+                    text: 'Na akkoord leggen we de eerste uitlaatmomenten en afspraken rond ophalen vast.',
+                  },
+                ].map((item) => (
+                  <div key={item.title} className="rounded-2xl border border-black/5 bg-slate-50/70 p-6">
+                    <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-100 text-base font-semibold text-emerald-900">
+                      {item.step}
                     </div>
-                    <p className="text-sm leading-7 text-gray-700">{text}</p>
+                    <h3 className="text-base font-semibold leading-snug text-gray-900">{item.title}</h3>
+                    <p className="mt-2 text-sm leading-7 text-gray-700">{item.text}</p>
                   </div>
                 ))}
               </div>
             ) : (
               <div className="grid gap-4 md:grid-cols-3">
                 {[
-                  'Vertel ons welke hulp je zoekt, waar je woont en wat voor huisdier je hebt.',
-                  'We nemen contact op en denken mee over de meest geschikte oplossing.',
-                  'Je krijgt een match en voorstel dat past bij je dier, je planning en je regio.',
-                ].map((text, index) => (
-                  <div key={text} className="rounded-2xl border border-black/5 bg-slate-50/70 p-5">
-                    <div className="mb-3 inline-flex h-8 w-8 items-center justify-center rounded-full bg-white text-sm font-semibold text-gray-900 shadow-sm">
-                      {index + 1}
+                  {
+                    step: '01',
+                    title: 'Dien je aanvraag in',
+                    text: 'Vertel welke hulp je zoekt, waar je woont en wat voor huisdier je hebt.',
+                  },
+                  {
+                    step: '02',
+                    title: 'We denken met je mee',
+                    text: 'We nemen contact op en bekijken welke oplossing het best past bij jouw situatie.',
+                  },
+                  {
+                    step: '03',
+                    title: 'Je krijgt een passend voorstel',
+                    text: 'Daarna ontvang je een voorstel dat klopt voor je dier, je planning en je regio.',
+                  },
+                ].map((item) => (
+                  <div key={item.title} className="rounded-2xl border border-black/5 bg-slate-50/70 p-6">
+                    <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-100 text-base font-semibold text-emerald-900">
+                      {item.step}
                     </div>
-                    <p className="text-sm leading-7 text-gray-700">{text}</p>
+                    <h3 className="text-base font-semibold leading-snug text-gray-900">{item.title}</h3>
+                    <p className="mt-2 text-sm leading-7 text-gray-700">{item.text}</p>
                   </div>
                 ))}
               </div>

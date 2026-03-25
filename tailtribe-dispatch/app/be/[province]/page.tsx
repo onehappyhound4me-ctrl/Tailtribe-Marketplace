@@ -158,50 +158,45 @@ export default function ProvinceLandingPage({ params }: Props) {
               <h2 className="mt-3 text-2xl font-semibold leading-tight text-gray-900 md:text-3xl">
                 Hondenuitlaatservice aan huis in regio Antwerpen
               </h2>
-              <div className="grid gap-6 lg:grid-cols-[1.35fr_1fr] lg:items-start">
-                <div>
-                  <p className="max-w-2xl text-base leading-8 text-gray-700">
-                    Actief in Groot Antwerpen (+rand) en Antwerpen Noord (Kapellen, Brasschaat, Kalmthout). Kies
-                    hieronder je gemeente als je specifiek op zoek bent naar hondenuitlaatservice aan huis met een
-                    betrouwbare dierenoppasser in jouw buurt.
-                  </p>
-                  <div className="mt-4 flex flex-wrap gap-2">
-                    {['Aan huis ophalen', 'Antwerpen + rand', 'Zorgvuldige matching', 'Snelle intake'].map((label) => (
-                      <span
-                        key={label}
-                        className="inline-flex items-center rounded-full border border-emerald-100 bg-white/90 px-3 py-1.5 text-sm font-medium text-gray-700"
-                      >
-                        {label}
-                      </span>
-                    ))}
+              <p className="mt-4 max-w-2xl text-base leading-8 text-gray-700">
+                Actief in Groot Antwerpen (+rand) en Antwerpen Noord (Kapellen, Brasschaat, Kalmthout). Kies hieronder
+                je gemeente als je specifiek op zoek bent naar hondenuitlaatservice aan huis in jouw buurt.
+              </p>
+              <div className="mt-4 flex flex-wrap gap-2">
+                {['Aan huis ophalen', 'Antwerpen + rand', 'Zorgvuldige matching', 'Snelle intake'].map((label) => (
+                  <span
+                    key={label}
+                    className="inline-flex items-center rounded-full border border-emerald-100 bg-white/90 px-3 py-1.5 text-sm font-medium text-gray-700"
+                  >
+                    {label}
+                  </span>
+                ))}
+              </div>
+              <div className="mt-5">
+                <Link href="/boeken?service=GROUP_DOG_WALKING" className="btn-brand-compact">
+                  Bekijk beschikbaarheid aan huis
+                </Link>
+              </div>
+              <div className="mt-8 grid gap-4 md:grid-cols-3">
+                {[
+                  {
+                    title: 'Voor drukke baasjes',
+                    text: 'Je hoeft niet zelf te puzzelen wie geschikt is voor jouw hond en planning.',
+                  },
+                  {
+                    title: 'Heldere opvolging',
+                    text: 'We stemmen regio, haalbaarheid en praktische afspraken eerst duidelijk met je af.',
+                  },
+                  {
+                    title: 'Lokaal gericht',
+                    text: 'De focus ligt op zones waar hondenuitlaatservice aan huis echt praktisch inzetbaar is.',
+                  },
+                ].map((item) => (
+                  <div key={item.title} className="rounded-2xl border border-white/80 bg-white/90 p-5 shadow-sm">
+                    <h3 className="text-base font-semibold leading-snug text-gray-900">{item.title}</h3>
+                    <p className="mt-2 text-sm leading-7 text-gray-700">{item.text}</p>
                   </div>
-                  <div className="mt-5">
-                    <Link href="/boeken?service=GROUP_DOG_WALKING" className="btn-brand-compact">
-                      Bekijk beschikbaarheid aan huis
-                    </Link>
-                  </div>
-                </div>
-                <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-1">
-                  {[
-                    {
-                      title: 'Voor drukke baasjes',
-                      text: 'Je hoeft niet zelf te puzzelen wie geschikt is voor jouw hond en planning.',
-                    },
-                    {
-                      title: 'Heldere opvolging',
-                      text: 'We stemmen regio, haalbaarheid en praktische afspraken eerst duidelijk met je af.',
-                    },
-                    {
-                      title: 'Lokaal gericht',
-                      text: 'De focus ligt op zones waar hondenuitlaatservice aan huis echt praktisch inzetbaar is.',
-                    },
-                  ].map((item) => (
-                    <div key={item.title} className="rounded-2xl border border-white/80 bg-white/90 p-5 shadow-sm">
-                      <h3 className="text-base font-semibold leading-snug text-gray-900">{item.title}</h3>
-                      <p className="mt-2 text-sm leading-7 text-gray-700">{item.text}</p>
-                    </div>
-                  ))}
-                </div>
+                ))}
               </div>
               <div className="mt-5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
                 {[
