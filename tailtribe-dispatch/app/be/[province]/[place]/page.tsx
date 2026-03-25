@@ -503,8 +503,11 @@ export default function PlaceLandingPage({ params }: Props) {
               </div>
             )}
             {focus ? (
-              <div className="mt-6">
-                <Link href="/boeken?service=GROUP_DOG_WALKING" className="btn-brand-compact">
+              <div className="mt-8 flex flex-col items-center justify-center gap-3 rounded-2xl border border-emerald-100 bg-emerald-50/60 p-5 text-center">
+                <p className="text-sm leading-6 text-gray-700">
+                  Klaar om te bekijken of hondenuitlaatservice aan huis past in jouw regio?
+                </p>
+                <Link href="/boeken?service=GROUP_DOG_WALKING" className="btn-brand w-full sm:w-auto">
                   Bekijk beschikbaarheid aan huis
                 </Link>
               </div>
@@ -658,20 +661,19 @@ export default function PlaceLandingPage({ params }: Props) {
             </section>
           ) : null}
 
-          <section className="rounded-3xl border border-emerald-100 bg-gradient-to-br from-white via-emerald-50/60 to-sky-50 p-6 md:p-8 mt-6 shadow-sm">
-            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-              <div>
-                <h2 className="text-xl md:text-2xl font-semibold mb-1 text-gray-900">
-                  Klaar om de juiste match in {place.name} te vinden?
-                </h2>
-                <p className="text-sm md:text-base text-gray-700">
-                  {focus
-                    ? `Vertel ons waar je woont en wat je hond nodig heeft. Daarna bekijken we of hondenuitlaatservice aan huis in ${place.name} past bij jouw situatie.`
-                    : `Vertel ons wat je nodig hebt voor je huisdier. Daarna bekijken we welke dienst en welke verzorger het best aansluiten bij jouw situatie.`}
-                </p>
-              </div>
-              <div>
-                <Link href={focus ? '/boeken?service=GROUP_DOG_WALKING' : '/boeken'} className="btn-brand-compact">
+          <section className="mt-6 rounded-3xl border border-emerald-100 bg-gradient-to-br from-white via-emerald-50/60 to-sky-50 p-6 shadow-sm md:p-10">
+            <div className="mx-auto max-w-3xl text-center">
+              <p className="text-sm font-semibold uppercase tracking-[0.14em] text-emerald-800">Laatste stap</p>
+              <h2 className="mt-3 text-2xl font-semibold leading-tight text-gray-900 md:text-3xl">
+                Klaar om de juiste match in {place.name} te vinden?
+              </h2>
+              <p className="mt-4 text-base leading-8 text-gray-700">
+                {focus
+                  ? `Vertel ons waar je woont en wat je hond nodig heeft. Daarna bekijken we of hondenuitlaatservice aan huis in ${place.name} past bij jouw situatie.`
+                  : `Vertel ons wat je nodig hebt voor je huisdier. Daarna bekijken we welke dienst en welke verzorger het best aansluiten bij jouw situatie.`}
+              </p>
+              <div className="mt-6 flex justify-center">
+                <Link href={focus ? '/boeken?service=GROUP_DOG_WALKING' : '/boeken'} className="btn-brand w-full sm:w-auto">
                   {focus ? 'Bekijk beschikbaarheid aan huis' : 'Vind de juiste service voor je huisdier'}
                 </Link>
               </div>
