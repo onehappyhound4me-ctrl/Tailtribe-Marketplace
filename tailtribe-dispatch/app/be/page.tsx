@@ -9,14 +9,14 @@ const appUrl = getPublicAppUrl()
 const canonicalUrl = new URL('/be', appUrl).toString()
 
 export const metadata: Metadata = {
-  title: 'Dierenverzorging per streek in België | TailTribe',
+  title: 'Dierenoppas per streek in België | TailTribe',
   description:
-    'Bekijk dierenverzorging per streek in België. Kies je provincie en vraag snel een offerte aan voor hondenuitlaat, dierenoppas, opvang en meer.',
+    'Bekijk dierenoppas en huisdierenzorg per streek in België. Kies je provincie en vind de juiste match voor je huisdier.',
   alternates: { canonical: canonicalUrl },
   openGraph: {
-    title: 'Dierenverzorging per streek in België | TailTribe',
+    title: 'Dierenoppas per streek in België | TailTribe',
     description:
-      'Bekijk dierenverzorging per streek in België. Kies je provincie en vraag snel een offerte aan voor hondenuitlaat, dierenoppas, opvang en meer.',
+      'Bekijk dierenoppas en huisdierenzorg per streek in België. Kies je provincie en vind de juiste match voor je huisdier.',
     url: canonicalUrl,
     siteName: 'TailTribe',
     locale: 'nl_BE',
@@ -63,9 +63,12 @@ export default function BelgiumLandingPage() {
         <div className="max-w-5xl mx-auto">
           <header className="text-center mb-10">
             <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
-              Dierenverzorging per streek in België
+              Dierenoppas per streek in België
             </h1>
-            {/* Offerte CTA tekst verwijderd op verzoek */}
+            <p className="mx-auto max-w-3xl text-lg md:text-xl leading-relaxed text-gray-600">
+              Van hondenuitlaat en dierenoppas tot dierenopvang en verzorging aan huis. Voor en door dierenverzorgers:
+              hier vind je per provincie de juiste match voor je huisdier.
+            </p>
           </header>
 
           <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">

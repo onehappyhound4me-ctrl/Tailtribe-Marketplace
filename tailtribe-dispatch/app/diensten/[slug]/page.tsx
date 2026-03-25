@@ -541,11 +541,13 @@ export default function DienstDetailPage({ params }: Props) {
                     </div>
                   ))}
                 </div>
-                <div className="mt-6">
-                  <Link href={`/boeken?service=${service.id}`} className="btn-brand-compact">
-                    Start je aanvraag
-                  </Link>
-                </div>
+                {service.id !== 'GROUP_DOG_WALKING' ? (
+                  <div className="mt-6">
+                    <Link href={`/boeken?service=${service.id}`} className="btn-brand-compact">
+                      Start je aanvraag
+                    </Link>
+                  </div>
+                ) : null}
               </div>
             ) : null}
           </section>

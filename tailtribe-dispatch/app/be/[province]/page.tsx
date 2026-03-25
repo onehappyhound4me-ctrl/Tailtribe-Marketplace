@@ -20,12 +20,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const canonicalUrl = `${baseUrl}/be/${province.slug}`
 
   return {
-    title: `Dierenverzorging in ${province.name} | TailTribe`,
-    description: `Vraag dierenverzorging aan in ${province.name}. Hondenuitlaat, dierenoppas, opvang en meer — snelle opvolging na je aanvraag.`,
+    title: `Dierenoppas in ${province.name} | TailTribe`,
+    description: `Van hondenuitlaat en dierenoppas tot dierenopvang en verzorging aan huis in ${province.name}. Voor en door dierenverzorgers: hier vind je de juiste match voor je huisdier.`,
     alternates: { canonical: canonicalUrl },
     openGraph: {
-      title: `Dierenverzorging in ${province.name} | TailTribe`,
-      description: `Vraag dierenverzorging aan in ${province.name}. Hondenuitlaat, dierenoppas, opvang en meer — snelle opvolging na je aanvraag.`,
+      title: `Dierenoppas in ${province.name} | TailTribe`,
+      description: `Van hondenuitlaat en dierenoppas tot dierenopvang en verzorging aan huis in ${province.name}. Voor en door dierenverzorgers: hier vind je de juiste match voor je huisdier.`,
       url: canonicalUrl,
       siteName: 'TailTribe',
       locale: 'nl_BE',
@@ -131,27 +131,25 @@ export default function ProvinceLandingPage({ params }: Props) {
 
           <header className="text-center mb-10">
             <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
-              Dierenverzorging in {province.name}
+              Dierenoppas in {province.name}
             </h1>
-            {/* Offerte CTA verwijderd op verzoek */}
+            <p className="mx-auto max-w-3xl text-lg md:text-xl leading-relaxed text-gray-600">
+              Van hondenuitlaat en dierenoppas tot dierenopvang en verzorging aan huis. Voor en door dierenverzorgers:
+              hier vind je de juiste match voor je huisdier in {province.name}.
+            </p>
           </header>
 
           {province.slug === 'antwerpen' ? (
-            <section className="bg-white rounded-2xl shadow-sm border border-black/5 p-6 mb-6">
-              <h2 className="text-2xl font-semibold text-gray-900 mb-2">Hondenuitlaatservice in regio Antwerpen</h2>
-              <p className="text-gray-700 leading-relaxed">
+            <section className="rounded-3xl border border-emerald-100 bg-gradient-to-br from-white via-emerald-50/60 to-sky-50 p-6 md:p-8 shadow-sm mb-6">
+              <p className="text-sm font-semibold tracking-[0.02em] text-emerald-800">Regiofocus</p>
+              <h2 className="mt-2 text-2xl font-semibold text-gray-900 mb-2">Hondenuitlaatservice in regio Antwerpen</h2>
+              <p className="text-gray-700 leading-relaxed max-w-3xl">
                 Actief in Groot Antwerpen (+rand) en Antwerpen Noord (Kapellen–Brasschaat–Kalmthout).
-                Kies je gemeente hieronder of lees eerst meer over de service.
+                Kies hieronder je gemeente of start meteen met een aanvraag. Wij bekijken welke service het best past.
               </p>
-              <div className="mt-5 flex flex-col sm:flex-row gap-3">
-                <Link href="/boeken?service=GROUP_DOG_WALKING" className="btn-brand-compact">
-                  Beschikbaarheid aanvragen
-                </Link>
-                <Link
-                  href="/diensten/hondenuitlaatservice"
-                  className="btn-secondary-compact"
-                >
-                  Meer info
+              <div className="mt-5">
+                <Link href="/boeken" className="btn-brand-compact">
+                  Vind de juiste service voor je huisdier
                 </Link>
               </div>
               <div className="mt-5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
@@ -169,7 +167,7 @@ export default function ProvinceLandingPage({ params }: Props) {
                     className="group bg-gray-50 rounded-xl border border-black/5 px-4 py-3 text-gray-800 hover:bg-white hover:shadow-sm transition"
                   >
                     <div className="font-semibold group-hover:text-green-700 transition-colors">{p.label}</div>
-                    <div className="text-xs text-gray-500 mt-1">Bekijk hondenuitlaatservice →</div>
+                    <div className="text-xs text-gray-500 mt-1">Bekijk regio →</div>
                   </Link>
                 ))}
               </div>
@@ -177,14 +175,15 @@ export default function ProvinceLandingPage({ params }: Props) {
           ) : null}
 
           <section className="bg-white rounded-2xl shadow-sm border border-black/5 p-6 mb-6">
-            <h2 className="text-2xl font-semibold text-gray-900 mb-3">Lokale verzorgers in {province.name}</h2>
+            <h2 className="text-2xl font-semibold text-gray-900 mb-3">Huisdierenzorg in {province.name}</h2>
             <p className="text-gray-700 leading-relaxed">
-              We koppelen je aan een geschikte verzorger in {province.name}. Denk aan hondenuitlaat, dierenoppas,
-              opvang, training of transport. Je krijgt snel duidelijkheid over beschikbaarheid en planning.
+              In {province.name} helpen we baasjes die op zoek zijn naar een betrouwbare dierenoppasser of andere
+              huisdierenzorg. Van hondenuitlaat en dierenoppas tot opvang, training of transport: we bekijken wat jij en
+              je dier nodig hebben.
             </p>
             <p className="text-gray-700 leading-relaxed mt-3">
-              Vermeld je gewenste dienst, datum en locatie. We nemen zo snel mogelijk contact op om alles te
-              bevestigen en de juiste match te maken.
+              Na je aanvraag nemen we zo snel mogelijk contact op om de details te bevestigen en de juiste match voor je
+              huisdier te maken.
             </p>
           </section>
 

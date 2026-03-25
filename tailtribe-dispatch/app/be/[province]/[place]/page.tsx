@@ -28,14 +28,6 @@ function isGroepsuitlaatFocus(provinceSlug: string, placeSlug: string) {
   ].includes(placeSlug)
 }
 
-function hondenuitlaatserviceTitle(placeName: string) {
-  return `Hondenuitlaatservice in ${placeName} | TailTribe`
-}
-
-function hondenuitlaatserviceDescription(placeName: string) {
-  return `Zoek je een hondenuitlaatservice in ${placeName}? Dien je aanvraag in via TailTribe — we nemen snel contact op en stemmen planning, ophalen/terugbrengen en voorkeuren af.`
-}
-
 const SERVICE_SECTIONS = [
   { id: 'DOG_WALKING', name: 'Hondenuitlaat', slug: 'hondenuitlaat' },
   { id: 'GROUP_DOG_WALKING', name: 'Hondenuitlaatservice', slug: 'hondenuitlaatservice' },
@@ -66,11 +58,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const canonicalUrl = `${baseUrl}/be/${province.slug}/${place.slug}`
   const focus = isGroepsuitlaatFocus(province.slug, place.slug)
   const title = focus
-    ? `Hondenuitlaat, hondenuitlaatservice en dierenoppas in ${place.name} | TailTribe`
-    : `Hondenuitlaat, dierenoppas en huisdierenzorg in ${place.name} | TailTribe`
+    ? `Hondenuitlaatservice en dierenoppas in ${place.name} | TailTribe`
+    : `Dierenoppas in ${place.name} | TailTribe`
   const description = focus
-    ? hondenuitlaatserviceDescription(place.name)
-    : `Vraag hondenuitlaat, dierenoppas of andere huisdierenzorg aan in ${place.name}. We nemen snel contact op en plannen een verzorger in jouw buurt.`
+    ? `Van hondenuitlaatservice en dierenoppas tot dierenopvang en verzorging aan huis in ${place.name}. Voor en door dierenverzorgers: hier vind je de juiste match voor je huisdier.`
+    : `Van hondenuitlaat en dierenoppas tot dierenopvang en verzorging aan huis in ${place.name}. Voor en door dierenverzorgers: hier vind je de juiste match voor je huisdier.`
 
   return {
     title,
@@ -116,10 +108,10 @@ export default function PlaceLandingPage({ params }: Props) {
   const placeServiceJsonLd = {
     '@context': 'https://schema.org',
     '@type': 'Service',
-    name: `Hondenuitlaat en dierenverzorging in ${place.name}`,
+    name: `Dierenoppas en huisdierenzorg in ${place.name}`,
     description: focus
-      ? `Hondenuitlaatservice in ${place.name}, ${province.name}. Vraag planning, beschikbaarheid en praktische info aan via TailTribe.`
-      : `Dierenverzorging in ${place.name}, ${province.name}. Hondenuitlaat, dierenoppas, opvang en meer.`,
+      ? `Hondenuitlaatservice en dierenoppas in ${place.name}, ${province.name}. Vind via TailTribe de juiste match voor je huisdier.`
+      : `Dierenoppas en huisdierenzorg in ${place.name}, ${province.name}. Hondenuitlaat, dierenoppas, opvang en meer.`,
     serviceType:
       'Dog walking, group dog walking, dog training, pet sitting, pet boarding, in-home pet care, pet transport, farm animal care, event companion services',
     areaServed: {
@@ -213,102 +205,79 @@ export default function PlaceLandingPage({ params }: Props) {
 
           <header className="text-center mb-10">
             <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
-              {focus ? `Hondenuitlaatservice in ${place.name}` : `Dierenverzorging in ${place.name}`}
+              {focus ? `Hondenuitlaatservice en dierenoppas in ${place.name}` : `Dierenoppas in ${place.name}`}
             </h1>
-            <p className="text-lg md:text-xl text-gray-600 max-w-3xl mx-auto">
+            <p className="text-lg md:text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
               {focus
-                ? `Vraag hondenuitlaatservice aan in ${place.name} en omgeving. We stemmen planning, ophalen/terugbrengen en voorkeuren af.`
-                : `TailTribe dispatch in ${place.name}, ${province.name}. Dien je aanvraag in en wij regelen de juiste verzorger.`}
+                ? `Van hondenuitlaatservice en dierenoppas tot dierenopvang en verzorging aan huis. Voor en door dierenverzorgers: hier vind je de juiste match voor je huisdier in ${place.name}.`
+                : `Van hondenuitlaat en dierenoppas tot dierenopvang en verzorging aan huis. Voor en door dierenverzorgers: hier vind je de juiste match voor je huisdier in ${place.name}.`}
             </p>
-
-            {focus ? (
-              <>
-                <div className="mt-6 flex flex-col sm:flex-row gap-3 justify-center">
-                  <Link href={`/boeken?service=GROUP_DOG_WALKING`} className="btn-brand-compact">
-                    Beschikbaarheid aanvragen
-                  </Link>
-                  <Link
-                    href="/diensten/hondenuitlaatservice"
-                    className="btn-secondary-compact"
-                  >
-                    Meer info
-                  </Link>
-                </div>
-                <div className="mt-4 text-sm text-gray-600">
-                  <Link href={`/be/${province.slug}`} className="underline hover:text-gray-800">
-                    Bekijk {province.name}
-                  </Link>
-                </div>
-              </>
-            ) : (
-              <div className="mt-6 flex flex-col sm:flex-row gap-3 justify-center">
-                <Link
-                  href={`/be/${province.slug}`}
-                  className="inline-block px-6 py-3 rounded-tt border border-white/10 bg-white text-gray-900 hover:bg-gray-50 transition"
-                >
-                  Bekijk {province.name}
-                </Link>
-              </div>
-            )}
+            <div className="mt-6 flex flex-col items-center gap-4">
+              <Link href="/boeken" className="btn-brand-compact">
+                Vind de juiste service voor je huisdier
+              </Link>
+              <Link href={`/be/${province.slug}`} className="text-sm font-medium text-gray-600 hover:text-gray-900">
+                Bekijk meer in {province.name}
+              </Link>
+            </div>
           </header>
 
-          {/* CTA blok direct na introductie */}
-          <section className="bg-emerald-900/90 rounded-2xl shadow-sm p-6 md:p-7 mb-8 text-white">
-            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-              <div>
-                <h2 className="text-xl md:text-2xl font-semibold mb-1">
-                  Vind een hondenuitlaat of dierenoppas in {place.name}
-                </h2>
-                <p className="text-sm md:text-base text-emerald-50/90">
-                  Eén aanvraag, wij regelen de juiste verzorger in of rond {place.name} voor hondenuitlaat, kattenoppas
-                  of andere zorg.
-                </p>
-              </div>
-              <div className="flex flex-col sm:flex-row gap-3">
-                <Link
-                  href="/boeken?service=DOG_WALKING"
-                  className="inline-flex items-center justify-center px-5 py-2.5 rounded-full bg-white text-emerald-900 font-semibold text-sm shadow-sm hover:bg-emerald-50 transition"
+          <section className="rounded-3xl border border-emerald-100 bg-gradient-to-br from-white via-emerald-50/60 to-sky-50 p-6 md:p-8 mb-8 shadow-sm">
+            <p className="text-sm font-semibold tracking-[0.02em] text-emerald-800">Voor en door dierenverzorgers</p>
+            <h2 className="mt-2 text-2xl md:text-3xl font-semibold text-gray-900">
+              Hier vind je de juiste service voor je huisdier in {place.name}
+            </h2>
+            <p className="mt-3 max-w-3xl text-base leading-relaxed text-gray-700">
+              We bekijken je aanvraag en zoeken de juiste match in jouw regio. Van hondenuitlaat en dierenoppas tot
+              dierenopvang en verzorging aan huis: je krijgt een voorstel dat past bij je dier, je planning en je locatie.
+            </p>
+            <div className="mt-5 flex flex-wrap gap-2">
+              {['Hondenuitlaat', 'Dierenoppas', 'Dierenopvang', 'Verzorging aan huis'].map((label) => (
+                <span
+                  key={label}
+                  className="inline-flex items-center rounded-full border border-emerald-100 bg-white/85 px-3 py-1.5 text-sm font-medium text-gray-700"
                 >
-                  Vind een hondenuitlaat in {place.name}
-                </Link>
-                <Link
-                  href="/boeken?service=PET_SITTING"
-                  className="inline-flex items-center justify-center px-5 py-2.5 rounded-full border border-emerald-200/80 bg-emerald-900 text-emerald-50 font-semibold text-sm hover:bg-emerald-800 transition"
-                >
-                  Boek een dierenoppas in {place.name}
-                </Link>
-              </div>
+                  {label}
+                </span>
+              ))}
+            </div>
+            <div className="mt-6">
+              <Link href="/boeken" className="btn-brand-compact">
+                Vind de juiste service voor je huisdier
+              </Link>
             </div>
           </section>
 
           <section className="bg-white rounded-2xl shadow-sm border border-black/5 p-8 mb-6">
             <h2 className="text-2xl font-semibold text-gray-900 mb-3">
-              {focus ? `Hondenuitlaatservice in ${place.name} (Antwerpen + rand)` : `Lokale dierenverzorging in ${place.name}`}
+              {focus ? `Waarom kiezen baasjes in ${place.name} voor TailTribe?` : `Dierenoppas en huisdierenzorg in ${place.name}`}
             </h2>
             {focus ? (
               <>
                 <p className="text-gray-700 leading-relaxed">
-                  We bieden hondenuitlaatservice voor sociale honden. Je hond gaat mee met een passende groep, met
-                  aandacht voor veiligheid, rustmomenten en een fijne ervaring.
+                  We bieden in {place.name} een combinatie van hondenuitlaatservice, dierenoppas en andere huisdierenzorg
+                  op maat. We kijken naar karakter, routine en praktische haalbaarheid, zodat jij niet zelf hoeft te
+                  zoeken tussen losse aanbieders.
                 </p>
                 <div className="mt-4 rounded-xl border border-emerald-100 bg-emerald-50/60 p-4 text-sm text-emerald-900">
                   <div className="font-semibold">Regio</div>
                   <div>Actief in Groot Antwerpen (+rand) en Antwerpen Noord (Kapellen–Brasschaat–Kalmthout).</div>
                 </div>
                 <p className="text-gray-700 leading-relaxed mt-4">
-                  Dien je aanvraag in via TailTribe. We nemen contact op om je locatie, planning en praktische details
-                  (zoals ophalen/terugbrengen) af te stemmen.
+                  Dien je aanvraag in via TailTribe. We nemen contact op om je locatie, planning en praktische details af
+                  te stemmen en zoeken vervolgens de juiste match voor jouw hond of huisdier.
                 </p>
               </>
             ) : (
               <>
                 <p className="text-gray-700 leading-relaxed">
-                  We werken met lokale verzorgers in {place.name} en omgeving. Of je nu hondenuitlaat, dierenoppas,
-                  training of transport nodig hebt: we stemmen de details af op jouw timing en locatie.
+                  In {place.name} en omgeving helpen we baasjes die op zoek zijn naar een betrouwbare dierenoppasser of
+                  andere huisdierenzorg. Je hoeft niet zelf uit te zoeken welke dienst het best past: we denken mee op
+                  basis van je dier, je planning en je locatie.
                 </p>
                 <p className="text-gray-700 leading-relaxed mt-3">
-                  Na je aanvraag nemen we zo snel mogelijk contact op om alles te bevestigen en de juiste match te
-                  plannen.
+                  Van hondenuitlaat en dierenoppas tot dierenopvang en verzorging aan huis: we nemen zo snel mogelijk
+                  contact op en stellen een passende oplossing voor.
                 </p>
               </>
             )}
@@ -330,15 +299,9 @@ export default function PlaceLandingPage({ params }: Props) {
               </ol>
             )}
             {focus ? (
-              <div className="mt-6 flex flex-col sm:flex-row gap-3">
-                <Link href={`/boeken?service=GROUP_DOG_WALKING`} className="btn-brand-compact">
-                  Beschikbaarheid in {place.name}
-                </Link>
-                <Link
-                  href="/diensten/hondenuitlaatservice"
-                  className="btn-secondary-compact"
-                >
-                  Meer info
+              <div className="mt-6">
+                <Link href="/boeken" className="btn-brand-compact">
+                  Vind de juiste service voor je huisdier
                 </Link>
               </div>
             ) : null}
@@ -517,24 +480,20 @@ export default function PlaceLandingPage({ params }: Props) {
             </section>
           ) : null}
 
-          {/* Afsluitende CTA onderaan de pagina – één duidelijke knop */}
-          <section className="bg-gradient-to-r from-emerald-600 to-blue-600 rounded-2xl shadow-md p-6 md:p-7 mt-6 text-white">
+          <section className="rounded-3xl border border-emerald-100 bg-gradient-to-br from-white via-emerald-50/60 to-sky-50 p-6 md:p-8 mt-6 shadow-sm">
             <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
               <div>
-                <h2 className="text-xl md:text-2xl font-semibold mb-1">
-                  Vind een verzorger in of rond {place.name}
+                <h2 className="text-xl md:text-2xl font-semibold mb-1 text-gray-900">
+                  Klaar om de juiste match in {place.name} te vinden?
                 </h2>
-                <p className="text-sm md:text-base text-emerald-50/90">
-                  Dien nu je aanvraag in voor hondenuitlaat, kattenoppas of andere dierenzorg. We koppelen je aan een
-                  passende verzorger in jouw buurt.
+                <p className="text-sm md:text-base text-gray-700">
+                  Vertel ons wat je nodig hebt voor je huisdier. Daarna bekijken we welke dienst en welke verzorger het
+                  best aansluiten bij jouw situatie.
                 </p>
               </div>
               <div>
-                <Link
-                  href="/boeken"
-                  className="inline-flex items-center justify-center px-6 py-2.5 rounded-full bg-white text-emerald-900 font-semibold text-sm shadow-sm hover:bg-emerald-50 transition"
-                >
-                  Start je aanvraag
+                <Link href="/boeken" className="btn-brand-compact">
+                  Vind de juiste service voor je huisdier
                 </Link>
               </div>
             </div>
