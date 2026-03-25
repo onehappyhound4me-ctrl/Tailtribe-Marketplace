@@ -53,7 +53,7 @@ export const DISPATCH_SERVICES: DispatchService[] = [
   {
     id: 'DOG_WALKING',
     name: 'Hondenuitlaat',
-    desc: 'Dagelijkse wandelingen met focus op welzijn, tempo en veiligheid',
+    desc: 'Hondenuitlaat aan huis met focus op welzijn, tempo en veiligheid',
     slug: 'hondenuitlaat',
     image: '/assets/Hondenuitlaat.png',
     longDescription: {
@@ -85,10 +85,10 @@ export const DISPATCH_SERVICES: DispatchService[] = [
   {
     id: 'GROUP_DOG_WALKING',
     name: 'Hondenuitlaatservice',
-    desc: 'Sociale uitstapjes met andere honden',
+    desc: 'Hondenuitlaatservice aan huis met sociale daguitstappen en ophalen',
     slug: 'hondenuitlaatservice',
     image: '/assets/groepsuitlaat.png',
-    detailTitle: 'Hondenuitlaatservice – avontuurlijke daguitstappen',
+    detailTitle: 'Hondenuitlaatservice aan huis – avontuurlijke daguitstappen',
     providerSpotlight: {
       name: 'One Happy Hound',
       href: 'https://onehappyhound.be/?utm_source=tailtribe&utm_medium=referral&utm_campaign=hondenuitlaatservice',

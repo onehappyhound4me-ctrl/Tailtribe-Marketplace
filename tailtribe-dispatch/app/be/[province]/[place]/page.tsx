@@ -58,10 +58,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const canonicalUrl = `${baseUrl}/be/${province.slug}/${place.slug}`
   const focus = isGroepsuitlaatFocus(province.slug, place.slug)
   const title = focus
-    ? `Hondenuitlaatservice in ${place.name} | TailTribe`
+    ? `Hondenuitlaatservice aan huis in ${place.name} | TailTribe`
     : `Dierenoppas in ${place.name} | TailTribe`
   const description = focus
-    ? `Hondenuitlaatservice in ${place.name}: sociale daguitstappen, ophalen en terugbrengen, zorgvuldige matching en veilige routes in ${place.name} en omgeving.`
+    ? `Hondenuitlaatservice aan huis in ${place.name}: sociale daguitstappen, ophalen en terugbrengen, zorgvuldige matching en veilige routes in ${place.name} en omgeving.`
     : `Van hondenuitlaat en dierenoppas tot dierenopvang en verzorging aan huis in ${place.name}. Voor en door dierenverzorgers: hier vind je de juiste match voor je huisdier.`
 
   return {
@@ -108,9 +108,9 @@ export default function PlaceLandingPage({ params }: Props) {
   const placeServiceJsonLd = {
     '@context': 'https://schema.org',
     '@type': 'Service',
-    name: focus ? `Hondenuitlaatservice in ${place.name}` : `Dierenoppas en huisdierenzorg in ${place.name}`,
+    name: focus ? `Hondenuitlaatservice aan huis in ${place.name}` : `Dierenoppas en huisdierenzorg in ${place.name}`,
     description: focus
-      ? `Hondenuitlaatservice in ${place.name}, ${province.name}. Sociale daguitstappen, ophalen en terugbrengen en veilige routes via TailTribe.`
+      ? `Hondenuitlaatservice aan huis in ${place.name}, ${province.name}. Sociale daguitstappen, ophalen en terugbrengen en veilige routes via TailTribe.`
       : `Dierenoppas en huisdierenzorg in ${place.name}, ${province.name}. Hondenuitlaat, dierenoppas, opvang en meer.`,
     serviceType:
       'Dog walking, group dog walking, dog training, pet sitting, pet boarding, in-home pet care, pet transport, farm animal care, event companion services',
@@ -205,18 +205,18 @@ export default function PlaceLandingPage({ params }: Props) {
 
           <header className="text-center mb-10">
             <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
-              {focus ? `Hondenuitlaatservice in ${place.name}` : `Dierenoppas in ${place.name}`}
+              {focus ? `Hondenuitlaatservice aan huis in ${place.name}` : `Dierenoppas in ${place.name}`}
             </h1>
             <p className="text-lg md:text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
               {focus
-                ? `Zoek je een hondenuitlaatservice in ${place.name}? Wij helpen met sociale daguitstappen, ophalen en terugbrengen en een zorgvuldige match voor honden die graag samen op pad gaan.`
+                ? `Zoek je een hondenuitlaatservice aan huis in ${place.name}? Wij helpen met sociale daguitstappen, ophalen en terugbrengen en een zorgvuldige match voor honden die graag samen op pad gaan.`
                 : `Van hondenuitlaat en dierenoppas tot dierenopvang en verzorging aan huis. Voor en door dierenverzorgers: hier vind je de juiste match voor je huisdier in ${place.name}.`}
             </p>
             <div className="mt-6 flex flex-col items-center gap-4">
               {focus ? (
                 <>
                   <Link href="/boeken?service=GROUP_DOG_WALKING" className="btn-brand-compact">
-                    Bekijk beschikbaarheid voor hondenuitlaatservice
+                    Bekijk beschikbaarheid aan huis
                   </Link>
                   <Link href="/diensten/hondenuitlaatservice" className="text-sm font-medium text-gray-600 hover:text-gray-900">
                     Meer over hondenuitlaatservice
@@ -240,16 +240,16 @@ export default function PlaceLandingPage({ params }: Props) {
               {focus ? 'Lokale focus' : 'Voor en door dierenverzorgers'}
             </p>
             <h2 className="mt-2 text-2xl md:text-3xl font-semibold text-gray-900">
-              {focus ? `Hondenuitlaatservice voor ${place.name} en omgeving` : `Hier vind je de juiste service voor je huisdier in ${place.name}`}
+              {focus ? `Hondenuitlaatservice aan huis voor ${place.name} en omgeving` : `Hier vind je de juiste service voor je huisdier in ${place.name}`}
             </h2>
             <p className="mt-3 max-w-3xl text-base leading-relaxed text-gray-700">
               {focus
-                ? `Voor honden in ${place.name} en omgeving die graag samen op pad gaan, zoeken we een passende groep, duidelijke planning en veilige routes. We bekijken karakter, energie en praktische haalbaarheid voor we bevestigen.`
+                ? `Voor honden in ${place.name} en omgeving die graag samen op pad gaan, zoeken we een passende groep, duidelijke planning en veilige routes. We halen je hond aan huis op, bekijken karakter en energie en bevestigen pas wanneer de match klopt.`
                 : `We bekijken je aanvraag en zoeken de juiste match in jouw regio. Van hondenuitlaat en dierenoppas tot dierenopvang en verzorging aan huis: je krijgt een voorstel dat past bij je dier, je planning en je locatie.`}
             </p>
             <div className="mt-5 flex flex-wrap gap-2">
               {(focus
-                ? ['Sociale daguitstappen', 'Ophalen & terugbrengen', 'Antwerpen + rand', 'Zorgvuldige matching']
+                ? ['Aan huis ophalen', 'Sociale daguitstappen', 'Antwerpen + rand', 'Zorgvuldige matching']
                 : ['Hondenuitlaat', 'Dierenoppas', 'Dierenopvang', 'Verzorging aan huis']
               ).map((label) => (
                 <span
@@ -262,7 +262,7 @@ export default function PlaceLandingPage({ params }: Props) {
             </div>
             <div className="mt-6">
               <Link href={focus ? '/boeken?service=GROUP_DOG_WALKING' : '/boeken'} className="btn-brand-compact">
-                {focus ? 'Bekijk beschikbaarheid voor hondenuitlaatservice' : 'Vind de juiste service voor je huisdier'}
+                {focus ? 'Bekijk beschikbaarheid aan huis' : 'Vind de juiste service voor je huisdier'}
               </Link>
             </div>
           </section>
@@ -273,18 +273,31 @@ export default function PlaceLandingPage({ params }: Props) {
             </h2>
             {focus ? (
               <>
-                <p className="text-gray-700 leading-relaxed">
-                  In {place.name} focussen we specifiek op hondenuitlaatservice voor sociale honden. We bekijken of je hond
-                  past in een kleine, zorgvuldig samengestelde groep en stemmen planning, veiligheid en transport goed af.
-                </p>
-                <div className="mt-4 rounded-xl border border-emerald-100 bg-emerald-50/60 p-4 text-sm text-emerald-900">
-                  <div className="font-semibold">Regio</div>
-                  <div>Actief in Groot Antwerpen (+rand) en Antwerpen Noord (Kapellen–Brasschaat–Kalmthout).</div>
+                <div className="grid gap-4 md:grid-cols-3">
+                  {[
+                    {
+                      title: 'Ophalen aan huis',
+                      text: `We stemmen af waar en wanneer we je hond in ${place.name} ophalen en terugbrengen.`,
+                    },
+                    {
+                      title: 'Kleine passende groep',
+                      text: 'We kijken eerst naar karakter, energie en compatibiliteit voor we een hond laten meedraaien.',
+                    },
+                    {
+                      title: 'Veilige routes',
+                      text: 'We kiezen routes en daguitstappen met aandacht voor rust, veiligheid en voldoende beweging.',
+                    },
+                  ].map((item) => (
+                    <div key={item.title} className="rounded-2xl border border-emerald-100 bg-emerald-50/50 p-4">
+                      <h3 className="text-base font-semibold text-gray-900">{item.title}</h3>
+                      <p className="mt-2 text-sm leading-relaxed text-gray-700">{item.text}</p>
+                    </div>
+                  ))}
                 </div>
-                <p className="text-gray-700 leading-relaxed mt-4">
-                  We vertrekken vanuit je locatie, het karakter van je hond en de praktische afspraken rond ophalen en
-                  terugbrengen. Zo weet je snel of hondenuitlaatservice in {place.name} goed past bij jouw situatie.
-                </p>
+                <div className="mt-5 rounded-2xl border border-slate-200 bg-slate-50/80 p-4 text-sm text-slate-700">
+                  <span className="font-semibold text-slate-900">Regio:</span> Groot Antwerpen (+rand) en Antwerpen Noord
+                  (Kapellen, Brasschaat, Kalmthout).
+                </div>
               </>
             ) : (
               <>
@@ -304,22 +317,40 @@ export default function PlaceLandingPage({ params }: Props) {
           <section className="bg-white rounded-2xl shadow-sm border border-black/5 p-8">
             <h2 className="text-2xl font-semibold text-gray-900 mb-3">Hoe werkt het?</h2>
             {focus ? (
-              <ol className="list-decimal pl-5 space-y-2 text-gray-700">
-                <li>Vul je aanvraag in (hondenuitlaatservice, locatie en info over je hond).</li>
-                <li>We nemen contact op om compatibiliteit, planning en praktische details af te stemmen.</li>
-                <li>Na akkoord plannen we een kennismaking/testmoment in en bevestigen we de uitlaatmomenten.</li>
-              </ol>
+              <div className="grid gap-4 md:grid-cols-3">
+                {[
+                  'Vertel ons waar je woont, wanneer je hulp zoekt en wat voor hond je hebt.',
+                  'We bekijken of hondenuitlaatservice aan huis in jouw zone praktisch en inhoudelijk past.',
+                  'Na akkoord plannen we de eerste uitlaatmomenten en de afspraken rond ophalen.',
+                ].map((text, index) => (
+                  <div key={text} className="rounded-2xl border border-black/5 bg-slate-50/70 p-4">
+                    <div className="mb-3 inline-flex h-8 w-8 items-center justify-center rounded-full bg-white text-sm font-semibold text-gray-900 shadow-sm">
+                      {index + 1}
+                    </div>
+                    <p className="text-sm leading-relaxed text-gray-700">{text}</p>
+                  </div>
+                ))}
+              </div>
             ) : (
-              <ol className="list-decimal pl-5 space-y-2 text-gray-700">
-                <li>Vul je aanvraag in (dienst, datum, locatie en huisdierinfo).</li>
-                <li>Wij nemen contact op en stemmen de details af.</li>
-                <li>We plannen een geschikte verzorger in.</li>
-              </ol>
+              <div className="grid gap-4 md:grid-cols-3">
+                {[
+                  'Vertel ons welke hulp je zoekt, waar je woont en wat voor huisdier je hebt.',
+                  'We nemen contact op en denken mee over de meest geschikte oplossing.',
+                  'Je krijgt een match en voorstel dat past bij je dier, je planning en je regio.',
+                ].map((text, index) => (
+                  <div key={text} className="rounded-2xl border border-black/5 bg-slate-50/70 p-4">
+                    <div className="mb-3 inline-flex h-8 w-8 items-center justify-center rounded-full bg-white text-sm font-semibold text-gray-900 shadow-sm">
+                      {index + 1}
+                    </div>
+                    <p className="text-sm leading-relaxed text-gray-700">{text}</p>
+                  </div>
+                ))}
+              </div>
             )}
             {focus ? (
               <div className="mt-6">
                 <Link href="/boeken?service=GROUP_DOG_WALKING" className="btn-brand-compact">
-                  Bekijk beschikbaarheid voor hondenuitlaatservice
+                  Bekijk beschikbaarheid aan huis
                 </Link>
               </div>
             ) : null}
@@ -328,106 +359,55 @@ export default function PlaceLandingPage({ params }: Props) {
           <section className="bg-white rounded-2xl shadow-sm border border-black/5 p-8 mt-6">
             <h2 className="text-2xl font-semibold text-gray-900 mb-4">Huisdierenservices in {place.name}</h2>
             <p className="text-gray-700 leading-relaxed mb-5">
-              In en rond {place.name} kun je verschillende diensten combineren: van dagelijkse hondenuitlaat tot
-              dierenoppas, kattenoppas, opvang, verzorging aan huis en transport. Hieronder vind je een overzicht van de
-              belangrijkste services die via TailTribe beschikbaar zijn in jouw regio.
+              Kies hieronder de service die het best past. Zo ziet de pagina er lichter uit en kom je sneller bij de juiste info.
             </p>
-            <div className="space-y-6">
-              {SERVICE_SECTIONS.map((service) => (
-                <div key={service.id} className="border-t border-emerald-50 pt-5 first:border-t-0 first:pt-0">
-                  <h3 className="text-xl font-semibold text-gray-900 mb-1">
-                    {service.name} in {place.name}
+            <div className="grid gap-4 md:grid-cols-2">
+              {SERVICE_SECTIONS.slice(0, 6).map((service) => (
+                <div key={service.id} className="rounded-2xl border border-black/5 bg-slate-50/60 p-5">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                    {service.name}
                   </h3>
                   {service.id === 'DOG_WALKING' ? (
-                    <p className="text-gray-700 leading-relaxed">
-                      Onze hondenuitlaters halen je hond thuis op in {place.name} en zorgen voor rustige, veilige
-                      wandelingen in {localDogWalkingHighlight}. We stemmen tempo, duur en frequentie af op leeftijd,
-                      conditie en karakter van je hond, zodat hij zowel fysiek als mentaal voldoende uitdaging krijgt
-                      zonder overprikkeling. Updates of foto&apos;s zijn mogelijk in overleg, zodat je met een gerust
-                      hart weet hoe het is verlopen.
+                    <p className="text-sm leading-relaxed text-gray-700">
+                      Hondenuitlaat aan huis in {place.name}, met rustige wandelingen in {localDogWalkingHighlight}.
                     </p>
                   ) : null}
                   {service.id === 'GROUP_DOG_WALKING' ? (
-                    <p className="text-gray-700 leading-relaxed">
-                      Bij hondenuitlaatservice gaat je hond mee met een kleine, zorgvuldig samengestelde groep sociale honden
-                      uit {place.name} en omliggende gemeenten. Er is aandacht voor compatibiliteit, duidelijke
-                      afspraken rond ophalen en terugbrengen en voldoende rustmomenten tussendoor. Ideaal voor honden
-                      die graag samen op pad gaan en na afloop moe maar tevreden thuis aankomen.
+                    <p className="text-sm leading-relaxed text-gray-700">
+                      Hondenuitlaatservice aan huis met sociale daguitstappen, ophalen en terugbrengen in {place.name}.
                     </p>
                   ) : null}
                   {service.id === 'DOG_TRAINING' ? (
-                    <p className="text-gray-700 leading-relaxed">
-                      Hondentraining in {place.name} richt zich op praktische situaties uit jouw dagelijkse leven:
-                      wandelen zonder trekken, bezoek ontvangen, alleen thuis blijven of omgaan met prikkels op straat.
-                      We werken beloningsgericht en stemmen tempo en oefeningen af op jou en je hond. Zo krijg je geen
-                      standaardpakket, maar begeleiding die echt past bij jullie situatie.
+                    <p className="text-sm leading-relaxed text-gray-700">
+                      Praktische hondentraining in {place.name}, afgestemd op je hond en je dagelijkse leven.
                     </p>
                   ) : null}
                   {service.id === 'PET_SITTING' ? (
-                    <p className="text-gray-700 leading-relaxed">
-                      Met dierenoppas in {place.name} blijft je huisdier in zijn vertrouwde omgeving terwijl jij weg
-                      bent. De verzorger komt langs volgens afgesproken momenten voor voeding, wandelen, spelen en
-                      basiszorg. Dit is ideaal voor honden en kleine huisdieren die het best functioneren in hun eigen
-                      woonst en routine. Voor katten is er daarnaast een aparte kattenoppasdienst met extra aandacht
-                      voor rust, territorium en kattenbakonderhoud.
-                    </p>
-                  ) : null}
-                  {service.id === 'CAT_SITTING' ? (
-                    <p className="text-gray-700 leading-relaxed">
-                      Met kattenoppas in {place.name} blijft je kat in haar eigen, vertrouwde omgeving. De verzorger
-                      komt langs voor voeding, vers water, kattenbak, spel en een korte welzijnscheck. Dit is
-                      stressarmer dan een pension en ideaal voor katten die gehecht zijn aan hun eigen territorium.
+                    <p className="text-sm leading-relaxed text-gray-700">
+                      Dierenoppas aan huis in {place.name}, zodat je huisdier in de vertrouwde omgeving kan blijven.
                     </p>
                   ) : null}
                   {service.id === 'PET_BOARDING' ? (
-                    <p className="text-gray-700 leading-relaxed">
-                      Dierenopvang is bedoeld voor situaties waarin je huisdier tijdelijk op een andere plek verblijft,
-                      bijvoorbeeld tijdens vakantie of een drukke periode. We stemmen op voorhand afspraken af rond
-                      voeding, rust, eventuele medicatie en contactmomenten, zodat je exact weet wat je dier kan
-                      verwachten en jij met een gerust hart kan vertrekken.
+                    <p className="text-sm leading-relaxed text-gray-700">
+                      Dierenopvang in {place.name} wanneer je tijdelijk een veilige plek zoekt voor je huisdier.
                     </p>
                   ) : null}
                   {service.id === 'HOME_CARE' ? (
-                    <p className="text-gray-700 leading-relaxed">
-                      Verzorging aan huis in {place.name} is geschikt voor dieren die het liefst thuis blijven. Een
-                      verzorger komt langs voor voeding, water, kattenbak of kooi, een korte wandeling of gewoon wat
-                      extra aandacht. Je kiest zelf hoe vaak en hoe lang de bezoeken duren, zodat het ritme van je dier
-                      zo min mogelijk verstoord wordt.
+                    <p className="text-sm leading-relaxed text-gray-700">
+                      Verzorging aan huis in {place.name} voor dieren die liefst in hun eigen omgeving blijven.
                     </p>
                   ) : null}
-                  {service.id === 'PET_TRANSPORT' ? (
-                    <p className="text-gray-700 leading-relaxed">
-                      Transport van huisdieren vanuit {place.name} kan handig zijn voor dierenartsbezoeken, verhuis,
-                      opvang of het ophalen en terugbrengen van je huisdier. We werken met duidelijke afspraken rond
-                      timing, veiligheid en eventuele documenten, zodat de verplaatsing zo rustig en voorspelbaar
-                      mogelijk verloopt.
+                  {service.id === 'PET_TRANSPORT' || service.id === 'SMALL_ANIMAL_CARE' || service.id === 'EVENT_COMPANION' ? (
+                    <p className="text-sm leading-relaxed text-gray-700">
+                      Ook beschikbaar in {place.name}, afhankelijk van je vraag en de juiste match.
                     </p>
                   ) : null}
-                  {service.id === 'SMALL_ANIMAL_CARE' ? (
-                    <p className="text-gray-700 leading-relaxed">
-                      Voor boerderijdieren en kleinvee in en rond {place.name} voorzien we basisverzorging volgens een
-                      duidelijke checklist: voeding, water, controle van hokken/stallen en een korte welzijnscheck. Dit
-                      is interessant wanneer je even weg bent maar de routine voor je dieren wél moet blijven
-                      doorlopen.
-                    </p>
-                  ) : null}
-                  {service.id === 'EVENT_COMPANION' ? (
-                    <p className="text-gray-700 leading-relaxed">
-                      Begeleiding tijdens events zorgt ervoor dat je huisdier aanwezig kan zijn op bijzondere momenten,
-                      zonder dat jij overal tegelijk hoeft te zijn. Denk aan een huwelijk, fotoshoot of ander event in
-                      of rond {place.name}. We begeleiden je dier tussen de verschillende momenten door, voorzien rust
-                      en water en stemmen alles af met jou en de locatie.
-                    </p>
-                  ) : null}
-                  <div className="mt-3">
+                  <div className="mt-4">
                     <Link
                       href={`/diensten/${service.slug}`}
-                      className="inline-flex items-center text-sm font-semibold text-emerald-800 hover:text-emerald-900"
+                      className="btn-secondary-compact"
                     >
-                      Lees meer over {service.name}
-                      <span aria-hidden className="ml-1">
-                        →
-                      </span>
+                      Bekijk {service.name}
                     </Link>
                   </div>
                 </div>
@@ -505,13 +485,14 @@ export default function PlaceLandingPage({ params }: Props) {
                   Klaar om de juiste match in {place.name} te vinden?
                 </h2>
                 <p className="text-sm md:text-base text-gray-700">
-                  Vertel ons wat je nodig hebt voor je huisdier. Daarna bekijken we welke dienst en welke verzorger het
-                  best aansluiten bij jouw situatie.
+                  {focus
+                    ? `Vertel ons waar je woont en wat je hond nodig heeft. Daarna bekijken we of hondenuitlaatservice aan huis in ${place.name} past bij jouw situatie.`
+                    : `Vertel ons wat je nodig hebt voor je huisdier. Daarna bekijken we welke dienst en welke verzorger het best aansluiten bij jouw situatie.`}
                 </p>
               </div>
               <div>
-                <Link href="/boeken" className="btn-brand-compact">
-                  Vind de juiste service voor je huisdier
+                <Link href={focus ? '/boeken?service=GROUP_DOG_WALKING' : '/boeken'} className="btn-brand-compact">
+                  {focus ? 'Bekijk beschikbaarheid aan huis' : 'Vind de juiste service voor je huisdier'}
                 </Link>
               </div>
             </div>

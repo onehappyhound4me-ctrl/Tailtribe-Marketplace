@@ -142,14 +142,14 @@ export default function ProvinceLandingPage({ params }: Props) {
           {province.slug === 'antwerpen' ? (
             <section className="rounded-3xl border border-emerald-100 bg-gradient-to-br from-white via-emerald-50/60 to-sky-50 p-6 md:p-8 shadow-sm mb-6">
               <p className="text-sm font-semibold tracking-[0.02em] text-emerald-800">Regiofocus</p>
-              <h2 className="mt-2 text-2xl font-semibold text-gray-900 mb-2">Hondenuitlaatservice in regio Antwerpen</h2>
+              <h2 className="mt-2 text-2xl font-semibold text-gray-900 mb-2">Hondenuitlaatservice aan huis in regio Antwerpen</h2>
               <p className="text-gray-700 leading-relaxed max-w-3xl">
                 Actief in Groot Antwerpen (+rand) en Antwerpen Noord (Kapellen–Brasschaat–Kalmthout). Kies hieronder je
-                gemeente als je specifiek op zoek bent naar hondenuitlaatservice in jouw buurt.
+                gemeente als je specifiek op zoek bent naar hondenuitlaatservice aan huis in jouw buurt.
               </p>
               <div className="mt-5">
                 <Link href="/boeken?service=GROUP_DOG_WALKING" className="btn-brand-compact">
-                  Bekijk beschikbaarheid voor hondenuitlaatservice
+                  Bekijk beschikbaarheid aan huis
                 </Link>
               </div>
               <div className="mt-5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
