@@ -338,11 +338,11 @@ export default function BookingPage() {
                       </button>
                     ))}
                   </div>
-                  <div className="flex gap-4 mt-6">
+                  <div className="mt-6 flex flex-col-reverse sm:flex-row sm:items-center sm:justify-between gap-3">
                     <button
                       type="button"
                       onClick={() => router.back()}
-                      className="px-6 py-3 border-2 border-gray-300 rounded-xl font-medium hover:bg-gray-50"
+                      className="btn-secondary-compact"
                     >
                       Terug
                     </button>
@@ -350,9 +350,9 @@ export default function BookingPage() {
                       type="submit"
                       formNoValidate
                       disabled={!formData.service}
-                      className="flex-1 btn-brand disabled:opacity-50"
+                      className="btn-brand-compact disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                      Volgende
+                      Verder
                     </button>
                   </div>
                 </div>
@@ -465,11 +465,11 @@ export default function BookingPage() {
                       {fieldErrors.time && <p className="text-sm text-red-700 mt-2">{fieldErrors.time}</p>}
                     </div>
                   </div>
-                  <div className="flex gap-4 mt-6">
+                  <div className="mt-6 flex flex-col-reverse sm:flex-row sm:items-center sm:justify-between gap-3">
                     <button
                       type="button"
                       onClick={() => setStep(1)}
-                      className="px-6 py-3 border-2 border-gray-300 rounded-xl font-medium hover:bg-gray-50"
+                      className="btn-secondary-compact"
                     >
                       Terug
                     </button>
@@ -477,9 +477,9 @@ export default function BookingPage() {
                       type="submit"
                       formNoValidate
                       disabled={(formData.dates ?? []).length === 0 || (formData.timeWindows ?? []).length === 0}
-                      className="flex-1 btn-brand disabled:opacity-50"
+                      className="btn-brand-compact disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                      Volgende
+                      Verder
                     </button>
                   </div>
                 </div>
@@ -601,11 +601,11 @@ export default function BookingPage() {
                       </div>
                     </div>
                   </div>
-                  <div className="flex gap-4 mt-6">
+                  <div className="mt-6 flex flex-col-reverse sm:flex-row sm:items-center sm:justify-between gap-3">
                     <button
                       type="button"
                       onClick={() => setStep(2)}
-                      className="px-6 py-3 border-2 border-gray-300 rounded-xl font-medium hover:bg-gray-50"
+                      className="btn-secondary-compact"
                     >
                       Terug
                     </button>
@@ -613,9 +613,9 @@ export default function BookingPage() {
                       type="submit"
                       formNoValidate
                       disabled={!formData.firstName || !formData.email}
-                      className="flex-1 btn-brand disabled:opacity-50"
+                      className="btn-brand-compact disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                      Volgende
+                      Verder
                     </button>
                   </div>
                 </div>
@@ -672,18 +672,18 @@ export default function BookingPage() {
                       {fieldErrors.message && <p className="text-sm text-red-700 mt-2">{fieldErrors.message}</p>}
                     </div>
                   </div>
-                  <div className="flex gap-4 mt-6">
+                  <div className="mt-6 flex flex-col-reverse sm:flex-row sm:items-center sm:justify-between gap-3">
                     <button
                       type="button"
                       onClick={() => setStep(3)}
-                      className="px-6 py-3 border-2 border-gray-300 rounded-xl font-medium hover:bg-gray-50"
+                      className="btn-secondary-compact"
                     >
                       Terug
                     </button>
                     <button
                       type="submit"
                       disabled={loading || !formData.petName || !formData.petType}
-                      className="flex-1 btn-brand disabled:opacity-50"
+                      className="btn-brand-compact disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       {loading ? 'Bezig...' : 'Versturen'}
                     </button>

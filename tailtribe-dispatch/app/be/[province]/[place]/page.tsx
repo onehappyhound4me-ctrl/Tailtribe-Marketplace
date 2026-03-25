@@ -224,14 +224,14 @@ export default function PlaceLandingPage({ params }: Props) {
             {focus ? (
               <>
                 <div className="mt-6 flex flex-col sm:flex-row gap-3 justify-center">
-                  <Link href={`/boeken?service=GROUP_DOG_WALKING`} className="btn-brand inline-flex">
-                    Boek hondenuitlaatservice
+                  <Link href={`/boeken?service=GROUP_DOG_WALKING`} className="btn-brand-compact">
+                    Beschikbaarheid aanvragen
                   </Link>
                   <Link
                     href="/diensten/hondenuitlaatservice"
-                    className="inline-flex items-center justify-center px-6 py-3 rounded-tt border border-emerald-200 bg-white text-emerald-900 hover:bg-emerald-50 transition"
+                    className="btn-secondary-compact"
                   >
-                    Meer info over hondenuitlaatservice
+                    Meer info
                   </Link>
                 </div>
                 <div className="mt-4 text-sm text-gray-600">
@@ -331,14 +331,14 @@ export default function PlaceLandingPage({ params }: Props) {
             )}
             {focus ? (
               <div className="mt-6 flex flex-col sm:flex-row gap-3">
-                <Link href={`/boeken?service=GROUP_DOG_WALKING`} className="btn-brand inline-flex">
-                  Boek hondenuitlaatservice in {place.name}
+                <Link href={`/boeken?service=GROUP_DOG_WALKING`} className="btn-brand-compact">
+                  Beschikbaarheid in {place.name}
                 </Link>
                 <Link
                   href="/diensten/hondenuitlaatservice"
-                  className="inline-flex items-center justify-center px-6 py-3 rounded-tt border border-emerald-200 bg-white text-emerald-900 hover:bg-emerald-50 transition"
+                  className="btn-secondary-compact"
                 >
-                  Lees meer over hondenuitlaatservice
+                  Meer info
                 </Link>
               </div>
             ) : null}
