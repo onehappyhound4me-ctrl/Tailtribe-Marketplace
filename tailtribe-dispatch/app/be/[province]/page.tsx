@@ -252,7 +252,7 @@ export default function ProvinceLandingPage({ params }: Props) {
           </section>
 
           <section className="rounded-2xl border border-black/5 bg-white p-8 shadow-sm">
-            <p className="text-sm font-semibold uppercase tracking-[0.14em] text-slate-500">Regio's</p>
+            <p className="text-sm font-semibold uppercase tracking-[0.14em] text-slate-500">Regio&apos;s</p>
             <h2 className="mt-3 text-2xl font-semibold leading-tight text-gray-900">
               Populaire steden en gemeenten in {province.name}
             </h2>
