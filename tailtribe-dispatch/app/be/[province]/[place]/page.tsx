@@ -252,14 +252,14 @@ export default function PlaceLandingPage({ params }: Props) {
             <span className="text-gray-900">{place.name}</span>
           </nav>
 
-          <header className="text-center mb-10">
+          <header className="mb-10 text-center">
             <p className="mb-3 text-sm font-semibold uppercase tracking-[0.18em] text-emerald-700">
               TailTribe in {place.name}
             </p>
             <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
               {focus ? `Hondenuitlaatservice aan huis in ${place.name}` : `Dierenoppas in ${place.name}`}
             </h1>
-            <p className="text-lg md:text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
+            <p className="mx-auto max-w-2xl text-lg leading-8 text-gray-600 md:text-xl">
               {focus
                 ? `Zoek je een betrouwbare dierenoppasser voor hondenuitlaatservice aan huis in ${place.name}? Wij helpen met sociale daguitstappen, ophalen en terugbrengen en een zorgvuldige match voor honden die graag samen op pad gaan.`
                 : `Zoek je een betrouwbare dierenoppasser in ${place.name}? Van hondenuitlaat en dierenoppas tot dierenopvang en verzorging aan huis: hier vind je sneller de juiste match voor je huisdier.`}
@@ -297,18 +297,18 @@ export default function PlaceLandingPage({ params }: Props) {
             </div>
           </header>
 
-          <section className="rounded-3xl border border-emerald-100 bg-gradient-to-br from-white via-emerald-50/70 to-sky-50 p-6 md:p-8 mb-8 shadow-sm">
+          <section className="mb-8 rounded-3xl border border-emerald-100 bg-gradient-to-br from-white via-emerald-50/70 to-sky-50 p-6 shadow-sm md:p-10">
             <div className="grid gap-6 lg:grid-cols-[1.45fr_0.95fr] lg:items-start">
               <div>
-                <p className="text-sm font-semibold tracking-[0.02em] text-emerald-800">
+                <p className="text-sm font-semibold uppercase tracking-[0.14em] text-emerald-800">
                   {focus ? 'Lokale focus' : 'Voor huisdiereigenaars'}
                 </p>
-                <h2 className="mt-2 text-2xl md:text-3xl font-semibold text-gray-900">
+                <h2 className="mt-3 max-w-2xl text-2xl font-semibold leading-tight text-gray-900 md:text-3xl">
                   {focus
                     ? `Een betrouwbare dierenoppasser voor hondenuitlaatservice in ${place.name}`
                     : `Snel duidelijkheid over de juiste hulp voor je huisdier in ${place.name}`}
                 </h2>
-                <p className="mt-3 max-w-3xl text-base leading-relaxed text-gray-700">
+                <p className="mt-4 max-w-2xl text-base leading-8 text-gray-700">
                   {focus
                     ? `Voor honden in ${place.name} en omgeving die graag samen op pad gaan, zoeken we een passende groep, duidelijke planning en veilige routes. We halen je hond aan huis op, bekijken karakter en energie en bevestigen pas wanneer de match met de juiste dierenoppasser klopt.`
                     : `We bekijken je aanvraag en zoeken de juiste match in jouw regio. Van hondenuitlaat en dierenoppas tot dierenopvang en verzorging aan huis: je krijgt een voorstel dat past bij je dier, je planning en je locatie.`}
@@ -364,22 +364,23 @@ export default function PlaceLandingPage({ params }: Props) {
                       },
                     ]
                 ).map((item) => (
-                  <div key={item.title} className="rounded-2xl border border-white/80 bg-white/90 p-4 shadow-sm">
-                    <h3 className="text-base font-semibold text-gray-900">{item.title}</h3>
-                    <p className="mt-2 text-sm leading-relaxed text-gray-700">{item.text}</p>
+                  <div key={item.title} className="rounded-2xl border border-white/80 bg-white/90 p-5 shadow-sm">
+                    <h3 className="text-base font-semibold leading-snug text-gray-900">{item.title}</h3>
+                    <p className="mt-2 text-sm leading-7 text-gray-700">{item.text}</p>
                   </div>
                 ))}
               </div>
             </div>
           </section>
 
-          <section className="bg-white rounded-2xl shadow-sm border border-black/5 p-8 mb-6">
-            <h2 className="text-2xl font-semibold text-gray-900 mb-3">
+          <section className="mb-6 rounded-2xl border border-black/5 bg-white p-8 shadow-sm">
+            <p className="text-sm font-semibold uppercase tracking-[0.14em] text-slate-500">Waarom TailTribe</p>
+            <h2 className="mt-3 text-2xl font-semibold leading-tight text-gray-900">
               {focus ? `Waarom kiezen baasjes in ${place.name} voor TailTribe?` : `Dierenoppas en huisdierenzorg in ${place.name}`}
             </h2>
             {focus ? (
               <>
-                <p className="mb-5 max-w-3xl text-gray-700 leading-relaxed">
+                <p className="mb-6 mt-4 max-w-2xl text-base leading-8 text-gray-700">
                   Je zoekt niet zomaar een dienst, maar een dierenoppasser die betrouwbaar voelt en praktisch werkt voor
                   jouw weekplanning. Daarom houden we de aanvraag eenvoudig en de opvolging persoonlijk.
                 </p>
@@ -398,13 +399,13 @@ export default function PlaceLandingPage({ params }: Props) {
                       text: 'We kiezen routes en daguitstappen met aandacht voor rust, veiligheid en voldoende beweging.',
                     },
                   ].map((item) => (
-                    <div key={item.title} className="rounded-2xl border border-emerald-100 bg-emerald-50/50 p-4">
-                      <h3 className="text-base font-semibold text-gray-900">{item.title}</h3>
-                      <p className="mt-2 text-sm leading-relaxed text-gray-700">{item.text}</p>
+                    <div key={item.title} className="rounded-2xl border border-emerald-100 bg-emerald-50/50 p-5">
+                      <h3 className="text-base font-semibold leading-snug text-gray-900">{item.title}</h3>
+                      <p className="mt-2 text-sm leading-7 text-gray-700">{item.text}</p>
                     </div>
                   ))}
                 </div>
-                <div className="mt-5 rounded-2xl border border-slate-200 bg-slate-50/80 p-4 text-sm leading-relaxed text-slate-700">
+                <div className="mt-6 rounded-2xl border border-slate-200 bg-slate-50/80 p-5 text-sm leading-7 text-slate-700">
                   <span className="font-semibold text-slate-900">Regio:</span> Groot Antwerpen (+rand) en Antwerpen Noord
                   (Kapellen, Brasschaat, Kalmthout). Zoek je vooral een betrouwbare dierenoppasser voor uitlaatmomenten
                   aan huis, dan zit je hier op de juiste pagina.
@@ -412,7 +413,7 @@ export default function PlaceLandingPage({ params }: Props) {
               </>
             ) : (
               <>
-                <p className="mb-5 max-w-3xl text-gray-700 leading-relaxed">
+                <p className="mb-6 mt-4 max-w-2xl text-base leading-8 text-gray-700">
                   In {place.name} en omgeving helpen we baasjes die op zoek zijn naar een betrouwbare dierenoppasser of
                   andere huisdierenzorg. Je hoeft niet zelf uit te zoeken welke dienst het best past: we denken mee op
                   basis van je dier, je planning en je locatie.
@@ -432,9 +433,9 @@ export default function PlaceLandingPage({ params }: Props) {
                       text: `Voor baasjes in ${place.name} telt vooral rust: weten dat hun huisdier goed zit.`,
                     },
                   ].map((item) => (
-                    <div key={item.title} className="rounded-2xl border border-slate-200 bg-slate-50/70 p-4">
-                      <h3 className="text-base font-semibold text-gray-900">{item.title}</h3>
-                      <p className="mt-2 text-sm leading-relaxed text-gray-700">{item.text}</p>
+                    <div key={item.title} className="rounded-2xl border border-slate-200 bg-slate-50/70 p-5">
+                      <h3 className="text-base font-semibold leading-snug text-gray-900">{item.title}</h3>
+                      <p className="mt-2 text-sm leading-7 text-gray-700">{item.text}</p>
                     </div>
                   ))}
                 </div>
@@ -442,9 +443,10 @@ export default function PlaceLandingPage({ params }: Props) {
             )}
           </section>
 
-          <section className="bg-white rounded-2xl shadow-sm border border-black/5 p-8">
-            <h2 className="text-2xl font-semibold text-gray-900 mb-3">Hoe werkt het?</h2>
-            <p className="mb-5 max-w-3xl text-gray-700 leading-relaxed">
+          <section className="rounded-2xl border border-black/5 bg-white p-8 shadow-sm">
+            <p className="text-sm font-semibold uppercase tracking-[0.14em] text-slate-500">Zo werkt het</p>
+            <h2 className="mt-3 text-2xl font-semibold leading-tight text-gray-900">Hoe werkt het?</h2>
+            <p className="mb-6 mt-4 max-w-2xl text-base leading-8 text-gray-700">
               Een aanvraag indienen hoeft niet zwaar te voelen. We houden het bewust eenvoudig zodat je snel weet wat
               haalbaar is in {place.name}.
             </p>
@@ -455,11 +457,11 @@ export default function PlaceLandingPage({ params }: Props) {
                   'We bekijken of hondenuitlaatservice aan huis in jouw zone praktisch en inhoudelijk past.',
                   'Na akkoord plannen we de eerste uitlaatmomenten en de afspraken rond ophalen.',
                 ].map((text, index) => (
-                  <div key={text} className="rounded-2xl border border-black/5 bg-slate-50/70 p-4">
+                  <div key={text} className="rounded-2xl border border-black/5 bg-slate-50/70 p-5">
                     <div className="mb-3 inline-flex h-8 w-8 items-center justify-center rounded-full bg-white text-sm font-semibold text-gray-900 shadow-sm">
                       {index + 1}
                     </div>
-                    <p className="text-sm leading-relaxed text-gray-700">{text}</p>
+                    <p className="text-sm leading-7 text-gray-700">{text}</p>
                   </div>
                 ))}
               </div>
@@ -470,11 +472,11 @@ export default function PlaceLandingPage({ params }: Props) {
                   'We nemen contact op en denken mee over de meest geschikte oplossing.',
                   'Je krijgt een match en voorstel dat past bij je dier, je planning en je regio.',
                 ].map((text, index) => (
-                  <div key={text} className="rounded-2xl border border-black/5 bg-slate-50/70 p-4">
+                  <div key={text} className="rounded-2xl border border-black/5 bg-slate-50/70 p-5">
                     <div className="mb-3 inline-flex h-8 w-8 items-center justify-center rounded-full bg-white text-sm font-semibold text-gray-900 shadow-sm">
                       {index + 1}
                     </div>
-                    <p className="text-sm leading-relaxed text-gray-700">{text}</p>
+                    <p className="text-sm leading-7 text-gray-700">{text}</p>
                   </div>
                 ))}
               </div>
@@ -488,54 +490,57 @@ export default function PlaceLandingPage({ params }: Props) {
             ) : null}
           </section>
 
-          <section className="bg-white rounded-2xl shadow-sm border border-black/5 p-8 mt-6">
-            <h2 className="text-2xl font-semibold text-gray-900 mb-4">Populaire hulp voor huisdiereigenaars in {place.name}</h2>
-            <p className="text-gray-700 leading-relaxed mb-5">
+          <section className="mt-6 rounded-2xl border border-black/5 bg-white p-8 shadow-sm">
+            <p className="text-sm font-semibold uppercase tracking-[0.14em] text-slate-500">Diensten</p>
+            <h2 className="mt-3 text-2xl font-semibold leading-tight text-gray-900">
+              Populaire hulp voor huisdiereigenaars in {place.name}
+            </h2>
+            <p className="mb-6 mt-4 max-w-2xl text-base leading-8 text-gray-700">
               Dit zijn de meest gevraagde diensten door baasjes in {place.name}. Zo kom je sneller bij de juiste info
               zonder eerst door een lange lijst te moeten.
             </p>
             <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
               {visibleServices.map((service) => (
-                <div key={service.id} className="rounded-2xl border border-black/5 bg-slate-50/60 p-5">
+                <div key={service.id} className="flex h-full flex-col rounded-2xl border border-black/5 bg-slate-50/60 p-5">
                   <h3 className="text-lg font-semibold text-gray-900 mb-2">
                     {service.name}
                   </h3>
                   {service.id === 'DOG_WALKING' ? (
-                    <p className="text-sm leading-relaxed text-gray-700">
+                    <p className="text-sm leading-7 text-gray-700">
                       Hondenuitlaat aan huis in {place.name}, met rustige wandelingen in {localDogWalkingHighlight}.
                     </p>
                   ) : null}
                   {service.id === 'GROUP_DOG_WALKING' ? (
-                    <p className="text-sm leading-relaxed text-gray-700">
+                    <p className="text-sm leading-7 text-gray-700">
                       Hondenuitlaatservice aan huis met sociale daguitstappen, ophalen en terugbrengen in {place.name}.
                     </p>
                   ) : null}
                   {service.id === 'DOG_TRAINING' ? (
-                    <p className="text-sm leading-relaxed text-gray-700">
+                    <p className="text-sm leading-7 text-gray-700">
                       Praktische hondentraining in {place.name}, afgestemd op je hond en je dagelijkse leven.
                     </p>
                   ) : null}
                   {service.id === 'PET_SITTING' ? (
-                    <p className="text-sm leading-relaxed text-gray-700">
+                    <p className="text-sm leading-7 text-gray-700">
                       Dierenoppas aan huis in {place.name}, zodat je huisdier in de vertrouwde omgeving kan blijven.
                     </p>
                   ) : null}
                   {service.id === 'PET_BOARDING' ? (
-                    <p className="text-sm leading-relaxed text-gray-700">
+                    <p className="text-sm leading-7 text-gray-700">
                       Dierenopvang in {place.name} wanneer je tijdelijk een veilige plek zoekt voor je huisdier.
                     </p>
                   ) : null}
                   {service.id === 'HOME_CARE' ? (
-                    <p className="text-sm leading-relaxed text-gray-700">
+                    <p className="text-sm leading-7 text-gray-700">
                       Verzorging aan huis in {place.name} voor dieren die liefst in hun eigen omgeving blijven.
                     </p>
                   ) : null}
                   {service.id === 'PET_TRANSPORT' || service.id === 'SMALL_ANIMAL_CARE' || service.id === 'EVENT_COMPANION' ? (
-                    <p className="text-sm leading-relaxed text-gray-700">
+                    <p className="text-sm leading-7 text-gray-700">
                       Ook beschikbaar in {place.name}, afhankelijk van je vraag en de juiste match.
                     </p>
                   ) : null}
-                  <div className="mt-4">
+                  <div className="mt-5">
                     <Link
                       href={`/diensten/${service.slug}`}
                       className="btn-secondary-compact"
@@ -548,59 +553,61 @@ export default function PlaceLandingPage({ params }: Props) {
             </div>
           </section>
 
-          <section className="bg-white rounded-2xl shadow-sm border border-black/5 p-8 mt-6">
-            <h2 className="text-2xl font-semibold text-gray-900 mb-4">Waarom dit vertrouwen geeft</h2>
+          <section className="mt-6 rounded-2xl border border-black/5 bg-white p-8 shadow-sm">
+            <p className="text-sm font-semibold uppercase tracking-[0.14em] text-slate-500">Vertrouwen</p>
+            <h2 className="mt-3 text-2xl font-semibold leading-tight text-gray-900">Waarom dit vertrouwen geeft</h2>
             <div className="grid gap-4 md:grid-cols-3">
               {ownerTestimonials.map((item) => (
                 <div key={item.name} className="rounded-2xl border border-emerald-100 bg-emerald-50/50 p-5">
-                  <p className="text-sm leading-relaxed text-gray-700">&quot;{item.quote}&quot;</p>
+                  <p className="text-sm leading-7 text-gray-700">&quot;{item.quote}&quot;</p>
                   <p className="mt-4 text-sm font-semibold text-gray-900">{item.name}</p>
                 </div>
               ))}
             </div>
           </section>
 
-          <section className="bg-white rounded-2xl shadow-sm border border-black/5 p-8 mt-6">
-            <h2 className="text-2xl font-semibold text-gray-900 mb-4">Veelgestelde vragen</h2>
-            <div className="space-y-4 text-gray-700">
-              <div>
-                <div className="font-semibold text-gray-900">
+          <section className="mt-6 rounded-2xl border border-black/5 bg-white p-8 shadow-sm">
+            <p className="text-sm font-semibold uppercase tracking-[0.14em] text-slate-500">Veelgestelde vragen</p>
+            <h2 className="mt-3 text-2xl font-semibold leading-tight text-gray-900">Veelgestelde vragen</h2>
+            <div className="mt-6 grid gap-4 text-gray-700 md:grid-cols-2">
+              <div className="rounded-2xl border border-slate-200 bg-slate-50/70 p-5">
+                <div className="font-semibold leading-snug text-gray-900">
                   Wat kost een hondenuitlaat in {place.name}?
                 </div>
-                <p>
+                <p className="mt-2 text-sm leading-7">
                   De prijs hangt af van de duur, het type wandeling (solo of kleine groep) en je exacte locatie. Na je
                   aanvraag bekijken we wat er nodig is en ontvang je een voorstel op maat, zodat je vooraf een duidelijk
                   beeld hebt van de kosten.
                 </p>
               </div>
-              <div>
-                <div className="font-semibold text-gray-900">Hoe werkt een hondenuitlaatservice?</div>
-                <p>
+              <div className="rounded-2xl border border-slate-200 bg-slate-50/70 p-5">
+                <div className="font-semibold leading-snug text-gray-900">Hoe werkt een hondenuitlaatservice?</div>
+                <p className="mt-2 text-sm leading-7">
                   Bij een hondenuitlaatservice gaat je hond mee met een zorgvuldig geselecteerde groep sociale honden. We
                   stemmen vooraf af of je hond hiervoor geschikt is, plannen ophalen en terugbrengen en zorgen voor
                   veilige routes met voldoende rustmomenten.
                 </p>
               </div>
-              <div>
-                <div className="font-semibold text-gray-900">Kan ik ook een betrouwbare dierenoppasser aanvragen?</div>
-                <p>
+              <div className="rounded-2xl border border-slate-200 bg-slate-50/70 p-5">
+                <div className="font-semibold leading-snug text-gray-900">Kan ik ook een betrouwbare dierenoppasser aanvragen?</div>
+                <p className="mt-2 text-sm leading-7">
                   Ja. Ook wanneer je start vanuit hondenuitlaatservice bekijken we of een betrouwbare dierenoppasser of
                   een andere vorm van hulp aan huis beter past bij jouw hond, planning en locatie in {place.name}.
                 </p>
               </div>
-              <div>
-                <div className="font-semibold text-gray-900">Hoe boek ik een dierenoppas via TailTribe?</div>
-                <p>
+              <div className="rounded-2xl border border-slate-200 bg-slate-50/70 p-5">
+                <div className="font-semibold leading-snug text-gray-900">Hoe boek ik een dierenoppas via TailTribe?</div>
+                <p className="mt-2 text-sm leading-7">
                   Je vult online een korte aanvraag in met data, locatie en info over je huisdier. Daarna nemen we
                   contact op om je wensen te bespreken en koppelen we je aan een passende dierenverzorger in of rond{' '}
                   {place.name}.
                 </p>
               </div>
-              <div>
-                <div className="font-semibold text-gray-900">
+              <div className="rounded-2xl border border-slate-200 bg-slate-50/70 p-5 md:col-span-2">
+                <div className="font-semibold leading-snug text-gray-900">
                   Welke diensten biedt TailTribe in {place.name}?
                 </div>
-                <p>
+                <p className="mt-2 text-sm leading-7">
                   In deze regio kun je onder andere terecht voor hondenuitlaat, hondenuitlaatservice, hondentraining,
                   dierenoppas, kattenoppas, dierenopvang, verzorging aan huis, transport van huisdieren en – indien
                   relevant – verzorging van boerderijdieren en begeleiding tijdens events.
