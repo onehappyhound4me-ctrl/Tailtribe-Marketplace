@@ -52,7 +52,7 @@ export default function ProvinceLandingPage({ params }: Props) {
     ],
   }
 
-  const placeLinks = places.slice(0, 8).map((place, index) => ({
+  const placeLinks = places.slice(0, 6).map((place, index) => ({
     '@type': 'ListItem',
     position: index + 1,
     name: place.name,
@@ -154,7 +154,7 @@ export default function ProvinceLandingPage({ params }: Props) {
 
           {province.slug === 'antwerpen' ? (
             <section className="mb-6 rounded-3xl border border-emerald-100 bg-gradient-to-br from-white via-emerald-50/60 to-sky-50 p-6 shadow-sm md:p-10">
-              <p className="text-sm font-semibold uppercase tracking-[0.14em] text-emerald-800">Regiofocus</p>
+              <p className="text-sm font-semibold uppercase tracking-[0.14em] text-emerald-800">Snelle hulp</p>
               <h2 className="mt-3 text-2xl font-semibold leading-tight text-gray-900 md:text-3xl">
                 Hondenuitlaatservice aan huis in regio Antwerpen
               </h2>
@@ -176,24 +176,6 @@ export default function ProvinceLandingPage({ params }: Props) {
                 <Link href="/boeken?service=GROUP_DOG_WALKING" className="btn-brand-compact">
                   Bekijk beschikbaarheid aan huis
                 </Link>
-              </div>
-              <div className="mt-5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-                {[
-                  { slug: 'antwerpen', label: 'Antwerpen' },
-                  { slug: 'berchem', label: 'Berchem' },
-                  { slug: 'wilrijk', label: 'Wilrijk' },
-                  { slug: 'brasschaat', label: 'Brasschaat' },
-                  { slug: 'kapellen', label: 'Kapellen' },
-                ].map((p) => (
-                  <Link
-                    key={p.slug}
-                    href={`/be/antwerpen/${p.slug}`}
-                    className="group rounded-2xl border border-white/80 bg-white/90 px-4 py-3 text-gray-800 shadow-sm transition hover:bg-white hover:shadow-md"
-                  >
-                    <div className="font-semibold group-hover:text-green-700 transition-colors">{p.label}</div>
-                    <div className="text-xs text-gray-500 mt-1">Bekijk regio →</div>
-                  </Link>
-                ))}
               </div>
             </section>
           ) : null}
@@ -237,8 +219,8 @@ export default function ProvinceLandingPage({ params }: Props) {
             <p className="mb-6 mt-4 max-w-2xl text-base leading-8 text-gray-700">
               Kies hieronder een locatie of dien meteen je aanvraag in als je vooral snel hulp voor je huisdier zoekt.
             </p>
-            <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-4">
-              {places.slice(0, 8).map((place) => (
+            <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3">
+              {places.slice(0, 6).map((place) => (
                 <Link
                   key={place.slug}
                   href={`/be/${province.slug}/${place.slug}`}

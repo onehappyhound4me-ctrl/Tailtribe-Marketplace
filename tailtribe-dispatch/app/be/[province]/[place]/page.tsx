@@ -95,7 +95,6 @@ export default function PlaceLandingPage({ params }: Props) {
   const baseUrl = getPublicAppUrl()
   const canonicalUrl = `${baseUrl}/be/${province.slug}/${place.slug}`
   const focus = isGroepsuitlaatFocus(province.slug, place.slug)
-  const nearbyPlaces = getPlacesByProvince(province.slug).filter((pl) => pl.slug !== place.slug).slice(0, 3)
   const visibleServices = SERVICE_SECTIONS.filter((service) => PRIMARY_SERVICE_IDS.has(service.id))
   const trustPillars = focus
     ? ['Betrouwbare dierenoppasser', 'Aan huis ophalen', 'Antwerpen + rand', 'Snelle terugkoppeling']
@@ -289,8 +288,8 @@ export default function PlaceLandingPage({ params }: Props) {
                   <Link href="/boeken" className="btn-brand-compact">
                     Vind de juiste service voor je huisdier
                   </Link>
-                  <Link href={`/be/${province.slug}`} className="text-sm font-medium text-gray-600 hover:text-gray-900">
-                    Bekijk meer in {province.name}
+                  <Link href="/diensten" className="text-sm font-medium text-gray-600 hover:text-gray-900">
+                    Bekijk alle diensten
                   </Link>
                 </>
               )}
@@ -634,31 +633,6 @@ export default function PlaceLandingPage({ params }: Props) {
               </div>
             </div>
           </section>
-
-          {nearbyPlaces.length > 0 ? (
-            <section className="bg-white rounded-2xl shadow-sm border border-black/5 p-8 mt-6">
-              <h2 className="text-2xl font-semibold text-gray-900 mb-4">Ook actief in de buurt</h2>
-              <p className="text-gray-700 leading-relaxed mb-4">
-                Woon je net buiten {place.name}? Bekijk ook een paar naburige locaties of dien meteen je aanvraag in.
-              </p>
-              <div className="flex flex-wrap gap-2">
-                {nearbyPlaces.map((pl) => (
-                  <Link
-                    key={pl.slug}
-                    href={`/be/${province.slug}/${pl.slug}`}
-                    className="inline-flex items-center px-3 py-1.5 rounded-full border border-emerald-100 bg-emerald-50 text-sm font-medium text-emerald-900 hover:bg-emerald-100 transition"
-                  >
-                    {pl.name}
-                  </Link>
-                ))}
-              </div>
-              <div className="mt-5">
-                <Link href={focus ? '/boeken?service=GROUP_DOG_WALKING' : '/boeken'} className="btn-secondary-compact">
-                  {focus ? 'Bekijk beschikbaarheid aan huis' : 'Dien je aanvraag in'}
-                </Link>
-              </div>
-            </section>
-          ) : null}
 
           <section className="mt-6 rounded-3xl border border-emerald-100 bg-gradient-to-br from-white via-emerald-50/60 to-sky-50 p-6 shadow-sm md:p-10">
             <div className="mx-auto max-w-3xl text-center">
