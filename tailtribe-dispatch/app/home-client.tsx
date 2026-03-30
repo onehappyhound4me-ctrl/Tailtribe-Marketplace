@@ -403,17 +403,6 @@ export default function HomePageClient() {
                 </div>
               ))}
             </div>
-            <div className="mt-6 flex flex-col sm:flex-row gap-3">
-              <Link href="/boeken" className="btn-brand-compact">
-                Start je aanvraag
-              </Link>
-              <Link
-                href={routes.diensten}
-                className="btn-secondary-compact"
-              >
-                Bekijk alle diensten
-              </Link>
-            </div>
           </div>
         </div>
       </section>
