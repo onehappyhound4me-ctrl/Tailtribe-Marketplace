@@ -81,6 +81,74 @@ export default function BlogIndexPage() {
             </div>
           </section>
 
+          <section className="mb-10 grid gap-4 md:grid-cols-2">
+            <div className="rounded-2xl border border-amber-100 bg-gradient-to-br from-white via-amber-50/70 to-orange-50 p-6 shadow-sm">
+              <p className="text-sm font-semibold uppercase tracking-[0.14em] text-amber-800">Snelle hulp</p>
+              <h2 className="mt-3 text-2xl font-semibold text-gray-900">Dringende vragen van hondenbaasjes</h2>
+              <p className="mt-4 text-base leading-8 text-gray-700">
+                Heb je vandaag nog hulp nodig of zoek je snel een oplossing voor een onverwachte situatie? Deze artikels
+                helpen je meteen naar de juiste keuze.
+              </p>
+              <div className="mt-5 grid gap-3">
+                {[
+                  {
+                    href: '/blog/last-minute-hondenoppas-nodig-wat-kan-vandaag',
+                    label: 'Last minute hondenoppas nodig: wat kan vandaag nog?',
+                  },
+                  {
+                    href: '/blog/noodopvang-hond-wat-zijn-je-opties',
+                    label: 'Noodopvang voor je hond: wat zijn je opties?',
+                  },
+                  {
+                    href: '/blog/hoe-lang-mag-een-hond-alleen-zijn',
+                    label: 'Hoe lang mag een hond alleen zijn?',
+                  },
+                ].map((item) => (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    className="rounded-2xl border border-white/80 bg-white/90 p-4 text-sm font-medium leading-6 text-gray-800 shadow-sm transition hover:shadow-md hover:text-emerald-800"
+                  >
+                    {item.label}
+                  </Link>
+                ))}
+              </div>
+            </div>
+
+            <div className="rounded-2xl border border-sky-100 bg-gradient-to-br from-white via-sky-50/70 to-emerald-50 p-6 shadow-sm">
+              <p className="text-sm font-semibold uppercase tracking-[0.14em] text-sky-700">Prijs en vakantie</p>
+              <h2 className="mt-3 text-2xl font-semibold text-gray-900">Kiezen tussen opvang, oppas en planning</h2>
+              <p className="mt-4 text-base leading-8 text-gray-700">
+                Veel aanvragen starten bij prijs, vakantieplanning of twijfel tussen meerdere oplossingen. Daarom
+                bundelen we deze antwoorden ook apart.
+              </p>
+              <div className="mt-5 grid gap-3">
+                {[
+                  {
+                    href: '/blog/wat-kost-hondenopvang',
+                    label: 'Wat kost hondenopvang?',
+                  },
+                  {
+                    href: '/blog/wat-doen-met-hond-tijdens-vakantie',
+                    label: 'Wat doen met je hond tijdens vakantie?',
+                  },
+                  {
+                    href: '/blog/wat-kost-hondenoppas-aan-huis',
+                    label: 'Wat kost hondenoppas aan huis?',
+                  },
+                ].map((item) => (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    className="rounded-2xl border border-white/80 bg-white/90 p-4 text-sm font-medium leading-6 text-gray-800 shadow-sm transition hover:shadow-md hover:text-emerald-800"
+                  >
+                    {item.label}
+                  </Link>
+                ))}
+              </div>
+            </div>
+          </section>
+
           <section className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {posts.map((post) => (
               <Link

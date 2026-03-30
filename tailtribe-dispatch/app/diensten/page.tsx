@@ -153,12 +153,32 @@ export default function DienstenPage() {
                   title: 'Wie kan mijn hond uitlaten als ik werk?',
                 },
                 {
+                  href: '/blog/last-minute-hondenoppas-nodig-wat-kan-vandaag',
+                  title: 'Last minute hondenoppas nodig: wat kan vandaag nog?',
+                },
+                {
+                  href: '/blog/noodopvang-hond-wat-zijn-je-opties',
+                  title: 'Noodopvang voor je hond: wat zijn je opties?',
+                },
+                {
                   href: '/blog/wat-kost-hondenoppas-aan-huis',
                   title: 'Wat kost hondenoppas aan huis?',
                 },
                 {
+                  href: '/blog/wat-kost-hondenopvang',
+                  title: 'Wat kost hondenopvang?',
+                },
+                {
                   href: '/blog/wat-is-beter-hondenopvang-of-hondenoppas-aan-huis',
                   title: 'Wat is beter: hondenopvang of hondenoppas aan huis?',
+                },
+                {
+                  href: '/blog/hoe-lang-mag-een-hond-alleen-zijn',
+                  title: 'Hoe lang mag een hond alleen zijn?',
+                },
+                {
+                  href: '/blog/wat-doen-met-hond-tijdens-vakantie',
+                  title: 'Wat doen met je hond tijdens vakantie?',
                 },
                 {
                   href: '/blog/wat-doet-een-hondentrainer-aan-huis',

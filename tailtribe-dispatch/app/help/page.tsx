@@ -152,6 +152,26 @@ export default function HelpPage() {
                   label: 'Wat kost hondenuitlaatservice aan huis in Antwerpen?',
                 },
                 {
+                  href: '/blog/last-minute-hondenoppas-nodig-wat-kan-vandaag',
+                  label: 'Last minute hondenoppas nodig: wat kan vandaag nog?',
+                },
+                {
+                  href: '/blog/noodopvang-hond-wat-zijn-je-opties',
+                  label: 'Noodopvang voor je hond: wat zijn je opties?',
+                },
+                {
+                  href: '/blog/hoe-lang-mag-een-hond-alleen-zijn',
+                  label: 'Hoe lang mag een hond alleen zijn?',
+                },
+                {
+                  href: '/blog/wat-doen-met-hond-tijdens-vakantie',
+                  label: 'Wat doen met je hond tijdens vakantie?',
+                },
+                {
+                  href: '/blog/wat-kost-hondenopvang',
+                  label: 'Wat kost hondenopvang?',
+                },
+                {
                   href: '/diensten/kattenoppas',
                   label: 'Kattenoppas aan huis bekijken',
                 },
