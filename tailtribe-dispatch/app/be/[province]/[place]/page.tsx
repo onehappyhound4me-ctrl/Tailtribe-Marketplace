@@ -95,7 +95,7 @@ export default function PlaceLandingPage({ params }: Props) {
   const baseUrl = getPublicAppUrl()
   const canonicalUrl = `${baseUrl}/be/${province.slug}/${place.slug}`
   const focus = isGroepsuitlaatFocus(province.slug, place.slug)
-  const nearbyPlaces = getPlacesByProvince(province.slug).filter((pl) => pl.slug !== place.slug).slice(0, 6)
+  const nearbyPlaces = getPlacesByProvince(province.slug).filter((pl) => pl.slug !== place.slug).slice(0, 3)
   const visibleServices = SERVICE_SECTIONS.filter((service) => PRIMARY_SERVICE_IDS.has(service.id))
   const trustPillars = focus
     ? ['Betrouwbare dierenoppasser', 'Aan huis ophalen', 'Antwerpen + rand', 'Snelle terugkoppeling']
@@ -400,11 +400,6 @@ export default function PlaceLandingPage({ params }: Props) {
                     </div>
                   ))}
                 </div>
-                <div className="mt-6 rounded-2xl border border-slate-200 bg-slate-50/80 p-5 text-sm leading-7 text-slate-700">
-                  <span className="font-semibold text-slate-900">Regio:</span> Groot Antwerpen (+rand) en Antwerpen Noord
-                  (Kapellen, Brasschaat, Kalmthout). Zoek je vooral een betrouwbare dierenoppasser voor uitlaatmomenten
-                  aan huis, dan zit je hier op de juiste pagina.
-                </div>
               </>
             ) : (
               <>
@@ -642,10 +637,9 @@ export default function PlaceLandingPage({ params }: Props) {
 
           {nearbyPlaces.length > 0 ? (
             <section className="bg-white rounded-2xl shadow-sm border border-black/5 p-8 mt-6">
-              <h2 className="text-2xl font-semibold text-gray-900 mb-4">Diensten in de buurt</h2>
+              <h2 className="text-2xl font-semibold text-gray-900 mb-4">Ook actief in de buurt</h2>
               <p className="text-gray-700 leading-relaxed mb-4">
-                Woon je net buiten {place.name} of zoek je een verzorger in een naburige gemeente? Bekijk ook onze
-                diensten in de buurt.
+                Woon je net buiten {place.name}? Bekijk ook een paar naburige locaties of dien meteen je aanvraag in.
               </p>
               <div className="flex flex-wrap gap-2">
                 {nearbyPlaces.map((pl) => (
@@ -657,6 +651,11 @@ export default function PlaceLandingPage({ params }: Props) {
                     {pl.name}
                   </Link>
                 ))}
+              </div>
+              <div className="mt-5">
+                <Link href={focus ? '/boeken?service=GROUP_DOG_WALKING' : '/boeken'} className="btn-secondary-compact">
+                  {focus ? 'Bekijk beschikbaarheid aan huis' : 'Dien je aanvraag in'}
+                </Link>
               </div>
             </section>
           ) : null}

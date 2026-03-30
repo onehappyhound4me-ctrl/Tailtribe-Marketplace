@@ -52,7 +52,7 @@ export default function ProvinceLandingPage({ params }: Props) {
     ],
   }
 
-  const placeLinks = places.slice(0, 16).map((place, index) => ({
+  const placeLinks = places.slice(0, 8).map((place, index) => ({
     '@type': 'ListItem',
     position: index + 1,
     name: place.name,
@@ -159,8 +159,8 @@ export default function ProvinceLandingPage({ params }: Props) {
                 Hondenuitlaatservice aan huis in regio Antwerpen
               </h2>
               <p className="mt-4 max-w-2xl text-base leading-8 text-gray-700">
-                Actief in Groot Antwerpen (+rand) en Antwerpen Noord (Kapellen, Brasschaat, Kalmthout). Kies hieronder
-                je gemeente als je specifiek op zoek bent naar hondenuitlaatservice aan huis in jouw buurt.
+                Zoek je hondenuitlaatservice aan huis in regio Antwerpen? Dien je aanvraag in en we bekijken meteen wat
+                praktisch haalbaar is voor jouw buurt, planning en hond.
               </p>
               <div className="mt-4 flex flex-wrap gap-2">
                 {['Aan huis ophalen', 'Antwerpen + rand', 'Zorgvuldige matching', 'Snelle intake'].map((label) => (
@@ -177,27 +177,6 @@ export default function ProvinceLandingPage({ params }: Props) {
                   Bekijk beschikbaarheid aan huis
                 </Link>
               </div>
-              <div className="mt-8 grid gap-4 md:grid-cols-3">
-                {[
-                  {
-                    title: 'Voor drukke baasjes',
-                    text: 'Je hoeft niet zelf te puzzelen wie geschikt is voor jouw hond en planning.',
-                  },
-                  {
-                    title: 'Heldere opvolging',
-                    text: 'We stemmen regio, haalbaarheid en praktische afspraken eerst duidelijk met je af.',
-                  },
-                  {
-                    title: 'Lokaal gericht',
-                    text: 'De focus ligt op zones waar hondenuitlaatservice aan huis echt praktisch inzetbaar is.',
-                  },
-                ].map((item) => (
-                  <div key={item.title} className="rounded-2xl border border-white/80 bg-white/90 p-5 shadow-sm">
-                    <h3 className="text-base font-semibold leading-snug text-gray-900">{item.title}</h3>
-                    <p className="mt-2 text-sm leading-7 text-gray-700">{item.text}</p>
-                  </div>
-                ))}
-              </div>
               <div className="mt-5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
                 {[
                   { slug: 'antwerpen', label: 'Antwerpen' },
@@ -205,7 +184,6 @@ export default function ProvinceLandingPage({ params }: Props) {
                   { slug: 'wilrijk', label: 'Wilrijk' },
                   { slug: 'brasschaat', label: 'Brasschaat' },
                   { slug: 'kapellen', label: 'Kapellen' },
-                  { slug: 'kalmthout', label: 'Kalmthout' },
                 ].map((p) => (
                   <Link
                     key={p.slug}
@@ -252,15 +230,15 @@ export default function ProvinceLandingPage({ params }: Props) {
           </section>
 
           <section className="rounded-2xl border border-black/5 bg-white p-8 shadow-sm">
-            <p className="text-sm font-semibold uppercase tracking-[0.14em] text-slate-500">Regio&apos;s</p>
+            <p className="text-sm font-semibold uppercase tracking-[0.14em] text-slate-500">Populaire locaties</p>
             <h2 className="mt-3 text-2xl font-semibold leading-tight text-gray-900">
-              Populaire steden en gemeenten in {province.name}
+              Snel naar een veelgevraagde plek in {province.name}
             </h2>
             <p className="mb-6 mt-4 max-w-2xl text-base leading-8 text-gray-700">
-              Kies hieronder een stad of gemeente om meteen naar de meest relevante lokale pagina te gaan.
+              Kies hieronder een locatie of dien meteen je aanvraag in als je vooral snel hulp voor je huisdier zoekt.
             </p>
-            <div className="grid grid-cols-1 gap-3 md:grid-cols-3 lg:grid-cols-4">
-              {places.slice(0, 16).map((place) => (
+            <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-4">
+              {places.slice(0, 8).map((place) => (
                 <Link
                   key={place.slug}
                   href={`/be/${province.slug}/${place.slug}`}
@@ -273,9 +251,12 @@ export default function ProvinceLandingPage({ params }: Props) {
                 </Link>
               ))}
             </div>
-            <p className="mt-4 text-sm leading-7 text-gray-600">
-              Staat je stad er niet tussen? Geen probleem — dien je aanvraag in en vermeld je locatie.
-            </p>
+            <div className="mt-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <p className="text-sm leading-7 text-gray-600">Staat je stad er niet tussen? Vermeld je locatie gewoon in je aanvraag.</p>
+              <Link href="/boeken" className="btn-brand-compact">
+                Dien je aanvraag in
+              </Link>
+            </div>
           </section>
 
           <section className="mt-6 rounded-2xl border border-black/5 bg-white p-8 shadow-sm">
