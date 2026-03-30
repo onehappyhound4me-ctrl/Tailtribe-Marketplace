@@ -95,6 +95,7 @@ export default function BlogIndexPage() {
                     alt={post.title}
                     fill
                     className="object-cover transition-transform duration-500 group-hover:scale-[1.03]"
+                    style={post.coverPosition ? { objectPosition: post.coverPosition } : undefined}
                     sizes="(max-width: 768px) 100vw, 50vw"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-slate-950/35 via-slate-900/5 to-transparent" />

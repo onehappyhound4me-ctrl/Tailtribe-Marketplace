@@ -10,6 +10,7 @@ export type BlogPost = {
   readingTime: string
   tags: string[]
   coverImage?: string
+  coverPosition?: string
   category?: BlogCategory
   content: string[]
 }
@@ -88,7 +89,8 @@ export const BLOG_POSTS: BlogPost[] = [
     readingTime: '18 min',
     tags: ['Hondenuitlaatservice', 'Gedrag', 'Socialisatie'],
     category: 'dog-walking',
-    coverImage: 'https://images.unsplash.com/photo-1517849845537-4d257902454a?auto=format&fit=crop&w=1600&q=80',
+    coverImage: '/assets/blog-groepsuitlaat-eigen.png',
+    coverPosition: '50% 28%',
     content: [
       'Hondenuitlaatservice is alleen geschikt als hond en groep goed matchen. Dat begint met stabiel sociaal gedrag en voorspelbare reacties in prikkelrijke situaties. Zonder die basis is een groepswandeling onnodig risicovol en vaak te stressvol.',
       'We beoordelen prikkelgevoeligheid. Sommige honden raken snel overprikkeld in groep; voor hen is individuele begeleiding vaak beter. Dat is geen oordeel, maar een keuze voor welzijn. Kwaliteit is belangrijker dan de groepsvorm.',
@@ -382,7 +384,8 @@ export const BLOG_POSTS: BlogPost[] = [
     readingTime: '12 min',
     tags: ['Hondenschool', 'Hondentraining', 'Keuzehulp'],
     category: 'training',
-    coverImage: 'https://images.unsplash.com/photo-1517423568366-8b83523034fd?auto=format&fit=crop&w=1600&q=80',
+    coverImage: '/assets/dog-training-hero.jpg',
+    coverPosition: '50% 62%',
     content: [
       'Wie met hondentraining wil starten, twijfelt vaak tussen hondenschool en prive begeleiding aan huis. Beide kunnen goed zijn, maar de beste keuze hangt af van je doel, je hond en de context waarin het gedrag speelt.',
       'Hondenschool werkt vaak goed voor baasjes die graag in groep leren en een vaste lesstructuur prettig vinden. Het is ook nuttig voor honden die in een gecontroleerde groepsomgeving kunnen oefenen met afleiding en focus.',

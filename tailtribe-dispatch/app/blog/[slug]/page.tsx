@@ -117,6 +117,7 @@ export default function BlogPostPage({ params }: Props) {
               alt={post.title}
               fill
               className="object-cover"
+              style={post.coverPosition ? { objectPosition: post.coverPosition } : undefined}
               sizes="(max-width: 768px) 100vw, 60vw"
               priority
             />
