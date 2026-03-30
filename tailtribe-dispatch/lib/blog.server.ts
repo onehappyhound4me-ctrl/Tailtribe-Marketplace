@@ -175,7 +175,7 @@ export const BLOG_POSTS: BlogPost[] = [
     readingTime: '14 min',
     tags: ['Hondenuitlaat', 'Werk', 'Routine'],
     category: 'dog-walking',
-    coverImage: 'https://images.unsplash.com/photo-1444212477490-ca407925329e?auto=format&fit=crop&w=1600&q=80',
+    coverImage: 'https://images.unsplash.com/photo-1705769947686-21cdb68ddc06?auto=format&fit=crop&w=1600&q=80',
     content: [
       'Wie fulltime werkt, zoekt meestal geen abstracte dienst maar een praktische oplossing: iemand die de hond veilig kan uitlaten terwijl de eigenaar afwezig is. Dat is exact waarom hondenuitlaat aan huis zo vaak gezocht wordt in vraagvorm. Het probleem is concreet en dagelijks terugkerend.',
       'Een hond die te lang alleen zit, kan spanning opbouwen. Dat vertaalt zich vaak in onrust, overprikkeling of frustratie tegen het einde van de dag. Een extra uitlaatmoment doorheen de werkdag kan dan veel verschil maken in welzijn, gedrag en rust thuis.',
@@ -313,7 +313,7 @@ export const BLOG_POSTS: BlogPost[] = [
     readingTime: '12 min',
     tags: ['Hondenopvang', 'Hondenoppas', 'Vergelijking'],
     category: 'general',
-    coverImage: 'https://images.unsplash.com/photo-1534361960057-19889db9621e?auto=format&fit=crop&w=1600&q=80',
+    coverImage: 'https://images.unsplash.com/photo-1610995829259-9b545c1a639c?auto=format&fit=crop&w=1600&q=80',
     content: [
       'Veel huisdiereigenaars twijfelen tussen hondenopvang en hondenoppas aan huis. Beide kunnen goed zijn, maar ze lossen niet exact hetzelfde probleem op. De juiste keuze hangt vooral af van je hond en zijn routine.',
       'Hondenopvang past vaak beter wanneer een hond goed functioneert in een andere omgeving en baat heeft bij een veilige opvangstructuur buiten huis. Voor sommige honden werkt dat prima, zeker als ze vlot aanpassen aan nieuwe plaatsen.',
@@ -336,7 +336,7 @@ export const BLOG_POSTS: BlogPost[] = [
     readingTime: '13 min',
     tags: ['Hondenopvang', 'Vertrouwen', 'Veiligheid'],
     category: 'general',
-    coverImage: 'https://images.unsplash.com/photo-1518715308788-3005759c61e6?auto=format&fit=crop&w=1600&q=80',
+    coverImage: 'https://images.unsplash.com/photo-1708798358558-87bb71f31246?auto=format&fit=crop&w=1600&q=80',
     content: [
       'Wie hondenopvang zoekt, zoekt eigenlijk rust en vertrouwen. Je wil weten of je hond veilig zit, of de aanpak professioneel is en of de setting echt past bij zijn karakter en noden.',
       'De eerste vraag is altijd: past deze opvang bij mijn hond? Niet elke hond functioneert goed in een nieuwe omgeving of in de buurt van andere dieren. Goede hondenopvang begint daarom met intake en eerlijke selectie.',
@@ -359,7 +359,7 @@ export const BLOG_POSTS: BlogPost[] = [
     readingTime: '12 min',
     tags: ['Hondentrainer', 'Hondentraining', 'Aan huis'],
     category: 'training',
-    coverImage: 'https://images.unsplash.com/photo-1517423440428-a5a00ad493e8?auto=format&fit=crop&w=1600&q=80',
+    coverImage: 'https://images.unsplash.com/photo-1634003307999-c7288e2c0163?auto=format&fit=crop&w=1600&q=80',
     content: [
       'Een hondentrainer aan huis helpt niet alleen met commando’s, maar vooral met gedrag in de context waarin het echt gebeurt. Dat is het grote verschil met algemene theorie of losse tips zonder observatie.',
       'Tijdens training aan huis wordt gekeken naar jouw routine, omgeving en praktische drempels. Hoe verloopt wandelen? Wat gebeurt er bij bezoek? Waar loopt het mis? Daardoor wordt training veel concreter dan wanneer je alleen in een neutrale setting werkt.',
