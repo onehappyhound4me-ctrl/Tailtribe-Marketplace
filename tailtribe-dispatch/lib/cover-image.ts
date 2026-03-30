@@ -22,7 +22,7 @@ export const getStockCoverImage = (post: Pick<BlogPost, 'slug' | 'category'>) =>
 
 export const resolveCoverImage = (post: BlogPost) => {
   const coverImage = post.coverImage?.trim()
-  if (coverImage && isAbsoluteHttpUrl(coverImage)) {
+  if (coverImage && (isAbsoluteHttpUrl(coverImage) || coverImage.startsWith('/'))) {
     return coverImage
   }
   return getStockCoverImage(post)

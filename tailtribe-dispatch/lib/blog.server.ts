@@ -24,7 +24,7 @@ export const BLOG_POSTS: BlogPost[] = [
     readingTime: '18 min',
     tags: ['Hondenuitlaat', 'Routine', 'Veiligheid'],
     category: 'dog-walking',
-    coverImage: '',
+    coverImage: 'https://images.unsplash.com/photo-1507146426996-ef05306b995a?auto=format&fit=crop&w=1600&q=80',
     content: [
       'Professionele hondenuitlaat is een georganiseerde dienst met duidelijke kwaliteitsnormen. Het gaat niet alleen om beweging, maar om een routine die aansluit op het karakter, de gezondheid en de context van de hond. Een goede uitlaatdienst werkt voorspelbaar, zorgvuldig en met aandacht voor welzijn op lange termijn. Dat is het verschil tussen iemand die even wandelt en een professionele service.',
       'De basis is een grondige intake. We verzamelen informatie over gedrag, tempo, prikkelgevoeligheid en medische aandachtspunten. Ook routines in huis en voorkeuren van de eigenaar worden besproken. Zonder deze informatie is de kans groter dat de wandeling te intens is of dat verwachtingen mislopen. Een duidelijke intake maakt het mogelijk om veilig en realistisch te plannen.',
@@ -55,7 +55,7 @@ export const BLOG_POSTS: BlogPost[] = [
     readingTime: '18 min',
     tags: ['Oppas', 'Vakantie', 'Checklist'],
     category: 'pet-sitting',
-    coverImage: '',
+    coverImage: 'https://images.unsplash.com/photo-1450778869180-41d0601e046e?auto=format&fit=crop&w=1600&q=80',
     content: [
       'Een goede voorbereiding voorkomt problemen. Start met een duidelijke routinefiche: voedertijden, hoeveelheden, wandelmomenten, medicatie en gedragsaandachtspunten. Hoe concreter je de routine beschrijft, hoe kleiner de kans op misverstanden. Dit is de basis van professionele opvolging.',
       'Regel veilige toegang tot je woning. Sleuteloverdracht, code of sleutelkluis kan allemaal, zolang de afspraken helder zijn. Noteer ook het alarm, de verlichting en eventuele beperkingen in de woning. Toegang is een praktische factor, maar vooral een veiligheidsfactor.',
@@ -88,7 +88,7 @@ export const BLOG_POSTS: BlogPost[] = [
     readingTime: '18 min',
     tags: ['Hondenuitlaatservice', 'Gedrag', 'Socialisatie'],
     category: 'dog-walking',
-    coverImage: '',
+    coverImage: 'https://images.unsplash.com/photo-1517849845537-4d257902454a?auto=format&fit=crop&w=1600&q=80',
     content: [
       'Hondenuitlaatservice is alleen geschikt als hond en groep goed matchen. Dat begint met stabiel sociaal gedrag en voorspelbare reacties in prikkelrijke situaties. Zonder die basis is een groepswandeling onnodig risicovol en vaak te stressvol.',
       'We beoordelen prikkelgevoeligheid. Sommige honden raken snel overprikkeld in groep; voor hen is individuele begeleiding vaak beter. Dat is geen oordeel, maar een keuze voor welzijn. Kwaliteit is belangrijker dan de groepsvorm.',
@@ -117,7 +117,7 @@ export const BLOG_POSTS: BlogPost[] = [
     readingTime: '18 min',
     tags: ['Katten', 'Oppas', 'Thuiszorg'],
     category: 'pet-sitting',
-    coverImage: '',
+    coverImage: '/assets/kat-hero.jpg',
     content: [
       'Katten hechten sterk aan hun omgeving. Oppas aan huis behoudt de vertrouwde routine en beperkt stress, vooral bij katten die gevoelig zijn voor verandering. Dat is vaak de grootste reden waarom oppas aan huis de voorkeur krijgt.',
       'Tijdens elk bezoek verzorgen we voeding, water en kattenbak. Daarnaast doen we een korte welzijnscheck: we letten op eetlust, gedrag, vacht en algemene alertheid. Kleine signalen kunnen belangrijk zijn, zeker bij katten die van nature minder tonen.',
@@ -146,7 +146,7 @@ export const BLOG_POSTS: BlogPost[] = [
     readingTime: '18 min',
     tags: ['Transport', 'Veiligheid', 'Dierenzorg'],
     category: 'transport',
-    coverImage: '',
+    coverImage: 'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1600&q=80',
     content: [
       'Veilig transport begint met het juiste materiaal: een geschikte bench of passend harnas. De keuze hangt af van het dier, de reisduur en het gedrag. Dit is geen detail, maar een basisvoorwaarde voor veiligheid.',
       'Een goede voorbereiding vermindert stress. We bespreken vooraf hoe het dier reageert op vervoer en stemmen de aanpak daarop af. Rust en voorspelbaarheid helpen om spanning te beperken.',
@@ -175,7 +175,7 @@ export const BLOG_POSTS: BlogPost[] = [
     readingTime: '14 min',
     tags: ['Hondenuitlaat', 'Werk', 'Routine'],
     category: 'dog-walking',
-    coverImage: '',
+    coverImage: 'https://images.unsplash.com/photo-1444212477490-ca407925329e?auto=format&fit=crop&w=1600&q=80',
     content: [
       'Wie fulltime werkt, zoekt meestal geen abstracte dienst maar een praktische oplossing: iemand die de hond veilig kan uitlaten terwijl de eigenaar afwezig is. Dat is exact waarom hondenuitlaat aan huis zo vaak gezocht wordt in vraagvorm. Het probleem is concreet en dagelijks terugkerend.',
       'Een hond die te lang alleen zit, kan spanning opbouwen. Dat vertaalt zich vaak in onrust, overprikkeling of frustratie tegen het einde van de dag. Een extra uitlaatmoment doorheen de werkdag kan dan veel verschil maken in welzijn, gedrag en rust thuis.',
@@ -198,7 +198,7 @@ export const BLOG_POSTS: BlogPost[] = [
     readingTime: '13 min',
     tags: ['Prijs', 'Antwerpen', 'Hondenuitlaatservice'],
     category: 'dog-walking',
-    coverImage: '',
+    coverImage: 'https://images.unsplash.com/photo-1504595403659-9088ce801e29?auto=format&fit=crop&w=1600&q=80',
     content: [
       'De vraag wat hondenuitlaatservice aan huis in Antwerpen kost, wordt vaak gesteld nog voor iemand beslist om een aanvraag te doen. Dat is logisch: prijs is geen detail, maar een belangrijk deel van vertrouwen. Mensen willen eerst begrijpen waar de kost vandaan komt.',
       'Er is zelden een correcte vaste prijs zonder context. De duur van de wandeling speelt mee, maar ook de exacte locatie, de haalbaarheid van ophalen aan huis en het profiel van de hond. Een rustige standaardroutine vraagt iets anders dan een traject met veel afstemming of extra aandachtspunten.',
@@ -221,7 +221,7 @@ export const BLOG_POSTS: BlogPost[] = [
     readingTime: '15 min',
     tags: ['Dierenoppas', 'Betrouwbaarheid', 'Vertrouwen'],
     category: 'pet-sitting',
-    coverImage: '',
+    coverImage: 'https://images.unsplash.com/photo-1519052537078-e6302a4968d4?auto=format&fit=crop&w=1600&q=80',
     content: [
       'Wie een dierenoppasser zoekt, zoekt eigenlijk vooral vertrouwen. Niet alleen iemand die beschikbaar is, maar iemand aan wie je je huisdier en soms ook je woning met een gerust gevoel kan toevertrouwen. Dat maakt betrouwbaarheid het belangrijkste selectiecriterium.',
       'Een betrouwbare dierenoppasser werkt met duidelijke communicatie. Je weet op voorhand hoe de intake verloopt, welke informatie nodig is en hoe updates gegeven worden. Onduidelijkheid aan het begin is vaak een slecht teken voor de rest van het traject.',
@@ -244,7 +244,7 @@ export const BLOG_POSTS: BlogPost[] = [
     readingTime: '12 min',
     tags: ['Dierenoppas', 'Hondenuitlaatservice', 'Vergelijking'],
     category: 'general',
-    coverImage: '',
+    coverImage: 'https://images.unsplash.com/photo-1494256997604-768d1f608cac?auto=format&fit=crop&w=1600&q=80',
     content: [
       'Dierenoppas en hondenuitlaatservice lijken op elkaar, maar ze lossen niet exact hetzelfde probleem op. Wie het verschil begrijpt, kiest sneller de juiste hulp en voorkomt verkeerde verwachtingen.',
       'Dierenoppas is meestal breder. Het gaat over zorg tijdens afwezigheid: voeding, korte check-ins, gezelschap, basisverzorging en soms ook wandelingen. De focus ligt op algemene ondersteuning en continuiteit in de thuisomgeving.',
@@ -267,7 +267,7 @@ export const BLOG_POSTS: BlogPost[] = [
     readingTime: '12 min',
     tags: ['Antwerpen', 'Ophalen aan huis', 'Hondenuitlaatservice'],
     category: 'dog-walking',
-    coverImage: '',
+    coverImage: 'https://images.unsplash.com/photo-1517451330947-7809dead78d5?auto=format&fit=crop&w=1600&q=80',
     content: [
       'Veel huisdiereigenaars zoeken niet alleen een wandeling, maar vooral gemak: iemand die hun hond aan huis kan ophalen en veilig terugbrengen. Zeker in Antwerpen is dat een veelgestelde vraag, omdat werkritme en verkeer de planning complex maken.',
       'Het korte antwoord is ja, maar niet in elke situatie op exact dezelfde manier. Ophalen en terugbrengen vraagt logistieke haalbaarheid, duidelijke timing en een hond die goed past binnen de gekozen formule.',
@@ -290,7 +290,7 @@ export const BLOG_POSTS: BlogPost[] = [
     readingTime: '12 min',
     tags: ['Hondenoppas', 'Prijs', 'Aan huis'],
     category: 'pet-sitting',
-    coverImage: '',
+    coverImage: 'https://images.unsplash.com/photo-1518020382113-a7e8fc38eac9?auto=format&fit=crop&w=1600&q=80',
     content: [
       'Wie zoekt naar hondenoppas aan huis, wil meestal eerst duidelijkheid over de prijs. Dat is logisch: voor veel baasjes is het niet alleen een zorgvraag, maar ook een praktische beslissing rond budget, frequentie en vertrouwen.',
       'Er is zelden één vaste prijs die voor elke situatie klopt. Hondenoppas aan huis kan gaan van een kort bezoek tot langere aanwezigheid of meerdere bezoeken per dag. De duur en frequentie zijn dus de eerste prijsfactoren.',
@@ -313,7 +313,7 @@ export const BLOG_POSTS: BlogPost[] = [
     readingTime: '12 min',
     tags: ['Hondenopvang', 'Hondenoppas', 'Vergelijking'],
     category: 'general',
-    coverImage: '',
+    coverImage: 'https://images.unsplash.com/photo-1534361960057-19889db9621e?auto=format&fit=crop&w=1600&q=80',
     content: [
       'Veel huisdiereigenaars twijfelen tussen hondenopvang en hondenoppas aan huis. Beide kunnen goed zijn, maar ze lossen niet exact hetzelfde probleem op. De juiste keuze hangt vooral af van je hond en zijn routine.',
       'Hondenopvang past vaak beter wanneer een hond goed functioneert in een andere omgeving en baat heeft bij een veilige opvangstructuur buiten huis. Voor sommige honden werkt dat prima, zeker als ze vlot aanpassen aan nieuwe plaatsen.',
@@ -336,7 +336,7 @@ export const BLOG_POSTS: BlogPost[] = [
     readingTime: '13 min',
     tags: ['Hondenopvang', 'Vertrouwen', 'Veiligheid'],
     category: 'general',
-    coverImage: '',
+    coverImage: 'https://images.unsplash.com/photo-1518715308788-3005759c61e6?auto=format&fit=crop&w=1600&q=80',
     content: [
       'Wie hondenopvang zoekt, zoekt eigenlijk rust en vertrouwen. Je wil weten of je hond veilig zit, of de aanpak professioneel is en of de setting echt past bij zijn karakter en noden.',
       'De eerste vraag is altijd: past deze opvang bij mijn hond? Niet elke hond functioneert goed in een nieuwe omgeving of in de buurt van andere dieren. Goede hondenopvang begint daarom met intake en eerlijke selectie.',
@@ -359,7 +359,7 @@ export const BLOG_POSTS: BlogPost[] = [
     readingTime: '12 min',
     tags: ['Hondentrainer', 'Hondentraining', 'Aan huis'],
     category: 'training',
-    coverImage: '',
+    coverImage: 'https://images.unsplash.com/photo-1517423440428-a5a00ad493e8?auto=format&fit=crop&w=1600&q=80',
     content: [
       'Een hondentrainer aan huis helpt niet alleen met commando’s, maar vooral met gedrag in de context waarin het echt gebeurt. Dat is het grote verschil met algemene theorie of losse tips zonder observatie.',
       'Tijdens training aan huis wordt gekeken naar jouw routine, omgeving en praktische drempels. Hoe verloopt wandelen? Wat gebeurt er bij bezoek? Waar loopt het mis? Daardoor wordt training veel concreter dan wanneer je alleen in een neutrale setting werkt.',
@@ -382,7 +382,7 @@ export const BLOG_POSTS: BlogPost[] = [
     readingTime: '12 min',
     tags: ['Hondenschool', 'Hondentraining', 'Keuzehulp'],
     category: 'training',
-    coverImage: '',
+    coverImage: 'https://images.unsplash.com/photo-1517423568366-8b83523034fd?auto=format&fit=crop&w=1600&q=80',
     content: [
       'Wie met hondentraining wil starten, twijfelt vaak tussen hondenschool en prive begeleiding aan huis. Beide kunnen goed zijn, maar de beste keuze hangt af van je doel, je hond en de context waarin het gedrag speelt.',
       'Hondenschool werkt vaak goed voor baasjes die graag in groep leren en een vaste lesstructuur prettig vinden. Het is ook nuttig voor honden die in een gecontroleerde groepsomgeving kunnen oefenen met afleiding en focus.',
