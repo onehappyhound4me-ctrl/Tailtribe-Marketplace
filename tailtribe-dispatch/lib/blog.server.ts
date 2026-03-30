@@ -271,7 +271,8 @@ export const BLOG_POSTS: BlogPost[] = [
     readingTime: '12 min',
     tags: ['Antwerpen', 'Ophalen aan huis', 'Hondenuitlaatservice'],
     category: 'dog-walking',
-    coverImage: 'https://images.unsplash.com/photo-1517451330947-7809dead78d5?auto=format&fit=crop&w=1600&q=80',
+    coverImage: '/assets/hondenuitlaat-hero.jpg',
+    coverPosition: '50% 50%',
     content: [
       'Veel huisdiereigenaars zoeken niet alleen een wandeling, maar vooral gemak: iemand die hun hond aan huis kan ophalen en veilig terugbrengen. Zeker in Antwerpen is dat een veelgestelde vraag, omdat werkritme en verkeer de planning complex maken.',
       'Het korte antwoord is ja, maar niet in elke situatie op exact dezelfde manier. Ophalen en terugbrengen vraagt logistieke haalbaarheid, duidelijke timing en een hond die goed past binnen de gekozen formule.',
@@ -454,7 +455,8 @@ export const BLOG_POSTS: BlogPost[] = [
     readingTime: '12 min',
     tags: ['Hondenopvang', 'Prijs', 'Vakantie'],
     category: 'general',
-    coverImage: 'https://images.unsplash.com/photo-1518715308788-3005759c61e6?auto=format&fit=crop&w=1600&q=80',
+    coverImage: '/assets/groepsuitlaat-hero.jpg',
+    coverPosition: '50% 58%',
     content: [
       'Wie zoekt naar hondenopvang, wil meestal eerst begrijpen wat het kost. Dat is logisch, want opvang is zelden een impulsbeslissing. Het gaat over vertrouwen, planning en budget tegelijk, zeker wanneer het om meerdere dagen of een vakantieperiode gaat.',
       'De prijs van hondenopvang hangt eerst af van de duur. Een korte opvangperiode werkt anders dan meerdere opeenvolgende dagen of een langere vakantie. Hoe langer de periode, hoe belangrijker routine, logistiek en continuiteit worden in de kost.',
