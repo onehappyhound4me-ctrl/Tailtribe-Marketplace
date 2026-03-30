@@ -315,11 +315,11 @@ export default function HomePageClient() {
 
           <div className="mt-10 rounded-3xl border border-emerald-100 bg-white/80 p-6 shadow-sm">
             <p className="text-sm font-semibold uppercase tracking-[0.14em] text-emerald-800">Voor welke dieren?</p>
-            <h3 className="mt-3 text-2xl font-semibold text-gray-900">Breed platform, duidelijke specialisaties</h3>
+            <h3 className="mt-3 text-2xl font-semibold text-gray-900">Zorg voor meer dan alleen honden en katten</h3>
             <p className="mt-4 max-w-3xl text-base leading-8 text-gray-700">
               TailTribe helpt bij services voor honden, katten, vogels, kleine huisdieren zoals hamsters en konijnen,
-              paarden, vissen en kleinvee. Honden en katten zijn vandaag de sterkste online clusters, maar het platform
-              blijft breder inzetbaar voor andere dieren met zorg op maat.
+              paarden, vissen en kleinvee. Zo kun je ook voor andere dieren rekenen op zorg op maat, thuis of tijdens
+              je afwezigheid.
             </p>
           </div>
         </div>

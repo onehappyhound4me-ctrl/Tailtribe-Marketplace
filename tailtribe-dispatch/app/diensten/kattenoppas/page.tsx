@@ -152,9 +152,9 @@ export default function KattenoppasPage() {
           <section className="bg-white rounded-2xl shadow-sm border border-black/5 p-6 md:p-8 mb-10">
             <h2 className="text-2xl md:text-3xl font-semibold text-gray-900 mb-4">Hoe werkt kattenoppas via TailTribe?</h2>
             <p className="text-gray-700 leading-relaxed mb-5">
-              Kattenoppas loopt via de bestaande dierenoppasdienst van TailTribe. We maken geen aparte platformdienst,
-              maar binnen dierenoppas geven we duidelijk aan dat het om katten gaat. Zo blijft alles eenvoudig en kun je
-              toch specifiek voor kattenoppas aan huis een aanvraag indienen.
+              Kattenoppas verloopt via onze dierenoppasdienst. In je aanvraag geef je gewoon aan dat het om een kat of
+              meerdere katten gaat, samen met je data, locatie en eventuele aandachtspunten. Zo blijft aanvragen
+              eenvoudig, terwijl de zorg wel afgestemd wordt op kattenoppas aan huis.
             </p>
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
               {[

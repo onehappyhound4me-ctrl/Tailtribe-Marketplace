@@ -271,7 +271,7 @@ export const BLOG_POSTS: BlogPost[] = [
     readingTime: '12 min',
     tags: ['Antwerpen', 'Ophalen aan huis', 'Hondenuitlaatservice'],
     category: 'dog-walking',
-    coverImage: '/assets/hondenuitlaat-hero.jpg',
+    coverImage: 'https://images.unsplash.com/photo-1649016103323-423fe64549b3?auto=format&fit=crop&w=1600&q=80',
     coverPosition: '50% 50%',
     content: [
       'Veel huisdiereigenaars zoeken niet alleen een wandeling, maar vooral gemak: iemand die hun hond aan huis kan ophalen en veilig terugbrengen. Zeker in Antwerpen is dat een veelgestelde vraag, omdat werkritme en verkeer de planning complex maken.',

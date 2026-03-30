@@ -111,11 +111,11 @@ export default function DienstenPage() {
             <div className="grid gap-6 md:grid-cols-[1.15fr_0.85fr] md:items-center">
               <div>
                 <p className="text-sm font-semibold uppercase tracking-[0.14em] text-emerald-800">Diergroepen</p>
-                <h2 className="mt-3 text-2xl md:text-3xl font-semibold text-gray-900">Katten als tweede cluster, andere dieren zichtbaar in het platform</h2>
+                <h2 className="mt-3 text-2xl md:text-3xl font-semibold text-gray-900">Zorg voor katten en andere dieren, naast honden</h2>
                 <p className="mt-4 max-w-2xl text-base leading-8 text-gray-700">
-                  TailTribe blijft breed als platform voor huisdierenservices, maar kattenoppas aan huis is na honden de
-                  belangrijkste aparte landingspagina. Daarnaast blijven ook vogels, hamsters, konijnen, paarden,
-                  vissen en kleinvee zichtbaar via bredere zorg- en oppasdiensten.
+                  Naast honden helpen we ook met kattenoppas aan huis en zorg voor vogels, hamsters, konijnen,
+                  paarden, vissen en kleinvee. Zo vind je op TailTribe niet alleen hulp voor je hond, maar ook voor
+                  andere dieren die thuis of tijdens afwezigheid extra zorg nodig hebben.
                 </p>
                 <div className="mt-6 flex flex-col gap-3 sm:flex-row">
                   <Link href="/diensten/kattenoppas" className="btn-brand-compact">
@@ -127,11 +127,11 @@ export default function DienstenPage() {
                 </div>
               </div>
               <div className="rounded-2xl border border-emerald-100 bg-emerald-50/60 p-5">
-                <h3 className="text-lg font-semibold text-gray-900">Hoe we dit structureren</h3>
+                <h3 className="text-lg font-semibold text-gray-900">Wat je hier terugvindt</h3>
                 <p className="mt-3 text-sm leading-7 text-gray-700">
-                  Katten zoeken vaak anders dan hondenbaasjes. Daarom krijgt kattenoppas een eigen pijlerpagina en
-                  aparte interne links, terwijl kleine huisdieren, paarden, vissen en kleinvee voorlopig vooral via
-                  bredere zorgdiensten en long-tail zoekvragen zichtbaar blijven.
+                  Kattenoppas heeft een eigen pagina, terwijl kleine huisdieren, paarden, vissen en kleinvee vooral
+                  terugkomen via onze bredere zorg- en oppasdiensten. Zo kun je sneller doorklikken naar de hulp die
+                  het best past bij jouw dier.
                 </p>
               </div>
             </div>
