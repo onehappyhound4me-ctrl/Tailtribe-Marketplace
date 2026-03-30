@@ -29,6 +29,50 @@ export default function BlogIndexPage() {
             </p>
           </header>
 
+          <section className="grid gap-4 md:grid-cols-2 mb-10">
+            <div className="rounded-2xl border border-emerald-100 bg-gradient-to-br from-white via-emerald-50/60 to-sky-50 p-6 shadow-sm">
+              <p className="text-sm font-semibold uppercase tracking-[0.14em] text-emerald-800">Focuscluster</p>
+              <h2 className="mt-3 text-2xl font-semibold text-gray-900">Honden eerst voor SEO en leadintentie</h2>
+              <p className="mt-4 text-base leading-8 text-gray-700">
+                De sterkste zoekintentie zit vandaag bij hondenuitlaat, hondenoppas, hondenopvang en hondentraining.
+                Daarom verzamelen we hier eerst de belangrijkste hondenvragen.
+              </p>
+              <div className="mt-5 flex flex-wrap gap-2">
+                {[
+                  { href: '/blog/wie-kan-mijn-hond-uitlaten-als-ik-werk', label: 'Hondenuitlaat' },
+                  { href: '/blog/wat-kost-hondenoppas-aan-huis', label: 'Hondenoppas' },
+                  { href: '/blog/waar-moet-ik-op-letten-bij-hondenopvang', label: 'Hondenopvang' },
+                  { href: '/blog/wat-doet-een-hondentrainer-aan-huis', label: 'Hondentraining' },
+                ].map((item) => (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    className="inline-flex items-center rounded-full border border-emerald-100 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 shadow-sm"
+                  >
+                    {item.label}
+                  </Link>
+                ))}
+              </div>
+            </div>
+
+            <div className="rounded-2xl border border-black/5 bg-white p-6 shadow-sm">
+              <p className="text-sm font-semibold uppercase tracking-[0.14em] text-slate-500">Fase 2</p>
+              <h2 className="mt-3 text-2xl font-semibold text-gray-900">Kattenoppas blijft een aparte pijler</h2>
+              <p className="mt-4 text-base leading-8 text-gray-700">
+                Na honden is kattenoppas de belangrijkste aparte cluster. Daarom linken we kattenbewust door naar de
+                dedicated landingspagina en het bestaande kattenartikel.
+              </p>
+              <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+                <Link href="/diensten/kattenoppas" className="btn-brand-compact">
+                  Kattenoppas aan huis
+                </Link>
+                <Link href="/blog/kattenoppas-aan-huis-wat-te-verwachten" className="btn-secondary-compact">
+                  Lees kattenartikel
+                </Link>
+              </div>
+            </div>
+          </section>
+
           <section className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {posts.map((post) => (
               <Link

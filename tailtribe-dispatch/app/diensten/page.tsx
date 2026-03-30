@@ -12,12 +12,12 @@ const canonicalUrl = new URL('/diensten', appUrl).toString()
 export const metadata: Metadata = {
   title: 'Diensten',
   description:
-    'Ontdek onze diensten: hondenuitlaat, dierenoppas, hondentraining, transport en meer.',
+    'Ontdek onze diensten voor honden, katten, kleine huisdieren, paarden, vissen en kleinvee: hondenuitlaat, oppas, opvang, training, transport en verzorging aan huis.',
   alternates: { canonical: canonicalUrl },
   openGraph: {
     title: 'Diensten',
     description:
-      'Ontdek onze diensten: hondenuitlaat, dierenoppas, hondentraining, transport en meer.',
+      'Ontdek onze diensten voor honden, katten, kleine huisdieren, paarden, vissen en kleinvee: hondenuitlaat, oppas, opvang, training, transport en verzorging aan huis.',
     url: canonicalUrl,
     siteName: 'TailTribe',
     locale: 'nl_BE',
@@ -65,7 +65,8 @@ export default function DienstenPage() {
           <header className="text-center mb-10">
             <h1 className="text-2xl sm:text-4xl md:text-5xl font-bold text-gray-900 mb-3 sm:mb-4">Onze diensten</h1>
             <p className="text-sm sm:text-base md:text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
-              Klik op een dienst voor meer uitleg. Wil je meteen boeken? Dien je aanvraag in en wij nemen contact op.
+              Van honden en katten tot vogels, kleine huisdieren, paarden, vissen en kleinvee. Klik op een dienst voor
+              meer uitleg. Wil je meteen boeken? Dien je aanvraag in en wij nemen contact op.
             </p>
             <div className="mt-6">
               <Link href="/boeken" className="btn-brand-compact">
@@ -106,6 +107,36 @@ export default function DienstenPage() {
             ))}
           </section>
 
+          <section className="mb-12 rounded-3xl border border-black/5 bg-white p-6 md:p-8 shadow-sm">
+            <div className="grid gap-6 md:grid-cols-[1.15fr_0.85fr] md:items-center">
+              <div>
+                <p className="text-sm font-semibold uppercase tracking-[0.14em] text-emerald-800">Diergroepen</p>
+                <h2 className="mt-3 text-2xl md:text-3xl font-semibold text-gray-900">Katten als tweede cluster, andere dieren zichtbaar in het platform</h2>
+                <p className="mt-4 max-w-2xl text-base leading-8 text-gray-700">
+                  TailTribe blijft breed als platform voor huisdierenservices, maar kattenoppas aan huis is na honden de
+                  belangrijkste aparte landingspagina. Daarnaast blijven ook vogels, hamsters, konijnen, paarden,
+                  vissen en kleinvee zichtbaar via bredere zorg- en oppasdiensten.
+                </p>
+                <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+                  <Link href="/diensten/kattenoppas" className="btn-brand-compact">
+                    Bekijk kattenoppas
+                  </Link>
+                  <Link href="/blog/kattenoppas-aan-huis-wat-te-verwachten" className="btn-secondary-compact">
+                    Lees kattenoppas artikel
+                  </Link>
+                </div>
+              </div>
+              <div className="rounded-2xl border border-emerald-100 bg-emerald-50/60 p-5">
+                <h3 className="text-lg font-semibold text-gray-900">Hoe we dit structureren</h3>
+                <p className="mt-3 text-sm leading-7 text-gray-700">
+                  Katten zoeken vaak anders dan hondenbaasjes. Daarom krijgt kattenoppas een eigen pijlerpagina en
+                  aparte interne links, terwijl kleine huisdieren, paarden, vissen en kleinvee voorlopig vooral via
+                  bredere zorgdiensten en long-tail zoekvragen zichtbaar blijven.
+                </p>
+              </div>
+            </div>
+          </section>
+
           <section className="rounded-3xl border border-emerald-100 bg-gradient-to-br from-white via-emerald-50/60 to-sky-50 p-6 md:p-8 shadow-sm">
             <p className="text-sm font-semibold uppercase tracking-[0.14em] text-emerald-800">Veelgestelde vragen</p>
             <h2 className="mt-3 text-2xl md:text-3xl font-semibold text-gray-900">
@@ -122,12 +153,20 @@ export default function DienstenPage() {
                   title: 'Wie kan mijn hond uitlaten als ik werk?',
                 },
                 {
-                  href: '/blog/hoe-vind-ik-een-betrouwbare-dierenoppasser',
-                  title: 'Hoe vind ik een betrouwbare dierenoppasser?',
+                  href: '/blog/wat-kost-hondenoppas-aan-huis',
+                  title: 'Wat kost hondenoppas aan huis?',
                 },
                 {
-                  href: '/blog/wat-is-het-verschil-tussen-dierenoppas-en-hondenuitlaatservice',
-                  title: 'Wat is het verschil tussen dierenoppas en hondenuitlaatservice?',
+                  href: '/blog/wat-is-beter-hondenopvang-of-hondenoppas-aan-huis',
+                  title: 'Wat is beter: hondenopvang of hondenoppas aan huis?',
+                },
+                {
+                  href: '/blog/wat-doet-een-hondentrainer-aan-huis',
+                  title: 'Wat doet een hondentrainer aan huis?',
+                },
+                {
+                  href: '/blog/hondenschool-of-prive-hondentraining-wat-past-beter',
+                  title: 'Hondenschool of prive hondentraining: wat past beter?',
                 },
                 {
                   href: '/blog/kan-iemand-mijn-hond-ophalen-en-terugbrengen-in-antwerpen',

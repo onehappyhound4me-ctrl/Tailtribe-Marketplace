@@ -130,14 +130,20 @@ export default function DienstDetailPage({ params }: Props) {
 
   const localIntro =
     service.id === 'DOG_WALKING'
-      ? 'Hondenuitlaatservice nodig in Antwerpen en omgeving? We stemmen tempo, duur en routine af op jouw hond. Ook mogelijk als vaste hondenoppas op weekdagen.'
+      ? 'Zoek je een hondenuitlater of dog walker in Antwerpen en omgeving? We stemmen tempo, duur en routine af op jouw hond. Ook mogelijk als vaste hondenoppas op weekdagen.'
       : service.id === 'GROUP_DOG_WALKING'
         ? 'Hondenuitlaatservice in Antwerpen (+rand) en Antwerpen Noord (Kapellen–Brasschaat–Kalmthout). Ideaal voor sociale honden die graag samen wandelen en mentaal uitgedaagd worden.'
+        : service.id === 'DOG_TRAINING'
+          ? 'Op zoek naar een hondentrainer aan huis of een alternatief voor de klassieke hondenschool in Antwerpen en omgeving? We bekijken training op maat van jouw hond en dagelijks leven.'
         : service.id === 'PET_SITTING'
-          ? 'Dierenoppas aan huis is ideaal als je huisdier het best in de eigen omgeving blijft. We volgen jouw routine en spreken duidelijke afspraken af voor voeding, wandelen en updates.'
+          ? 'Zoek je hondenoppas, een hondenoppasser of een betrouwbare dog sitter aan huis? Dierenoppas aan huis is ideaal als je huisdier het best in de eigen omgeving blijft. We volgen jouw routine en spreken duidelijke afspraken af voor voeding, wandelen en updates.'
           : service.id === 'PET_BOARDING'
-            ? 'Dierenopvang in een veilige omgeving, met afspraken op maat (routine, voeding en rust). Geschikt voor vakantie, langere periodes of extra ondersteuning.'
-            : null
+            ? 'Hondenopvang of dierenopvang nodig in een veilige omgeving? We maken afspraken op maat rond routine, voeding, rust en verblijfsduur. Geschikt voor vakantie, langere periodes of extra ondersteuning.'
+            : service.id === 'HOME_CARE'
+              ? 'Dierenverzorging aan huis of aan huis dierenoppas nodig? Deze dienst is ideaal voor huisdieren die liefst thuis blijven, met bezoekmomenten op maat en duidelijke afspraken.'
+              : service.id === 'PET_TRANSPORT'
+                ? 'Transport van dieren nodig, zoals transport van een hond of kat naar dierenarts, opvang of afspraak? We spreken timing, veiligheid en praktische details op voorhand duidelijk af.'
+                : null
 
   const faqs =
     service.id === 'DOG_WALKING'
@@ -178,11 +184,34 @@ export default function DienstDetailPage({ params }: Props) {
               a: 'Dien je aanvraag in of boek via de partnerlink. Daarna stemmen we intake, planning en verwachtingen af.',
             },
           ]
+        : service.id === 'DOG_TRAINING'
+          ? [
+              {
+                q: 'Wat doet een hondentrainer aan huis precies?',
+                a: 'Een hondentrainer aan huis bekijkt gedrag in jouw dagelijkse context en werkt met oefeningen die meteen toepasbaar zijn thuis, op straat of tijdens wandelingen.',
+              },
+              {
+                q: 'Is hondentraining aan huis een alternatief voor hondenschool?',
+                a: 'Ja. Voor veel honden is training aan huis een praktisch alternatief of aanvulling op hondenschool, zeker wanneer gedrag sterk samenhangt met de thuisomgeving of routine.',
+              },
+              {
+                q: 'Welke problemen kunnen jullie aanpakken?',
+                a: 'Denk aan trekken aan de lijn, opspringen, focus, basiscommando’s, prikkelgevoeligheid, alleen thuis en andere gedrags- of trainingsvragen.',
+              },
+              {
+                q: 'Hoe start ik met hondentraining?',
+                a: 'Dien je aanvraag in met info over je hond, je doel en je locatie. Daarna bekijken we welke training of begeleiding het best past.',
+              },
+            ]
         : service.id === 'PET_SITTING'
           ? [
               {
                 q: 'Komt de dierenoppas bij mij thuis?',
                 a: 'Ja. Dierenoppas gebeurt in het comfort van je eigen woonst, volgens jouw routine en afspraken.',
+              },
+              {
+                q: 'Doen jullie ook hondenoppas aan huis?',
+                a: 'Ja. Hondenoppas aan huis valt binnen deze dienst. We bekijken je routine, wandelingen, voeding en de praktische afspraken rond aanwezigheid en updates.',
               },
               {
                 q: 'Krijg ik updates?',
@@ -200,12 +229,16 @@ export default function DienstDetailPage({ params }: Props) {
           : service.id === 'PET_BOARDING'
             ? [
                 {
-                  q: 'Waaruit bestaat dierenopvang?',
-                  a: 'Opvang met aandacht voor routine, rust en veiligheid. We stemmen vooraf voeding, planning en afspraken af.',
+                  q: 'Waaruit bestaat hondenopvang?',
+                  a: 'Hondenopvang betekent opvang met aandacht voor routine, rust, veiligheid en het profiel van je hond. We stemmen vooraf voeding, planning, beweging en praktische afspraken af.',
                 },
                 {
-                  q: 'Is opvang geschikt voor langere periodes?',
-                  a: 'Ja. Geef je data en wensen door, dan bekijken we wat haalbaar is en hoe we het best plannen.',
+                  q: 'Doen jullie ook bredere dierenopvang?',
+                  a: 'Ja. Naast hondenopvang bekijken we ook dierenopvang voor andere huisdieren, afhankelijk van je vraag, planning en de zorg die nodig is.',
+                },
+                {
+                  q: 'Is hondenopvang geschikt voor vakantie of langere periodes?',
+                  a: 'Ja. Geef je data en wensen door, dan bekijken we wat haalbaar is en hoe we het best plannen voor vakantie, herstel of een langere opvangperiode.',
                 },
                 {
                   q: 'Wat met medicatie of speciale zorgen?',

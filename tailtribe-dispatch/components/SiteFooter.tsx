@@ -9,10 +9,11 @@ export function SiteFooter() {
     .filter(Boolean)
 
   const keyServices = [
-    { label: 'Hondenuitlaatservice', href: '/diensten/hondenuitlaat' },
+    { label: 'Hondenuitlaat', href: '/diensten/hondenuitlaat' },
     { label: 'Hondenuitlaatservice in Antwerpen', href: '/diensten/hondenuitlaatservice' },
-    { label: 'Dierenoppas aan huis', href: '/diensten/dierenoppas' },
-    { label: 'Dierenopvang', href: '/diensten/dierenopvang' },
+    { label: 'Hondenoppas aan huis', href: '/diensten/dierenoppas' },
+    { label: 'Hondenopvang & dierenopvang', href: '/diensten/dierenopvang' },
+    { label: 'Kattenoppas aan huis', href: '/diensten/kattenoppas' },
   ]
 
   const keyRegions = [

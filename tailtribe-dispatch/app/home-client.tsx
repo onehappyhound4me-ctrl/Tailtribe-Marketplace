@@ -91,12 +91,12 @@ export default function HomePageClient() {
               <div className="rounded-3xl bg-white/70 backdrop-blur-sm border border-emerald-100/70 shadow-[0_12px_40px_rgba(16,185,129,0.10)] px-5 py-6 sm:px-8 sm:py-7">
                 <div className="text-center">
                   <p className="text-base font-heading font-medium text-gray-900 leading-relaxed tracking-[-0.01em] sm:hidden">
-                    Van hondenuitlaat en dierenoppas tot dierenopvang en verzorging aan huis. Wij regelen de match en
-                    opvolging.
+                    Van hondenuitlaat en kattenoppas tot verzorging voor kleine huisdieren, paarden, vissen en
+                    kleinvee. Wij regelen de match en opvolging.
                   </p>
                   <p className="hidden sm:block sm:text-lg md:text-xl font-heading font-medium text-gray-900 leading-relaxed tracking-[-0.01em]">
-                    Van hondenuitlaat en dierenoppas tot dierenopvang en verzorging aan huis. Wij regelen de match en
-                    opvolging.
+                    Van hondenuitlaat en kattenoppas tot verzorging voor kleine huisdieren, paarden, vissen en
+                    kleinvee. Wij regelen de match en opvolging.
                   </p>
                   <p className="mt-2 text-sm sm:text-base md:text-lg text-emerald-950/90 font-semibold tracking-[-0.01em]">
                     Voor en door dierenverzorgers
@@ -165,7 +165,7 @@ export default function HomePageClient() {
               Ontdek onze diensten
             </h2>
             <p className="text-sm sm:text-base md:text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed">
-              Van wandelen tot oppassen - vind de perfecte dienst voor jouw huisdier
+              Van honden en katten tot vogels, konijnen, paarden, vissen en kleinvee
             </p>
           </div>
 
@@ -311,6 +311,16 @@ export default function HomePageClient() {
                 <p className="text-gray-600 text-sm sm:text-base leading-relaxed">{benefit.desc}</p>
               </div>
             ))}
+          </div>
+
+          <div className="mt-10 rounded-3xl border border-emerald-100 bg-white/80 p-6 shadow-sm">
+            <p className="text-sm font-semibold uppercase tracking-[0.14em] text-emerald-800">Voor welke dieren?</p>
+            <h3 className="mt-3 text-2xl font-semibold text-gray-900">Breed platform, duidelijke specialisaties</h3>
+            <p className="mt-4 max-w-3xl text-base leading-8 text-gray-700">
+              TailTribe helpt bij services voor honden, katten, vogels, kleine huisdieren zoals hamsters en konijnen,
+              paarden, vissen en kleinvee. Honden en katten zijn vandaag de sterkste online clusters, maar het platform
+              blijft breder inzetbaar voor andere dieren met zorg op maat.
+            </p>
           </div>
         </div>
       </section>

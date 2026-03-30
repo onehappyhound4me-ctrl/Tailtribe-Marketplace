@@ -15,6 +15,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: abs('/boeken'), lastModified, changeFrequency: 'weekly', priority: 0.9 },
     { url: abs('/over-ons'), lastModified, changeFrequency: 'yearly', priority: 0.4 },
     { url: abs('/diensten'), lastModified, changeFrequency: 'monthly', priority: 0.7 },
+    { url: abs('/diensten/kattenoppas'), lastModified, changeFrequency: 'monthly', priority: 0.7 },
     { url: abs('/blog'), lastModified, changeFrequency: 'weekly', priority: 0.6 },
     { url: abs('/be'), lastModified, changeFrequency: 'monthly', priority: 0.8 },
     { url: abs('/help'), lastModified, changeFrequency: 'monthly', priority: 0.6 },

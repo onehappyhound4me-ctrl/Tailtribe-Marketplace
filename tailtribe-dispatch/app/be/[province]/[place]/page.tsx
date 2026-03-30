@@ -546,12 +546,12 @@ export default function PlaceLandingPage({ params }: Props) {
                   ) : null}
                   {service.id === 'PET_SITTING' ? (
                     <p className="text-sm leading-7 text-gray-700">
-                      Dierenoppas aan huis in {place.name}, zodat je huisdier in de vertrouwde omgeving kan blijven.
+                      Dierenoppas en hondenoppas aan huis in {place.name}, zodat je huisdier in de vertrouwde omgeving kan blijven.
                     </p>
                   ) : null}
                   {service.id === 'PET_BOARDING' ? (
                     <p className="text-sm leading-7 text-gray-700">
-                      Dierenopvang in {place.name} wanneer je tijdelijk een veilige plek zoekt voor je huisdier.
+                      Hondenopvang en dierenopvang in {place.name} wanneer je tijdelijk een veilige plek zoekt voor je huisdier.
                     </p>
                   ) : null}
                   {service.id === 'HOME_CARE' ? (

@@ -53,9 +53,10 @@ export const DISPATCH_SERVICES: DispatchService[] = [
   {
     id: 'DOG_WALKING',
     name: 'Hondenuitlaat',
-    desc: 'Hondenuitlaat aan huis met focus op welzijn, tempo en veiligheid',
+    desc: 'Hondenuitlaat aan huis met een vaste hondenuitlater of dog walker, met focus op welzijn, tempo en veiligheid',
     slug: 'hondenuitlaat',
     image: '/assets/Hondenuitlaat.png',
+    detailTitle: 'Hondenuitlaat aan huis | Professionele hondenuitlater',
     longDescription: {
       why: [
         'Beweging verlaagt stresshormonen en bevordert herstel; snuffelen verrijkt en werkt kalmerend.',
@@ -116,17 +117,18 @@ export const DISPATCH_SERVICES: DispatchService[] = [
   {
     id: 'DOG_TRAINING',
     name: 'Hondentraining',
-    desc: 'Professionele training en begeleiding',
+    desc: 'Professionele hondentraining aan huis met een ervaren hondentrainer',
     slug: 'hondentraining',
     image: '/assets/hondentraining.png',
-    detailTitle: 'Hondentraining',
+    detailTitle: 'Hondentraining aan huis | Hondentrainer via TailTribe',
     longDescription: {
       why: [
         'Gerichte begeleiding bij gedrag, basiscommando’s of specifieke uitdagingen.',
         'Praktisch en haalbaar: we stemmen af op jouw hond en jouw situatie.',
+        'Een persoonlijk alternatief of aanvulling op de klassieke hondenschool.',
       ],
       whyText:
-        'Goede training is geen “trucje”, maar leerpsychologie in de praktijk. Honden leren via consequenties (beloning/uitkomst), timing en herhaling. Onderzoek wijst uit dat beloningsgerichte training (positive reinforcement) niet alleen effectief is, maar ook het welzijn ondersteunt: je bouwt gewenst gedrag op, in plaats van ongewenst gedrag enkel te onderdrukken.\n\nDaarom werken we met duidelijke criteria, korte oefenmomenten en veel succeservaringen. We houden rekening met prikkels, stress en opwinding (“drempelwaarde”): een hond kan pas leren als hij zich voldoende veilig en rustig voelt. Daarnaast trainen we op generalisatie: gedrag moet niet alleen “in de les”, maar ook thuis, op straat en in nieuwe situaties werken.\n\nWe vertrekken vanuit jouw doel (bv. trekken aan de lijn, opspringen, komen op commando, bezoekmomenten, alleen thuis, onzekerheid/reactiviteit) en maken een plan dat past bij je dagritme. Je krijgt concrete stappen, zodat je na elke sessie weet wat je exact moet doen en waarom het werkt.',
+        'Goede training is geen “trucje”, maar leerpsychologie in de praktijk. Honden leren via consequenties (beloning/uitkomst), timing en herhaling. Onderzoek wijst uit dat beloningsgerichte training (positive reinforcement) niet alleen effectief is, maar ook het welzijn ondersteunt: je bouwt gewenst gedrag op, in plaats van ongewenst gedrag enkel te onderdrukken.\n\nVoor baasjes die twijfelen tussen een hondenschool en een persoonlijke hondentrainer aan huis, zit het verschil vooral in maatwerk. In een hondenschool leer je vaak in groep; een hondentrainer aan huis kan het gedrag meteen in jouw dagelijkse context bekijken. Daardoor worden oefeningen sneller praktisch toepasbaar.\n\nDaarom werken we met duidelijke criteria, korte oefenmomenten en veel succeservaringen. We houden rekening met prikkels, stress en opwinding (“drempelwaarde”): een hond kan pas leren als hij zich voldoende veilig en rustig voelt. Daarnaast trainen we op generalisatie: gedrag moet niet alleen “in de les”, maar ook thuis, op straat en in nieuwe situaties werken.\n\nWe vertrekken vanuit jouw doel (bv. trekken aan de lijn, opspringen, komen op commando, bezoekmomenten, alleen thuis, onzekerheid/reactiviteit) en maken een plan dat past bij je dagritme. Je krijgt concrete stappen, zodat je na elke sessie weet wat je exact moet doen en waarom het werkt.',
       includes: [
         'Intake en duidelijke doelen.',
         'Oefeningen en tips om thuis verder te trainen.',
@@ -138,19 +140,21 @@ export const DISPATCH_SERVICES: DispatchService[] = [
   {
     id: 'PET_SITTING',
     name: 'Dierenoppas',
-    desc: 'De verzorger past op je huisdier in het comfort van je eigen woonst',
+    desc: 'Dierenoppas en hondenoppas aan huis in het comfort van je eigen woonst',
     slug: 'dierenoppas',
     image: '/assets/hondenoppas.png',
+    detailTitle: 'Dierenoppas en hondenoppas aan huis',
     longDescription: {
       why: [
-        'Oppas is ideaal wanneer je een betrouwbare plek zoekt terwijl jij weg bent.',
+        'Oppas is ideaal wanneer je een betrouwbare dierenoppasser of hondenoppasser zoekt terwijl jij weg bent.',
         'We stemmen verwachtingen af: routine, voeding, wandelingen en comfort.',
       ],
       whyText:
-        'Dierenoppas is de ideale oplossing wanneer je even geen opvang hebt, maar wél zekerheid wil dat je huisdier aandacht, rust en structuur krijgt. Bij deze dienst komt de verzorger bij jou thuis en past op je huisdier in het comfort van je eigen woonst. We werken met duidelijke afspraken en stemmen de zorg af op het karakter en de routine van je dier.\n\nHet doel is simpel: jouw huisdier voelt zich veilig en comfortabel in de eigen omgeving, en jij kan met een gerust hart weg. We houden rekening met gewoontes, energiepeil, eventuele gevoeligheden en (waar van toepassing) medicatie volgens jouw instructies.',
+        'Dierenoppas is de ideale oplossing wanneer je even geen opvang hebt, maar wél zekerheid wil dat je huisdier aandacht, rust en structuur krijgt. Zoek je specifiek een hondenoppas, hondenoppasser of zelfs een dog sitter aan huis, dan valt dat ook onder deze dienst. Bij deze dienst komt de verzorger bij jou thuis en past op je huisdier in het comfort van je eigen woonst. We werken met duidelijke afspraken en stemmen de zorg af op het karakter en de routine van je dier.\n\nHet doel is simpel: jouw huisdier voelt zich veilig en comfortabel in de eigen omgeving, en jij kan met een gerust hart weg. We houden rekening met gewoontes, energiepeil, eventuele gevoeligheden en (waar van toepassing) medicatie volgens jouw instructies.',
       includes: [
         'Afspraak op maat (dag, nacht of meerdere dagen).',
         'Duidelijke afspraken over voeding, medicatie en gewoontes.',
+        'Geschikt voor hondenoppas, kattenoppas en bredere oppas aan huis.',
       ],
       includesText:
         'We starten met een korte afstemming (telefonisch of via bericht): wie is je huisdier, wat is de routine, wat zijn de do’s & don’ts en welke momenten zijn belangrijk (voeding, wandelingen, rust, speeltijd).\n\nTijdens de oppasperiode (bij jou thuis) zorgen we voor:\n- voeding en water volgens jouw schema\n- wandelingen of beweging op maat (indien nodig)\n- aandacht, rustmomenten en toezicht\n- opvolging van afspraken rond gedrag (bv. geen zetel, bench, …)\n\nIndien gewenst spreken we ook af hoe vaak je een update ontvangt (kort berichtje of foto).',
@@ -164,18 +168,19 @@ export const DISPATCH_SERVICES: DispatchService[] = [
   {
     id: 'PET_BOARDING',
     name: 'Dierenopvang',
-    desc: 'Verzorging in een veilige omgeving',
+    desc: 'Hondenopvang en dierenopvang in een veilige omgeving',
     slug: 'dierenopvang',
     image: '/assets/hondenopvang.png',
+    detailTitle: 'Hondenopvang en dierenopvang op maat',
     longDescription: {
       why: [
-        'Voor langere periodes of wanneer je extra opvang nodig hebt.',
-        'Focus op comfort en veilige afspraken vooraf.',
+        'Voor hondenopvang tijdens vakantie of wanneer je extra opvang nodig hebt.',
+        'Ook geschikt als bredere dierenopvang, met focus op comfort en veilige afspraken vooraf.',
       ],
       whyText:
-        'Dierenopvang is bedoeld voor situaties waar je huisdier voor een langere periode een veilige, stabiele plek nodig heeft — bijvoorbeeld tijdens vakantie, herstel of wanneer je tijdelijk extra ondersteuning nodig hebt.\n\nWe zetten in op rust, voorspelbaarheid en duidelijke afspraken. Elk dier heeft zijn eigen tempo: daarom stemmen we de opvang af op routine, energie, prikkelgevoeligheid en eventuele medische noden. Zo krijgt je huisdier zorg op maat en weet jij precies wat je mag verwachten.',
+        'Hondenopvang en dierenopvang zijn bedoeld voor situaties waar je huisdier voor een langere periode een veilige, stabiele plek nodig heeft — bijvoorbeeld tijdens vakantie, herstel of wanneer je tijdelijk extra ondersteuning nodig hebt.\n\nVoor honden kijken we extra naar routine, beweging, prikkelgevoeligheid en de setting die het best past. Voor andere huisdieren stemmen we de opvang af op soort, energie, medische aandachtspunten en vertrouwde gewoontes. Zo krijgt je huisdier zorg op maat en weet jij precies wat je mag verwachten.',
       includes: [
-        'Afstemming op planning en verblijfsduur.',
+        'Afstemming op planning, verblijfsduur en type opvang (bv. hondenopvang).',
         'Duidelijke afspraken over voeding, routine en eventuele medicatie.',
       ],
       includesText:
@@ -191,16 +196,17 @@ export const DISPATCH_SERVICES: DispatchService[] = [
   {
     id: 'HOME_CARE',
     name: 'Verzorging aan huis',
-    desc: 'Verzorging aan huis voor je huisdier',
+    desc: 'Dierenverzorging aan huis en aan huis dierenoppas voor je huisdier',
     slug: 'verzorging-aan-huis',
     image: '/assets/home-visit.png',
+    detailTitle: 'Dierenverzorging aan huis | Aan huis dierenoppas',
     longDescription: {
       why: [
         'Handig voor huisdieren die liever thuis blijven (minder stress).',
         'Flexibel: bezoekmomenten op maat (voeding, wandeling, check-in).',
       ],
       whyText:
-        'Verzorging aan huis is ideaal voor huisdieren die zich het best voelen in hun eigen omgeving. Thuis blijven vermindert stress, vooral bij katten, oudere dieren of dieren die gevoelig zijn voor verandering.\n\nJe kiest zelf hoe vaak en hoe lang we langskomen. We volgen jouw routine zo nauw mogelijk, zodat je huisdier rust en voorspelbaarheid behoudt — en jij met een gerust hart weg kan.',
+        'Verzorging aan huis is ideaal voor huisdieren die zich het best voelen in hun eigen omgeving. Thuis blijven vermindert stress, vooral bij katten, oudere dieren of dieren die gevoelig zijn voor verandering.\n\nDeze dienst is ook relevant voor kleinere diergroepen waarvoor mensen minder rechtstreeks zoeken op één vaste dienstnaam, zoals vogels, hamsters, konijnen of vissen. In plaats van elke soort in een aparte commerciële flow te duwen, houden we de aanpak flexibel en stemmen we de zorg af op soort, routine en praktische noden.\n\nJe kiest zelf hoe vaak en hoe lang we langskomen. We volgen jouw routine zo nauw mogelijk, zodat je huisdier rust en voorspelbaarheid behoudt — en jij met een gerust hart weg kan.',
       includes: [
         'Bezoek aan huis volgens afspraak.',
         'Zorg op maat: voeding, water, korte wandeling of toezicht.',
@@ -218,9 +224,10 @@ export const DISPATCH_SERVICES: DispatchService[] = [
   {
     id: 'PET_TRANSPORT',
     name: 'Transport huisdieren',
-    desc: 'Veilig transport voor jouw huisdier',
+    desc: 'Transport van dieren, transport hond en transport kat op afspraak',
     slug: 'transport-huisdieren',
     image: '/assets/transport van huisdieren.png',
+    detailTitle: 'Transport van dieren | Hond en kat veilig vervoerd',
     longDescription: {
       why: [
         'Voor dierenartsbezoeken, verhuis, ophalen/wegbrengen of speciale situaties.',
@@ -244,19 +251,21 @@ export const DISPATCH_SERVICES: DispatchService[] = [
   {
     id: 'SMALL_ANIMAL_CARE',
     name: 'Verzorging van boerderijdieren',
-    desc: 'Verzorging van kleinvee',
+    desc: 'Verzorging van kleinvee, paarden, geiten, konijnen en vissen',
     slug: 'verzorging-boerderijdieren',
     image: '/assets/verzorging kleinvee.png',
+    detailTitle: 'Verzorging van kleinvee en andere dieren',
     longDescription: {
       why: [
-        'Voor boerderijdieren en kleine dieren is routine essentieel.',
+        'Voor boerderijdieren, paarden en kleine dieren is routine essentieel.',
         'We stemmen af op voeding, hokken/stallen en praktische taken.',
       ],
       whyText:
-        'Boerderijdieren vragen consequente zorg: voeding, water, stal- of hokonderhoud en controle op welzijn. We werken met duidelijke afspraken per diersoort en passen het ritme aan wat het dier gewend is.\n\nWe stemmen vooraf af welke taken prioriteit hebben (voeding, water, uitmesten, korte check) en welke bijzonderheden er zijn (gevoeligheden, kudde-dynamiek, schrik voor onweer, enz.). Het doel is rust en voorspelbaarheid voor de dieren, ook wanneer jij er even niet bent.',
+        'Boerderijdieren vragen consequente zorg: voeding, water, stal- of hokonderhoud en controle op welzijn. Binnen deze bredere dienst vallen ook paardenverzorging, verzorging van geiten, konijnen en vissen, en in sommige situaties ook basiszorg voor vogels of andere kleinere dieren wanneer die mee in dezelfde zorgstructuur passen.\n\nWe werken met duidelijke afspraken per diersoort en passen het ritme aan wat het dier gewend is. We stemmen vooraf af welke taken prioriteit hebben (voeding, water, uitmesten, korte check) en welke bijzonderheden er zijn (gevoeligheden, kudde-dynamiek, schrik voor onweer, enz.). Het doel is rust en voorspelbaarheid voor de dieren, ook wanneer jij er even niet bent.',
       includes: [
         'Voeding en water volgens schema.',
         'Controle en basiszorg volgens afspraak.',
+        'Mogelijk voor paarden, kleinvee en andere dieren met duidelijke routine-instructies.',
       ],
       includesText:
         'Vooraf bespreken we de routines per diersoort (bv. kippen, geiten, schapen) en leggen we een duidelijke checklist vast.\n\nTijdens het bezoek zorgen we voor:\n- voeding en water volgens schema\n- basiscontrole van hokken/stallen (netheid, sluiting, ventilatie)\n- korte welzijnscheck (alertheid, wondjes, gedrag)\n- in overleg: basis schoonmaak/uitmesten op afgesproken frequentie\n\nMeld medische bijzonderheden of dieren die gescheiden moeten blijven. Indien nodig sturen we een korte update na het bezoek.',
@@ -264,15 +273,17 @@ export const DISPATCH_SERVICES: DispatchService[] = [
         'Voorzie voldoende voeding/hooi/stro op locatie en beschrijf per diersoort de hoeveelheden.',
         'Geef door welke dieren gescheiden moeten blijven en hoe de hokken/stallen moeten worden afgesloten.',
         'Noteer dierenarts/noodcontact en eventuele medische aandachtspunten.',
+        'Voor vogels, konijnen, vissen of andere kleine dieren: beschrijf het onderhoud zo concreet mogelijk zodat de zorg voorspelbaar blijft.',
       ],
     },
   },
   {
     id: 'EVENT_COMPANION',
     name: 'Begeleiding events',
-    desc: 'Begeleiding tijdens events (bv. bruiloft)',
+    desc: 'Begeleiding van je hond tijdens events of trouwfeest',
     slug: 'begeleiding-events',
     image: '/assets/Begleider Bruiloft.png',
+    detailTitle: 'Begeleiding hond trouwfeest en events',
     longDescription: {
       why: [
         'Zorg dat je huisdier mee kan naar een event zonder stress voor jou.',

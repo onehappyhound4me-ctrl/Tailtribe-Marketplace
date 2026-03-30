@@ -132,7 +132,7 @@ export default function HelpPage() {
 
           <section className="mt-10 rounded-2xl border border-emerald-100 bg-gradient-to-br from-white via-emerald-50/60 to-sky-50 p-5 sm:p-6">
             <p className="text-sm font-semibold uppercase tracking-[0.14em] text-emerald-800">Meer antwoorden</p>
-            <h2 className="mt-3 text-xl sm:text-2xl font-semibold text-gray-900">Veelgezochte vragen van huisdiereigenaars</h2>
+            <h2 className="mt-3 text-xl sm:text-2xl font-semibold text-gray-900">Veelgezochte vragen van honden- en katteneigenaars</h2>
             <div className="mt-5 grid gap-3 sm:grid-cols-2">
               {[
                 {
@@ -140,16 +140,24 @@ export default function HelpPage() {
                   label: 'Wie kan mijn hond uitlaten als ik werk?',
                 },
                 {
-                  href: '/blog/hoe-vind-ik-een-betrouwbare-dierenoppasser',
-                  label: 'Hoe vind ik een betrouwbare dierenoppasser?',
+                  href: '/blog/wat-kost-hondenoppas-aan-huis',
+                  label: 'Wat kost hondenoppas aan huis?',
                 },
                 {
-                  href: '/blog/wat-is-het-verschil-tussen-dierenoppas-en-hondenuitlaatservice',
-                  label: 'Wat is het verschil tussen dierenoppas en hondenuitlaatservice?',
+                  href: '/blog/waar-moet-ik-op-letten-bij-hondenopvang',
+                  label: 'Waar moet ik op letten bij hondenopvang?',
                 },
                 {
                   href: '/blog/wat-kost-hondenuitlaatservice-aan-huis-in-antwerpen',
                   label: 'Wat kost hondenuitlaatservice aan huis in Antwerpen?',
+                },
+                {
+                  href: '/diensten/kattenoppas',
+                  label: 'Kattenoppas aan huis bekijken',
+                },
+                {
+                  href: '/blog/kattenoppas-aan-huis-wat-te-verwachten',
+                  label: 'Wat mag je verwachten van kattenoppas aan huis?',
                 },
               ].map((item) => (
                 <Link
