@@ -129,6 +129,25 @@ export default function BlogPostPage({ params }: Props) {
               </p>
             ))}
           </article>
+
+          <section className="mb-20 rounded-3xl border border-emerald-100 bg-gradient-to-br from-white via-emerald-50/60 to-sky-50 p-6 md:p-8 shadow-sm">
+            <div className="max-w-2xl">
+              <p className="text-sm font-semibold uppercase tracking-[0.14em] text-emerald-800">Volgende stap</p>
+              <h2 className="mt-3 text-2xl font-semibold text-gray-900">Hulp nodig voor jouw huisdier?</h2>
+              <p className="mt-4 text-base leading-8 text-gray-700">
+                Vertel ons wat je nodig hebt voor je hond, kat of ander huisdier. Daarna bekijken we welke dienst en
+                welke aanpak het best passen bij jouw situatie en regio.
+              </p>
+              <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+                <Link href="/boeken" className="btn-brand">
+                  Aanvraag indienen
+                </Link>
+                <Link href="/diensten" className="btn-secondary-compact">
+                  Bekijk diensten
+                </Link>
+              </div>
+            </div>
+          </section>
         </div>
       </main>
 

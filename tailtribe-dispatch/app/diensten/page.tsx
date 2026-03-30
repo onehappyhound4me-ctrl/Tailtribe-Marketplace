@@ -105,6 +105,46 @@ export default function DienstenPage() {
               </Link>
             ))}
           </section>
+
+          <section className="rounded-3xl border border-emerald-100 bg-gradient-to-br from-white via-emerald-50/60 to-sky-50 p-6 md:p-8 shadow-sm">
+            <p className="text-sm font-semibold uppercase tracking-[0.14em] text-emerald-800">Veelgestelde vragen</p>
+            <h2 className="mt-3 text-2xl md:text-3xl font-semibold text-gray-900">
+              Vragen die huisdiereigenaars vaak eerst stellen
+            </h2>
+            <p className="mt-4 max-w-3xl text-base leading-8 text-gray-700">
+              Veel mensen zoeken niet meteen op een dienstnaam, maar op hun concrete probleem. Daarom bundelen we hier
+              vraaggerichte pagina&apos;s die helpen om sneller de juiste dienst te kiezen.
+            </p>
+            <div className="mt-6 grid gap-4 md:grid-cols-2">
+              {[
+                {
+                  href: '/blog/wie-kan-mijn-hond-uitlaten-als-ik-werk',
+                  title: 'Wie kan mijn hond uitlaten als ik werk?',
+                },
+                {
+                  href: '/blog/hoe-vind-ik-een-betrouwbare-dierenoppasser',
+                  title: 'Hoe vind ik een betrouwbare dierenoppasser?',
+                },
+                {
+                  href: '/blog/wat-is-het-verschil-tussen-dierenoppas-en-hondenuitlaatservice',
+                  title: 'Wat is het verschil tussen dierenoppas en hondenuitlaatservice?',
+                },
+                {
+                  href: '/blog/kan-iemand-mijn-hond-ophalen-en-terugbrengen-in-antwerpen',
+                  title: 'Kan iemand mijn hond ophalen en terugbrengen in Antwerpen?',
+                },
+              ].map((item) => (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className="rounded-2xl border border-white/80 bg-white/90 p-5 shadow-sm transition hover:shadow-md"
+                >
+                  <h3 className="text-base font-semibold leading-snug text-gray-900">{item.title}</h3>
+                  <p className="mt-3 text-sm font-semibold text-emerald-700">Lees antwoord →</p>
+                </Link>
+              ))}
+            </div>
+          </section>
         </div>
       </main>
 

@@ -22,9 +22,10 @@ export default function BlogIndexPage() {
       <main className="container mx-auto px-4 py-12 pb-32 md:pb-40 flex-1">
         <div className="max-w-5xl mx-auto">
           <header className="text-center mb-10">
-            <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">Blog & tips</h1>
-            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-              Praktische inzichten over dierenverzorging, oppas en veilig transport.
+            <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">Vragen van huisdiereigenaars</h1>
+            <p className="text-lg text-gray-600 max-w-3xl mx-auto">
+              Praktische antwoorden op veelgestelde vragen over dierenoppas, hondenuitlaatservice aan huis, prijzen,
+              vertrouwen en hulp in jouw regio.
             </p>
           </header>
 

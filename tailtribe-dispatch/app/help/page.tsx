@@ -1,3 +1,4 @@
+import Link from 'next/link'
 import type { Metadata } from 'next'
 import { SiteHeader } from '@/components/SiteHeader'
 import { SiteFooter } from '@/components/SiteFooter'
@@ -128,6 +129,39 @@ export default function HelpPage() {
               </div>
             ))}
           </div>
+
+          <section className="mt-10 rounded-2xl border border-emerald-100 bg-gradient-to-br from-white via-emerald-50/60 to-sky-50 p-5 sm:p-6">
+            <p className="text-sm font-semibold uppercase tracking-[0.14em] text-emerald-800">Meer antwoorden</p>
+            <h2 className="mt-3 text-xl sm:text-2xl font-semibold text-gray-900">Veelgezochte vragen van huisdiereigenaars</h2>
+            <div className="mt-5 grid gap-3 sm:grid-cols-2">
+              {[
+                {
+                  href: '/blog/wie-kan-mijn-hond-uitlaten-als-ik-werk',
+                  label: 'Wie kan mijn hond uitlaten als ik werk?',
+                },
+                {
+                  href: '/blog/hoe-vind-ik-een-betrouwbare-dierenoppasser',
+                  label: 'Hoe vind ik een betrouwbare dierenoppasser?',
+                },
+                {
+                  href: '/blog/wat-is-het-verschil-tussen-dierenoppas-en-hondenuitlaatservice',
+                  label: 'Wat is het verschil tussen dierenoppas en hondenuitlaatservice?',
+                },
+                {
+                  href: '/blog/wat-kost-hondenuitlaatservice-aan-huis-in-antwerpen',
+                  label: 'Wat kost hondenuitlaatservice aan huis in Antwerpen?',
+                },
+              ].map((item) => (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className="rounded-2xl border border-white/80 bg-white/90 p-4 text-sm font-medium leading-6 text-gray-800 shadow-sm transition hover:shadow-md hover:text-emerald-800"
+                >
+                  {item.label}
+                </Link>
+              ))}
+            </div>
+          </section>
         </div>
       </main>
 
