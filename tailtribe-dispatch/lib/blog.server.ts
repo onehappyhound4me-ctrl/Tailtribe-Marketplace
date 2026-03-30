@@ -11,6 +11,7 @@ export type BlogPost = {
   tags: string[]
   coverImage?: string
   coverPosition?: string
+  coverFit?: 'cover' | 'contain'
   category?: BlogCategory
   content: string[]
 }
@@ -90,7 +91,8 @@ export const BLOG_POSTS: BlogPost[] = [
     tags: ['Hondenuitlaatservice', 'Gedrag', 'Socialisatie'],
     category: 'dog-walking',
     coverImage: '/assets/blog-groepsuitlaat-eigen.png',
-    coverPosition: '50% 28%',
+    coverPosition: '50% 50%',
+    coverFit: 'contain',
     content: [
       'Hondenuitlaatservice is alleen geschikt als hond en groep goed matchen. Dat begint met stabiel sociaal gedrag en voorspelbare reacties in prikkelrijke situaties. Zonder die basis is een groepswandeling onnodig risicovol en vaak te stressvol.',
       'We beoordelen prikkelgevoeligheid. Sommige honden raken snel overprikkeld in groep; voor hen is individuele begeleiding vaak beter. Dat is geen oordeel, maar een keuze voor welzijn. Kwaliteit is belangrijker dan de groepsvorm.',
