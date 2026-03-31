@@ -202,7 +202,7 @@ export const BLOG_POSTS: BlogPost[] = [
     readingTime: '13 min',
     tags: ['Prijs', 'Antwerpen', 'Hondenuitlaatservice'],
     category: 'dog-walking',
-    coverImage: 'https://images.unsplash.com/photo-1504595403659-9088ce801e29?auto=format&fit=crop&w=1600&q=80',
+    coverImage: 'https://images.unsplash.com/photo-1517423568366-8b83523034fd?auto=format&fit=crop&w=1600&q=80',
     content: [
       'De vraag wat hondenuitlaatservice aan huis in Antwerpen kost, wordt vaak gesteld nog voor iemand beslist om een aanvraag te doen. Dat is logisch: prijs is geen detail, maar een belangrijk deel van vertrouwen. Mensen willen eerst begrijpen waar de kost vandaan komt.',
       'Er is zelden een correcte vaste prijs zonder context. De duur van de wandeling speelt mee, maar ook de exacte locatie, de haalbaarheid van ophalen aan huis en het profiel van de hond. Een rustige standaardroutine vraagt iets anders dan een traject met veel afstemming of extra aandachtspunten.',
@@ -295,7 +295,7 @@ export const BLOG_POSTS: BlogPost[] = [
     readingTime: '12 min',
     tags: ['Hondenoppas', 'Prijs', 'Aan huis'],
     category: 'pet-sitting',
-    coverImage: 'https://images.unsplash.com/photo-1518020382113-a7e8fc38eac9?auto=format&fit=crop&w=1600&q=80',
+    coverImage: 'https://images.unsplash.com/photo-1517849845537-4d257902454a?auto=format&fit=crop&w=1600&q=80',
     content: [
       'Wie zoekt naar hondenoppas aan huis, wil meestal eerst duidelijkheid over de prijs. Dat is logisch: voor veel baasjes is het niet alleen een zorgvraag, maar ook een praktische beslissing rond budget, frequentie en vertrouwen.',
       'Er is zelden één vaste prijs die voor elke situatie klopt. Hondenoppas aan huis kan gaan van een kort bezoek tot langere aanwezigheid of meerdere bezoeken per dag. De duur en frequentie zijn dus de eerste prijsfactoren.',
@@ -433,7 +433,7 @@ export const BLOG_POSTS: BlogPost[] = [
     readingTime: '12 min',
     tags: ['Noodopvang', 'Hondenopvang', 'Spoed'],
     category: 'general',
-    coverImage: 'https://images.unsplash.com/photo-1504595403659-9088ce801e29?auto=format&fit=crop&w=1600&q=80',
+    coverImage: 'https://images.unsplash.com/photo-1525253086316-d0c936c814f8?auto=format&fit=crop&w=1600&q=80',
     content: [
       'Noodopvang voor een hond is een heel andere situatie dan gewone planning. Meestal gaat het om ziekte, een ongeval, familie-omstandigheden of een plots weggevallen oplossing. Daardoor staat niet alleen snelheid centraal, maar ook rust en veiligheid voor je hond.',
       'De eerste keuze is of opvang buiten huis echt nodig is, of dat oppas aan huis beter past. Voor veel honden is thuiszorg rustiger als de afwezigheid kort is en toegang praktisch geregeld kan worden. Voor andere situaties, bijvoorbeeld wanneer langere continue opvang nodig is, kan een opvangoplossing logischer zijn.',
@@ -455,8 +455,8 @@ export const BLOG_POSTS: BlogPost[] = [
     readingTime: '12 min',
     tags: ['Hondenopvang', 'Prijs', 'Vakantie'],
     category: 'general',
-    coverImage: '/assets/groepsuitlaat-hero.jpg',
-    coverPosition: '50% 58%',
+    coverImage: 'https://images.unsplash.com/photo-1518715308788-3005759c61e6?auto=format&fit=crop&w=1600&q=80',
+    coverPosition: '50% 50%',
     content: [
       'Wie zoekt naar hondenopvang, wil meestal eerst begrijpen wat het kost. Dat is logisch, want opvang is zelden een impulsbeslissing. Het gaat over vertrouwen, planning en budget tegelijk, zeker wanneer het om meerdere dagen of een vakantieperiode gaat.',
       'De prijs van hondenopvang hangt eerst af van de duur. Een korte opvangperiode werkt anders dan meerdere opeenvolgende dagen of een langere vakantie. Hoe langer de periode, hoe belangrijker routine, logistiek en continuiteit worden in de kost.',
@@ -500,7 +500,7 @@ export const BLOG_POSTS: BlogPost[] = [
     readingTime: '12 min',
     tags: ['Vakantie', 'Hondenoppas', 'Hondenopvang'],
     category: 'general',
-    coverImage: 'https://images.unsplash.com/photo-1518020382113-a7e8fc38eac9?auto=format&fit=crop&w=1600&q=80',
+    coverImage: 'https://images.unsplash.com/photo-1518791841217-8f162f1e1131?auto=format&fit=crop&w=1600&q=80',
     content: [
       'Wat je met je hond doet tijdens vakantie, hangt minder af van jouw voorkeur dan van wat je hond echt aankan. Sommige honden functioneren goed in een andere omgeving, andere blijven duidelijk rustiger in hun eigen huis met oppas aan huis. Daar begint meestal de juiste keuze.',
       'De drie meest voorkomende opties zijn oppas aan huis, hondenopvang of je hond meenemen. Elke optie heeft voordelen, maar niet elke hond past bij elke formule. Daarom is het slim om eerst te kijken naar routine, gevoeligheid voor verandering en praktische haalbaarheid.',
