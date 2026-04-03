@@ -6,9 +6,9 @@ const appUrl = getPublicAppUrl()
 const ogImageUrl = `${appUrl}/assets/hero-marketplace.jpg`
 
 export const metadata: Metadata = {
-  title: 'TailTribe – Professionele dierenverzorging in België',
+  title: 'Hondenuitlaat, hondenoppas en kattenoppas in België | TailTribe',
   description:
-    'Vraag betrouwbare dierenverzorging aan in België: hondenuitlaat, dierenoppas, opvang en verzorging aan huis. Wij matchen je met gescreende verzorgers.',
+    'Vraag hondenuitlaat, hondenoppas, kattenoppas, hondenopvang en dierenverzorging aan in België. TailTribe matcht je met gescreende verzorgers en volgt je aanvraag persoonlijk op.',
   alternates: {
     canonical: '/',
     languages: { 'nl-BE': '/', 'x-default': '/' },
@@ -17,9 +17,9 @@ export const metadata: Metadata = {
     type: 'website',
     url: '/',
     siteName: 'TailTribe',
-    title: 'TailTribe – Professionele dierenverzorging in België',
+    title: 'Hondenuitlaat, hondenoppas en kattenoppas in België | TailTribe',
     description:
-      'Vraag betrouwbare dierenverzorging aan in België: hondenuitlaat, dierenoppas, opvang en verzorging aan huis.',
+      'Vraag hondenuitlaat, hondenoppas, kattenoppas, hondenopvang en dierenverzorging aan in België.',
     locale: 'nl_BE',
     images: [
       {
@@ -32,9 +32,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'TailTribe – Professionele dierenverzorging in België',
+    title: 'Hondenuitlaat, hondenoppas en kattenoppas in België | TailTribe',
     description:
-      'Vraag betrouwbare dierenverzorging aan in België: hondenuitlaat, dierenoppas, opvang en verzorging aan huis.',
+      'Vraag hondenuitlaat, hondenoppas, kattenoppas, hondenopvang en dierenverzorging aan in België.',
     images: [ogImageUrl],
   },
 }

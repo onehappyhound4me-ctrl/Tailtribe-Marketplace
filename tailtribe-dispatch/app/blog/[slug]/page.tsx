@@ -14,6 +14,13 @@ type Props = {
 
 const appUrl = getPublicAppUrl()
 const toAbsoluteUrl = (url: string) => (url.startsWith('http') ? url : new URL(url, appUrl).toString())
+const ARTICLE_SECTION_LABELS = {
+  'dog-walking': 'Hondenuitlaat',
+  'pet-sitting': 'Dierenoppas',
+  transport: 'Transport huisdieren',
+  training: 'Hondentraining',
+  general: 'Huisdierenzorg',
+} as const
 
 export function generateStaticParams() {
   return getBlogPostSlugs().map((slug) => ({ slug }))
@@ -27,10 +34,14 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   const canonicalUrl = new URL(`/blog/${post.slug}`, appUrl).toString()
   const coverImage = resolveCoverImage(post)
+  const articleSection = ARTICLE_SECTION_LABELS[post.category ?? 'general']
+  const isoDate = `${post.date}T00:00:00Z`
 
   return {
     title: post.title,
     description: post.excerpt,
+    keywords: post.tags,
+    authors: [{ name: 'TailTribe' }],
     alternates: { canonical: canonicalUrl },
     openGraph: {
       title: post.title,
@@ -39,6 +50,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       siteName: 'TailTribe',
       locale: 'nl_BE',
       type: 'article',
+      publishedTime: isoDate,
+      modifiedTime: isoDate,
+      authors: ['TailTribe'],
+      section: articleSection,
       images: [
         {
           url: toAbsoluteUrl(coverImage),
@@ -47,6 +62,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
           alt: post.title,
         },
       ],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: post.title,
+      description: post.excerpt,
+      images: [toAbsoluteUrl(coverImage)],
     },
   }
 }
@@ -64,6 +85,7 @@ export default function BlogPostPage({ params }: Props) {
 
   const canonicalUrl = new URL(`/blog/${post.slug}`, appUrl).toString()
   const coverImage = resolveCoverImage(post)
+  const articleSection = ARTICLE_SECTION_LABELS[post.category ?? 'general']
   const jsonLd = {
     '@context': 'https://schema.org',
     '@type': 'BlogPosting',
@@ -71,6 +93,10 @@ export default function BlogPostPage({ params }: Props) {
     description: post.excerpt,
     image: [toAbsoluteUrl(coverImage)],
     datePublished: post.date,
+    dateModified: post.date,
+    inLanguage: 'nl-BE',
+    articleSection,
+    keywords: post.tags.join(', '),
     author: {
       '@type': 'Organization',
       name: 'TailTribe',

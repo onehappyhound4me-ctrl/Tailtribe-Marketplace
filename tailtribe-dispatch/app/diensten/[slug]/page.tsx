@@ -9,6 +9,7 @@ import { DISPATCH_SERVICES, getDispatchServiceBySlug } from '@/lib/services'
 import { SERVICE_ICON_FILTER, withAssetVersion } from '@/lib/service-icons'
 import { routes } from '@/lib/routes'
 import { getPublicAppUrl } from '@/lib/env'
+import { GOOGLE_REVIEWS_URL, REVIEW_SUMMARY, getServiceReviews } from '@/lib/reviews'
 
 type Props = {
   params: { slug: string }
@@ -112,6 +113,12 @@ export default function DienstDetailPage({ params }: Props) {
       name: 'TailTribe',
       url: baseUrl,
     },
+    aggregateRating: {
+      '@type': 'AggregateRating',
+      ratingValue: REVIEW_SUMMARY.ratingValue,
+      reviewCount: REVIEW_SUMMARY.reviewCount,
+      bestRating: REVIEW_SUMMARY.bestRating,
+    },
     url: canonicalUrl,
     image: imageUrl,
   }
@@ -127,14 +134,15 @@ export default function DienstDetailPage({ params }: Props) {
   }
 
   const related = DISPATCH_SERVICES.filter((s) => s.id !== service.id).slice(0, 6)
+  const serviceReviews = getServiceReviews(service.id).slice(0, 3)
 
   const localIntro =
     service.id === 'DOG_WALKING'
-      ? 'Zoek je een hondenuitlater of dog walker in Antwerpen en omgeving? We stemmen tempo, duur en routine af op jouw hond. Ook mogelijk als vaste hondenoppas op weekdagen.'
+      ? 'Zoek je een hondenuitlater of dog walker aan huis? We stemmen tempo, duur en routine af op jouw hond en bekijken welke formule het best past bij jouw regio en weekplanning.'
       : service.id === 'GROUP_DOG_WALKING'
-        ? 'Hondenuitlaatservice in Antwerpen (+rand) en Antwerpen Noord (Kapellen–Brasschaat–Kalmthout). Ideaal voor sociale honden die graag samen wandelen en mentaal uitgedaagd worden.'
+        ? 'Zoek je hondenuitlaatservice aan huis voor een sociale hond die graag samen wandelt? We bekijken of kleine groepsuitstappen, ophalen en een vaste routine passen bij jouw hond en locatie.'
         : service.id === 'DOG_TRAINING'
-          ? 'Op zoek naar een hondentrainer aan huis of een alternatief voor de klassieke hondenschool in Antwerpen en omgeving? We bekijken training op maat van jouw hond en dagelijks leven.'
+          ? 'Op zoek naar een hondentrainer aan huis of een praktisch alternatief voor de klassieke hondenschool? We bekijken training op maat van jouw hond, gedrag en dagelijks leven.'
         : service.id === 'PET_SITTING'
           ? 'Zoek je hondenoppas, een hondenoppasser of een betrouwbare dog sitter aan huis? Dierenoppas aan huis is ideaal als je huisdier het best in de eigen omgeving blijft. We volgen jouw routine en spreken duidelijke afspraken af voor voeding, wandelen en updates.'
           : service.id === 'PET_BOARDING'
@@ -161,8 +169,8 @@ export default function DienstDetailPage({ params }: Props) {
             a: 'Soms, als het past bij karakter en veiligheid. Bij twijfel kiezen we voor solo of een klein, passend duo.',
           },
           {
-            q: 'Werken jullie in Antwerpen en rand?',
-            a: 'Ja. We plannen op basis van jouw locatie en beschikbaarheid. Voor sommige diensten ligt de focus op Groot Antwerpen en Antwerpen Noord.',
+            q: 'In welke regio werken jullie?',
+            a: 'Beschikbaarheid hangt af van je locatie, planning en type hulp. Na je aanvraag bekijken we snel wat haalbaar is in jouw regio.',
           },
         ]
       : service.id === 'GROUP_DOG_WALKING'
@@ -173,7 +181,7 @@ export default function DienstDetailPage({ params }: Props) {
             },
             {
               q: 'In welke regio gaat hondenuitlaatservice door?',
-              a: 'Focus: Antwerpen (+rand) en Antwerpen Noord (Kapellen–Brasschaat–Kalmthout).',
+              a: 'Beschikbaarheid hangt af van locatie en planning. Momenteel ligt de sterkste focus op Groot Antwerpen en Antwerpen Noord, maar we bekijken per aanvraag wat haalbaar is.',
             },
             {
               q: 'Hoe zit het met veiligheid en loslopen?',
@@ -352,6 +360,57 @@ export default function DienstDetailPage({ params }: Props) {
                 showCta={service.id !== 'GROUP_DOG_WALKING'}
               />
             ) : null}
+            <div className="bg-white rounded-2xl shadow-sm border border-black/5 p-6 md:p-8">
+              <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+                <div>
+                  <p className="text-sm font-semibold uppercase tracking-[0.14em] text-emerald-800">Reviews</p>
+                  <h2 className="mt-2 text-2xl md:text-3xl font-semibold text-gray-900">Vertrouwen van andere baasjes</h2>
+                  <p className="mt-3 max-w-2xl text-base leading-8 text-gray-700">
+                    Zoek je vooral zekerheid? Deze publieke reviews helpen om sneller in te schatten hoe TailTribe
+                    aanvoelt voor hondenuitlaat, dierenoppas, training en andere hulp voor huisdieren.
+                  </p>
+                </div>
+                <a
+                  href={GOOGLE_REVIEWS_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center justify-center gap-2 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-semibold text-emerald-900 shadow-sm transition hover:bg-emerald-100"
+                >
+                  Bekijk reviews op Google
+                </a>
+              </div>
+              <div className="mt-4 flex flex-wrap gap-3 text-sm">
+                <div className="rounded-full border border-emerald-200 bg-white px-4 py-2 font-semibold text-gray-800">
+                  {REVIEW_SUMMARY.ratingValue}/5 score
+                </div>
+                <div className="rounded-full border border-emerald-200 bg-white px-4 py-2 font-semibold text-gray-700">
+                  {REVIEW_SUMMARY.reviewCount} zichtbare reviews
+                </div>
+              </div>
+              <div className="mt-6 grid gap-4 md:grid-cols-3">
+                {serviceReviews.map((review) => (
+                  <div key={`${service.id}-${review.name}`} className="rounded-2xl border border-emerald-100 bg-emerald-50/40 p-5">
+                    <div className="flex items-center gap-3">
+                      <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-emerald-500 to-blue-600 font-bold text-white">
+                        {review.name.charAt(0)}
+                      </div>
+                      <div>
+                        <p className="font-semibold text-gray-900">{review.name}</p>
+                        <p className="text-xs text-gray-500">{review.sourceLabel}</p>
+                      </div>
+                    </div>
+                    <div className="mt-3 flex items-center gap-1 text-amber-400">
+                      {Array.from({ length: review.rating }).map((_, i) => (
+                        <svg key={i} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className="h-4 w-4 fill-current">
+                          <path d="M12 3.75 14.6 9l5.15.41c.36.03.5.49.23.73l-3.9 3.42 1.17 5.01c.09.36-.3.66-.62.46L12 16.98l-4.63 2.85c-.32.2-.71-.1-.62-.46l1.17-5.01-3.9-3.42a.44.44 0 0 1 .23-.73L9.4 9 12 3.75Z" />
+                        </svg>
+                      ))}
+                    </div>
+                    <p className="mt-3 text-sm leading-7 text-gray-700">{review.quote}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
             <div className="bg-white rounded-2xl shadow-sm border border-black/5 p-5 sm:p-6 md:p-8">
               <h2 className="text-xl sm:text-2xl md:text-3xl font-semibold text-transparent bg-clip-text bg-gradient-to-r from-emerald-700 to-blue-700 mb-4">
                 Waarom deze dienst?

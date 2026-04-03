@@ -7,11 +7,12 @@ import { SiteFooter } from '@/components/SiteFooter'
 import { DISPATCH_SERVICES } from '@/lib/services'
 import { SERVICE_ICON_FILTER, withAssetVersion } from '@/lib/service-icons'
 import { routes } from '@/lib/routes'
+import { getPublicAppUrl } from '@/lib/env'
+import { GOOGLE_REVIEWS_URL, PUBLIC_REVIEWS, REVIEW_SUMMARY } from '@/lib/reviews'
 
 const HERO_IMG_PRIMARY = '/assets/hero-marketplace.jpg?v=1'
 const HERO_IMG_URL = encodeURI(HERO_IMG_PRIMARY)
-
-const GOOGLE_REVIEWS_URL = `https://maps.google.com/?cid=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_CID || '3943987553262873468'}&hl=nl&gl=BE`
+const APP_URL = getPublicAppUrl()
 
 const HOME_FAQS = [
   {
@@ -52,10 +53,30 @@ export default function HomePageClient() {
     })),
   }
 
+  const homepageReviewsJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'Organization',
+    '@id': `${APP_URL}/#organization`,
+    name: 'TailTribe',
+    aggregateRating: {
+      '@type': 'AggregateRating',
+      ratingValue: REVIEW_SUMMARY.ratingValue,
+      reviewCount: REVIEW_SUMMARY.reviewCount,
+      bestRating: REVIEW_SUMMARY.bestRating,
+    },
+    review: PUBLIC_REVIEWS.map((review) => ({
+      '@type': 'Review',
+      author: { '@type': 'Person', name: review.name },
+      reviewRating: { '@type': 'Rating', ratingValue: review.rating, bestRating: 5 },
+      reviewBody: review.quote,
+    })),
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-green-50 via-white to-blue-50">
       <SiteHeader primaryCtaHref={bookingHref} primaryCtaLabel="Boek Nu" />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(homepageReviewsJsonLd) }} />
 
       <section className="w-full">
         <div className="w-full">
@@ -150,6 +171,10 @@ export default function HomePageClient() {
                   <span className="inline-flex items-center gap-1.5">
                     <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
                     Afspraak op maat
+                  </span>
+                  <span className="inline-flex items-center gap-1.5">
+                    <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+                    {REVIEW_SUMMARY.ratingValue}/5 uit {REVIEW_SUMMARY.reviewCount} zichtbare reviews
                   </span>
                 </div>
               </div>
@@ -337,25 +362,7 @@ export default function HomePageClient() {
           </div>
 
           <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
-            {[
-              {
-                name: 'Sophie Legrève',
-                rating: 5,
-                quote:
-                  'Super professioneel en zorgzaam! Juno is dolgelukkig wanneer ze mee kan. Ik ben super blij en dankbaar voor deze oplossing.',
-              },
-              {
-                name: 'Annika Vershaeve',
-                rating: 5,
-                quote: 'Super dienst! Helpt enorm met mijn actieve Weimaraner en maakte hem echt sociaal.',
-              },
-              {
-                name: 'Ann Sourdeau',
-                rating: 5,
-                quote:
-                  'Steven belde vrijwel meteen terug en kon snel langskomen. Hij gaf heel goede tips; onze hond is veel stabieler. Ook nadien bereikbaar voor raad!',
-              },
-            ].map((review) => (
+            {PUBLIC_REVIEWS.map((review) => (
               <div
                 key={review.name}
                 className="group bg-white rounded-2xl p-7 shadow-md hover:shadow-2xl transition-all duration-300 border border-emerald-100 hover:border-emerald-200"
@@ -366,6 +373,7 @@ export default function HomePageClient() {
                   </div>
                   <div>
                     <p className="font-semibold text-gray-900">{review.name}</p>
+                    <p className="text-xs text-gray-500">{review.sourceLabel}</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-1 text-amber-400 mb-3">

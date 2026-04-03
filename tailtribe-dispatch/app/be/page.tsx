@@ -9,14 +9,14 @@ const appUrl = getPublicAppUrl()
 const canonicalUrl = new URL('/be', appUrl).toString()
 
 export const metadata: Metadata = {
-  title: 'Dierenoppas per streek in België | TailTribe',
+  title: 'Dierenoppas en hondenuitlaat per streek in België | TailTribe',
   description:
-    'Bekijk dierenoppas en huisdierenzorg per streek in België. Kies je provincie en vind de juiste match voor je huisdier.',
+    'Bekijk dierenoppas, hondenuitlaat, hondenoppas en huisdierenzorg per streek in België. Kies je provincie en vind sneller de juiste hulp voor je huisdier.',
   alternates: { canonical: canonicalUrl },
   openGraph: {
-    title: 'Dierenoppas per streek in België | TailTribe',
+    title: 'Dierenoppas en hondenuitlaat per streek in België | TailTribe',
     description:
-      'Bekijk dierenoppas en huisdierenzorg per streek in België. Kies je provincie en vind de juiste match voor je huisdier.',
+      'Bekijk dierenoppas, hondenuitlaat, hondenoppas en huisdierenzorg per streek in België. Kies je provincie en vind sneller de juiste hulp voor je huisdier.',
     url: canonicalUrl,
     siteName: 'TailTribe',
     locale: 'nl_BE',

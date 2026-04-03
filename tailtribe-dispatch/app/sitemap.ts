@@ -1,7 +1,7 @@
 import type { MetadataRoute } from 'next'
 import { allProvinceSlugs, allPlaceTriples } from '@/data/be-geo'
 import { DISPATCH_SERVICES } from '@/lib/services'
-import { getBlogPostSlugs } from '@/lib/blog.server'
+import { getBlogPosts } from '@/lib/blog.server'
 import { getPublicAppUrl } from '@/lib/env'
 
 export default function sitemap(): MetadataRoute.Sitemap {
@@ -34,9 +34,9 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: 0.7,
   }))
 
-  const blogPages = getBlogPostSlugs().map((slug) => ({
-    url: abs(`/blog/${slug}`),
-    lastModified,
+  const blogPages = getBlogPosts().map((post) => ({
+    url: abs(`/blog/${post.slug}`),
+    lastModified: new Date(`${post.date}T00:00:00Z`),
     changeFrequency: 'monthly' as const,
     priority: 0.5,
   }))

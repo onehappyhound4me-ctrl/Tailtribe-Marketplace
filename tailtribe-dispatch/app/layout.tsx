@@ -10,18 +10,21 @@ import { AnalyticsPageView } from '@/components/AnalyticsPageView'
 import { AnalyticsDebugBadge } from '@/components/AnalyticsDebugBadge'
 import { AnalyticsEventCapture } from '@/components/AnalyticsEventCapture'
 import { getPublicAppUrl } from '@/lib/env'
+import { getOrganizationReviewSchema } from '@/lib/reviews'
 
 const appUrl = getPublicAppUrl()
 const ogImageUrl = `${appUrl}/assets/hero-marketplace.jpg`
 const orgLogoUrl = `${appUrl}/tailtribe_logo_masked_1751977129022.png`
+const organizationReviews = getOrganizationReviewSchema(appUrl)
 
 export const metadata: Metadata = {
   metadataBase: new URL(appUrl),
   title: {
-    default: 'TailTribe – Professionele dierenverzorging in België',
+    default: 'Hondenuitlaat, hondenoppas en kattenoppas in België | TailTribe',
     template: '%s | TailTribe',
   },
-  description: 'Vraag betrouwbare dierenverzorging aan in België. Hondenuitlaat, dierenoppas, opvang en meer.',
+  description:
+    'Vraag hondenuitlaat, hondenoppas, kattenoppas, hondenopvang en dierenverzorging aan in België via TailTribe.',
   manifest: '/manifest.webmanifest',
   themeColor: '#10b981',
   icons: {
@@ -40,8 +43,8 @@ export const metadata: Metadata = {
     type: 'website',
     url: '/',
     siteName: 'TailTribe',
-    title: 'TailTribe – Professionele dierenverzorging in België',
-    description: 'Vraag betrouwbare dierenverzorging aan in België. Hondenuitlaat, dierenoppas, opvang en meer.',
+    title: 'Hondenuitlaat, hondenoppas en kattenoppas in België | TailTribe',
+    description: 'Vraag hondenuitlaat, hondenoppas, kattenoppas, hondenopvang en dierenverzorging aan in België.',
     locale: 'nl_BE',
     images: [
       {
@@ -54,8 +57,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'TailTribe – Professionele dierenverzorging in België',
-    description: 'Vraag betrouwbare dierenverzorging aan in België. Hondenuitlaat, dierenoppas, opvang en meer.',
+    title: 'Hondenuitlaat, hondenoppas en kattenoppas in België | TailTribe',
+    description: 'Vraag hondenuitlaat, hondenoppas, kattenoppas, hondenopvang en dierenverzorging aan in België.',
     images: [ogImageUrl],
   },
 }
@@ -101,6 +104,7 @@ export default function RootLayout({
                         availableLanguage: ['nl', 'en'],
                       },
                     ],
+                    ...organizationReviews,
                   },
                   {
                     '@type': 'WebSite',
