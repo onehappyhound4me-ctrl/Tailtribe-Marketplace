@@ -55,7 +55,23 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: 0.5,
   }))
 
-  return [...staticPages, ...servicePages, ...blogPages, ...provincePages, ...cityPages]
+  const servicePlacePages = DISPATCH_SERVICES.flatMap((s) =>
+    allPlaceTriples().map(({ province, place }) => ({
+      url: abs(`/diensten/${s.slug}/${province}/${place}`),
+      lastModified,
+      changeFrequency: 'monthly' as const,
+      priority: 0.55,
+    }))
+  )
+
+  return [
+    ...staticPages,
+    ...servicePages,
+    ...blogPages,
+    ...provincePages,
+    ...cityPages,
+    ...servicePlacePages,
+  ]
 }
 
 

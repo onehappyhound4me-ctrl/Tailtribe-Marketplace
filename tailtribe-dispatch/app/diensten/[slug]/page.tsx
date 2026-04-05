@@ -10,6 +10,7 @@ import { SERVICE_ICON_FILTER, withAssetVersion } from '@/lib/service-icons'
 import { routes } from '@/lib/routes'
 import { getPublicAppUrl } from '@/lib/env'
 import { GOOGLE_REVIEWS_URL, getServiceReviews } from '@/lib/reviews'
+import { topPlacesForLocalServiceLinks } from '@/lib/local-service-landing'
 
 type Props = {
   params: { slug: string }
@@ -132,6 +133,7 @@ export default function DienstDetailPage({ params }: Props) {
 
   const related = DISPATCH_SERVICES.filter((s) => s.id !== service.id).slice(0, 6)
   const serviceReviews = getServiceReviews(service.id).slice(0, 3)
+  const localPlaceLinks = topPlacesForLocalServiceLinks(18)
 
   const localIntro =
     service.id === 'DOG_WALKING'
@@ -148,7 +150,11 @@ export default function DienstDetailPage({ params }: Props) {
               ? 'Dierenverzorging aan huis of aan huis dierenoppas nodig? Deze dienst is ideaal voor huisdieren die liefst thuis blijven, met bezoekmomenten op maat en duidelijke afspraken.'
               : service.id === 'PET_TRANSPORT'
                 ? 'Transport van dieren nodig, zoals transport van een hond of kat naar dierenarts, opvang of afspraak? We spreken timing, veiligheid en praktische details op voorhand duidelijk af.'
-                : null
+                : service.id === 'SMALL_ANIMAL_CARE'
+                  ? 'Verzorging van kleinvee, paarden of andere dieren met vaste routine? We stemmen voeding, check-ins en praktische taken af op jouw stal of erf — handig wanneer je even weg bent.'
+                  : service.id === 'EVENT_COMPANION'
+                    ? 'Hond mee naar je trouwfeest of een druk event? Begeleiding op maat houdt je dier rustig en veilig, terwijl jij van je dag geniet.'
+                    : null
 
   const faqs =
     service.id === 'DOG_WALKING'
@@ -254,7 +260,83 @@ export default function DienstDetailPage({ params }: Props) {
                   a: 'Klik “Aanvraag indienen” en geef je planning, locatie en info over je huisdier door.',
                 },
               ]
-            : null
+            : service.id === 'HOME_CARE'
+              ? [
+                  {
+                    q: 'Wat is het verschil tussen verzorging aan huis en dierenoppas?',
+                    a: 'Verzorging aan huis zijn meestal kortere bezoeken (voeding, kattenbak, check-in, eventueel korte wandeling). Dierenoppas is bredere oppas in jouw woning over langere periodes. Beide plannen we via dezelfde intake.',
+                  },
+                  {
+                    q: 'Kunnen jullie ook katten en kleinere huisdieren helpen?',
+                    a: 'Ja. We stemmen het ritme af op je dier (katten, kleinvee in huis, vogels, …) en volgen jouw instructies nauwkeurig.',
+                  },
+                  {
+                    q: 'Hoe geef ik toegang tot mijn woning?',
+                    a: 'Sleuteloverdracht, code, buur of sleutelkluis: we leggen vooraf vast wat voor jou het beste werkt.',
+                  },
+                  {
+                    q: 'Werken jullie in heel België?',
+                    a: 'We matchen per regio. Na je aanvraag bekijken we snel welke verzorger praktisch haalbaar is voor jouw postcode.',
+                  },
+                ]
+              : service.id === 'PET_TRANSPORT'
+                ? [
+                    {
+                      q: 'Vervoeren jullie zowel honden als katten?',
+                      a: 'Ja. We stemmen bench, harnas en rit af op je dier en de bestemming.',
+                    },
+                    {
+                      q: 'Kan transport naar de dierenarts of naar opvang?',
+                      a: 'Ja, dat zijn veelvoorkomende routes. Geef bestemming, timing en bijzonderheden door in je aanvraag.',
+                    },
+                    {
+                      q: 'Wat heb ik klaar te leggen?',
+                      a: 'Een passende bench of draagmand, papieren indien nodig, en duidelijke instructies rond medicatie of stress-triggers.',
+                    },
+                    {
+                      q: 'Dekken jullie heel België?',
+                      a: 'Beschikbaarheid hangt af van rit en planning. Na je aanvraag zie je snel wat haalbaar is.',
+                    },
+                  ]
+                : service.id === 'SMALL_ANIMAL_CARE'
+                  ? [
+                      {
+                        q: 'Welke dieren vallen onder deze dienst?',
+                        a: 'Kleinvee, paarden (basiszorg op afspraak), stalhongen en vergelijkbare routines. We werken met een duidelijke checklist per bezoek.',
+                      },
+                      {
+                        q: 'Kan dit bij vakantie of ziekte?',
+                        a: 'Ja. Veel aanvragen zijn tijdelijke vervanging van jouw vaste routine (voeding, water, stalcontrole).',
+                      },
+                      {
+                        q: 'Wat moet ik vooraf doorgeven?',
+                        a: 'Hoeveelheden voeding per diersoort, medische aandachtspunten, noodcontacten en wie toegang heeft tot de locatie.',
+                      },
+                      {
+                        q: 'Zijn jullie actief in alle streken?',
+                        a: 'We matchen lokaal. Vermeld je gemeente in de aanvraag zodat we meteen de juiste regio inschatten.',
+                      },
+                    ]
+                  : service.id === 'EVENT_COMPANION'
+                    ? [
+                        {
+                          q: 'Is mijn hond geschikt voor een trouwfeest?',
+                          a: 'Dat hangt af van karakter, prikkels en programma. We stemmen vooraf rustmomenten, looplijn en een Plan B af.',
+                        },
+                        {
+                          q: 'Blijven jullie de hele dag ter plaatse?',
+                          a: 'We plannen mee met jouw timing (foto’s, ceremonie, receptie) en voorzien pauzes voor je hond.',
+                        },
+                        {
+                          q: 'Wat als de locatie streng is voor honden?',
+                          a: 'We bekijken samen regels van de locatie en zorgen voor een veilige, haalbare invulling.',
+                        },
+                        {
+                          q: 'Hoe vroeg moet ik boeken?',
+                          a: 'Hoe eerder hoe beter voor drukke data. Dien je aanvraag in met datum en locatie; we bevestigen de haalbaarheid.',
+                        },
+                      ]
+                    : null
 
   const faqJsonLd = faqs
     ? {
@@ -615,6 +697,37 @@ export default function DienstDetailPage({ params }: Props) {
                   Start je aanvraag
                 </Link>
               </div>
+            </div>
+
+            <div className="bg-white rounded-2xl shadow-sm border border-black/5 p-6 md:p-8">
+              <h2 className="text-2xl md:text-3xl font-semibold text-gray-900 mb-2">
+                {service.name} in België — vaak gekozen regio&apos;s
+              </h2>
+              <p className="text-gray-600 mb-6 max-w-2xl leading-relaxed">
+                Kies je stad: je krijgt een pagina over deze dienst in die gemeente, met links naar de streekpagina en
+                de volledige uitleg op één plek.
+              </p>
+              <ul className="flex flex-wrap gap-2">
+                {localPlaceLinks.map((l) => (
+                  <li key={`${l.province}-${l.place}`}>
+                    <Link
+                      href={`/diensten/${service.slug}/${l.province}/${l.place}`}
+                      data-nav="local-service-place"
+                      data-service-slug={service.slug}
+                      className="inline-flex rounded-full border border-slate-200 bg-slate-50 px-3 py-1.5 text-sm text-gray-800 transition hover:border-emerald-300 hover:bg-emerald-50/60"
+                    >
+                      {service.name} — {l.placeName}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+              <p className="mt-5 text-sm text-gray-600 leading-relaxed">
+                Gemeente niet in de lijst?{' '}
+                <Link href="/be" className="font-medium text-emerald-800 underline-offset-2 hover:underline">
+                  Alle provincies
+                </Link>{' '}
+                of start je aanvraag met postcode — we matchen op jouw echte locatie.
+              </p>
             </div>
 
             {faqs ? (

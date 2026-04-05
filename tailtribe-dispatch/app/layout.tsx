@@ -93,8 +93,11 @@ export default function RootLayout({
                     name: 'TailTribe',
                     url: appUrl,
                     logo: orgLogoUrl,
-                    description: 'Professionele dierenverzorging in België.',
+                    description:
+                      'TailTribe is een Belgisch platform voor hondenuitlaat, dierenoppas, opvang en verzorging aan huis. We matchen aanvragen met gescreende verzorgers en volgen elke aanvraag persoonlijk op — met focus op duidelijke afspraken en vertrouwen.',
                     areaServed: { '@type': 'Country', name: 'België' },
+                    slogan:
+                      'Persoonlijke matching met gescreende dierenverzorgers in België — geen anonieme marktplaats.',
                     sameAs: ['https://www.instagram.com/tailtribe_/'],
                     contactPoint: [
                       {
