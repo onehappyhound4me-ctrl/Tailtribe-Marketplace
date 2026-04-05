@@ -3,7 +3,7 @@ import Link from 'next/link'
 import { SiteHeader } from '@/components/SiteHeader'
 import { SiteFooter } from '@/components/SiteFooter'
 import { getPublicAppUrl } from '@/lib/env'
-import { GOOGLE_REVIEWS_URL, PUBLIC_REVIEWS, REVIEW_SUMMARY, getOrganizationReviewSchema } from '@/lib/reviews'
+import { GOOGLE_REVIEWS_URL, PUBLIC_REVIEWS, getOrganizationReviewSchema } from '@/lib/reviews'
 
 const baseUrl = getPublicAppUrl()
 const canonicalUrl = new URL('/google-reviews', baseUrl).toString()
@@ -49,14 +49,6 @@ export default function GoogleReviewsPage() {
               Vertrouwen is alles wanneer je hulp zoekt voor je hond, kat of ander huisdier. Daarom tonen we hier
               enkele zichtbare reviews en linken we ook door naar onze Google reviews.
             </p>
-            <div className="mt-6 flex flex-wrap justify-center gap-3 text-sm">
-              <div className="rounded-full border border-emerald-200 bg-emerald-50 px-4 py-2 font-semibold text-emerald-900">
-                {REVIEW_SUMMARY.ratingValue}/5 score
-              </div>
-              <div className="rounded-full border border-emerald-200 bg-white px-4 py-2 font-semibold text-gray-700">
-                {REVIEW_SUMMARY.reviewCount} zichtbare reviews
-              </div>
-            </div>
             <div className="mt-8">
               <a
                 href={GOOGLE_REVIEWS_URL}
@@ -74,24 +66,24 @@ export default function GoogleReviewsPage() {
 
           <section className="grid gap-6 md:grid-cols-3">
             {PUBLIC_REVIEWS.map((review) => (
-              <article key={review.name} className="rounded-2xl border border-emerald-100 bg-white p-6 shadow-sm">
-                <div className="flex items-center gap-3">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-emerald-500 to-blue-600 font-bold text-white">
-                    {review.name.charAt(0)}
+              <article key={review.name} className="flex h-full flex-col rounded-3xl border border-slate-200/80 bg-white p-7 shadow-sm">
+                <div className="mb-5 flex items-start justify-between gap-4">
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-11 w-11 items-center justify-center rounded-full bg-gradient-to-br from-emerald-500 to-blue-600 font-bold text-white shadow-sm">
+                      {review.name.charAt(0)}
+                    </div>
+                    <div>
+                      <p className="font-semibold text-gray-900">{review.name}</p>
+                      <p className="mt-1 inline-flex rounded-full bg-slate-100 px-2.5 py-1 text-[11px] font-medium uppercase tracking-[0.08em] text-slate-600">
+                        {review.sourceLabel}
+                      </p>
+                    </div>
                   </div>
-                  <div>
-                    <p className="font-semibold text-gray-900">{review.name}</p>
-                    <p className="text-xs text-gray-500">{review.sourceLabel}</p>
-                  </div>
+                  <svg className="h-8 w-8 flex-shrink-0 text-emerald-200" viewBox="0 0 32 32" fill="currentColor" aria-hidden="true">
+                    <path d="M10.5 14C10.5 9.857 13.857 6.5 18 6.5h1v4h-1A3.5 3.5 0 0 0 14.5 14v.25A3.25 3.25 0 0 1 17.75 17.5v1A5.5 5.5 0 0 1 12.25 24H11v-4h1.25a1.5 1.5 0 0 0 1.5-1.5v-1a.75.75 0 0 0-.75-.75H10.5V14Zm11 0C21.5 9.857 24.857 6.5 29 6.5h1v4h-1a3.5 3.5 0 0 0-3.5 3.5v.25a3.25 3.25 0 0 1 3.25 3.25v1A5.5 5.5 0 0 1 23.25 24H22v-4h1.25a1.5 1.5 0 0 0 1.5-1.5v-1a.75.75 0 0 0-.75-.75H21.5V14Z" />
+                  </svg>
                 </div>
-                <div className="mt-4 flex items-center gap-1 text-amber-400">
-                  {Array.from({ length: review.rating }).map((_, i) => (
-                    <svg key={i} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className="h-4 w-4 fill-current">
-                      <path d="M12 3.75 14.6 9l5.15.41c.36.03.5.49.23.73l-3.9 3.42 1.17 5.01c.09.36-.3.66-.62.46L12 16.98l-4.63 2.85c-.32.2-.71-.1-.62-.46l1.17-5.01-3.9-3.42a.44.44 0 0 1 .23-.73L9.4 9 12 3.75Z" />
-                    </svg>
-                  ))}
-                </div>
-                <p className="mt-4 text-sm leading-7 text-gray-700">{review.quote}</p>
+                <p className="flex-1 text-sm leading-7 text-slate-700">{review.quote}</p>
               </article>
             ))}
           </section>

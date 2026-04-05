@@ -8,7 +8,7 @@ import { DISPATCH_SERVICES } from '@/lib/services'
 import { SERVICE_ICON_FILTER, withAssetVersion } from '@/lib/service-icons'
 import { routes } from '@/lib/routes'
 import { getPublicAppUrl } from '@/lib/env'
-import { GOOGLE_REVIEWS_URL, PUBLIC_REVIEWS, REVIEW_SUMMARY } from '@/lib/reviews'
+import { GOOGLE_REVIEWS_URL, PUBLIC_REVIEWS } from '@/lib/reviews'
 
 const HERO_IMG_PRIMARY = '/assets/hero-marketplace.jpg?v=1'
 const HERO_IMG_URL = encodeURI(HERO_IMG_PRIMARY)
@@ -58,12 +58,6 @@ export default function HomePageClient() {
     '@type': 'Organization',
     '@id': `${APP_URL}/#organization`,
     name: 'TailTribe',
-    aggregateRating: {
-      '@type': 'AggregateRating',
-      ratingValue: REVIEW_SUMMARY.ratingValue,
-      reviewCount: REVIEW_SUMMARY.reviewCount,
-      bestRating: REVIEW_SUMMARY.bestRating,
-    },
     review: PUBLIC_REVIEWS.map((review) => ({
       '@type': 'Review',
       author: { '@type': 'Person', name: review.name },
@@ -171,10 +165,6 @@ export default function HomePageClient() {
                   <span className="inline-flex items-center gap-1.5">
                     <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
                     Afspraak op maat
-                  </span>
-                  <span className="inline-flex items-center gap-1.5">
-                    <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
-                    {REVIEW_SUMMARY.ratingValue}/5 uit {REVIEW_SUMMARY.reviewCount} zichtbare reviews
                   </span>
                 </div>
               </div>
@@ -352,39 +342,40 @@ export default function HomePageClient() {
 
       <section className="py-16 px-4 sm:px-6 lg:px-8">
         <div className="container mx-auto max-w-6xl">
-          <div className="max-w-3xl mx-auto text-center mb-12">
-            <h2 className="text-2xl sm:text-4xl md:text-5xl font-bold mb-3 sm:mb-4 text-gray-800">
-              Reviews van baasjes
+          <div className="mx-auto mb-12 max-w-3xl text-center">
+            <p className="text-sm font-semibold uppercase tracking-[0.14em] text-emerald-800">Ervaringen</p>
+            <h2 className="mt-3 text-2xl sm:text-4xl md:text-5xl font-bold text-gray-800">
+              Wat baasjes waarderen aan TailTribe
             </h2>
-            <p className="text-sm sm:text-base md:text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed">
-              Rust in je hoofd: echte ervaringen van klanten die hun huisdier aan ons toevertrouwen.
+            <p className="mx-auto mt-4 max-w-2xl text-sm leading-relaxed text-gray-600 sm:text-base md:text-xl">
+              Echte feedback van klanten die duidelijkheid, opvolging en zorg voor hun huisdier belangrijk vinden.
             </p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+          <div className="mx-auto grid max-w-6xl gap-6 md:grid-cols-3">
             {PUBLIC_REVIEWS.map((review) => (
-              <div
+              <article
                 key={review.name}
-                className="group bg-white rounded-2xl p-7 shadow-md hover:shadow-2xl transition-all duration-300 border border-emerald-100 hover:border-emerald-200"
+                className="group flex h-full flex-col rounded-3xl border border-slate-200/80 bg-white p-7 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl"
               >
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-emerald-500 to-blue-600 text-white flex items-center justify-center font-bold shadow-md">
-                    {review.name.charAt(0)}
+                <div className="mb-5 flex items-start justify-between gap-4">
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-11 w-11 items-center justify-center rounded-full bg-gradient-to-br from-emerald-500 to-blue-600 font-bold text-white shadow-sm">
+                      {review.name.charAt(0)}
+                    </div>
+                    <div>
+                      <p className="font-semibold text-gray-900">{review.name}</p>
+                      <p className="mt-1 inline-flex rounded-full bg-slate-100 px-2.5 py-1 text-[11px] font-medium uppercase tracking-[0.08em] text-slate-600">
+                        {review.sourceLabel}
+                      </p>
+                    </div>
                   </div>
-                  <div>
-                    <p className="font-semibold text-gray-900">{review.name}</p>
-                    <p className="text-xs text-gray-500">{review.sourceLabel}</p>
-                  </div>
+                  <svg className="h-8 w-8 flex-shrink-0 text-emerald-200" viewBox="0 0 32 32" fill="currentColor" aria-hidden="true">
+                    <path d="M10.5 14C10.5 9.857 13.857 6.5 18 6.5h1v4h-1A3.5 3.5 0 0 0 14.5 14v.25A3.25 3.25 0 0 1 17.75 17.5v1A5.5 5.5 0 0 1 12.25 24H11v-4h1.25a1.5 1.5 0 0 0 1.5-1.5v-1a.75.75 0 0 0-.75-.75H10.5V14Zm11 0C21.5 9.857 24.857 6.5 29 6.5h1v4h-1a3.5 3.5 0 0 0-3.5 3.5v.25a3.25 3.25 0 0 1 3.25 3.25v1A5.5 5.5 0 0 1 23.25 24H22v-4h1.25a1.5 1.5 0 0 0 1.5-1.5v-1a.75.75 0 0 0-.75-.75H21.5V14Z" />
+                  </svg>
                 </div>
-                <div className="flex items-center gap-1 text-amber-400 mb-3">
-                  {Array.from({ length: review.rating }).map((_, i) => (
-                    <svg key={i} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className="w-4 h-4 fill-current">
-                      <path d="M12 3.75 14.6 9l5.15.41c.36.03.5.49.23.73l-3.9 3.42 1.17 5.01c.09.36-.3.66-.62.46L12 16.98l-4.63 2.85c-.32.2-.71-.1-.62-.46l1.17-5.01-3.9-3.42a.44.44 0 0 1 .23-.73L9.4 9 12 3.75Z" />
-                    </svg>
-                  ))}
-                </div>
-                <p className="text-gray-700 text-sm sm:text-base leading-relaxed">{review.quote}</p>
-              </div>
+                <p className="flex-1 text-sm leading-7 text-slate-700 sm:text-base">{review.quote}</p>
+              </article>
             ))}
           </div>
 

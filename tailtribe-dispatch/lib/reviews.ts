@@ -35,12 +35,6 @@ export const PUBLIC_REVIEWS: PublicReview[] = [
   },
 ]
 
-export const REVIEW_SUMMARY = {
-  ratingValue: 5,
-  reviewCount: PUBLIC_REVIEWS.length,
-  bestRating: 5,
-}
-
 export function getServiceReviews(serviceId: string) {
   const matching = PUBLIC_REVIEWS.filter((review) => review.serviceIds?.includes(serviceId))
   return matching.length > 0 ? matching : PUBLIC_REVIEWS
@@ -48,12 +42,6 @@ export function getServiceReviews(serviceId: string) {
 
 export function getOrganizationReviewSchema(appUrl: string) {
   return {
-    aggregateRating: {
-      '@type': 'AggregateRating',
-      ratingValue: REVIEW_SUMMARY.ratingValue,
-      reviewCount: REVIEW_SUMMARY.reviewCount,
-      bestRating: REVIEW_SUMMARY.bestRating,
-    },
     review: PUBLIC_REVIEWS.map((review) => ({
       '@type': 'Review',
       reviewRating: {
