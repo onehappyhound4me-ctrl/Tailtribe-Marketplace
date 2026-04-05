@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import Image from 'next/image'
 import Link from 'next/link'
 import { SiteHeader } from '@/components/SiteHeader'
 import { SiteFooter } from '@/components/SiteFooter'
@@ -147,15 +148,13 @@ export default function OverOnsPage() {
             </p>
             <div className="flex justify-end items-start mb-6">
               <div className="bg-gradient-to-br from-green-500 via-emerald-400 to-blue-500 p-[3px] rounded-3xl shadow-[0_10px_30px_rgba(16,185,129,0.18)]">
-                <div className="relative w-[72vw] max-w-[360px] sm:w-[36vw] md:w-[24vw] lg:w-[16vw] aspect-[3/4] bg-white rounded-[calc(1.5rem-3px)] overflow-hidden border border-white/60">
-                  {/* Use plain <img> for local /assets images: more reliable on mobile Safari than Next/Image optimizer. */}
-                  <img
+                <div className="relative aspect-[3/4] w-[72vw] max-w-[360px] overflow-hidden rounded-[calc(1.5rem-3px)] border border-white/60 bg-white sm:w-[36vw] md:w-[24vw] lg:w-[16vw]">
+                  <Image
                     src={withAssetVersion('/assets/bezieler.jpg')}
                     alt="Bezieler TailTribe"
-                    loading="eager"
-                    decoding="async"
-                    className="h-full w-full object-cover md:[filter:brightness(1.08)_contrast(0.92)_saturate(0.85)_blur(0.4px)]"
-                    style={{ objectPosition: '20% 72%' }}
+                    fill
+                    sizes="(max-width: 640px) 72vw, 360px"
+                    className="object-cover object-[20%_72%] md:[filter:brightness(1.08)_contrast(0.92)_saturate(0.85)_blur(0.4px)]"
                   />
                 </div>
               </div>

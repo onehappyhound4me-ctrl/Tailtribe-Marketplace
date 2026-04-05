@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
+import Image from 'next/image'
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useSession } from 'next-auth/react'
@@ -8,7 +9,7 @@ import { SiteHeader } from '@/components/SiteHeader'
 import { SiteFooter } from '@/components/SiteFooter'
 import { DISPATCH_SERVICES } from '@/lib/services'
 import { trackEvent } from '@/lib/analytics'
-import { SERVICE_ICON_FILTER, withAssetVersion } from '@/lib/service-icons'
+import { withAssetVersion } from '@/lib/service-icons'
 import { routes } from '@/lib/routes'
 
 const TIME_WINDOWS = [
@@ -306,7 +307,7 @@ export default function BookingPage() {
                     <p className="text-sm text-red-700 mb-3">{fieldErrors.service}</p>
                   )}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {DISPATCH_SERVICES.map((service) => (
+                    {DISPATCH_SERVICES.map((service, index) => (
                       <button
                         key={service.id}
                         type="button"
@@ -320,14 +321,14 @@ export default function BookingPage() {
                         }`}
                       >
                         <div className="flex gap-4 items-center">
-                          <div className="relative w-14 h-14 sm:w-16 sm:h-16 rounded-xl overflow-hidden bg-gradient-to-br from-emerald-50 to-blue-50 border border-black/5 flex-shrink-0">
-                            <img
+                          <div className="relative h-14 w-14 flex-shrink-0 overflow-hidden rounded-xl border border-black/5 bg-gradient-to-br from-emerald-50 to-blue-50 sm:h-16 sm:w-16">
+                            <Image
                               src={withAssetVersion(service.image)}
                               alt={service.name}
-                              loading="eager"
-                              decoding="async"
-                              className="h-full w-full object-contain p-2"
-                              style={{ filter: SERVICE_ICON_FILTER }}
+                              fill
+                              sizes="64px"
+                              priority={index < 6}
+                              className="object-contain p-2 [filter:hue-rotate(28deg)_saturate(0.62)_brightness(0.98)_contrast(1.08)]"
                             />
                           </div>
                           <div>

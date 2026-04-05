@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import Image from 'next/image'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { SiteHeader } from '@/components/SiteHeader'
@@ -6,7 +7,7 @@ import { SiteFooter } from '@/components/SiteFooter'
 import { ProviderSpotlight } from '@/components/ProviderSpotlight'
 import { ExternalLink } from '@/components/ExternalLink'
 import { DISPATCH_SERVICES, getDispatchServiceBySlug } from '@/lib/services'
-import { SERVICE_ICON_FILTER, withAssetVersion } from '@/lib/service-icons'
+import { withAssetVersion } from '@/lib/service-icons'
 import { routes } from '@/lib/routes'
 import { getPublicAppUrl } from '@/lib/env'
 import { GOOGLE_REVIEWS_URL, getServiceReviews } from '@/lib/reviews'
@@ -380,13 +381,14 @@ export default function DienstDetailPage({ params }: Props) {
           </nav>
 
           <header className="bg-white rounded-2xl shadow-sm border border-black/5 p-5 sm:p-8 md:p-10 flex flex-col md:flex-row gap-6 sm:gap-8 items-center">
-            <div className="relative w-28 h-28 sm:w-40 sm:h-40 md:w-48 md:h-48 rounded-2xl overflow-hidden bg-gradient-to-br from-emerald-50 to-blue-50 border border-black/5 flex-shrink-0">
-              {/* Use plain <img> for local /assets icons: more reliable on mobile Safari than Next/Image optimizer. */}
-              <img
+            <div className="relative h-28 w-28 sm:h-40 sm:w-40 md:h-48 md:w-48 flex-shrink-0 overflow-hidden rounded-2xl border border-black/5 bg-gradient-to-br from-emerald-50 to-blue-50">
+              <Image
                 src={withAssetVersion(service.image)}
                 alt={service.name}
-                loading="eager"
-                decoding="async"
+                width={192}
+                height={192}
+                priority
+                sizes="(max-width: 640px) 112px, (max-width: 768px) 160px, 192px"
                 className="h-full w-full object-contain p-3 md:[filter:hue-rotate(28deg)_saturate(0.62)_brightness(0.98)_contrast(1.08)]"
               />
             </div>
@@ -510,14 +512,14 @@ export default function DienstDetailPage({ params }: Props) {
             {service.id === 'GROUP_DOG_WALKING' && (
               <div className="flex justify-end">
                 <div className="bg-gradient-to-br from-green-500 via-emerald-400 to-blue-500 p-[3px] rounded-3xl shadow-[0_10px_30px_rgba(16,185,129,0.18)]">
-                  <div className="relative w-[88vw] max-w-[560px] sm:w-[65vw] md:w-[38vw] lg:w-[26vw] aspect-[4/3] bg-white rounded-[calc(1.5rem-3px)] overflow-hidden border border-white/60">
-                  <img
-                    src={withAssetVersion('/assets/groepsuitlaat-hero.jpg')}
-                    alt="Hondenuitlaatservice in actie"
-                    loading="lazy"
-                    decoding="async"
-                    className="h-full w-full object-cover md:[filter:brightness(1.08)]"
-                  />
+                  <div className="relative aspect-[4/3] w-[88vw] max-w-[560px] overflow-hidden rounded-[calc(1.5rem-3px)] border border-white/60 bg-white sm:w-[65vw] md:w-[38vw] lg:w-[26vw]">
+                    <Image
+                      src={withAssetVersion('/assets/groepsuitlaat-hero.jpg')}
+                      alt="Hondenuitlaatservice in actie"
+                      fill
+                      sizes="(max-width: 640px) 88vw, (max-width: 1024px) 65vw, 560px"
+                      className="object-cover md:[filter:brightness(1.08)]"
+                    />
                   </div>
                 </div>
               </div>
@@ -525,13 +527,13 @@ export default function DienstDetailPage({ params }: Props) {
             {service.id === 'DOG_WALKING' && (
               <div className="flex justify-end">
                 <div className="bg-gradient-to-br from-green-500 via-emerald-400 to-blue-500 p-[3px] rounded-3xl shadow-[0_10px_30px_rgba(16,185,129,0.18)]">
-                  <div className="relative w-[88vw] max-w-[560px] sm:w-[65vw] md:w-[38vw] lg:w-[26vw] aspect-[4/3] bg-white rounded-[calc(1.5rem-3px)] overflow-hidden border border-white/60">
-                    <img
+                  <div className="relative aspect-[4/3] w-[88vw] max-w-[560px] overflow-hidden rounded-[calc(1.5rem-3px)] border border-white/60 bg-white sm:w-[65vw] md:w-[38vw] lg:w-[26vw]">
+                    <Image
                       src={withAssetVersion('/assets/hondenuitlaat-hero.jpg')}
                       alt="Hondenuitlaat in actie"
-                      loading="lazy"
-                      decoding="async"
-                      className="h-full w-full object-cover md:[filter:brightness(1.08)]"
+                      fill
+                      sizes="(max-width: 640px) 88vw, (max-width: 1024px) 65vw, 560px"
+                      className="object-cover md:[filter:brightness(1.08)]"
                     />
                   </div>
                 </div>
@@ -540,13 +542,13 @@ export default function DienstDetailPage({ params }: Props) {
             {service.id === 'DOG_TRAINING' && (
               <div className="flex justify-end">
                 <div className="bg-gradient-to-br from-green-500 via-emerald-400 to-blue-500 p-[3px] rounded-3xl shadow-[0_10px_30px_rgba(16,185,129,0.18)]">
-                  <div className="relative w-[88vw] max-w-[560px] sm:w-[65vw] md:w-[38vw] lg:w-[26vw] aspect-[4/3] bg-white rounded-[calc(1.5rem-3px)] overflow-hidden border border-white/60">
-                    <img
+                  <div className="relative aspect-[4/3] w-[88vw] max-w-[560px] overflow-hidden rounded-[calc(1.5rem-3px)] border border-white/60 bg-white sm:w-[65vw] md:w-[38vw] lg:w-[26vw]">
+                    <Image
                       src={withAssetVersion('/assets/dog-training-hero.jpg')}
                       alt="Hondentraining in actie"
-                      loading="lazy"
-                      decoding="async"
-                      className="h-full w-full object-cover md:[filter:brightness(1.08)]"
+                      fill
+                      sizes="(max-width: 640px) 88vw, (max-width: 1024px) 65vw, 560px"
+                      className="object-cover md:[filter:brightness(1.08)]"
                     />
                   </div>
                 </div>
@@ -555,13 +557,13 @@ export default function DienstDetailPage({ params }: Props) {
             {service.id === 'PET_SITTING' && (
               <div className="flex justify-end">
                 <div className="bg-gradient-to-br from-green-500 via-emerald-400 to-blue-500 p-[3px] rounded-3xl shadow-[0_10px_30px_rgba(16,185,129,0.18)]">
-                  <div className="relative w-[88vw] max-w-[560px] sm:w-[65vw] md:w-[38vw] lg:w-[26vw] aspect-[4/3] bg-white rounded-[calc(1.5rem-3px)] overflow-hidden border border-white/60">
-                    <img
+                  <div className="relative aspect-[4/3] w-[88vw] max-w-[560px] overflow-hidden rounded-[calc(1.5rem-3px)] border border-white/60 bg-white sm:w-[65vw] md:w-[38vw] lg:w-[26vw]">
+                    <Image
                       src={withAssetVersion('/assets/kat-hero.jpg')}
                       alt="Dierenoppas in actie"
-                      loading="lazy"
-                      decoding="async"
-                      className="h-full w-full object-cover md:[filter:brightness(1.08)]"
+                      fill
+                      sizes="(max-width: 640px) 88vw, (max-width: 1024px) 65vw, 560px"
+                      className="object-cover md:[filter:brightness(1.08)]"
                     />
                   </div>
                 </div>
@@ -570,13 +572,13 @@ export default function DienstDetailPage({ params }: Props) {
             {service.id === 'PET_BOARDING' && (
               <div className="flex justify-end">
                 <div className="bg-gradient-to-br from-green-500 via-emerald-400 to-blue-500 p-[3px] rounded-3xl shadow-[0_10px_30px_rgba(16,185,129,0.18)]">
-                  <div className="relative w-[88vw] max-w-[560px] sm:w-[65vw] md:w-[38vw] lg:w-[26vw] aspect-[4/3] bg-white rounded-[calc(1.5rem-3px)] overflow-hidden border border-white/60">
-                    <img
+                  <div className="relative aspect-[4/3] w-[88vw] max-w-[560px] overflow-hidden rounded-[calc(1.5rem-3px)] border border-white/60 bg-white sm:w-[65vw] md:w-[38vw] lg:w-[26vw]">
+                    <Image
                       src={withAssetVersion('/assets/cavia-hero.jpg')}
                       alt="Dierenopvang in actie"
-                      loading="lazy"
-                      decoding="async"
-                      className="h-full w-full object-cover md:[filter:brightness(1.08)]"
+                      fill
+                      sizes="(max-width: 640px) 88vw, (max-width: 1024px) 65vw, 560px"
+                      className="object-cover md:[filter:brightness(1.08)]"
                     />
                   </div>
                 </div>
@@ -585,13 +587,13 @@ export default function DienstDetailPage({ params }: Props) {
             {service.id === 'HOME_CARE' && (
               <div className="flex justify-end">
                 <div className="bg-gradient-to-br from-green-500 via-emerald-400 to-blue-500 p-[3px] rounded-3xl shadow-[0_10px_30px_rgba(16,185,129,0.18)]">
-                  <div className="relative w-[88vw] max-w-[560px] sm:w-[65vw] md:w-[38vw] lg:w-[26vw] aspect-[4/3] bg-white rounded-[calc(1.5rem-3px)] overflow-hidden border border-white/60">
-                    <img
+                  <div className="relative aspect-[4/3] w-[88vw] max-w-[560px] overflow-hidden rounded-[calc(1.5rem-3px)] border border-white/60 bg-white sm:w-[65vw] md:w-[38vw] lg:w-[26vw]">
+                    <Image
                       src={withAssetVersion('/assets/rabbit-hero.jpg')}
                       alt="Verzorging aan huis"
-                      loading="lazy"
-                      decoding="async"
-                      className="h-full w-full object-cover md:[filter:brightness(1.08)]"
+                      fill
+                      sizes="(max-width: 640px) 88vw, (max-width: 1024px) 65vw, 560px"
+                      className="object-cover md:[filter:brightness(1.08)]"
                     />
                   </div>
                 </div>
@@ -600,13 +602,13 @@ export default function DienstDetailPage({ params }: Props) {
             {service.id === 'PET_TRANSPORT' && (
               <div className="flex justify-end">
                 <div className="bg-gradient-to-br from-green-500 via-emerald-400 to-blue-500 p-[3px] rounded-3xl shadow-[0_10px_30px_rgba(16,185,129,0.18)]">
-                  <div className="relative w-[88vw] max-w-[560px] sm:w-[65vw] md:w-[38vw] lg:w-[26vw] aspect-[4/3] bg-white rounded-[calc(1.5rem-3px)] overflow-hidden border border-white/60">
-                    <img
+                  <div className="relative aspect-[4/3] w-[88vw] max-w-[560px] overflow-hidden rounded-[calc(1.5rem-3px)] border border-white/60 bg-white sm:w-[65vw] md:w-[38vw] lg:w-[26vw]">
+                    <Image
                       src={withAssetVersion('/assets/cat-eye-hero.jpg')}
                       alt="Transport huisdieren"
-                      loading="lazy"
-                      decoding="async"
-                      className="h-full w-full object-cover md:[filter:brightness(1.08)]"
+                      fill
+                      sizes="(max-width: 640px) 88vw, (max-width: 1024px) 65vw, 560px"
+                      className="object-cover md:[filter:brightness(1.08)]"
                     />
                   </div>
                 </div>
@@ -615,13 +617,13 @@ export default function DienstDetailPage({ params }: Props) {
             {service.id === 'SMALL_ANIMAL_CARE' && (
               <div className="flex justify-end">
                 <div className="bg-gradient-to-br from-green-500 via-emerald-400 to-blue-500 p-[3px] rounded-3xl shadow-[0_10px_30px_rgba(16,185,129,0.18)]">
-                  <div className="relative w-[88vw] max-w-[560px] sm:w-[65vw] md:w-[38vw] lg:w-[26vw] aspect-[4/3] bg-white rounded-[calc(1.5rem-3px)] overflow-hidden border border-white/60">
-                    <img
+                  <div className="relative aspect-[4/3] w-[88vw] max-w-[560px] overflow-hidden rounded-[calc(1.5rem-3px)] border border-white/60 bg-white sm:w-[65vw] md:w-[38vw] lg:w-[26vw]">
+                    <Image
                       src={withAssetVersion('/assets/horse-hero.jpg')}
                       alt="Verzorging van boerderijdieren"
-                      loading="lazy"
-                      decoding="async"
-                      className="h-full w-full object-cover md:[filter:brightness(1.08)]"
+                      fill
+                      sizes="(max-width: 640px) 88vw, (max-width: 1024px) 65vw, 560px"
+                      className="object-cover md:[filter:brightness(1.08)]"
                     />
                   </div>
                 </div>
@@ -630,14 +632,13 @@ export default function DienstDetailPage({ params }: Props) {
             {service.id === 'EVENT_COMPANION' && (
               <div className="flex justify-end">
                 <div className="bg-gradient-to-br from-green-500 via-emerald-400 to-blue-500 p-[3px] rounded-3xl shadow-[0_10px_30px_rgba(16,185,129,0.18)]">
-                  <div className="relative w-[72vw] max-w-[420px] sm:w-[40vw] md:w-[22vw] lg:w-[16vw] aspect-[3/4] bg-white rounded-[calc(1.5rem-3px)] overflow-hidden border border-white/60">
-                    <img
+                  <div className="relative aspect-[3/4] w-[72vw] max-w-[420px] overflow-hidden rounded-[calc(1.5rem-3px)] border border-white/60 bg-white sm:w-[40vw] md:w-[22vw] lg:w-[16vw]">
+                    <Image
                       src={withAssetVersion('/assets/wedding-hero.jpg')}
                       alt="Begeleiding events"
-                      loading="lazy"
-                      decoding="async"
-                      className="h-full w-full object-cover md:[filter:brightness(1.08)]"
-                      style={{ objectPosition: '50% 20%' }}
+                      fill
+                      sizes="(max-width: 640px) 72vw, (max-width: 1024px) 40vw, 420px"
+                      className="object-cover object-[50%_20%] md:[filter:brightness(1.08)]"
                     />
                   </div>
                 </div>
@@ -765,14 +766,13 @@ export default function DienstDetailPage({ params }: Props) {
                   data-service-slug={s.slug}
                   className="group bg-white rounded-2xl shadow-sm hover:shadow-tt transition-all border border-black/5 overflow-hidden"
                 >
-                  <div className="relative h-36 w-full overflow-hidden bg-gradient-to-br from-emerald-50 to-blue-50 flex items-center justify-center p-5">
-                    <img
+                  <div className="relative h-36 w-full overflow-hidden bg-gradient-to-br from-emerald-50 to-blue-50 p-5">
+                    <Image
                       src={withAssetVersion(s.image)}
                       alt={s.name}
-                      loading="lazy"
-                      decoding="async"
-                      className="h-full w-full object-contain group-hover:scale-105 transition-transform duration-300"
-                      style={{ filter: SERVICE_ICON_FILTER }}
+                      fill
+                      sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                      className="object-contain transition-transform duration-300 [filter:hue-rotate(28deg)_saturate(0.62)_brightness(0.98)_contrast(1.08)] group-hover:scale-105"
                     />
                   </div>
                   <div className="p-5">

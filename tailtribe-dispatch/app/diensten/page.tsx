@@ -1,9 +1,10 @@
 import type { Metadata } from 'next'
+import Image from 'next/image'
 import Link from 'next/link'
 import { SiteHeader } from '@/components/SiteHeader'
 import { SiteFooter } from '@/components/SiteFooter'
 import { DISPATCH_SERVICES } from '@/lib/services'
-import { SERVICE_ICON_FILTER, withAssetVersion } from '@/lib/service-icons'
+import { withAssetVersion } from '@/lib/service-icons'
 import { routes } from '@/lib/routes'
 import { getPublicAppUrl } from '@/lib/env'
 
@@ -76,7 +77,7 @@ export default function DienstenPage() {
           </header>
 
           <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 mb-12">
-            {visibleServices.map((service) => (
+            {visibleServices.map((service, index) => (
               <Link
                 key={service.id}
                 href={routes.dienst(service.slug)}
@@ -86,14 +87,14 @@ export default function DienstenPage() {
                 data-service-slug={service.slug}
                 className="group bg-white rounded-2xl shadow-sm hover:shadow-tt transition-all border border-black/5 overflow-hidden"
               >
-                <div className="relative h-36 sm:h-40 w-full overflow-hidden bg-gradient-to-br from-emerald-50 to-blue-50 flex items-center justify-center p-3 sm:p-4">
-                  {/* Use plain <img> for local /assets icons: more reliable on mobile Safari than Next/Image optimizer. */}
-                  <img
+                <div className="relative h-36 w-full overflow-hidden bg-gradient-to-br from-emerald-50 to-blue-50 p-3 sm:h-40 sm:p-4">
+                  <Image
                     src={withAssetVersion(service.image)}
                     alt={service.name}
-                    loading="eager"
-                    decoding="async"
-                    className="block h-full w-full max-w-full object-contain md:group-hover:scale-105 md:transition-transform md:duration-300 md:[filter:hue-rotate(28deg)_saturate(0.62)_brightness(0.98)_contrast(1.08)]"
+                    fill
+                    sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                    priority={index < 3}
+                    className="object-contain transition-transform duration-300 md:group-hover:scale-105 md:[filter:hue-rotate(28deg)_saturate(0.62)_brightness(0.98)_contrast(1.08)]"
                   />
                 </div>
                 <div className="p-5 sm:p-6">
