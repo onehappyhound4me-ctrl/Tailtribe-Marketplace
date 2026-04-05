@@ -218,10 +218,10 @@ export default function PlaceLandingPage({ params }: Props) {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-green-50 via-white to-blue-50">
+    <div className="min-h-screen bg-slate-50/80">
       <SiteHeader primaryCtaHref="/boeken" primaryCtaLabel="Boek Nu" />
 
-      <main className="container mx-auto px-4 py-12">
+      <main className="container mx-auto px-4 py-12 md:py-16">
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
@@ -234,52 +234,45 @@ export default function PlaceLandingPage({ params }: Props) {
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
         />
-        <div className="max-w-4xl mx-auto">
-          <nav className="flex items-center space-x-2 text-sm text-gray-500 mb-6">
-            <Link href="/" className="hover:text-gray-700">
+        <div className="mx-auto max-w-3xl">
+          <nav className="mb-8 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-slate-500">
+            <Link href="/" className="hover:text-slate-800">
               Home
             </Link>
-            <span>›</span>
-            <Link href="/be" className="hover:text-gray-700">
+            <span className="text-slate-300">/</span>
+            <Link href="/be" className="hover:text-slate-800">
               België
             </Link>
-            <span>›</span>
-            <Link href={`/be/${province.slug}`} className="hover:text-gray-700">
+            <span className="text-slate-300">/</span>
+            <Link href={`/be/${province.slug}`} className="hover:text-slate-800">
               {province.name}
             </Link>
-            <span>›</span>
-            <span className="text-gray-900">{place.name}</span>
+            <span className="text-slate-300">/</span>
+            <span className="font-medium text-slate-900">{place.name}</span>
           </nav>
 
-          <header className="mb-10 text-center">
-            <p className="mb-3 text-sm font-semibold uppercase tracking-[0.18em] text-emerald-700">
-              TailTribe in {place.name}
+          <header className="mb-12 text-left">
+            <p className="text-xs font-medium uppercase tracking-[0.12em] text-emerald-800">
+              TailTribe · {place.name}
             </p>
-            <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
+            <h1 className="mt-3 text-3xl font-semibold tracking-tight text-slate-900 md:text-4xl md:leading-tight">
               {focus ? `Hondenuitlaatservice aan huis in ${place.name}` : `Dierenoppas in ${place.name}`}
             </h1>
-            <p className="mx-auto max-w-2xl text-lg leading-8 text-gray-600 md:text-xl">
+            <p className="mt-4 max-w-2xl text-base leading-relaxed text-slate-600 md:text-lg">
               {focus
-                ? `Zoek je hondenuitlaatservice aan huis in ${place.name}? Wij helpen met sociale daguitstappen, ophalen en terugbrengen, en een zorgvuldige planning voor honden die graag samen op pad gaan.`
-                : `Zoek je een betrouwbare dierenoppasser in ${place.name}? Van hondenuitlaat en dierenoppas tot dierenopvang en verzorging aan huis: hier vind je sneller de juiste match voor je huisdier.`}
+                ? `Hondenuitlaatservice aan huis: sociale daguitstappen, ophalen en terugbrengen, en duidelijke planning voor honden die graag samen op pad gaan.`
+                : `Van hondenuitlaat en dierenoppas tot opvang en verzorging aan huis. We matchen je aanvraag met passende zorg in jouw regio.`}
             </p>
-            <div className="mt-5 flex flex-wrap items-center justify-center gap-2">
-              {trustPillars.map((label) => (
-                <span
-                  key={label}
-                  className="inline-flex items-center rounded-full border border-emerald-100 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 shadow-sm"
-                >
-                  {label}
-                </span>
-              ))}
-            </div>
-            <div className="mt-6 flex flex-col items-center gap-4">
+            <p className="mt-5 text-sm text-slate-500">
+              {trustPillars.join(' · ')}
+            </p>
+            <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
               {focus ? (
                 <>
                   <Link href="/boeken?service=GROUP_DOG_WALKING" className="btn-brand-compact">
                     Bekijk beschikbaarheid aan huis
                   </Link>
-                  <Link href="/diensten/hondenuitlaatservice" className="text-sm font-medium text-gray-600 hover:text-gray-900">
+                  <Link href="/diensten/hondenuitlaatservice" className="btn-secondary-compact sm:inline-flex">
                     Meer over hondenuitlaatservice
                   </Link>
                 </>
@@ -288,7 +281,7 @@ export default function PlaceLandingPage({ params }: Props) {
                   <Link href="/boeken" className="btn-brand-compact">
                     Vind de juiste service voor je huisdier
                   </Link>
-                  <Link href="/diensten" className="text-sm font-medium text-gray-600 hover:text-gray-900">
+                  <Link href="/diensten" className="btn-secondary-compact sm:inline-flex">
                     Bekijk alle diensten
                   </Link>
                 </>
@@ -296,265 +289,181 @@ export default function PlaceLandingPage({ params }: Props) {
             </div>
           </header>
 
-          <section className="mb-8 rounded-3xl border border-emerald-100 bg-gradient-to-br from-white via-emerald-50/70 to-sky-50 p-6 shadow-sm md:p-10">
-            <p className="text-sm font-semibold uppercase tracking-[0.14em] text-emerald-800">
-              {focus ? 'Lokale focus' : 'Voor huisdiereigenaars'}
-            </p>
-            <h2 className="mt-3 max-w-2xl text-2xl font-semibold leading-tight text-gray-900 md:text-3xl">
+          <section className="mb-12 rounded-2xl border border-slate-200/90 bg-white p-8 md:p-10">
+            <h2 className="text-xl font-semibold leading-snug text-slate-900 md:text-2xl">
               {focus
-                ? `Hondenuitlaatservice aan huis in ${place.name}, helder en praktisch geregeld`
-                : `Snel duidelijkheid over de juiste hulp voor je huisdier in ${place.name}`}
+                ? `Hoe we hondenuitlaatservice aan huis in ${place.name} aanpakken`
+                : `Wat je van TailTribe in ${place.name} mag verwachten`}
             </h2>
-            <p className="mt-4 max-w-2xl text-base leading-8 text-gray-700">
+            <p className="mt-4 max-w-2xl text-base leading-relaxed text-slate-600">
               {focus
-                ? `Voor honden in ${place.name} en omgeving die graag samen op pad gaan, zorgen we voor een duidelijke planning, veilige routes en een aanpak die past bij karakter en energie. We halen je hond aan huis op en bevestigen pas wanneer alles praktisch goed zit.`
-                : `We bekijken je aanvraag en zoeken de juiste match in jouw regio. Van hondenuitlaat en dierenoppas tot dierenopvang en verzorging aan huis: je krijgt een voorstel dat past bij je dier, je planning en je locatie.`}
+                ? `We plannen helder, kiezen veilige routes en stemmen de groep en het tempo af op jouw hond. Ophalen en terugbrengen gebeurt in overleg; je krijgt geen vaag voorstel maar concrete afspraken.`
+                : `We lezen je aanvraag, nemen contact op en stellen een voorstel voor dat past bij dier, agenda en locatie. Geen eindeloos vergelijken: één duidelijke lijn naar de juiste hulp.`}
             </p>
-            <div className="mt-5 flex flex-wrap gap-2">
-              {(focus
-                ? ['Aan huis ophalen', 'Sociale daguitstappen', 'Zorgvuldige matching', 'Veilige routes']
-                : ['Hondenuitlaat', 'Dierenoppas', 'Dierenopvang', 'Verzorging aan huis']
-              ).map((label) => (
-                <span
-                  key={label}
-                  className="inline-flex items-center rounded-full border border-emerald-100 bg-white/90 px-3 py-1.5 text-sm font-medium text-gray-700"
-                >
-                  {label}
-                </span>
-              ))}
-            </div>
-            <div className="mt-6">
-              <Link href={focus ? '/boeken?service=GROUP_DOG_WALKING' : '/boeken'} className="btn-brand-compact">
-                {focus ? 'Bekijk beschikbaarheid aan huis' : 'Vind de juiste service voor je huisdier'}
-              </Link>
-            </div>
-            <div className="mt-8 grid gap-4 md:grid-cols-3">
+            <ul className="mt-8 divide-y divide-slate-100 border-t border-slate-100">
               {(focus
                 ? [
                     {
-                      title: 'Duidelijke intake',
-                      text: `We luisteren eerst naar het karakter, ritme en de noden van je hond in ${place.name}.`,
+                      title: 'Intake op maat',
+                      text: `Karakter, ritme en praktische details van je hond in ${place.name}.`,
                     },
                     {
-                      title: 'Heldere planning',
-                      text: 'Ophalen, terugbrengen en praktische afspraken worden vooraf duidelijk afgestemd.',
+                      title: 'Planning en ophalen',
+                      text: 'Afspraken over momenten en adres worden vooraf vastgelegd.',
                     },
                     {
-                      title: 'Rust voor baasjes',
-                      text: 'Je hoeft niet zelf eindeloos te zoeken of te twijfelen wat het best past.',
+                      title: 'Minder zoekstress',
+                      text: 'Wij brengen structuur in je aanvraag zodat jij minder hoeft te gokken.',
                     },
                   ]
                 : [
                     {
-                      title: 'Lokale matching',
-                      text: `We zoeken hulp die praktisch haalbaar is in ${place.name} en omgeving.`,
+                      title: 'Match in jouw regio',
+                      text: `Hulp die haalbaar is rond ${place.name}.`,
                     },
                     {
-                      title: 'Gerichte hulp',
-                      text: 'Je krijgt geen overload aan keuzes, maar duidelijke hulp op basis van je aanvraag.',
+                      title: 'Passende dienst',
+                      text: 'Uitlaat, oppas, opvang of zorg aan huis: wat echt bij je past.',
                     },
                     {
-                      title: 'Vertrouwen voorop',
-                      text: 'Voor veel baasjes telt vooral rust: iemand vinden die goed voelt voor hun huisdier.',
+                      title: 'Persoonlijke opvolging',
+                      text: 'Korte lijnen na je aanvraag.',
                     },
                   ]
               ).map((item) => (
-                <div key={item.title} className="rounded-2xl border border-white/80 bg-white/90 p-5 shadow-sm">
-                  <h3 className="text-base font-semibold leading-snug text-gray-900">{item.title}</h3>
-                  <p className="mt-2 text-sm leading-7 text-gray-700">{item.text}</p>
-                </div>
+                <li key={item.title} className="flex gap-4 py-5 first:pt-6">
+                  <span className="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-emerald-600" aria-hidden />
+                  <div>
+                    <h3 className="font-medium text-slate-900">{item.title}</h3>
+                    <p className="mt-1 text-sm leading-relaxed text-slate-600">{item.text}</p>
+                  </div>
+                </li>
               ))}
-            </div>
+            </ul>
           </section>
 
-          <section className="mb-6 rounded-2xl border border-black/5 bg-white p-8 shadow-sm">
-            <p className="text-sm font-semibold uppercase tracking-[0.14em] text-slate-500">Waarom TailTribe</p>
-            <h2 className="mt-3 text-2xl font-semibold leading-tight text-gray-900">
-              {focus ? `Waarom kiezen baasjes in ${place.name} voor TailTribe?` : `Dierenoppas en huisdierenzorg in ${place.name}`}
+          <section className="mb-12 rounded-2xl border border-slate-200/90 bg-white p-8 md:p-10">
+            <p className="text-xs font-medium uppercase tracking-[0.12em] text-slate-500">Waarom TailTribe</p>
+            <h2 className="mt-2 text-xl font-semibold leading-snug text-slate-900 md:text-2xl">
+              {focus ? `Waar baasjes in ${place.name} op rekenen` : `Dierenoppas en zorg in ${place.name}`}
             </h2>
             {focus ? (
-              <>
-                <p className="mb-6 mt-4 max-w-2xl text-base leading-8 text-gray-700">
-                  Je zoekt niet zomaar een dienst, maar een dierenoppasser die betrouwbaar voelt en praktisch werkt voor
-                  jouw weekplanning. Daarom houden we de aanvraag eenvoudig en de opvolging persoonlijk.
-                </p>
-                <div className="grid gap-4 md:grid-cols-3">
-                  {[
-                    {
-                      title: 'Ophalen aan huis',
-                      text: `We stemmen af waar en wanneer we je hond in ${place.name} ophalen en terugbrengen.`,
-                    },
-                    {
-                      title: 'Kleine passende groep',
-                      text: 'We kijken eerst naar karakter, energie en compatibiliteit voor we een hond laten meedraaien.',
-                    },
-                    {
-                      title: 'Veilige routes',
-                      text: 'We kiezen routes en daguitstappen met aandacht voor rust, veiligheid en voldoende beweging.',
-                    },
-                  ].map((item) => (
-                    <div key={item.title} className="rounded-2xl border border-emerald-100 bg-emerald-50/50 p-5">
-                      <h3 className="text-base font-semibold leading-snug text-gray-900">{item.title}</h3>
-                      <p className="mt-2 text-sm leading-7 text-gray-700">{item.text}</p>
-                    </div>
-                  ))}
-                </div>
-              </>
+              <p className="mt-4 max-w-2xl text-base leading-relaxed text-slate-600">
+                Je zoekt iemand die betrouwbaar aanvoelt en past bij je week. Ophalen aan huis, een kleine groep die
+                inhoudelijk klopt en routes met aandacht voor rust en veiligheid: alles wordt afgestemd voordat je hond
+                mee is.
+              </p>
             ) : (
-              <>
-                <p className="mb-6 mt-4 max-w-2xl text-base leading-8 text-gray-700">
-                  In {place.name} en omgeving helpen we baasjes die op zoek zijn naar een betrouwbare dierenoppasser of
-                  andere huisdierenzorg. Je hoeft niet zelf uit te zoeken welke dienst het best past: we denken mee op
-                  basis van je dier, je planning en je locatie.
-                </p>
-                <div className="grid gap-4 md:grid-cols-3">
-                  {[
-                    {
-                      title: 'Minder zoekwerk',
-                      text: 'Je start met een korte aanvraag en hoeft niet zelf tientallen profielen te vergelijken.',
-                    },
-                    {
-                      title: 'Passende service',
-                      text: 'We denken mee of hondenuitlaat, dierenoppas, opvang of zorg aan huis het best past.',
-                    },
-                    {
-                      title: 'Meer vertrouwen',
-                      text: `Voor baasjes in ${place.name} telt vooral rust: weten dat hun huisdier goed zit.`,
-                    },
-                  ].map((item) => (
-                    <div key={item.title} className="rounded-2xl border border-slate-200 bg-slate-50/70 p-5">
-                      <h3 className="text-base font-semibold leading-snug text-gray-900">{item.title}</h3>
-                      <p className="mt-2 text-sm leading-7 text-gray-700">{item.text}</p>
-                    </div>
-                  ))}
-                </div>
-              </>
+              <p className="mt-4 max-w-2xl text-base leading-relaxed text-slate-600">
+                In {place.name} en omgeving helpen we je zonder profiel-doolhof: korte aanvraag, duidelijke opvolging, en
+                een voorstel dat past bij je dier en je planning.
+              </p>
             )}
           </section>
 
-          <section className="rounded-2xl border border-black/5 bg-white p-8 shadow-sm">
-            <p className="text-sm font-semibold uppercase tracking-[0.14em] text-slate-500">Zo werkt het</p>
-            <h2 className="mt-3 text-2xl font-semibold leading-tight text-gray-900">Hoe werkt het?</h2>
-            <p className="mb-6 mt-4 max-w-2xl text-base leading-8 text-gray-700">
-              Een aanvraag indienen hoeft niet zwaar te voelen. We houden het bewust eenvoudig zodat je snel weet wat
-              haalbaar is in {place.name}.
+          <section className="mb-12 rounded-2xl border border-slate-200/90 bg-white p-8 md:p-10">
+            <p className="text-xs font-medium uppercase tracking-[0.12em] text-slate-500">Zo werkt het</p>
+            <h2 className="mt-2 text-xl font-semibold leading-snug text-slate-900 md:text-2xl">In drie stappen</h2>
+            <p className="mt-4 max-w-2xl text-base leading-relaxed text-slate-600">
+              Kort en overzichtelijk, zodat je snel weet wat haalbaar is in {place.name}.
             </p>
-            {focus ? (
-              <div className="grid gap-4 md:grid-cols-3">
-                {[
-                  {
-                    step: '01',
-                    title: 'Vertel kort wat je zoekt',
-                    text: 'Geef door waar je woont, wanneer je hulp nodig hebt en wat voor hond je hebt.',
-                  },
-                  {
-                    step: '02',
-                    title: 'We bekijken wat haalbaar is',
-                    text: 'We checken of hondenuitlaatservice aan huis in jouw zone praktisch en inhoudelijk past.',
-                  },
-                  {
-                    step: '03',
-                    title: 'We plannen alles duidelijk in',
-                    text: 'Na akkoord leggen we de eerste uitlaatmomenten en afspraken rond ophalen vast.',
-                  },
-                ].map((item) => (
-                  <div key={item.title} className="rounded-2xl border border-black/5 bg-slate-50/70 p-6">
-                    <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-100 text-base font-semibold text-emerald-900">
-                      {item.step}
-                    </div>
-                    <h3 className="text-base font-semibold leading-snug text-gray-900">{item.title}</h3>
-                    <p className="mt-2 text-sm leading-7 text-gray-700">{item.text}</p>
+            <ol className="mt-8 space-y-6 border-t border-slate-100 pt-6">
+              {(focus
+                ? [
+                    {
+                      step: '1',
+                      title: 'Vertel kort wat je zoekt',
+                      text: 'Waar je woont, wanneer je hulp nodig hebt en wat voor hond je hebt.',
+                    },
+                    {
+                      step: '2',
+                      title: 'We bekijken wat haalbaar is',
+                      text: 'We checken of hondenuitlaatservice aan huis in jouw zone praktisch en inhoudelijk past.',
+                    },
+                    {
+                      step: '3',
+                      title: 'We leggen het vast',
+                      text: 'Na akkoord plannen we de eerste momenten en afspraken rond ophalen.',
+                    },
+                  ]
+                : [
+                    {
+                      step: '1',
+                      title: 'Dien je aanvraag in',
+                      text: 'Welke hulp je zoekt, waar je woont en wat voor huisdier je hebt.',
+                    },
+                    {
+                      step: '2',
+                      title: 'We denken mee',
+                      text: 'We nemen contact op en bekijken welke oplossing het best past.',
+                    },
+                    {
+                      step: '3',
+                      title: 'Je krijgt een voorstel',
+                      text: 'Een voorstel afgestemd op dier, planning en regio.',
+                    },
+                  ]
+              ).map((item) => (
+                <li key={item.title} className="flex gap-4">
+                  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-slate-200 bg-slate-50 text-sm font-medium text-slate-800">
+                    {item.step}
+                  </span>
+                  <div>
+                    <h3 className="font-medium text-slate-900">{item.title}</h3>
+                    <p className="mt-1 text-sm leading-relaxed text-slate-600">{item.text}</p>
                   </div>
-                ))}
-              </div>
-            ) : (
-              <div className="grid gap-4 md:grid-cols-3">
-                {[
-                  {
-                    step: '01',
-                    title: 'Dien je aanvraag in',
-                    text: 'Vertel welke hulp je zoekt, waar je woont en wat voor huisdier je hebt.',
-                  },
-                  {
-                    step: '02',
-                    title: 'We denken met je mee',
-                    text: 'We nemen contact op en bekijken welke oplossing het best past bij jouw situatie.',
-                  },
-                  {
-                    step: '03',
-                    title: 'Je krijgt een passend voorstel',
-                    text: 'Daarna ontvang je een voorstel dat klopt voor je dier, je planning en je regio.',
-                  },
-                ].map((item) => (
-                  <div key={item.title} className="rounded-2xl border border-black/5 bg-slate-50/70 p-6">
-                    <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-100 text-base font-semibold text-emerald-900">
-                      {item.step}
-                    </div>
-                    <h3 className="text-base font-semibold leading-snug text-gray-900">{item.title}</h3>
-                    <p className="mt-2 text-sm leading-7 text-gray-700">{item.text}</p>
-                  </div>
-                ))}
-              </div>
-            )}
-            {focus ? (
-              <div className="mt-8 flex flex-col items-center justify-center gap-3 rounded-2xl border border-emerald-100 bg-emerald-50/60 p-5 text-center">
-                <p className="text-sm leading-6 text-gray-700">
-                  Klaar om te bekijken of hondenuitlaatservice aan huis past in jouw regio?
-                </p>
-                <Link href="/boeken?service=GROUP_DOG_WALKING" className="btn-brand w-full sm:w-auto">
-                  Bekijk beschikbaarheid aan huis
-                </Link>
-              </div>
-            ) : null}
+                </li>
+              ))}
+            </ol>
           </section>
 
-          <section className="mt-6 rounded-2xl border border-black/5 bg-white p-8 shadow-sm">
-            <p className="text-sm font-semibold uppercase tracking-[0.14em] text-slate-500">Diensten</p>
-            <h2 className="mt-3 text-2xl font-semibold leading-tight text-gray-900">
+          <section className="mb-12 rounded-2xl border border-slate-200/90 bg-white p-8 md:p-10">
+            <p className="text-xs font-medium uppercase tracking-[0.12em] text-slate-500">Diensten</p>
+            <h2 className="mt-2 text-xl font-semibold leading-snug text-slate-900 md:text-2xl">
               Populaire hulp voor huisdiereigenaars in {place.name}
             </h2>
-            <p className="mb-6 mt-4 max-w-2xl text-base leading-8 text-gray-700">
+            <p className="mt-4 max-w-2xl text-base leading-relaxed text-slate-600">
               Dit zijn de meest gevraagde diensten door baasjes in {place.name}. Zo kom je sneller bij de juiste info
               zonder eerst door een lange lijst te moeten.
             </p>
-            <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+            <div className="mt-8 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
               {visibleServices.map((service) => (
-                <div key={service.id} className="flex h-full flex-col rounded-2xl border border-black/5 bg-slate-50/60 p-5">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                <div key={service.id} className="flex h-full flex-col rounded-xl border border-slate-200/80 bg-slate-50/40 p-5">
+                  <h3 className="mb-2 text-lg font-semibold text-slate-900">
                     {service.name}
                   </h3>
                   {service.id === 'DOG_WALKING' ? (
-                    <p className="text-sm leading-7 text-gray-700">
+                    <p className="text-sm leading-relaxed text-slate-600">
                       Hondenuitlaat aan huis in {place.name}, met rustige wandelingen in {localDogWalkingHighlight}.
                     </p>
                   ) : null}
                   {service.id === 'GROUP_DOG_WALKING' ? (
-                    <p className="text-sm leading-7 text-gray-700">
+                    <p className="text-sm leading-relaxed text-slate-600">
                       Hondenuitlaatservice aan huis met sociale daguitstappen, ophalen en terugbrengen in {place.name}.
                     </p>
                   ) : null}
                   {service.id === 'DOG_TRAINING' ? (
-                    <p className="text-sm leading-7 text-gray-700">
+                    <p className="text-sm leading-relaxed text-slate-600">
                       Praktische hondentraining in {place.name}, afgestemd op je hond en je dagelijkse leven.
                     </p>
                   ) : null}
                   {service.id === 'PET_SITTING' ? (
-                    <p className="text-sm leading-7 text-gray-700">
+                    <p className="text-sm leading-relaxed text-slate-600">
                       Dierenoppas en hondenoppas aan huis in {place.name}, zodat je huisdier in de vertrouwde omgeving kan blijven.
                     </p>
                   ) : null}
                   {service.id === 'PET_BOARDING' ? (
-                    <p className="text-sm leading-7 text-gray-700">
+                    <p className="text-sm leading-relaxed text-slate-600">
                       Hondenopvang en dierenopvang in {place.name} wanneer je tijdelijk een veilige plek zoekt voor je huisdier.
                     </p>
                   ) : null}
                   {service.id === 'HOME_CARE' ? (
-                    <p className="text-sm leading-7 text-gray-700">
+                    <p className="text-sm leading-relaxed text-slate-600">
                       Verzorging aan huis in {place.name} voor dieren die liefst in hun eigen omgeving blijven.
                     </p>
                   ) : null}
                   {service.id === 'PET_TRANSPORT' || service.id === 'SMALL_ANIMAL_CARE' || service.id === 'EVENT_COMPANION' ? (
-                    <p className="text-sm leading-7 text-gray-700">
+                    <p className="text-sm leading-relaxed text-slate-600">
                       Ook beschikbaar in {place.name}, afhankelijk van je vraag en de juiste match.
                     </p>
                   ) : null}
@@ -571,61 +480,61 @@ export default function PlaceLandingPage({ params }: Props) {
             </div>
           </section>
 
-          <section className="mt-6 rounded-2xl border border-black/5 bg-white p-8 shadow-sm">
-            <p className="text-sm font-semibold uppercase tracking-[0.14em] text-slate-500">Vertrouwen</p>
-            <h2 className="mt-3 text-2xl font-semibold leading-tight text-gray-900">Waarom dit vertrouwen geeft</h2>
-            <div className="grid gap-4 md:grid-cols-3">
+          <section className="mb-12 rounded-2xl border border-slate-200/90 bg-white p-8 md:p-10">
+            <p className="text-xs font-medium uppercase tracking-[0.12em] text-slate-500">Vertrouwen</p>
+            <h2 className="mt-2 text-xl font-semibold leading-snug text-slate-900 md:text-2xl">Wat baasjes zeggen</h2>
+            <div className="mt-8 grid gap-4 md:grid-cols-3">
               {ownerTestimonials.map((item) => (
-                <div key={item.name} className="rounded-2xl border border-emerald-100 bg-emerald-50/50 p-5">
-                  <p className="text-sm leading-7 text-gray-700">&quot;{item.quote}&quot;</p>
-                  <p className="mt-4 text-sm font-semibold text-gray-900">{item.name}</p>
+                <div key={item.name} className="rounded-xl border border-slate-200/80 bg-slate-50/30 p-5">
+                  <p className="text-sm leading-relaxed text-slate-600">&quot;{item.quote}&quot;</p>
+                  <p className="mt-4 text-sm font-medium text-slate-900">{item.name}</p>
                 </div>
               ))}
             </div>
           </section>
 
-          <section className="mt-6 rounded-2xl border border-black/5 bg-white p-8 shadow-sm">
-            <p className="text-sm font-semibold uppercase tracking-[0.14em] text-slate-500">Veelgestelde vragen</p>
-            <h2 className="mt-3 text-2xl font-semibold leading-tight text-gray-900">Veelgestelde vragen</h2>
-            <div className="mt-6 grid gap-4 text-gray-700 md:grid-cols-2">
-              <div className="rounded-2xl border border-slate-200 bg-slate-50/70 p-5">
-                <div className="font-semibold leading-snug text-gray-900">
+          <section className="mb-12 rounded-2xl border border-slate-200/90 bg-white p-8 md:p-10">
+            <p className="text-xs font-medium uppercase tracking-[0.12em] text-slate-500">Veelgestelde vragen</p>
+            <h2 className="mt-2 text-xl font-semibold leading-snug text-slate-900 md:text-2xl">Veelgestelde vragen</h2>
+            <div className="mt-8 grid gap-10 text-slate-600 md:grid-cols-2 md:gap-x-12">
+              <div>
+                <h3 className="font-medium leading-snug text-slate-900">
                   Wat kost een hondenuitlaat in {place.name}?
-                </div>
-                <p className="mt-2 text-sm leading-7">
+                </h3>
+                <p className="mt-2 text-sm leading-relaxed">
                   De prijs hangt af van de duur, het type wandeling (solo of kleine groep) en je exacte locatie. Na je
                   aanvraag bekijken we wat er nodig is en ontvang je een voorstel op maat, zodat je vooraf een duidelijk
                   beeld hebt van de kosten.
                 </p>
               </div>
-              <div className="rounded-2xl border border-slate-200 bg-slate-50/70 p-5">
-                <div className="font-semibold leading-snug text-gray-900">Hoe werkt een hondenuitlaatservice?</div>
-                <p className="mt-2 text-sm leading-7">
+              <div>
+                <h3 className="font-medium leading-snug text-slate-900">Hoe werkt een hondenuitlaatservice?</h3>
+                <p className="mt-2 text-sm leading-relaxed">
                   Bij een hondenuitlaatservice gaat je hond mee met een zorgvuldig geselecteerde groep sociale honden. We
                   stemmen vooraf af of je hond hiervoor geschikt is, plannen ophalen en terugbrengen en zorgen voor
                   veilige routes met voldoende rustmomenten.
                 </p>
               </div>
-              <div className="rounded-2xl border border-slate-200 bg-slate-50/70 p-5">
-                <div className="font-semibold leading-snug text-gray-900">Kan ik ook een betrouwbare dierenoppasser aanvragen?</div>
-                <p className="mt-2 text-sm leading-7">
+              <div>
+                <h3 className="font-medium leading-snug text-slate-900">Kan ik ook een betrouwbare dierenoppasser aanvragen?</h3>
+                <p className="mt-2 text-sm leading-relaxed">
                   Ja. Ook wanneer je start vanuit hondenuitlaatservice bekijken we of een betrouwbare dierenoppasser of
                   een andere vorm van hulp aan huis beter past bij jouw hond, planning en locatie in {place.name}.
                 </p>
               </div>
-              <div className="rounded-2xl border border-slate-200 bg-slate-50/70 p-5">
-                <div className="font-semibold leading-snug text-gray-900">Hoe boek ik een dierenoppas via TailTribe?</div>
-                <p className="mt-2 text-sm leading-7">
+              <div>
+                <h3 className="font-medium leading-snug text-slate-900">Hoe boek ik een dierenoppas via TailTribe?</h3>
+                <p className="mt-2 text-sm leading-relaxed">
                   Je vult online een korte aanvraag in met data, locatie en info over je huisdier. Daarna nemen we
                   contact op om je wensen te bespreken en koppelen we je aan een passende dierenverzorger in of rond{' '}
                   {place.name}.
                 </p>
               </div>
-              <div className="rounded-2xl border border-slate-200 bg-slate-50/70 p-5 md:col-span-2">
-                <div className="font-semibold leading-snug text-gray-900">
+              <div className="md:col-span-2 md:max-w-3xl">
+                <h3 className="font-medium leading-snug text-slate-900">
                   Welke diensten biedt TailTribe in {place.name}?
-                </div>
-                <p className="mt-2 text-sm leading-7">
+                </h3>
+                <p className="mt-2 text-sm leading-relaxed">
                   In deze regio kun je onder andere terecht voor hondenuitlaat, hondenuitlaatservice, hondentraining,
                   dierenoppas, kattenoppas, dierenopvang, verzorging aan huis, transport van huisdieren en – indien
                   relevant – verzorging van boerderijdieren en begeleiding tijdens events.
@@ -634,18 +543,17 @@ export default function PlaceLandingPage({ params }: Props) {
             </div>
           </section>
 
-          <section className="mt-6 rounded-3xl border border-emerald-100 bg-gradient-to-br from-white via-emerald-50/60 to-sky-50 p-6 shadow-sm md:p-10">
-            <div className="mx-auto max-w-3xl text-center">
-              <p className="text-sm font-semibold uppercase tracking-[0.14em] text-emerald-800">Laatste stap</p>
-              <h2 className="mt-3 text-2xl font-semibold leading-tight text-gray-900 md:text-3xl">
+          <section className="rounded-2xl border border-slate-200/90 bg-white p-8 md:p-10">
+            <div className="mx-auto max-w-xl text-left md:text-center">
+              <h2 className="text-xl font-semibold leading-snug text-slate-900 md:text-2xl">
                 Klaar om de juiste match in {place.name} te vinden?
               </h2>
-              <p className="mt-4 text-base leading-8 text-gray-700">
+              <p className="mt-4 text-base leading-relaxed text-slate-600">
                 {focus
-                  ? `Vertel ons waar je woont en wat je hond nodig heeft. Daarna bekijken we of hondenuitlaatservice aan huis in ${place.name} past bij jouw situatie.`
-                  : `Vertel ons wat je nodig hebt voor je huisdier. Daarna bekijken we welke dienst en welke verzorger het best aansluiten bij jouw situatie.`}
+                  ? `Laat weten waar je woont en wat je hond nodig heeft. We bekijken of hondenuitlaatservice aan huis in ${place.name} bij je situatie past.`
+                  : `Beschrijf kort wat je nodig hebt. We koppelen je aan de dienst en opvolging die bij je past.`}
               </p>
-              <div className="mt-6 flex justify-center">
+              <div className="mt-8 md:flex md:justify-center">
                 <Link href={focus ? '/boeken?service=GROUP_DOG_WALKING' : '/boeken'} className="btn-brand w-full sm:w-auto">
                   {focus ? 'Bekijk beschikbaarheid aan huis' : 'Vind de juiste service voor je huisdier'}
                 </Link>

@@ -100,10 +100,10 @@ export default function ProvinceLandingPage({ params }: Props) {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-green-50 via-white to-blue-50">
+    <div className="min-h-screen bg-slate-50/80">
       <SiteHeader primaryCtaHref="/boeken" primaryCtaLabel="Boek Nu" />
 
-      <main className="container mx-auto px-4 py-12">
+      <main className="container mx-auto px-4 py-12 md:py-16">
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
@@ -116,63 +116,46 @@ export default function ProvinceLandingPage({ params }: Props) {
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
         />
-        <div className="max-w-5xl mx-auto">
-          <nav className="flex items-center space-x-2 text-sm text-gray-500 mb-6">
-            <Link href="/" className="hover:text-gray-700">
+        <div className="mx-auto max-w-5xl">
+          <nav className="mb-8 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-slate-500">
+            <Link href="/" className="hover:text-slate-800">
               Home
             </Link>
-            <span>›</span>
-            <Link href="/be" className="hover:text-gray-700">
+            <span className="text-slate-300">/</span>
+            <Link href="/be" className="hover:text-slate-800">
               België
             </Link>
-            <span>›</span>
-            <span className="text-gray-900">{province.name}</span>
+            <span className="text-slate-300">/</span>
+            <span className="font-medium text-slate-900">{province.name}</span>
           </nav>
 
-          <header className="mb-10 text-center">
-            <p className="mb-3 text-sm font-semibold uppercase tracking-[0.18em] text-emerald-700">
-              TailTribe in {province.name}
+          <header className="mb-12 max-w-3xl text-left">
+            <p className="text-xs font-medium uppercase tracking-[0.12em] text-emerald-800">
+              TailTribe · {province.name}
             </p>
-            <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
+            <h1 className="mt-3 text-3xl font-semibold tracking-tight text-slate-900 md:text-4xl md:leading-tight">
               Dierenoppas in {province.name}
             </h1>
-            <p className="mx-auto max-w-2xl text-lg leading-8 text-gray-600 md:text-xl">
-              Vind een betrouwbare dierenoppasser in {province.name} voor hondenuitlaat, dierenoppas, dierenopvang en
-              verzorging aan huis. We helpen je sneller naar de juiste match voor je huisdier.
+            <p className="mt-4 max-w-2xl text-base leading-relaxed text-slate-600 md:text-lg">
+              Hondenuitlaat, dierenoppas, opvang en verzorging aan huis: één duidelijke lijn van aanvraag naar match,
+              zonder eindeloos zelf te vergelijken.
             </p>
-            <div className="mt-5 flex flex-wrap items-center justify-center gap-2">
-              {['Betrouwbare dierenoppasser', 'Aan huis mogelijk', 'Snelle terugkoppeling', 'Match op maat'].map((label) => (
-                <span
-                  key={label}
-                  className="inline-flex items-center rounded-full border border-emerald-100 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 shadow-sm"
-                >
-                  {label}
-                </span>
-              ))}
-            </div>
+            <p className="mt-5 text-sm text-slate-500">
+              {['Betrouwbare matching', 'Aan huis waar mogelijk', 'Snelle terugkoppeling'].join(' · ')}
+            </p>
           </header>
 
           {province.slug === 'antwerpen' ? (
-            <section className="mb-6 rounded-3xl border border-emerald-100 bg-gradient-to-br from-white via-emerald-50/60 to-sky-50 p-6 shadow-sm md:p-10">
-              <p className="text-sm font-semibold uppercase tracking-[0.14em] text-emerald-800">Snelle hulp</p>
-              <h2 className="mt-3 text-2xl font-semibold leading-tight text-gray-900 md:text-3xl">
+            <section className="mb-12 rounded-2xl border border-slate-200/90 bg-white p-8 md:p-10">
+              <p className="text-xs font-medium uppercase tracking-[0.12em] text-slate-500">Regio Antwerpen</p>
+              <h2 className="mt-2 text-xl font-semibold leading-snug text-slate-900 md:text-2xl">
                 Hondenuitlaatservice aan huis in regio Antwerpen
               </h2>
-              <p className="mt-4 max-w-2xl text-base leading-8 text-gray-700">
-                Zoek je hondenuitlaatservice aan huis in regio Antwerpen? Dien je aanvraag in en we bekijken meteen wat
-                praktisch haalbaar is voor jouw buurt, planning en hond.
+              <p className="mt-4 max-w-2xl text-base leading-relaxed text-slate-600">
+                Dien je aanvraag in; we bekijken wat haalbaar is voor jouw buurt, planning en hond. Ophalen aan huis,
+                Antwerpen en rand, zorgvuldige matching en een korte intake.
               </p>
-              <div className="mt-4 flex flex-wrap gap-2">
-                {['Aan huis ophalen', 'Antwerpen + rand', 'Zorgvuldige matching', 'Snelle intake'].map((label) => (
-                  <span
-                    key={label}
-                    className="inline-flex items-center rounded-full border border-emerald-100 bg-white/90 px-3 py-1.5 text-sm font-medium text-gray-700"
-                  >
-                    {label}
-                  </span>
-                ))}
-              </div>
-              <div className="mt-5">
+              <div className="mt-8">
                 <Link href="/boeken?service=GROUP_DOG_WALKING" className="btn-brand-compact">
                   Bekijk beschikbaarheid aan huis
                 </Link>
@@ -180,86 +163,94 @@ export default function ProvinceLandingPage({ params }: Props) {
             </section>
           ) : null}
 
-          <section className="mb-6 rounded-2xl border border-black/5 bg-white p-8 shadow-sm">
-            <p className="text-sm font-semibold uppercase tracking-[0.14em] text-slate-500">Voor huisdiereigenaars</p>
-            <h2 className="mt-3 text-2xl font-semibold leading-tight text-gray-900">Huisdierenzorg in {province.name}</h2>
-            <p className="mb-6 mt-4 max-w-2xl text-base leading-8 text-gray-700">
-              In {province.name} helpen we baasjes die op zoek zijn naar een betrouwbare dierenoppasser of andere
-              huisdierenzorg. Van hondenuitlaat en dierenoppas tot opvang, training of transport: we bekijken wat jij en
-              je dier nodig hebben.
+          <section className="mb-12 rounded-2xl border border-slate-200/90 bg-white p-8 md:p-10">
+            <p className="text-xs font-medium uppercase tracking-[0.12em] text-slate-500">Voor huisdiereigenaars</p>
+            <h2 className="mt-2 text-xl font-semibold leading-snug text-slate-900 md:text-2xl">
+              Huisdierenzorg in {province.name}
+            </h2>
+            <p className="mt-4 max-w-2xl text-base leading-relaxed text-slate-600">
+              In {province.name} helpen we je vanuit je nood en regio: hondenuitlaat, oppas, opvang, training of
+              transport — wat praktisch en inhoudelijk past.
             </p>
-            <div className="grid gap-4 md:grid-cols-3">
+            <ul className="mt-8 divide-y divide-slate-100 border-t border-slate-100">
               {[
                 {
                   title: 'Minder zoekstress',
-                  text: 'Je vertrekt vanuit je nood en regio, niet vanuit een lange lijst die je zelf moet filteren.',
+                  text: 'Je vertrekt niet vanuit een lange lijst die je zelf moet filteren.',
                 },
                 {
                   title: 'Praktische hulp',
-                  text: 'We denken mee welke service haalbaar is voor je timing, locatie en type huisdier.',
+                  text: 'We denken mee welke service haalbaar is voor timing, locatie en type huisdier.',
                 },
                 {
                   title: 'Meer vertrouwen',
-                  text: 'Voor veel baasjes telt vooral rust: weten dat hun huisdier goed zit bij de juiste match.',
+                  text: 'Rust voor baasjes: weten dat je huisdier bij de juiste match zit.',
                 },
               ].map((item) => (
-                <div key={item.title} className="rounded-2xl border border-slate-200 bg-slate-50/70 p-5">
-                  <h3 className="text-base font-semibold leading-snug text-gray-900">{item.title}</h3>
-                  <p className="mt-2 text-sm leading-7 text-gray-700">{item.text}</p>
-                </div>
+                <li key={item.title} className="flex gap-4 py-5 first:pt-6">
+                  <span className="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-emerald-600" aria-hidden />
+                  <div>
+                    <h3 className="font-medium text-slate-900">{item.title}</h3>
+                    <p className="mt-1 text-sm leading-relaxed text-slate-600">{item.text}</p>
+                  </div>
+                </li>
               ))}
-            </div>
+            </ul>
           </section>
 
-          <section className="rounded-2xl border border-black/5 bg-white p-8 shadow-sm">
-            <p className="text-sm font-semibold uppercase tracking-[0.14em] text-slate-500">Populaire locaties</p>
-            <h2 className="mt-3 text-2xl font-semibold leading-tight text-gray-900">
+          <section className="mb-12 rounded-2xl border border-slate-200/90 bg-white p-8 md:p-10">
+            <p className="text-xs font-medium uppercase tracking-[0.12em] text-slate-500">Populaire locaties</p>
+            <h2 className="mt-2 text-xl font-semibold leading-snug text-slate-900 md:text-2xl">
               Snel naar een veelgevraagde plek in {province.name}
             </h2>
-            <p className="mb-6 mt-4 max-w-2xl text-base leading-8 text-gray-700">
-              Kies hieronder een locatie of dien meteen je aanvraag in als je vooral snel hulp voor je huisdier zoekt.
+            <p className="mt-4 max-w-2xl text-base leading-relaxed text-slate-600">
+              Kies een locatie hieronder, of start meteen je aanvraag als je vooral snel hulp zoekt.
             </p>
-            <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3">
+            <div className="mt-8 grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3">
               {places.slice(0, 6).map((place) => (
                 <Link
                   key={place.slug}
                   href={`/be/${province.slug}/${place.slug}`}
-                  className="group rounded-2xl border border-black/5 bg-gray-50 px-4 py-4 text-gray-800 transition hover:bg-white hover:shadow-sm"
+                  className="group rounded-xl border border-slate-200/80 bg-slate-50/40 px-4 py-4 text-slate-800 transition hover:border-slate-300 hover:bg-white"
                 >
-                  <div className="font-medium leading-snug group-hover:text-green-700 transition-colors">
+                  <div className="font-medium leading-snug text-slate-900 group-hover:text-emerald-800 transition-colors">
                     {place.name}
                   </div>
-                  <div className="text-xs text-gray-500 mt-1">Bekijk →</div>
+                  <div className="mt-1 text-xs text-slate-500">Bekijk →</div>
                 </Link>
               ))}
             </div>
-            <div className="mt-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-              <p className="text-sm leading-7 text-gray-600">Staat je stad er niet tussen? Vermeld je locatie gewoon in je aanvraag.</p>
-              <Link href="/boeken" className="btn-brand-compact">
+            <div className="mt-8 flex flex-col gap-4 border-t border-slate-100 pt-8 sm:flex-row sm:items-center sm:justify-between">
+              <p className="text-sm leading-relaxed text-slate-600">
+                Staat je stad er niet tussen? Vermeld je locatie in je aanvraag.
+              </p>
+              <Link href="/boeken" className="btn-brand-compact shrink-0">
                 Dien je aanvraag in
               </Link>
             </div>
           </section>
 
-          <section className="mt-6 rounded-2xl border border-black/5 bg-white p-8 shadow-sm">
-            <p className="text-sm font-semibold uppercase tracking-[0.14em] text-slate-500">Veelgestelde vragen</p>
-            <h2 className="mt-3 text-2xl font-semibold leading-tight text-gray-900">Veelgestelde vragen</h2>
-            <div className="mt-6 grid gap-4 text-gray-700 md:grid-cols-3">
-              <div className="rounded-2xl border border-slate-200 bg-slate-50/70 p-5">
-                <div className="font-semibold leading-snug text-gray-900">
+          <section className="rounded-2xl border border-slate-200/90 bg-white p-8 md:p-10">
+            <p className="text-xs font-medium uppercase tracking-[0.12em] text-slate-500">Veelgestelde vragen</p>
+            <h2 className="mt-2 text-xl font-semibold leading-snug text-slate-900 md:text-2xl">Veelgestelde vragen</h2>
+            <div className="mt-8 grid gap-10 text-slate-600 md:grid-cols-3 md:gap-x-10">
+              <div>
+                <h3 className="font-medium leading-snug text-slate-900">
                   In welke gemeenten in {province.name} zijn jullie actief?
-                </div>
-                <p className="mt-2 text-sm leading-7">
+                </h3>
+                <p className="mt-2 text-sm leading-relaxed">
                   We werken in heel {province.name}. Staat je gemeente niet in de lijst? Meld je locatie bij je aanvraag.
                 </p>
               </div>
-              <div className="rounded-2xl border border-slate-200 bg-slate-50/70 p-5">
-                <div className="font-semibold leading-snug text-gray-900">Hoe snel krijg ik bevestiging?</div>
-                <p className="mt-2 text-sm leading-7">We nemen zo snel mogelijk contact op om de details en planning af te stemmen.</p>
+              <div>
+                <h3 className="font-medium leading-snug text-slate-900">Hoe snel krijg ik bevestiging?</h3>
+                <p className="mt-2 text-sm leading-relaxed">
+                  We nemen zo snel mogelijk contact op om de details en planning af te stemmen.
+                </p>
               </div>
-              <div className="rounded-2xl border border-slate-200 bg-slate-50/70 p-5">
-                <div className="font-semibold leading-snug text-gray-900">Welke diensten kan ik aanvragen?</div>
-                <p className="mt-2 text-sm leading-7">
+              <div>
+                <h3 className="font-medium leading-snug text-slate-900">Welke diensten kan ik aanvragen?</h3>
+                <p className="mt-2 text-sm leading-relaxed">
                   Hondenuitlaat, dierenoppas, opvang, training en transport — afgestemd op jouw situatie.
                 </p>
               </div>

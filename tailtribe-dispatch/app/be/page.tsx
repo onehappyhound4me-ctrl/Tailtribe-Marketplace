@@ -48,10 +48,10 @@ export default function BelgiumLandingPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-green-50 via-white to-blue-50">
+    <div className="min-h-screen bg-slate-50/80">
       <SiteHeader primaryCtaHref="/boeken" primaryCtaLabel="Boek Nu" />
 
-      <main className="container mx-auto px-4 py-12">
+      <main className="container mx-auto px-4 py-12 md:py-16">
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
@@ -60,32 +60,32 @@ export default function BelgiumLandingPage() {
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListJsonLd) }}
         />
-        <div className="max-w-5xl mx-auto">
-          <header className="text-center mb-10">
-            <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
+        <div className="mx-auto max-w-5xl">
+          <header className="mb-12 max-w-3xl">
+            <h1 className="text-3xl font-semibold tracking-tight text-slate-900 md:text-4xl md:leading-tight">
               Dierenoppas per streek in België
             </h1>
-            <p className="mx-auto max-w-3xl text-lg md:text-xl leading-relaxed text-gray-600">
-              Van hondenuitlaat en dierenoppas tot dierenopvang en verzorging aan huis. Voor en door dierenverzorgers:
-              hier vind je per provincie de juiste match voor je huisdier.
+            <p className="mt-4 text-base leading-relaxed text-slate-600 md:text-lg">
+              Van hondenuitlaat en dierenoppas tot opvang en verzorging aan huis. Kies je provincie voor steden en
+              gemeenten.
             </p>
           </header>
 
-          <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {PROVINCES.map((p) => (
               <Link
                 key={p.slug}
                 href={`/be/${p.slug}`}
-                className="group bg-white rounded-2xl shadow-sm hover:shadow-tt transition-all border border-black/5 p-6"
+                className="group rounded-2xl border border-slate-200/90 bg-white p-6 transition hover:border-slate-300"
               >
-                <div className="flex items-center justify-between gap-3">
-                  <h2 className="text-xl font-semibold text-gray-900 group-hover:text-green-700 transition-colors">
+                <div className="flex items-start justify-between gap-3">
+                  <h2 className="text-lg font-semibold text-slate-900 group-hover:text-emerald-800 transition-colors">
                     {p.name}
                   </h2>
-                  <span className="text-sm text-gray-500">{p.region}</span>
+                  <span className="shrink-0 text-xs text-slate-500">{p.region}</span>
                 </div>
-                <p className="text-gray-600 mt-2">
-                  Bekijk steden en gemeenten in {p.name} →
+                <p className="mt-3 text-sm leading-relaxed text-slate-600">
+                  Steden en gemeenten in {p.name} →
                 </p>
               </Link>
             ))}
