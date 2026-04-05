@@ -350,6 +350,19 @@ export default function HomePageClient() {
             <p className="mx-auto mt-4 max-w-2xl text-sm leading-relaxed text-gray-600 sm:text-base md:text-xl">
               Echte feedback van klanten die duidelijkheid, opvolging en zorg voor hun huisdier belangrijk vinden.
             </p>
+            <p className="mx-auto mt-5 max-w-2xl text-center">
+              <a
+                href={GOOGLE_REVIEWS_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 text-sm font-medium text-emerald-800 underline decoration-emerald-800/30 underline-offset-4 transition hover:text-emerald-900 hover:decoration-emerald-800"
+              >
+                Meer reviews op Google
+                <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                </svg>
+              </a>
+            </p>
           </div>
 
           <div className="mx-auto grid max-w-6xl gap-6 md:grid-cols-3">
@@ -377,25 +390,6 @@ export default function HomePageClient() {
                 <p className="flex-1 text-sm leading-7 text-slate-700 sm:text-base">{review.quote}</p>
               </article>
             ))}
-          </div>
-
-          <div className="mt-10 text-center">
-            <a
-              href={GOOGLE_REVIEWS_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center justify-center gap-2 rounded-xl border border-emerald-200 bg-white px-6 py-3 text-sm font-semibold text-emerald-800 shadow-sm transition hover:border-emerald-300 hover:bg-emerald-50/80 hover:shadow-md"
-            >
-              Bekijk onze reviews op Google
-              <svg className="h-4 w-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
-                />
-              </svg>
-            </a>
           </div>
         </div>
       </section>

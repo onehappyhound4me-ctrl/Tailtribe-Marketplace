@@ -356,24 +356,12 @@ export default function DienstDetailPage({ params }: Props) {
             ) : null}
             <div className="overflow-hidden rounded-3xl border border-slate-200/80 bg-white shadow-sm">
               <div className="border-b border-slate-100 bg-gradient-to-r from-slate-50 via-white to-emerald-50/60 px-6 py-6 md:px-8">
-                <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
-                  <div>
-                    <p className="text-sm font-semibold uppercase tracking-[0.14em] text-emerald-800">Ervaringen</p>
-                    <h2 className="mt-2 text-2xl md:text-3xl font-semibold text-gray-900">Hoe baasjes TailTribe ervaren</h2>
-                    <p className="mt-3 max-w-2xl text-base leading-8 text-gray-700">
-                      Voor veel klanten draait de keuze vooral om vertrouwen, duidelijke communicatie en een aanpak die
-                      professioneel aanvoelt van aanvraag tot opvolging.
-                    </p>
-                  </div>
-                  <a
-                    href={GOOGLE_REVIEWS_URL}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center justify-center gap-2 rounded-xl border border-emerald-200 bg-white px-4 py-3 text-sm font-semibold text-emerald-900 shadow-sm transition hover:border-emerald-300 hover:bg-emerald-50"
-                  >
-                    Bekijk reviews op Google
-                  </a>
-                </div>
+                <p className="text-sm font-semibold uppercase tracking-[0.14em] text-emerald-800">Ervaringen</p>
+                <h2 className="mt-2 text-2xl md:text-3xl font-semibold text-gray-900">Hoe baasjes TailTribe ervaren</h2>
+                <p className="mt-3 max-w-2xl text-base leading-8 text-gray-700">
+                  Voor veel klanten draait de keuze vooral om vertrouwen, duidelijke communicatie en een aanpak die
+                  professioneel aanvoelt van aanvraag tot opvolging.
+                </p>
               </div>
               <div className="grid gap-0 md:grid-cols-3">
                 {serviceReviews.map((review, index) => (
@@ -400,6 +388,19 @@ export default function DienstDetailPage({ params }: Props) {
                     <p className="text-sm leading-7 text-slate-700">{review.quote}</p>
                   </article>
                 ))}
+              </div>
+              <div className="border-t border-slate-100 bg-slate-50/60 px-6 py-4 text-center md:px-8">
+                <a
+                  href={GOOGLE_REVIEWS_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 text-sm font-medium text-emerald-800 underline decoration-emerald-800/30 underline-offset-4 transition hover:text-emerald-900 hover:decoration-emerald-800"
+                >
+                  Meer reviews op Google
+                  <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                  </svg>
+                </a>
               </div>
             </div>
             <div className="bg-white rounded-2xl shadow-sm border border-black/5 p-5 sm:p-6 md:p-8">
