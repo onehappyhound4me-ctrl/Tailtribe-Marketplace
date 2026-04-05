@@ -37,7 +37,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   }
 
   const canonicalUrl = `${baseUrl}/diensten/${service.slug}/${province.slug}/${place.slug}`
-  const title = `${service.name} in ${place.name} (${province.name}) | TailTribe`
+  const title = `${service.name} – ${place.name} (${province.name}) | TailTribe`
   const description = localServiceLocationDescription(service, place, province)
 
   return {
@@ -148,14 +148,14 @@ export default function LocalServicePlacePage({ params }: Props) {
               Lokale aanvraag · {province.name}
             </p>
             <h1 className="mt-3 text-3xl font-semibold tracking-tight text-slate-900 md:text-4xl md:leading-tight">
-              {service.name} in {place.name}
+              {service.name} – {place.name}
             </h1>
-            <p className="mt-4 text-base leading-relaxed text-slate-600 md:text-lg">
+            <p className="copy-pretty mt-4 text-base leading-relaxed text-slate-600 md:text-lg">
               Zoek je <strong className="font-medium text-slate-800">{service.name.toLowerCase()}</strong> in{' '}
               {place.name} of de ruime regio {province.name}? Via TailTribe geef je je situatie en timing door; we
               koppelen je aanvraag aan gescreende dierenverzorgers die in jouw buurt zinvol zijn.
             </p>
-            <p className="mt-4 text-base leading-relaxed text-slate-600">
+            <p className="copy-pretty mt-4 text-base leading-relaxed text-slate-600">
               Op de landelijke <Link href={routes.dienst(service.slug)} className="font-medium text-emerald-800 underline-offset-2 hover:underline">uitlegpagina over {service.name.toLowerCase()}</Link> vind je meer detail over wat
               typisch inbegrepen is. Op de{' '}
               <Link href={`/be/${province.slug}/${place.slug}`} className="font-medium text-emerald-800 underline-offset-2 hover:underline">

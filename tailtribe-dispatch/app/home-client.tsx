@@ -108,11 +108,11 @@ export default function HomePageClient() {
             <div className="mx-auto max-w-4xl">
               <div className="rounded-3xl bg-white/70 backdrop-blur-sm border border-emerald-100/70 shadow-[0_12px_40px_rgba(16,185,129,0.10)] px-5 py-6 sm:px-8 sm:py-7">
                 <div className="text-center">
-                  <p className="text-base font-heading font-medium text-gray-900 leading-relaxed tracking-[-0.01em] sm:hidden">
+                  <p className="copy-pretty text-base font-heading font-medium text-gray-900 leading-relaxed tracking-[-0.01em] sm:hidden">
                     Van hondenuitlaat en kattenoppas tot verzorging voor kleine huisdieren, paarden, vissen en
                     kleinvee. Wij regelen de match en opvolging.
                   </p>
-                  <p className="hidden sm:block sm:text-lg md:text-xl font-heading font-medium text-gray-900 leading-relaxed tracking-[-0.01em]">
+                  <p className="copy-pretty hidden sm:block sm:text-lg md:text-xl font-heading font-medium text-gray-900 leading-relaxed tracking-[-0.01em]">
                     Van hondenuitlaat en kattenoppas tot verzorging voor kleine huisdieren, paarden, vissen en
                     kleinvee. Wij regelen de match en opvolging.
                   </p>
@@ -182,7 +182,7 @@ export default function HomePageClient() {
             <h2 className="text-2xl sm:text-4xl md:text-5xl font-bold mb-3 sm:mb-4 text-gray-800">
               Ontdek onze diensten
             </h2>
-            <p className="text-sm sm:text-base md:text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed">
+            <p className="copy-pretty text-sm sm:text-base md:text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed">
               Van honden en katten tot vogels, konijnen, paarden, vissen en kleinvee
             </p>
           </div>
@@ -212,7 +212,7 @@ export default function HomePageClient() {
                   <h3 className="text-lg font-bold mb-2 text-transparent bg-clip-text bg-gradient-to-r from-emerald-700 to-blue-700 group-hover:from-emerald-600 group-hover:to-blue-600 transition-colors">
                     {service.name}
                   </h3>
-                  <p className="text-sm text-emerald-900/90 leading-relaxed line-clamp-3">{service.desc}</p>
+                  <p className="copy-pretty text-sm text-emerald-900/90 leading-relaxed line-clamp-3">{service.desc}</p>
                 </div>
               </Link>
             ))}
@@ -226,7 +226,7 @@ export default function HomePageClient() {
             <h2 className="text-2xl sm:text-4xl md:text-5xl font-bold mb-3 sm:mb-4 text-gray-800">
               Hoe werkt het?
             </h2>
-            <p className="text-sm sm:text-base md:text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed">
+            <p className="copy-pretty text-sm sm:text-base md:text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed">
               In 3 eenvoudige stappen naar de perfecte dierenoppas
             </p>
           </div>
@@ -257,7 +257,7 @@ export default function HomePageClient() {
                   {item.step}
                 </div>
                 <h3 className="text-xl font-bold mb-2 text-gray-800">{item.title}</h3>
-                <p className="text-gray-600 text-center text-sm sm:text-base leading-relaxed px-2">{item.desc}</p>
+                <p className="copy-pretty text-gray-600 text-center text-sm sm:text-base leading-relaxed px-2">{item.desc}</p>
               </div>
             ))}
           </div>
@@ -270,7 +270,7 @@ export default function HomePageClient() {
             <h2 className="text-2xl sm:text-4xl md:text-5xl font-bold mb-3 sm:mb-4 text-gray-800">
               Waarom TailTribe?
             </h2>
-            <p className="text-sm sm:text-base md:text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed">
+            <p className="copy-pretty text-sm sm:text-base md:text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed">
               Jij vraagt aan, wij nemen je gemoedsrust op ons: we regelen en volgen op met zorg
             </p>
           </div>
@@ -327,7 +327,7 @@ export default function HomePageClient() {
                   )}
                 </div>
                 <h3 className="text-xl sm:text-2xl font-bold mb-3 text-gray-800">{benefit.title}</h3>
-                <p className="text-gray-600 text-sm sm:text-base leading-relaxed">{benefit.desc}</p>
+                <p className="copy-pretty text-gray-600 text-sm sm:text-base leading-relaxed">{benefit.desc}</p>
               </div>
             ))}
           </div>

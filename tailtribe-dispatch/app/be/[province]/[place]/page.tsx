@@ -66,10 +66,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const canonicalUrl = `${baseUrl}/be/${province.slug}/${place.slug}`
   const focus = isGroepsuitlaatFocus(province.slug, place.slug)
   const title = focus
-    ? `Hondenuitlaatservice aan huis in ${place.name} | Betrouwbare dierenoppasser | TailTribe`
+    ? `Hondenuitlaatservice aan huis – ${place.name} | TailTribe`
     : `Dierenoppas in ${place.name} | TailTribe`
   const description = focus
-    ? `Hondenuitlaatservice aan huis in ${place.name} via een betrouwbare dierenoppasser: sociale daguitstappen, ophalen en terugbrengen, zorgvuldige matching en veilige routes in ${place.name} en omgeving.`
+    ? `Hondenuitlaatservice aan huis – ${place.name}: betrouwbare dierenoppasser, sociale daguitstappen, ophalen en terugbrengen, zorgvuldige matching en veilige routes in ${place.name} en omgeving.`
     : `Van hondenuitlaat en dierenoppas tot dierenopvang en verzorging aan huis in ${place.name}. Voor en door dierenverzorgers: hier vind je de juiste match voor je huisdier.`
 
   return {
@@ -148,9 +148,9 @@ export default function PlaceLandingPage({ params }: Props) {
   const placeServiceJsonLd = {
     '@context': 'https://schema.org',
     '@type': 'Service',
-    name: focus ? `Hondenuitlaatservice aan huis in ${place.name}` : `Dierenoppas en huisdierenzorg in ${place.name}`,
+    name: focus ? `Hondenuitlaatservice aan huis – ${place.name}` : `Dierenoppas en huisdierenzorg in ${place.name}`,
     description: focus
-      ? `Hondenuitlaatservice aan huis in ${place.name}, ${province.name}, via een betrouwbare dierenoppasser. Sociale daguitstappen, ophalen en terugbrengen en veilige routes via TailTribe.`
+      ? `Hondenuitlaatservice aan huis – ${place.name} (${province.name}): betrouwbare dierenoppasser, sociale daguitstappen, ophalen en terugbrengen, veilige routes via TailTribe.`
       : `Dierenoppas en huisdierenzorg in ${place.name}, ${province.name}. Hondenuitlaat, dierenoppas, opvang en meer via TailTribe.`,
     serviceType:
       'Dog walking, group dog walking, dog training, pet sitting, pet boarding, in-home pet care, pet transport, farm animal care, event companion services',
@@ -256,9 +256,9 @@ export default function PlaceLandingPage({ params }: Props) {
               TailTribe · {place.name}
             </p>
             <h1 className="mt-3 text-3xl font-semibold tracking-tight text-slate-900 md:text-4xl md:leading-tight">
-              {focus ? `Hondenuitlaatservice aan huis in ${place.name}` : `Dierenoppas in ${place.name}`}
+              {focus ? `Hondenuitlaatservice aan huis – ${place.name}` : `Dierenoppas in ${place.name}`}
             </h1>
-            <p className="mt-4 max-w-2xl text-base leading-relaxed text-slate-600 md:text-lg">
+            <p className="copy-pretty mt-4 max-w-2xl text-base leading-relaxed text-slate-600 md:text-lg">
               {focus
                 ? `Hondenuitlaatservice aan huis: sociale daguitstappen, ophalen en terugbrengen, en duidelijke planning voor honden die graag samen op pad gaan.`
                 : `Van hondenuitlaat en dierenoppas tot opvang en verzorging aan huis. We matchen je aanvraag met passende zorg in jouw regio.`}
@@ -292,10 +292,10 @@ export default function PlaceLandingPage({ params }: Props) {
           <section className="mb-12 rounded-2xl border border-slate-200/90 bg-white p-8 md:p-10">
             <h2 className="text-xl font-semibold leading-snug text-slate-900 md:text-2xl">
               {focus
-                ? `Hoe we hondenuitlaatservice aan huis in ${place.name} aanpakken`
+                ? `Hoe we hondenuitlaatservice aan huis – ${place.name} aanpakken`
                 : `Wat je van TailTribe in ${place.name} mag verwachten`}
             </h2>
-            <p className="mt-4 max-w-2xl text-base leading-relaxed text-slate-600">
+            <p className="copy-pretty mt-4 max-w-2xl text-base leading-relaxed text-slate-600">
               {focus
                 ? `We plannen helder, kiezen veilige routes en stemmen de groep en het tempo af op jouw hond. Ophalen en terugbrengen gebeurt in overleg; je krijgt geen vaag voorstel maar concrete afspraken.`
                 : `We lezen je aanvraag, nemen contact op en stellen een voorstel voor dat past bij dier, agenda en locatie. Geen eindeloos vergelijken: één duidelijke lijn naar de juiste hulp.`}
@@ -348,13 +348,13 @@ export default function PlaceLandingPage({ params }: Props) {
               {focus ? `Waar baasjes in ${place.name} op rekenen` : `Dierenoppas en zorg in ${place.name}`}
             </h2>
             {focus ? (
-              <p className="mt-4 max-w-2xl text-base leading-relaxed text-slate-600">
+              <p className="copy-pretty mt-4 max-w-2xl text-base leading-relaxed text-slate-600">
                 Je zoekt iemand die betrouwbaar aanvoelt en past bij je week. Ophalen aan huis, een kleine groep die
                 inhoudelijk klopt en routes met aandacht voor rust en veiligheid: alles wordt afgestemd voordat je hond
                 mee is.
               </p>
             ) : (
-              <p className="mt-4 max-w-2xl text-base leading-relaxed text-slate-600">
+              <p className="copy-pretty mt-4 max-w-2xl text-base leading-relaxed text-slate-600">
                 In {place.name} en omgeving helpen we je zonder profiel-doolhof: korte aanvraag, duidelijke opvolging, en
                 een voorstel dat past bij je dier en je planning.
               </p>
@@ -364,7 +364,7 @@ export default function PlaceLandingPage({ params }: Props) {
           <section className="mb-12 rounded-2xl border border-slate-200/90 bg-white p-8 md:p-10">
             <p className="text-xs font-medium uppercase tracking-[0.12em] text-slate-500">Zo werkt het</p>
             <h2 className="mt-2 text-xl font-semibold leading-snug text-slate-900 md:text-2xl">In drie stappen</h2>
-            <p className="mt-4 max-w-2xl text-base leading-relaxed text-slate-600">
+            <p className="copy-pretty mt-4 max-w-2xl text-base leading-relaxed text-slate-600">
               Kort en overzichtelijk, zodat je snel weet wat haalbaar is in {place.name}.
             </p>
             <ol className="mt-8 space-y-6 border-t border-slate-100 pt-6">
@@ -422,7 +422,7 @@ export default function PlaceLandingPage({ params }: Props) {
             <h2 className="mt-2 text-xl font-semibold leading-snug text-slate-900 md:text-2xl">
               Populaire hulp voor huisdiereigenaars in {place.name}
             </h2>
-            <p className="mt-4 max-w-2xl text-base leading-relaxed text-slate-600">
+            <p className="copy-pretty mt-4 max-w-2xl text-base leading-relaxed text-slate-600">
               Dit zijn de meest gevraagde diensten door baasjes in {place.name}. Zo kom je sneller bij de juiste info
               zonder eerst door een lange lijst te moeten.
             </p>
@@ -433,37 +433,37 @@ export default function PlaceLandingPage({ params }: Props) {
                     {service.name}
                   </h3>
                   {service.id === 'DOG_WALKING' ? (
-                    <p className="text-sm leading-relaxed text-slate-600">
-                      Hondenuitlaat aan huis in {place.name}, met rustige wandelingen in {localDogWalkingHighlight}.
+                    <p className="copy-pretty text-sm leading-relaxed text-slate-600">
+                      Hondenuitlaat aan huis – {place.name}, met rustige wandelingen in {localDogWalkingHighlight}.
                     </p>
                   ) : null}
                   {service.id === 'GROUP_DOG_WALKING' ? (
-                    <p className="text-sm leading-relaxed text-slate-600">
-                      Hondenuitlaatservice aan huis met sociale daguitstappen, ophalen en terugbrengen in {place.name}.
+                    <p className="copy-pretty text-sm leading-relaxed text-slate-600">
+                      Hondenuitlaatservice aan huis – {place.name}: sociale daguitstappen, ophalen en terugbrengen.
                     </p>
                   ) : null}
                   {service.id === 'DOG_TRAINING' ? (
-                    <p className="text-sm leading-relaxed text-slate-600">
+                    <p className="copy-pretty text-sm leading-relaxed text-slate-600">
                       Praktische hondentraining in {place.name}, afgestemd op je hond en je dagelijkse leven.
                     </p>
                   ) : null}
                   {service.id === 'PET_SITTING' ? (
-                    <p className="text-sm leading-relaxed text-slate-600">
-                      Dierenoppas en hondenoppas aan huis in {place.name}, zodat je huisdier in de vertrouwde omgeving kan blijven.
+                    <p className="copy-pretty text-sm leading-relaxed text-slate-600">
+                      Dierenoppas en hondenoppas aan huis – {place.name}, zodat je huisdier in de vertrouwde omgeving kan blijven.
                     </p>
                   ) : null}
                   {service.id === 'PET_BOARDING' ? (
-                    <p className="text-sm leading-relaxed text-slate-600">
+                    <p className="copy-pretty text-sm leading-relaxed text-slate-600">
                       Hondenopvang en dierenopvang in {place.name} wanneer je tijdelijk een veilige plek zoekt voor je huisdier.
                     </p>
                   ) : null}
                   {service.id === 'HOME_CARE' ? (
-                    <p className="text-sm leading-relaxed text-slate-600">
-                      Verzorging aan huis in {place.name} voor dieren die liefst in hun eigen omgeving blijven.
+                    <p className="copy-pretty text-sm leading-relaxed text-slate-600">
+                      Verzorging aan huis – {place.name} voor dieren die liefst in hun eigen omgeving blijven.
                     </p>
                   ) : null}
                   {service.id === 'PET_TRANSPORT' || service.id === 'SMALL_ANIMAL_CARE' || service.id === 'EVENT_COMPANION' ? (
-                    <p className="text-sm leading-relaxed text-slate-600">
+                    <p className="copy-pretty text-sm leading-relaxed text-slate-600">
                       Ook beschikbaar in {place.name}, afhankelijk van je vraag en de juiste match.
                     </p>
                   ) : null}
@@ -486,7 +486,7 @@ export default function PlaceLandingPage({ params }: Props) {
             <div className="mt-8 grid gap-4 md:grid-cols-3">
               {ownerTestimonials.map((item) => (
                 <div key={item.name} className="rounded-xl border border-slate-200/80 bg-slate-50/30 p-5">
-                  <p className="text-sm leading-relaxed text-slate-600">&quot;{item.quote}&quot;</p>
+                  <p className="copy-pretty text-sm leading-relaxed text-slate-600">&quot;{item.quote}&quot;</p>
                   <p className="mt-4 text-sm font-medium text-slate-900">{item.name}</p>
                 </div>
               ))}
@@ -501,7 +501,7 @@ export default function PlaceLandingPage({ params }: Props) {
                 <h3 className="font-medium leading-snug text-slate-900">
                   Wat kost een hondenuitlaat in {place.name}?
                 </h3>
-                <p className="mt-2 text-sm leading-relaxed">
+                <p className="copy-pretty mt-2 text-sm leading-relaxed">
                   De prijs hangt af van de duur, het type wandeling (solo of kleine groep) en je exacte locatie. Na je
                   aanvraag bekijken we wat er nodig is en ontvang je een voorstel op maat, zodat je vooraf een duidelijk
                   beeld hebt van de kosten.
@@ -509,7 +509,7 @@ export default function PlaceLandingPage({ params }: Props) {
               </div>
               <div>
                 <h3 className="font-medium leading-snug text-slate-900">Hoe werkt een hondenuitlaatservice?</h3>
-                <p className="mt-2 text-sm leading-relaxed">
+                <p className="copy-pretty mt-2 text-sm leading-relaxed">
                   Bij een hondenuitlaatservice gaat je hond mee met een zorgvuldig geselecteerde groep sociale honden. We
                   stemmen vooraf af of je hond hiervoor geschikt is, plannen ophalen en terugbrengen en zorgen voor
                   veilige routes met voldoende rustmomenten.
@@ -517,14 +517,14 @@ export default function PlaceLandingPage({ params }: Props) {
               </div>
               <div>
                 <h3 className="font-medium leading-snug text-slate-900">Kan ik ook een betrouwbare dierenoppasser aanvragen?</h3>
-                <p className="mt-2 text-sm leading-relaxed">
+                <p className="copy-pretty mt-2 text-sm leading-relaxed">
                   Ja. Ook wanneer je start vanuit hondenuitlaatservice bekijken we of een betrouwbare dierenoppasser of
                   een andere vorm van hulp aan huis beter past bij jouw hond, planning en locatie in {place.name}.
                 </p>
               </div>
               <div>
                 <h3 className="font-medium leading-snug text-slate-900">Hoe boek ik een dierenoppas via TailTribe?</h3>
-                <p className="mt-2 text-sm leading-relaxed">
+                <p className="copy-pretty mt-2 text-sm leading-relaxed">
                   Je vult online een korte aanvraag in met data, locatie en info over je huisdier. Daarna nemen we
                   contact op om je wensen te bespreken en koppelen we je aan een passende dierenverzorger in of rond{' '}
                   {place.name}.
@@ -534,7 +534,7 @@ export default function PlaceLandingPage({ params }: Props) {
                 <h3 className="font-medium leading-snug text-slate-900">
                   Welke diensten biedt TailTribe in {place.name}?
                 </h3>
-                <p className="mt-2 text-sm leading-relaxed">
+                <p className="copy-pretty mt-2 text-sm leading-relaxed">
                   In deze regio kun je onder andere terecht voor hondenuitlaat, hondenuitlaatservice, hondentraining,
                   dierenoppas, kattenoppas, dierenopvang, verzorging aan huis, transport van huisdieren en – indien
                   relevant – verzorging van boerderijdieren en begeleiding tijdens events.
@@ -548,7 +548,7 @@ export default function PlaceLandingPage({ params }: Props) {
               <h2 className="text-xl font-semibold leading-snug text-slate-900 md:text-2xl">
                 Klaar om de juiste match in {place.name} te vinden?
               </h2>
-              <p className="mt-4 text-base leading-relaxed text-slate-600">
+              <p className="copy-pretty mt-4 text-base leading-relaxed text-slate-600">
                 {focus
                   ? `Laat weten waar je woont en wat je hond nodig heeft. We bekijken of hondenuitlaatservice aan huis in ${place.name} bij je situatie past.`
                   : `Beschrijf kort wat je nodig hebt. We koppelen je aan de dienst en opvolging die bij je past.`}

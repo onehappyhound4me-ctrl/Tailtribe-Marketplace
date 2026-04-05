@@ -65,7 +65,7 @@ export default function BelgiumLandingPage() {
             <h1 className="text-3xl font-semibold tracking-tight text-slate-900 md:text-4xl md:leading-tight">
               Dierenoppas per streek in België
             </h1>
-            <p className="mt-4 text-base leading-relaxed text-slate-600 md:text-lg">
+            <p className="copy-pretty mt-4 text-base leading-relaxed text-slate-600 md:text-lg">
               Van hondenuitlaat en dierenoppas tot opvang en verzorging aan huis. Kies je provincie voor steden en
               gemeenten.
             </p>

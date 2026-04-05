@@ -396,11 +396,11 @@ export default function DienstDetailPage({ params }: Props) {
               <h1 className="text-2xl sm:text-4xl md:text-5xl font-bold text-gray-900 mb-3">
                 {service.detailTitle ?? service.name}
               </h1>
-              <p className="text-sm sm:text-base md:text-lg leading-relaxed text-gray-600 max-w-2xl">
+              <p className="copy-pretty text-sm sm:text-base md:text-lg leading-relaxed text-gray-600 max-w-2xl">
                 {service.desc}
               </p>
               {localIntro ? (
-                <p className="mt-3 text-sm sm:text-base leading-relaxed text-emerald-900/85 max-w-2xl">
+                <p className="copy-pretty mt-3 text-sm sm:text-base leading-relaxed text-emerald-900/85 max-w-2xl">
                   {localIntro}
                 </p>
               ) : null}

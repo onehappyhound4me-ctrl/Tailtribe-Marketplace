@@ -136,7 +136,7 @@ export default function ProvinceLandingPage({ params }: Props) {
             <h1 className="mt-3 text-3xl font-semibold tracking-tight text-slate-900 md:text-4xl md:leading-tight">
               Dierenoppas in {province.name}
             </h1>
-            <p className="mt-4 max-w-2xl text-base leading-relaxed text-slate-600 md:text-lg">
+            <p className="copy-pretty mt-4 max-w-2xl text-base leading-relaxed text-slate-600 md:text-lg">
               Hondenuitlaat, dierenoppas, opvang en verzorging aan huis: één duidelijke lijn van aanvraag naar match,
               zonder eindeloos zelf te vergelijken.
             </p>
@@ -149,9 +149,9 @@ export default function ProvinceLandingPage({ params }: Props) {
             <section className="mb-12 rounded-2xl border border-slate-200/90 bg-white p-8 md:p-10">
               <p className="text-xs font-medium uppercase tracking-[0.12em] text-slate-500">Regio Antwerpen</p>
               <h2 className="mt-2 text-xl font-semibold leading-snug text-slate-900 md:text-2xl">
-                Hondenuitlaatservice aan huis in regio Antwerpen
+                Hondenuitlaatservice aan huis – Antwerpen
               </h2>
-              <p className="mt-4 max-w-2xl text-base leading-relaxed text-slate-600">
+              <p className="copy-pretty mt-4 max-w-2xl text-base leading-relaxed text-slate-600">
                 Dien je aanvraag in; we bekijken wat haalbaar is voor jouw buurt, planning en hond. Ophalen aan huis,
                 Antwerpen en rand, zorgvuldige matching en een korte intake.
               </p>
@@ -168,7 +168,7 @@ export default function ProvinceLandingPage({ params }: Props) {
             <h2 className="mt-2 text-xl font-semibold leading-snug text-slate-900 md:text-2xl">
               Huisdierenzorg in {province.name}
             </h2>
-            <p className="mt-4 max-w-2xl text-base leading-relaxed text-slate-600">
+            <p className="copy-pretty mt-4 max-w-2xl text-base leading-relaxed text-slate-600">
               In {province.name} helpen we je vanuit je nood en regio: hondenuitlaat, oppas, opvang, training of
               transport — wat praktisch en inhoudelijk past.
             </p>
@@ -203,7 +203,7 @@ export default function ProvinceLandingPage({ params }: Props) {
             <h2 className="mt-2 text-xl font-semibold leading-snug text-slate-900 md:text-2xl">
               Snel naar een veelgevraagde plek in {province.name}
             </h2>
-            <p className="mt-4 max-w-2xl text-base leading-relaxed text-slate-600">
+            <p className="copy-pretty mt-4 max-w-2xl text-base leading-relaxed text-slate-600">
               Kies een locatie hieronder, of start meteen je aanvraag als je vooral snel hulp zoekt.
             </p>
             <div className="mt-8 grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3">
