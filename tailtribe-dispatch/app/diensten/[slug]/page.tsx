@@ -28,14 +28,17 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   const pageTitle = service.detailTitle ?? service.name
   const canonicalUrl = new URL(`/diensten/${service.slug}`, baseUrl).toString()
+  const pageDescription =
+    service.metaDescription ??
+    `${service.desc} Via TailTribe in heel België: korte aanvraag en persoonlijke opvolging.`
 
   return {
     title: pageTitle,
-    description: `${service.desc}. Vraag eenvoudig een offerte aan — we nemen zo spoedig mogelijk contact op.`,
+    description: pageDescription,
     alternates: { canonical: canonicalUrl },
     openGraph: {
       title: pageTitle,
-      description: `${service.desc}. Vraag eenvoudig een offerte aan — we nemen zo spoedig mogelijk contact op.`,
+      description: pageDescription,
       url: canonicalUrl,
       siteName: 'TailTribe',
       locale: 'nl_BE',
@@ -105,7 +108,7 @@ export default function DienstDetailPage({ params }: Props) {
     '@context': 'https://schema.org',
     '@type': 'Service',
     name: service.detailTitle ?? service.name,
-    description: service.desc,
+    description: service.metaDescription ?? service.desc,
     serviceType: service.name,
     areaServed: { '@type': 'Country', name: 'België' },
     provider: {

@@ -15,6 +15,8 @@ export type DispatchService = {
   image: string
   // optional, only for the service detail page (keeps cards short)
   detailTitle?: string
+  /** Snippet for meta/og description; use for strong head-term coverage without bloating card copy. */
+  metaDescription?: string
   // optional longer copy for service detail page
   longDescription?: {
     why: string[]
@@ -57,6 +59,8 @@ export const DISPATCH_SERVICES: DispatchService[] = [
     slug: 'hondenuitlaat',
     image: '/assets/Hondenuitlaat.png',
     detailTitle: 'Hondenuitlaat aan huis | Professionele hondenuitlater',
+    metaDescription:
+      'Hondenuitlaat en dog walker aan huis in België. Vaste hondenuitlater, wandeling op tempo, welzijn en veiligheid. Vraag via TailTribe — we matchen en volgen persoonlijk op.',
     longDescription: {
       why: [
         'Beweging verlaagt stresshormonen en bevordert herstel; snuffelen verrijkt en werkt kalmerend.',
@@ -90,6 +94,8 @@ export const DISPATCH_SERVICES: DispatchService[] = [
     slug: 'hondenuitlaatservice',
     image: '/assets/groepsuitlaat.png',
     detailTitle: 'Hondenuitlaatservice aan huis – avontuurlijke daguitstappen',
+    metaDescription:
+      'Hondenuitlaatservice aan huis in België: sociale groepswandelingen, daguitstappen, ophalen en terugbrengen. Voor sociale honden. Vraag je beschikbaarheid via TailTribe.',
     providerSpotlight: {
       name: 'One Happy Hound',
       href: 'https://onehappyhound.be/?utm_source=tailtribe&utm_medium=referral&utm_campaign=hondenuitlaatservice',
@@ -121,6 +127,8 @@ export const DISPATCH_SERVICES: DispatchService[] = [
     slug: 'hondentraining',
     image: '/assets/hondentraining.png',
     detailTitle: 'Hondentraining aan huis | Hondentrainer via TailTribe',
+    metaDescription:
+      'Hondentrainer aan huis in België: hondentraining en puppytraining op maat, gedrag en basiscommando’s. Alternatief of aanvulling op hondenschool. Aanvraag via TailTribe.',
     longDescription: {
       why: [
         'Gerichte begeleiding bij gedrag, basiscommando’s of specifieke uitdagingen.',
@@ -144,6 +152,8 @@ export const DISPATCH_SERVICES: DispatchService[] = [
     slug: 'dierenoppas',
     image: '/assets/hondenoppas.png',
     detailTitle: 'Dierenoppas en hondenoppas aan huis',
+    metaDescription:
+      'Dierenoppas en hondenoppas aan huis in België: betrouwbare dierenoppasser, hondenoppasser of dog sitter. Routine, voeding en updates. Match via TailTribe.',
     longDescription: {
       why: [
         'Oppas is ideaal wanneer je een betrouwbare dierenoppasser of hondenoppasser zoekt terwijl jij weg bent.',
@@ -172,6 +182,8 @@ export const DISPATCH_SERVICES: DispatchService[] = [
     slug: 'dierenopvang',
     image: '/assets/hondenopvang.png',
     detailTitle: 'Hondenopvang en dierenopvang op maat',
+    metaDescription:
+      'Hondenopvang en dierenopvang in België: veilige pension-achtige opvang, vakantie en langere periodes. Routine en afspraken op maat. Start via TailTribe.',
     longDescription: {
       why: [
         'Voor hondenopvang tijdens vakantie of wanneer je extra opvang nodig hebt.',
@@ -200,6 +212,8 @@ export const DISPATCH_SERVICES: DispatchService[] = [
     slug: 'verzorging-aan-huis',
     image: '/assets/home-visit.png',
     detailTitle: 'Dierenverzorging aan huis | Aan huis dierenoppas',
+    metaDescription:
+      'Dierenverzorging aan huis in België: bezoeken voor voeding, wandeling, kattenbak en check-in. Minder stress, eigen omgeving. Plan zorg via TailTribe.',
     longDescription: {
       why: [
         'Handig voor huisdieren die liever thuis blijven (minder stress).',
@@ -228,6 +242,8 @@ export const DISPATCH_SERVICES: DispatchService[] = [
     slug: 'transport-huisdieren',
     image: '/assets/transport van huisdieren.png',
     detailTitle: 'Transport van dieren | Hond en kat veilig vervoerd',
+    metaDescription:
+      'Transport van hond of kat in België: veilig vervoer naar dierenarts, opvang of afspraak. Timing, bench en instructies afgestemd. Vraag transport via TailTribe.',
     longDescription: {
       why: [
         'Voor dierenartsbezoeken, verhuis, ophalen/wegbrengen of speciale situaties.',
@@ -255,6 +271,8 @@ export const DISPATCH_SERVICES: DispatchService[] = [
     slug: 'verzorging-boerderijdieren',
     image: '/assets/verzorging kleinvee.png',
     detailTitle: 'Verzorging van kleinvee en andere dieren',
+    metaDescription:
+      'Verzorging van kleinvee, paarden en boerderijdieren in België: voeding, water en routine volgens checklist. Vraag bezoeken op maat via TailTribe.',
     longDescription: {
       why: [
         'Voor boerderijdieren, paarden en kleine dieren is routine essentieel.',
@@ -284,6 +302,8 @@ export const DISPATCH_SERVICES: DispatchService[] = [
     slug: 'begeleiding-events',
     image: '/assets/Begleider Bruiloft.png',
     detailTitle: 'Begeleiding hond trouwfeest en events',
+    metaDescription:
+      'Begeleiding van je hond op trouwfeest of event in België: timing, rustplek en veilige aanpak. Jij geniet, wij houden je hond in het oog via TailTribe.',
     longDescription: {
       why: [
         'Zorg dat je huisdier mee kan naar een event zonder stress voor jou.',

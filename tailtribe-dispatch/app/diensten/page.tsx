@@ -10,14 +10,14 @@ import { getPublicAppUrl } from '@/lib/env'
 const appUrl = getPublicAppUrl()
 const canonicalUrl = new URL('/diensten', appUrl).toString()
 export const metadata: Metadata = {
-  title: 'Hondenuitlaat, hondenoppas en dierenopvang',
+  title: 'Hondenuitlaat, dierenoppas, hondentraining en opvang | TailTribe België',
   description:
-    'Ontdek hondenuitlaat, hondenoppas, kattenoppas, hondenopvang, hondentraining, transport en verzorging aan huis via TailTribe in België.',
+    'Hondenuitlaat (dog walker), dierenoppas, hondentraining, hondenopvang, transport en verzorging aan huis in België. TailTribe matcht je aanvraag met gescreende verzorgers.',
   alternates: { canonical: canonicalUrl },
   openGraph: {
-    title: 'Hondenuitlaat, hondenoppas en dierenopvang',
+    title: 'Hondenuitlaat, dierenoppas, hondentraining en opvang | TailTribe België',
     description:
-      'Ontdek hondenuitlaat, hondenoppas, kattenoppas, hondenopvang, hondentraining, transport en verzorging aan huis via TailTribe in België.',
+      'Hondenuitlaat (dog walker), dierenoppas, hondentraining, hondenopvang, transport en verzorging aan huis in België. TailTribe matcht je aanvraag met gescreende verzorgers.',
     url: canonicalUrl,
     siteName: 'TailTribe',
     locale: 'nl_BE',
