@@ -204,58 +204,44 @@ export default function KattenoppasPage() {
               TailTribe biedt kattenoppas aan huis in Antwerpen en omliggende gemeenten. Vooral in en rond Groot
               Antwerpen is er een sterke focus op huisbezoeken bij katten tijdens vakantie, weekends weg en werkreizen.
             </p>
-            <p className="text-gray-700 leading-relaxed mb-4">
-              Enkele voorbeelden waar kattenoppas via TailTribe mogelijk is:
+            <p className="text-gray-700 leading-relaxed mb-3">
+              Veel aanvragen komen uit de ruime regio rond Antwerpen. Hieronder enkele gemeenten — tik voor de streekpagina
+              (alle diensten daar), of start je{' '}
+              <Link href="/boeken?service=PET_SITTING" className="font-medium text-emerald-800 underline-offset-2 hover:underline">
+                kattenoppas-aanvraag
+              </Link>
+              .
             </p>
-            <ul className="list-disc pl-5 space-y-1 text-gray-700 mb-4">
-              <li>Kattenoppas Antwerpen</li>
-              <li>Kattenoppas Berchem</li>
-              <li>Kattenoppas Wilrijk</li>
-              <li>Kattenoppas Deurne</li>
-              <li>Kattenoppas Borgerhout</li>
-              <li>Kattenoppas Merksem</li>
-              <li>Kattenoppas Brasschaat</li>
-              <li>Kattenoppas Kapellen</li>
-              <li>Kattenoppas Kalmthout</li>
-              <li>Kattenoppas Schoten</li>
-              <li>Kattenoppas Brecht</li>
+            <p className="mb-3 text-sm font-semibold text-gray-800">Regio Antwerpen</p>
+            <ul className="mb-4 grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4">
+              {[
+                { label: 'Antwerpen', href: '/be/antwerpen/antwerpen' },
+                { label: 'Berchem', href: '/be/antwerpen/berchem' },
+                { label: 'Wilrijk', href: '/be/antwerpen/wilrijk' },
+                { label: 'Deurne', href: '/be/antwerpen/deurne' },
+                { label: 'Borgerhout', href: '/be/antwerpen/borgerhout' },
+                { label: 'Merksem', href: '/be/antwerpen/merksem' },
+                { label: 'Brasschaat', href: '/be/antwerpen/brasschaat' },
+                { label: 'Kapellen', href: '/be/antwerpen/kapellen' },
+                { label: 'Kalmthout', href: '/be/antwerpen/kalmthout' },
+                { label: 'Hoboken', href: '/be/antwerpen/hoboken' },
+                { label: 'Ekeren', href: '/be/antwerpen/ekeren' },
+                { label: 'Heel provincie Antwerpen', href: '/be/antwerpen' },
+              ].map((item) => (
+                <li key={item.href} className="min-w-0">
+                  <Link
+                    href={item.href}
+                    className="flex min-h-[44px] items-center justify-center rounded-xl border border-emerald-100 bg-emerald-50/80 px-2 py-2 text-center text-sm font-medium text-emerald-950 transition hover:border-emerald-300 hover:bg-emerald-100 sm:min-h-0 sm:py-2.5"
+                  >
+                    <span className="truncate">{item.label}</span>
+                  </Link>
+                </li>
+              ))}
             </ul>
-            <p className="text-gray-700 leading-relaxed mb-4">
-              Op onze regionale pagina&apos;s lees je meer over hoe diensten zoals hondenuitlaat en dierenoppas (incl.
-              kattenoppas aan huis) in die steden en gemeenten worden aangeboden.
+            <p className="copy-pretty text-gray-700 leading-relaxed text-sm sm:text-base">
+              Op onze regionale pagina&apos;s lees je meer over hoe hondenuitlaat, dierenoppas en kattenoppas aan huis in
+              die gemeenten worden aangeboden.
             </p>
-            <div className="flex flex-wrap gap-2">
-              <Link
-                href="/be/antwerpen/antwerpen"
-                className="inline-flex items-center px-3 py-1.5 rounded-full border border-emerald-100 bg-emerald-50 text-sm font-medium text-emerald-900 hover:bg-emerald-100 transition"
-              >
-                Antwerpen
-              </Link>
-              <Link
-                href="/be/antwerpen/brasschaat"
-                className="inline-flex items-center px-3 py-1.5 rounded-full border border-emerald-100 bg-emerald-50 text-sm font-medium text-emerald-900 hover:bg-emerald-100 transition"
-              >
-                Brasschaat
-              </Link>
-              <Link
-                href="/be/antwerpen/kapellen"
-                className="inline-flex items-center px-3 py-1.5 rounded-full border border-emerald-100 bg-emerald-50 text-sm font-medium text-emerald-900 hover:bg-emerald-100 transition"
-              >
-                Kapellen
-              </Link>
-              <Link
-                href="/be/antwerpen/kalmthout"
-                className="inline-flex items-center px-3 py-1.5 rounded-full border border-emerald-100 bg-emerald-50 text-sm font-medium text-emerald-900 hover:bg-emerald-100 transition"
-              >
-                Kalmthout
-              </Link>
-              <Link
-                href="/be/antwerpen"
-                className="inline-flex items-center px-3 py-1.5 rounded-full border border-emerald-100 bg-white text-sm font-medium text-emerald-900 hover:bg-emerald-50 transition"
-              >
-                Overzicht Antwerpen (provincie)
-              </Link>
-            </div>
           </section>
 
           <section className="bg-white rounded-2xl shadow-sm border border-black/5 p-6 md:p-8 mb-10">

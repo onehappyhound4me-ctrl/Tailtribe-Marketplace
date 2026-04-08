@@ -206,12 +206,12 @@ export default function ProvinceLandingPage({ params }: Props) {
             <p className="copy-pretty mt-4 max-w-2xl text-base leading-relaxed text-slate-600">
               Kies een locatie hieronder, of start meteen je aanvraag als je vooral snel hulp zoekt.
             </p>
-            <div className="mt-8 grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3">
+            <div className="mt-8 grid grid-cols-2 gap-2 sm:gap-3 md:grid-cols-2 lg:grid-cols-3">
               {places.slice(0, 6).map((place) => (
                 <Link
                   key={place.slug}
                   href={`/be/${province.slug}/${place.slug}`}
-                  className="group rounded-xl border border-slate-200/80 bg-slate-50/40 px-4 py-4 text-slate-800 transition hover:border-slate-300 hover:bg-white"
+                  className="group flex min-h-[44px] flex-col justify-center rounded-xl border border-slate-200/80 bg-slate-50/40 px-3 py-3 text-slate-800 transition hover:border-slate-300 hover:bg-white sm:min-h-0 sm:px-4 sm:py-4"
                 >
                   <div className="font-medium leading-snug text-slate-900 group-hover:text-emerald-800 transition-colors">
                     {place.name}

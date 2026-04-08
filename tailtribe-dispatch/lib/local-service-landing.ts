@@ -41,6 +41,22 @@ export function topPlacesForLocalServiceLinks(max = 18): LocalPlaceLink[] {
   return out
 }
 
+/** Houdt provincievolgorde zoals in `topPlacesForLocalServiceLinks` ( eerste plaats = eerste groep ). */
+export function groupLocalPlaceLinksByProvince(
+  links: LocalPlaceLink[]
+): { province: string; provinceName: string; places: LocalPlaceLink[] }[] {
+  const groups: { province: string; provinceName: string; places: LocalPlaceLink[] }[] = []
+  for (const l of links) {
+    const last = groups[groups.length - 1]
+    if (last?.province === l.province) {
+      last.places.push(l)
+    } else {
+      groups.push({ province: l.province, provinceName: l.provinceName, places: [l] })
+    }
+  }
+  return groups
+}
+
 export function localServiceLocationDescription(
   service: DispatchService,
   place: BEPlace,
