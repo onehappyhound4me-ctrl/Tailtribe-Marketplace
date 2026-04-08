@@ -67,7 +67,12 @@ export default function DienstenPage() {
             <h1 className="text-2xl sm:text-4xl md:text-5xl font-bold text-gray-900 mb-3 sm:mb-4">Onze diensten</h1>
             <p className="text-sm sm:text-base md:text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
               Van honden en katten tot vogels, kleine huisdieren, paarden, vissen en kleinvee. Klik op een dienst voor
-              meer uitleg. Wil je meteen boeken? Dien je aanvraag in en wij nemen contact op.
+              meer uitleg. Wil je meteen boeken? Dien je aanvraag in en wij nemen contact op — aanvragen zijn mogelijk
+              door heel België (postcode in je aanvraag). Meer voorbeelden per streek op{' '}
+              <Link href="/be" className="font-medium text-emerald-800 underline-offset-4 hover:underline">
+                de streekpagina&apos;s
+              </Link>
+              .
             </p>
             <div className="mt-6">
               <Link href="/boeken" className="btn-brand-compact">

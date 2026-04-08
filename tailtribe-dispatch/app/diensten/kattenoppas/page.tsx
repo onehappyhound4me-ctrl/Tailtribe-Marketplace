@@ -10,12 +10,12 @@ const canonicalUrl = new URL('/diensten/kattenoppas', appUrl).toString()
 export const metadata: Metadata = {
   title: 'Kattenoppas aan huis | Betrouwbare kattenoppas via TailTribe',
   description:
-    'Zoek je een betrouwbare kattenoppas aan huis? Via TailTribe vind je ervaren dierenoppassers voor katten in Antwerpen, Brasschaat, Kapellen en omliggende gemeenten.',
+    'Zoek je een betrouwbare kattenoppas aan huis? Via TailTribe regel je kattenoppas door heel België: duidelijke aanvraag, postcode en persoonlijke opvolging.',
   alternates: { canonical: canonicalUrl },
   openGraph: {
-    title: 'Kattenoppas aan huis in België | Kattenoppas Antwerpen',
+    title: 'Kattenoppas aan huis in België | TailTribe',
     description:
-      'Kattenoppas aan huis tijdens vakantie, weekend weg of werkreis. Vind een betrouwbare kattenoppas in Antwerpen, Brasschaat, Kapellen en omliggende gemeenten via TailTribe.',
+      'Kattenoppas aan huis tijdens vakantie, weekend weg of werkreis. Via TailTribe door heel België: aanvraag met locatie en persoonlijke afstemming.',
     url: canonicalUrl,
     siteName: 'TailTribe',
     locale: 'nl_BE',
@@ -198,49 +198,23 @@ export default function KattenoppasPage() {
             </div>
           </section>
 
-          <section className="bg-white rounded-2xl shadow-sm border border-black/5 p-6 md:p-8 mb-10">
-            <h2 className="text-2xl md:text-3xl font-semibold text-gray-900 mb-4">Kattenoppas in jouw regio</h2>
-            <p className="text-gray-700 leading-relaxed mb-4">
-              TailTribe biedt kattenoppas aan huis in Antwerpen en omliggende gemeenten. Vooral in en rond Groot
-              Antwerpen is er een sterke focus op huisbezoeken bij katten tijdens vakantie, weekends weg en werkreizen.
+          <section className="rounded-2xl border border-slate-200/80 bg-slate-50/50 p-6 md:p-8 mb-10">
+            <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Dekking</p>
+            <h2 className="mt-2 text-xl md:text-2xl font-semibold text-gray-900">Kattenoppas door heel België</h2>
+            <p className="mt-3 text-gray-700 leading-relaxed max-w-2xl">
+              Je kan een kattenoppas aan huis aanvragen door heel België. Geef je postcode mee bij je aanvraag — we bekijken
+              of er een oppas beschikbaar is in jouw buurt en stemmen de afspraken persoonlijk af.
             </p>
-            <p className="text-gray-700 leading-relaxed mb-3">
-              Veel aanvragen komen uit de ruime regio rond Antwerpen. Hieronder enkele gemeenten — tik voor de streekpagina
-              (alle diensten daar), of start je{' '}
+            <p className="mt-3 text-gray-700 leading-relaxed max-w-2xl text-sm sm:text-base">
+              Op{' '}
+              <Link href="/be" className="font-medium text-emerald-800 underline-offset-2 hover:underline">
+                onze streekpagina&apos;s
+              </Link>{' '}
+              vind je voorbeelden en context per provincie en gemeente. Liever meteen starten?{' '}
               <Link href="/boeken?service=PET_SITTING" className="font-medium text-emerald-800 underline-offset-2 hover:underline">
-                kattenoppas-aanvraag
+                Dien je kattenoppas-aanvraag in
               </Link>
               .
-            </p>
-            <p className="mb-3 text-sm font-semibold text-gray-800">Regio Antwerpen</p>
-            <ul className="mb-4 grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4">
-              {[
-                { label: 'Antwerpen', href: '/be/antwerpen/antwerpen' },
-                { label: 'Berchem', href: '/be/antwerpen/berchem' },
-                { label: 'Wilrijk', href: '/be/antwerpen/wilrijk' },
-                { label: 'Deurne', href: '/be/antwerpen/deurne' },
-                { label: 'Borgerhout', href: '/be/antwerpen/borgerhout' },
-                { label: 'Merksem', href: '/be/antwerpen/merksem' },
-                { label: 'Brasschaat', href: '/be/antwerpen/brasschaat' },
-                { label: 'Kapellen', href: '/be/antwerpen/kapellen' },
-                { label: 'Kalmthout', href: '/be/antwerpen/kalmthout' },
-                { label: 'Hoboken', href: '/be/antwerpen/hoboken' },
-                { label: 'Ekeren', href: '/be/antwerpen/ekeren' },
-                { label: 'Heel provincie Antwerpen', href: '/be/antwerpen' },
-              ].map((item) => (
-                <li key={item.href} className="min-w-0">
-                  <Link
-                    href={item.href}
-                    className="flex min-h-[44px] items-center justify-center rounded-xl border border-emerald-100 bg-emerald-50/80 px-2 py-2 text-center text-sm font-medium text-emerald-950 transition hover:border-emerald-300 hover:bg-emerald-100 sm:min-h-0 sm:py-2.5"
-                  >
-                    <span className="truncate">{item.label}</span>
-                  </Link>
-                </li>
-              ))}
-            </ul>
-            <p className="copy-pretty text-gray-700 leading-relaxed text-sm sm:text-base">
-              Op onze regionale pagina&apos;s lees je meer over hoe hondenuitlaat, dierenoppas en kattenoppas aan huis in
-              die gemeenten worden aangeboden.
             </p>
           </section>
 
@@ -248,8 +222,8 @@ export default function KattenoppasPage() {
             <h2 className="text-2xl md:text-3xl font-semibold text-gray-900 mb-4">Wat kost een kattenoppas?</h2>
             <p className="text-gray-700 leading-relaxed mb-3">
               De prijs van een kattenoppas aan huis hangt af van het aantal bezoeken per dag, de duur van ieder bezoek
-              en je locatie. Een kort dagelijks bezoek in het centrum van Antwerpen zal anders geprijsd zijn dan meerdere
-              bezoeken per dag in een gemeente verder buiten de stad.
+              en je locatie. Een kort dagelijks bezoek dicht bij de oppas is doorgaans anders geprijsd dan meerdere
+              langere ritten per dag naar een ruimer gebied.
             </p>
             <p className="text-gray-700 leading-relaxed mb-3">
               Omdat elke situatie anders is – aantal katten, medicatie of extra zorg, afstand, parkeersituatie – werken we

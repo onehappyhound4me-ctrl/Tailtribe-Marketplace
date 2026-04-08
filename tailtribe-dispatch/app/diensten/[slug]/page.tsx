@@ -11,8 +11,6 @@ import { withAssetVersion } from '@/lib/service-icons'
 import { routes } from '@/lib/routes'
 import { getPublicAppUrl } from '@/lib/env'
 import { GOOGLE_REVIEWS_URL, getServiceReviews } from '@/lib/reviews'
-import { groupLocalPlaceLinksByProvince, topPlacesForLocalServiceLinks } from '@/lib/local-service-landing'
-
 type Props = {
   params: { slug: string }
 }
@@ -134,8 +132,6 @@ export default function DienstDetailPage({ params }: Props) {
 
   const related = DISPATCH_SERVICES.filter((s) => s.id !== service.id).slice(0, 6)
   const serviceReviews = getServiceReviews(service.id).slice(0, 3)
-  const localPlaceLinks = topPlacesForLocalServiceLinks(18)
-  const localPlaceGroups = groupLocalPlaceLinksByProvince(localPlaceLinks)
 
   const localIntro =
     service.id === 'DOG_WALKING'
@@ -175,7 +171,7 @@ export default function DienstDetailPage({ params }: Props) {
           },
           {
             q: 'In welke regio werken jullie?',
-            a: 'Beschikbaarheid hangt af van je locatie, planning en type hulp. Na je aanvraag bekijken we snel wat haalbaar is in jouw regio.',
+            a: 'We nemen aanvragen door heel België aan. Beschikbaarheid hangt af van je postcode, planning en type hulp. Na je aanvraag bekijken we snel wat haalbaar is.',
           },
         ]
       : service.id === 'GROUP_DOG_WALKING'
@@ -186,7 +182,7 @@ export default function DienstDetailPage({ params }: Props) {
             },
             {
               q: 'In welke regio gaat hondenuitlaatservice door?',
-              a: 'Beschikbaarheid hangt af van locatie en planning. Momenteel ligt de sterkste focus op Groot Antwerpen en Antwerpen Noord, maar we bekijken per aanvraag wat haalbaar is.',
+              a: 'We nemen aanvragen door heel België aan; wat haalbaar is, hangt af van je postcode, planning en route. Voor groepsuitlaat is er vaak het meeste aanbod rond Groot Antwerpen — elders bekijken we per aanvraag de opties.',
             },
             {
               q: 'Hoe zit het met veiligheid en loslopen?',
@@ -720,44 +716,19 @@ export default function DienstDetailPage({ params }: Props) {
               </div>
             </div>
 
-            <div className="bg-white rounded-2xl shadow-sm border border-black/5 p-6 md:p-8">
-              <h2 className="text-xl sm:text-2xl md:text-3xl font-semibold text-gray-900 mb-2">
-                {service.name} in België — populaire gemeenten
-              </h2>
-              <p className="copy-pretty text-sm sm:text-base text-gray-600 mb-6 max-w-2xl leading-relaxed">
-                Per provincie enkele veelbezochte steden. Open een gemeente voor de lokale pagina over deze dienst;
-                elders start je aanvraag gewoon met je postcode.
+            <div className="rounded-2xl border border-slate-200/80 bg-slate-50/50 px-6 py-5 md:px-8 md:py-6">
+              <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Dekking</p>
+              <h2 className="mt-2 text-lg font-semibold text-gray-900 sm:text-xl">{service.name} in heel België</h2>
+              <p className="mt-3 max-w-2xl text-sm leading-relaxed text-slate-600 sm:text-base">
+                TailTribe neemt aanvragen aan door heel het land. Vermeld bij je aanvraag je postcode — we bekijken
+                beschikbaarheid en planning in jouw omgeving en volgen persoonlijk op.
               </p>
-              <div className="space-y-6">
-                {localPlaceGroups.map((group) => (
-                  <div key={group.province}>
-                    <h3 className="mb-3 border-b border-slate-100 pb-2 text-sm font-semibold text-slate-700">
-                      {group.provinceName}
-                    </h3>
-                    <ul className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
-                      {group.places.map((l) => (
-                        <li key={`${l.province}-${l.place}`} className="min-w-0">
-                          <Link
-                            href={`/diensten/${service.slug}/${l.province}/${l.place}`}
-                            data-nav="local-service-place"
-                            data-service-slug={service.slug}
-                            aria-label={`${service.name} in ${l.placeName}, provincie ${group.provinceName}`}
-                            className="flex min-h-[44px] items-center justify-center rounded-xl border border-slate-200 bg-slate-50 px-2 py-2 text-center text-sm font-medium text-gray-800 transition hover:border-emerald-300 hover:bg-emerald-50/70 sm:min-h-0 sm:py-2.5"
-                          >
-                            <span className="truncate">{l.placeName}</span>
-                          </Link>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                ))}
-              </div>
-              <p className="mt-6 text-sm text-gray-600 leading-relaxed">
-                Gemeente niet vermeld?{' '}
+              <p className="mt-3 max-w-2xl text-sm leading-relaxed text-slate-600 sm:text-base">
+                Meer voorbeelden en info per streek vind je op{' '}
                 <Link href="/be" className="font-medium text-emerald-800 underline-offset-2 hover:underline">
-                  Alle provincies en steden
-                </Link>{' '}
-                — of dien je aanvraag meteen in met postcode.
+                  onze streekpagina&apos;s
+                </Link>
+                .
               </p>
             </div>
 
