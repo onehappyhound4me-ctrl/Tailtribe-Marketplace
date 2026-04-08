@@ -3,7 +3,7 @@ import Link from 'next/link'
 import { SiteHeader } from '@/components/SiteHeader'
 import { SiteFooter } from '@/components/SiteFooter'
 import { getPublicAppUrl } from '@/lib/env'
-import { GOOGLE_REVIEWS_URL, PUBLIC_REVIEWS, getOrganizationReviewSchema } from '@/lib/reviews'
+import { GOOGLE_REVIEWS_URL, PUBLIC_REVIEWS } from '@/lib/reviews'
 
 const baseUrl = getPublicAppUrl()
 const canonicalUrl = new URL('/google-reviews', baseUrl).toString()
@@ -28,12 +28,7 @@ export default function GoogleReviewsPage() {
     '@type': 'WebPage',
     name: 'Reviews over TailTribe',
     url: canonicalUrl,
-    mainEntity: {
-      '@type': 'Organization',
-      '@id': `${baseUrl}/#organization`,
-      name: 'TailTribe',
-      ...getOrganizationReviewSchema(baseUrl),
-    },
+    mainEntity: { '@id': `${baseUrl}/#organization` },
   }
 
   return (
