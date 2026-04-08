@@ -17,6 +17,8 @@ export type DispatchService = {
   detailTitle?: string
   /** Snippet for meta/og description; use for strong head-term coverage without bloating card copy. */
   metaDescription?: string
+  /** Richtbedragen exclusief btw; indicatie — definitieve prijs na aanvraag. */
+  priceGuide?: string
   // optional longer copy for service detail page
   longDescription?: {
     why: string[]
@@ -61,6 +63,8 @@ export const DISPATCH_SERVICES: DispatchService[] = [
     detailTitle: 'Hondenuitlaat aan huis | Professionele hondenuitlater',
     metaDescription:
       'Hondenuitlaat en dog walker aan huis in België. Vaste hondenuitlater, wandeling op tempo, welzijn en veiligheid. Vraag via TailTribe — we matchen en volgen persoonlijk op.',
+    priceGuide:
+      'Richtbedrag exclusief btw: voor een wandeling van 30 tot 60 minuten ligt de gebruikelijke marktindicatie meestal tussen €12 en €25. Het exacte tarief hangt af van regio, frequentie, je hond en concrete afspraken. Na je aanvraag krijg je een offerte op maat.',
     longDescription: {
       why: [
         'Beweging verlaagt stresshormonen en bevordert herstel; snuffelen verrijkt en werkt kalmerend.',
@@ -96,6 +100,8 @@ export const DISPATCH_SERVICES: DispatchService[] = [
     detailTitle: 'Hondenuitlaatservice aan huis – avontuurlijke daguitstappen',
     metaDescription:
       'Hondenuitlaatservice aan huis in België: sociale groepswandelingen, daguitstappen, ophalen en terugbrengen. Voor sociale honden. Vraag je beschikbaarheid via TailTribe.',
+    priceGuide:
+      'Richtbedrag exclusief btw: een volledige hondenuitlaatservice (daguitstap met ophalen en terugbrengen) wordt in de praktijk vaak rond €45 per dag gehanteerd. Prijs kan variëren met locatie, planning en het profiel van je hond. Concrete offerte na je aanvraag.',
     providerSpotlight: {
       name: 'One Happy Hound',
       href: 'https://onehappyhound.be/?utm_source=tailtribe&utm_medium=referral&utm_campaign=hondenuitlaatservice',
@@ -129,6 +135,8 @@ export const DISPATCH_SERVICES: DispatchService[] = [
     detailTitle: 'Hondentraining aan huis | Hondentrainer via TailTribe',
     metaDescription:
       'Hondentrainer aan huis in België: hondentraining en puppytraining op maat, gedrag en basiscommando’s. Alternatief of aanvulling op hondenschool. Aanvraag via TailTribe.',
+    priceGuide:
+      'Richtbedrag exclusief btw: privé-hondentraining aan huis wordt doorgaans tussen €40 en €90 per uur aangeboden, afhankelijk van ervaring, verplaatsing en het type traject. Vraag via TailTribe een voorstel dat bij jou past.',
     longDescription: {
       why: [
         'Gerichte begeleiding bij gedrag, basiscommando’s of specifieke uitdagingen.',
@@ -154,6 +162,8 @@ export const DISPATCH_SERVICES: DispatchService[] = [
     detailTitle: 'Dierenoppas en hondenoppas aan huis',
     metaDescription:
       'Dierenoppas en hondenoppas aan huis in België: betrouwbare dierenoppasser, hondenoppasser of dog sitter. Routine, voeding en updates. Match via TailTribe.',
+    priceGuide:
+      'Richtbedrag exclusief btw: dierenoppas aan huis ligt vaak tussen €40 en €60 per dag, naargelang duur, aantal bezoeken, routine en zorgzwaarte. Dit zijn indicaties; je ontvangt een concrete prijs na je aanvraag.',
     longDescription: {
       why: [
         'Oppas is ideaal wanneer je een betrouwbare dierenoppasser of hondenoppasser zoekt terwijl jij weg bent.',
@@ -184,6 +194,8 @@ export const DISPATCH_SERVICES: DispatchService[] = [
     detailTitle: 'Hondenopvang en dierenopvang op maat',
     metaDescription:
       'Hondenopvang en dierenopvang in België: veilige pension-achtige opvang, vakantie en langere periodes. Routine en afspraken op maat. Start via TailTribe.',
+    priceGuide:
+      'Richtbedrag exclusief btw: hondenopvang en dierenopvang worden veelal tussen €40 en €60 per dag gehanteerd, variërend met type verblijf, seizoen en extra zorg. Vraag een offerte op maat via TailTribe.',
     longDescription: {
       why: [
         'Voor hondenopvang tijdens vakantie of wanneer je extra opvang nodig hebt.',
@@ -214,6 +226,8 @@ export const DISPATCH_SERVICES: DispatchService[] = [
     detailTitle: 'Dierenverzorging aan huis | Aan huis dierenoppas',
     metaDescription:
       'Dierenverzorging aan huis in België: bezoeken voor voeding, wandeling, kattenbak en check-in. Minder stress, eigen omgeving. Plan zorg via TailTribe.',
+    priceGuide:
+      'Richtbedrag exclusief btw: korte verzorging aan huis (check-in, voeding, kattenbak, korte wandeling, …) ligt meestal tussen €20 en €40 per bezoek, afhankelijk van tijd en het afgesproken takenpakket. Concrete prijs na je aanvraag.',
     longDescription: {
       why: [
         'Handig voor huisdieren die liever thuis blijven (minder stress).',
@@ -244,6 +258,8 @@ export const DISPATCH_SERVICES: DispatchService[] = [
     detailTitle: 'Transport van dieren | Hond en kat veilig vervoerd',
     metaDescription:
       'Transport van hond of kat in België: veilig vervoer naar dierenarts, opvang of afspraak. Timing, bench en instructies afgestemd. Vraag transport via TailTribe.',
+    priceGuide:
+      'Richtbedrag exclusief btw: korte ritten worden vaak tussen €20 en €40 aangerekend. Voor langere afstanden komt er doorgaans tussen €0,50 en €1 per kilometer bij, in overleg na route en timing. Vraag je verplaatsing aan voor een helder totaalbeeld.',
     longDescription: {
       why: [
         'Voor dierenartsbezoeken, verhuis, ophalen/wegbrengen of speciale situaties.',
@@ -273,6 +289,8 @@ export const DISPATCH_SERVICES: DispatchService[] = [
     detailTitle: 'Verzorging van kleinvee en andere dieren',
     metaDescription:
       'Verzorging van kleinvee, paarden en boerderijdieren in België: voeding, water en routine volgens checklist. Vraag bezoeken op maat via TailTribe.',
+    priceGuide:
+      'Richtbedrag exclusief btw: verzorging van boerderijdieren en kleinvee op locatie wordt vaak tussen €30 en €40 per uur gehanteerd, naar omvang van het werk en reistijd. Offerte op maat via TailTribe.',
     longDescription: {
       why: [
         'Voor boerderijdieren, paarden en kleine dieren is routine essentieel.',
@@ -304,6 +322,8 @@ export const DISPATCH_SERVICES: DispatchService[] = [
     detailTitle: 'Begeleiding hond trouwfeest en events',
     metaDescription:
       'Begeleiding van je hond op trouwfeest of event in België: timing, rustplek en veilige aanpak. Jij geniet, wij houden je hond in het oog via TailTribe.',
+    priceGuide:
+      'Richtbedrag exclusief btw: begeleiding van je hond op een trouwfeest of ander event ligt meestal tussen €80 en €200 per event, afhankelijk van duur, programma en verplaatsing. Vraag tijdig een voorstel aan.',
     longDescription: {
       why: [
         'Zorg dat je huisdier mee kan naar een event zonder stress voor jou.',

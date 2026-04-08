@@ -197,7 +197,7 @@ export const BLOG_POSTS: BlogPost[] = [
     slug: 'wat-kost-hondenuitlaatservice-aan-huis-in-antwerpen',
     title: 'Wat kost hondenuitlaatservice aan huis in Antwerpen?',
     excerpt:
-      'De prijs van hondenuitlaatservice aan huis hangt af van duur, locatie, type begeleiding en praktische haalbaarheid. Dit zijn de factoren die de kost in Antwerpen bepalen.',
+      'Richtbedragen exclusief btw: uitlaat 30–60 min vaak €12–€25, daguitstap vaak rond €45. Plus: duur, locatie en type begeleiding in Antwerpen.',
     date: '2026-03-27',
     readingTime: '13 min',
     tags: ['Prijs', 'Antwerpen', 'Hondenuitlaatservice'],
@@ -205,6 +205,7 @@ export const BLOG_POSTS: BlogPost[] = [
     coverImage: 'https://images.unsplash.com/photo-1518717758536-85ae29035b6d?auto=format&fit=crop&w=1600&q=80',
     content: [
       'De vraag wat hondenuitlaatservice aan huis in Antwerpen kost, wordt vaak gesteld nog voor iemand beslist om een aanvraag te doen. Dat is logisch: prijs is geen detail, maar een belangrijk deel van vertrouwen. Mensen willen eerst begrijpen waar de kost vandaan komt.',
+      'Ter orientatie (exclusief btw, marktconforme indicaties): een individuele hondenuitlaat van 30 tot 60 minuten ligt in de praktijk vaak tussen €12 en €25. Een volledige hondenuitlaatservice met daguitstap — ophalen, uitstap, terugbrengen — wordt veelal rond €45 per dag gehanteerd. In Antwerpen spelen bereikbaarheid, parkeer- en reistijd en je exacte wijk nog mee; na een concrete aanvraag krijg je altijd een prijs op maat.',
       'Er is zelden een correcte vaste prijs zonder context. De duur van de wandeling speelt mee, maar ook de exacte locatie, de haalbaarheid van ophalen aan huis en het profiel van de hond. Een rustige standaardroutine vraagt iets anders dan een traject met veel afstemming of extra aandachtspunten.',
       'In Antwerpen is bereikbaarheid een belangrijke factor. Stadskernen, parkeerdruk, reistijd en praktische toegang maken een verschil in hoe efficiënt een uitlaatmoment georganiseerd kan worden. Dat heeft rechtstreeks impact op de koststructuur.',
       'Ook het type begeleiding beïnvloedt de prijs. Individuele uitlaat is anders geprijsd dan hondenuitlaatservice in kleine groep. Bij een groepsformule speelt niet alleen tijd, maar ook geschiktheid, logistiek en routeplanning mee.',
@@ -290,7 +291,7 @@ export const BLOG_POSTS: BlogPost[] = [
     slug: 'wat-kost-hondenoppas-aan-huis',
     title: 'Wat kost hondenoppas aan huis?',
     excerpt:
-      'De prijs van hondenoppas aan huis hangt af van duur, routine, aantal bezoeken en de zorg die je hond nodig heeft. Dit zijn de belangrijkste prijsfactoren.',
+      'Richtbedragen exclusief btw: hondenoppas aan huis vaak €40–€60 per dag. Plus: duur, bezoeken, routine en zorgzwaarte.',
     date: '2026-03-31',
     readingTime: '12 min',
     tags: ['Hondenoppas', 'Prijs', 'Aan huis'],
@@ -298,6 +299,7 @@ export const BLOG_POSTS: BlogPost[] = [
     coverImage: 'https://images.unsplash.com/photo-1517849845537-4d257902454a?auto=format&fit=crop&w=1600&q=80',
     content: [
       'Wie zoekt naar hondenoppas aan huis, wil meestal eerst duidelijkheid over de prijs. Dat is logisch: voor veel baasjes is het niet alleen een zorgvraag, maar ook een praktische beslissing rond budget, frequentie en vertrouwen.',
+      'Ter orientatie (exclusief btw): dierenoppas aan huis wordt in de markt vaak tussen €40 en €60 per dag gehanteerd, afhankelijk van hoe lang je weg bent, hoeveel bezoeken er nodig zijn en hoe zwaar de zorg is. Dit blijft een indicatie; jouw offerte wordt altijd afgestemd op je concrete situatie.',
       'Er is zelden één vaste prijs die voor elke situatie klopt. Hondenoppas aan huis kan gaan van een kort bezoek tot langere aanwezigheid of meerdere bezoeken per dag. De duur en frequentie zijn dus de eerste prijsfactoren.',
       'Ook de zorgvraag van je hond speelt mee. Een rustige volwassen hond met een eenvoudige routine vraagt iets anders dan een hond die medicatie nodig heeft, extra wandelingen krijgt of veel begeleiding nodig heeft bij stress of alleen zijn.',
       'Toegang en planning zijn eveneens belangrijk. Wanneer oppas op vaste momenten kan doorgaan, is het meestal efficiënter te organiseren dan wanneer elke week iets anders nodig is. Dat verschil zie je vaak terug in de kost.',
@@ -450,7 +452,7 @@ export const BLOG_POSTS: BlogPost[] = [
     slug: 'wat-kost-hondenopvang',
     title: 'Wat kost hondenopvang?',
     excerpt:
-      'De prijs van hondenopvang hangt af van duur, type opvang, routine en extra zorg. Dit zijn de belangrijkste factoren die bepalen wat hondenopvang echt kost.',
+      'Richtbedragen exclusief btw: hondenopvang vaak €40–€60 per dag. Plus: duur, type opvang, routine en extra zorg.',
     date: '2026-04-07',
     readingTime: '12 min',
     tags: ['Hondenopvang', 'Prijs', 'Vakantie'],
@@ -459,6 +461,7 @@ export const BLOG_POSTS: BlogPost[] = [
     coverPosition: '50% 50%',
     content: [
       'Wie zoekt naar hondenopvang, wil meestal eerst begrijpen wat het kost. Dat is logisch, want opvang is zelden een impulsbeslissing. Het gaat over vertrouwen, planning en budget tegelijk, zeker wanneer het om meerdere dagen of een vakantieperiode gaat.',
+      'Ter orientatie (exclusief btw): hondenopvang en dierenopvang worden veelal tussen €40 en €60 per dag aangeboden, variërend met het type verblijf, het seizoen en bijkomende zorg. Het exacte tarief en wat er inbegrepen is (wandelingen, updates, medicatie, …) bepaal je best samen met de opvang — TailTribe helpt je een helder voorstel te krijgen na je aanvraag.',
       'De prijs van hondenopvang hangt eerst af van de duur. Een korte opvangperiode werkt anders dan meerdere opeenvolgende dagen of een langere vakantie. Hoe langer de periode, hoe belangrijker routine, logistiek en continuiteit worden in de kost.',
       'Ook het type opvang speelt mee. Een eenvoudige verblijfssituatie is niet hetzelfde als opvang voor een hond met veel begeleiding, specifieke voeding, medicatie of duidelijke gevoeligheden. Extra zorg en extra afstemming wegen meestal rechtstreeks door in de prijs.',
       'Veel baasjes vergelijken hondenopvang alleen op het dagtarief, maar dat is te beperkt. Je wil ook weten wat inbegrepen is: wandelingen, updates, medicatie, intake, noodafspraken, transport en praktische opvolging. Zonder die context lijkt een lage prijs soms aantrekkelijker dan hij werkelijk is.',

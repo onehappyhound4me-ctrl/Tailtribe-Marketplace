@@ -428,6 +428,25 @@ export default function DienstDetailPage({ params }: Props) {
             </div>
           </header>
 
+          {service.priceGuide ? (
+            <section
+              className="copy-pretty mt-6 md:mt-8 rounded-2xl border border-emerald-200/80 bg-gradient-to-br from-emerald-50/90 via-white to-slate-50/80 px-5 py-5 sm:px-7 sm:py-6 shadow-sm"
+              aria-labelledby="price-guide-heading"
+            >
+              <h2 id="price-guide-heading" className="text-lg font-semibold text-emerald-950 sm:text-xl">
+                Prijsindicatie (richtbedragen, exclusief btw)
+              </h2>
+              <p className="mt-1 text-xs text-slate-600 sm:text-sm">
+                Dit zijn gangbare marktindicaties — geen bindende offerte. Je ontvangt een concrete prijs na je aanvraag.
+              </p>
+              <div className="mt-4 space-y-3 text-[15px] leading-relaxed text-slate-800 md:text-base">
+                {service.priceGuide.split(/\n\n+/).map((block, idx) => (
+                  <p key={idx}>{block.trim()}</p>
+                ))}
+              </div>
+            </section>
+          ) : null}
+
           <section className="mt-8 md:mt-10 space-y-6 md:space-y-8">
             {service.providerSpotlight ? (
               <ProviderSpotlight
