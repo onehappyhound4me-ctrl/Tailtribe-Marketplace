@@ -15,7 +15,7 @@ import { getOrganizationReviewSchema } from '@/lib/reviews'
 const appUrl = getPublicAppUrl()
 const ogImageUrl = `${appUrl}/assets/hero-marketplace.jpg`
 const orgLogoUrl = `${appUrl}/tailtribe_logo_masked_1751977129022.png`
-const organizationReviews = getOrganizationReviewSchema(appUrl)
+const organizationReviews = getOrganizationReviewSchema()
 
 export const metadata: Metadata = {
   metadataBase: new URL(appUrl),

@@ -54,7 +54,7 @@ export function getPublicReviewsAggregateRating() {
   } as const
 }
 
-export function getOrganizationReviewSchema(appUrl: string) {
+export function getOrganizationReviewSchema() {
   const aggregateRating = getPublicReviewsAggregateRating()
   return {
     ...(aggregateRating ? { aggregateRating } : {}),
@@ -73,11 +73,6 @@ export function getOrganizationReviewSchema(appUrl: string) {
       publisher: {
         '@type': 'Organization',
         name: 'Google',
-      },
-      itemReviewed: {
-        '@type': 'Organization',
-        '@id': `${appUrl}/#organization`,
-        name: 'TailTribe',
       },
     })),
   }
