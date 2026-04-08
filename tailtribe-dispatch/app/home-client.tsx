@@ -9,7 +9,7 @@ import { DISPATCH_SERVICES } from '@/lib/services'
 import { withAssetVersion } from '@/lib/service-icons'
 import { routes } from '@/lib/routes'
 import { getPublicAppUrl } from '@/lib/env'
-import { GOOGLE_REVIEWS_URL, PUBLIC_REVIEWS } from '@/lib/reviews'
+import { GOOGLE_REVIEWS_URL, PUBLIC_REVIEWS, getPublicReviewsAggregateRating } from '@/lib/reviews'
 
 const HERO_IMG_PRIMARY = '/assets/hero-marketplace.jpg?v=1'
 const HERO_IMG_URL = encodeURI(HERO_IMG_PRIMARY)
@@ -54,11 +54,13 @@ export default function HomePageClient() {
     })),
   }
 
+  const homepageAgg = getPublicReviewsAggregateRating()
   const homepageReviewsJsonLd = {
     '@context': 'https://schema.org',
     '@type': 'Organization',
     '@id': `${APP_URL}/#organization`,
     name: 'TailTribe',
+    ...(homepageAgg ? { aggregateRating: homepageAgg } : {}),
     review: PUBLIC_REVIEWS.map((review) => ({
       '@type': 'Review',
       author: { '@type': 'Person', name: review.name },

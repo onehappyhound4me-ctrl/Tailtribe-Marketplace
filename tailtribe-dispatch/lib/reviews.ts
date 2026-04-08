@@ -40,8 +40,24 @@ export function getServiceReviews(serviceId: string) {
   return matching.length > 0 ? matching : PUBLIC_REVIEWS
 }
 
-export function getOrganizationReviewSchema(appUrl: string) {
+/** Gemiddelde + aantal van PUBLIC_REVIEWS; vereist door Google bij meerdere `review` op Organization. */
+export function getPublicReviewsAggregateRating() {
+  if (PUBLIC_REVIEWS.length === 0) return undefined
+  const sum = PUBLIC_REVIEWS.reduce((acc, r) => acc + r.rating, 0)
+  const avg = sum / PUBLIC_REVIEWS.length
   return {
+    '@type': 'AggregateRating',
+    ratingValue: Math.round(avg * 10) / 10,
+    reviewCount: PUBLIC_REVIEWS.length,
+    bestRating: 5,
+    worstRating: 1,
+  } as const
+}
+
+export function getOrganizationReviewSchema(appUrl: string) {
+  const aggregateRating = getPublicReviewsAggregateRating()
+  return {
+    ...(aggregateRating ? { aggregateRating } : {}),
     review: PUBLIC_REVIEWS.map((review) => ({
       '@type': 'Review',
       reviewRating: {
