@@ -4,7 +4,6 @@ import Link from 'next/link'
 import { SiteHeader } from '@/components/SiteHeader'
 import { SiteFooter } from '@/components/SiteFooter'
 import { DISPATCH_SERVICES } from '@/lib/services'
-import { getServiceMarketingCover } from '@/lib/home-photography'
 import { routes } from '@/lib/routes'
 import { getPublicAppUrl } from '@/lib/env'
 
@@ -83,7 +82,6 @@ export default function DienstenPage() {
 
           <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 mb-12">
             {visibleServices.map((service, index) => {
-              const cover = getServiceMarketingCover(service.id)
               return (
               <Link
                 key={service.id}
@@ -94,16 +92,15 @@ export default function DienstenPage() {
                 data-service-slug={service.slug}
                 className="group bg-white rounded-2xl shadow-sm hover:shadow-tt transition-all border border-black/5 overflow-hidden"
               >
-                <div className="relative h-36 w-full overflow-hidden bg-slate-100 sm:h-40">
+                <div className="relative flex h-36 w-full items-center justify-center overflow-hidden bg-gradient-to-br from-emerald-50 via-white to-sky-50 sm:h-40">
                   <Image
-                    src={cover.src}
-                    alt={cover.alt}
-                    fill
+                    src={encodeURI(service.image)}
+                    alt={service.name}
+                    width={120}
+                    height={120}
                     unoptimized
-                    sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
                     priority={index < 3}
-                    className="object-cover transition-transform duration-300 md:group-hover:scale-105"
-                    referrerPolicy="no-referrer"
+                    className="h-24 w-24 object-contain transition-transform duration-300 md:group-hover:scale-105 sm:h-28 sm:w-28"
                   />
                 </div>
                 <div className="p-5 sm:p-6">

@@ -9,7 +9,6 @@ import { SiteHeader } from '@/components/SiteHeader'
 import { SiteFooter } from '@/components/SiteFooter'
 import { DISPATCH_SERVICES } from '@/lib/services'
 import { trackEvent } from '@/lib/analytics'
-import { getServiceMarketingCover } from '@/lib/home-photography'
 import { routes } from '@/lib/routes'
 
 const TIME_WINDOWS = [
@@ -308,7 +307,6 @@ export default function BookingPage() {
                   )}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {DISPATCH_SERVICES.map((service, index) => {
-                      const cover = getServiceMarketingCover(service.id)
                       return (
                       <button
                         key={service.id}
@@ -323,16 +321,15 @@ export default function BookingPage() {
                         }`}
                       >
                         <div className="flex gap-4 items-center">
-                          <div className="relative h-14 w-14 flex-shrink-0 overflow-hidden rounded-xl border border-black/5 bg-slate-100 sm:h-16 sm:w-16">
+                          <div className="relative flex h-14 w-14 flex-shrink-0 items-center justify-center overflow-hidden rounded-xl border border-black/5 bg-gradient-to-br from-emerald-50 to-white sm:h-16 sm:w-16">
                             <Image
-                              src={cover.src}
-                              alt={cover.alt}
-                              fill
+                              src={encodeURI(service.image)}
+                              alt={service.name}
+                              width={64}
+                              height={64}
                               unoptimized
-                              sizes="64px"
                               priority={index < 6}
-                              className="object-cover"
-                              referrerPolicy="no-referrer"
+                              className="h-11 w-11 object-contain sm:h-12 sm:w-12"
                             />
                           </div>
                           <div>

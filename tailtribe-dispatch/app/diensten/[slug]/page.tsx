@@ -27,6 +27,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   }
 
   const cover = getServiceMarketingCover(service.id)
+  const ogImageUrl = new URL(cover.src, baseUrl).toString()
   const pageTitle = service.detailTitle ?? service.name
   const canonicalUrl = new URL(`/diensten/${service.slug}`, baseUrl).toString()
   const pageDescription =
@@ -44,7 +45,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       siteName: 'TailTribe',
       locale: 'nl_BE',
       type: 'website',
-      images: [{ url: cover.src, width: 1200, height: 630, alt: cover.alt }],
+      images: [{ url: ogImageUrl, width: 1200, height: 630, alt: cover.alt }],
     },
   }
 }
@@ -105,7 +106,7 @@ export default function DienstDetailPage({ params }: Props) {
   const baseUrl = getPublicAppUrl()
   const canonicalUrl = new URL(`/diensten/${service.slug}`, baseUrl).toString()
   const cover = getServiceMarketingCover(service.id)
-  const imageUrl = cover.src
+  const imageUrl = new URL(cover.src, baseUrl).toString()
 
   const serviceJsonLd = {
     '@context': 'https://schema.org',
@@ -381,16 +382,15 @@ export default function DienstDetailPage({ params }: Props) {
           </nav>
 
           <header className="bg-white rounded-2xl shadow-sm border border-black/5 p-5 sm:p-8 md:p-10 flex flex-col md:flex-row gap-6 sm:gap-8 items-center">
-            <div className="relative h-28 w-28 sm:h-40 sm:w-40 md:h-48 md:w-48 flex-shrink-0 overflow-hidden rounded-2xl border border-black/5 bg-slate-100">
+            <div className="relative flex h-28 w-28 flex-shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-black/5 bg-gradient-to-br from-emerald-50 via-white to-sky-50 sm:h-40 sm:w-40 md:h-48 md:w-48">
               <Image
-                src={cover.src}
-                alt={cover.alt}
-                fill
+                src={encodeURI(service.image)}
+                alt={service.name}
+                width={192}
+                height={192}
                 priority
                 unoptimized
-                sizes="(max-width: 640px) 112px, (max-width: 768px) 160px, 192px"
-                className="object-cover"
-                referrerPolicy="no-referrer"
+                className="h-[4.5rem] w-[4.5rem] object-contain sm:h-32 sm:w-32 md:h-40 md:w-40"
               />
             </div>
             <div className="text-center md:text-left">
@@ -656,7 +656,6 @@ export default function DienstDetailPage({ params }: Props) {
             <h2 className="text-2xl md:text-3xl font-semibold text-gray-900 mb-6">Andere diensten</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-7">
               {related.map((s) => {
-                const relatedCover = getServiceMarketingCover(s.id)
                 return (
                 <Link
                   key={s.id}
@@ -667,15 +666,14 @@ export default function DienstDetailPage({ params }: Props) {
                   data-service-slug={s.slug}
                   className="group bg-white rounded-2xl shadow-sm hover:shadow-tt transition-all border border-black/5 overflow-hidden"
                 >
-                  <div className="relative h-36 w-full overflow-hidden bg-slate-100">
+                  <div className="relative flex h-36 w-full items-center justify-center overflow-hidden bg-gradient-to-br from-emerald-50 via-white to-sky-50">
                     <Image
-                      src={relatedCover.src}
-                      alt={relatedCover.alt}
-                      fill
+                      src={encodeURI(s.image)}
+                      alt={s.name}
+                      width={120}
+                      height={120}
                       unoptimized
-                      sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                      className="object-cover transition-transform duration-300 group-hover:scale-105"
-                      referrerPolicy="no-referrer"
+                      className="h-24 w-24 object-contain transition-transform duration-300 group-hover:scale-105"
                     />
                   </div>
                   <div className="p-5">

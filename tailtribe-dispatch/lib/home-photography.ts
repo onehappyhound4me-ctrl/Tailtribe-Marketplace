@@ -7,7 +7,7 @@ import type { DispatchService } from '@/lib/services'
 
 export const HOME_HERO = {
   src: '/marketing/hero.jpg',
-  alt: 'Baasje wandelt samen met husky in bosrijke omgeving — mens en dier in interactie',
+  alt: 'Warm, innig moment tussen een mens en een hond — aandacht, vertrouwen en samen zijn',
 } as const
 
 /** Full-width rustpauze tussen diensten en “Hoe werkt het”. */
