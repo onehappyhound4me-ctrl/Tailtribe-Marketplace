@@ -243,7 +243,7 @@ export default function HomePageClient() {
                   data-service-slug={service.slug}
                   className="group flex flex-col overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-[0_8px_30px_rgba(15,23,42,0.06)] ring-1 ring-slate-100 transition duration-300 hover:-translate-y-1 hover:border-emerald-200/80 hover:shadow-[0_20px_50px_rgba(16,185,129,0.12)] motion-reduce:transition-none motion-reduce:hover:translate-y-0"
                 >
-                  <div className="relative flex aspect-[4/3] w-full items-center justify-center overflow-hidden bg-gradient-to-br from-emerald-50 via-white to-sky-50">
+                  <div className="relative flex aspect-[4/3] w-full items-center justify-center overflow-hidden bg-gradient-to-br from-emerald-200 via-emerald-50 to-emerald-900/12">
                     <Image
                       src={encodeURI(service.image)}
                       alt={service.name}

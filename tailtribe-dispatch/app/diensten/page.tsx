@@ -92,7 +92,7 @@ export default function DienstenPage() {
                 data-service-slug={service.slug}
                 className="group bg-white rounded-2xl shadow-sm hover:shadow-tt transition-all border border-black/5 overflow-hidden"
               >
-                <div className="relative flex h-36 w-full items-center justify-center overflow-hidden bg-gradient-to-br from-emerald-50 via-white to-sky-50 sm:h-40">
+                <div className="relative flex h-36 w-full items-center justify-center overflow-hidden bg-gradient-to-br from-emerald-200 via-emerald-50 to-emerald-900/12 sm:h-40">
                   <Image
                     src={encodeURI(service.image)}
                     alt={service.name}

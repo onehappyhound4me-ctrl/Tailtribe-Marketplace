@@ -117,7 +117,7 @@ export default function HomePage() {
                 data-service-slug={service.slug}
                 className="group bg-gradient-to-br from-white via-white to-emerald-50 rounded-2xl shadow-md hover:shadow-2xl transition-all duration-300 overflow-hidden border border-emerald-100 hover:border-emerald-200 transform hover:-translate-y-1"
               >
-                <div className="relative flex h-40 w-full items-center justify-center overflow-hidden bg-gradient-to-br from-emerald-50/80 via-white to-sky-50/80">
+                <div className="relative flex h-40 w-full items-center justify-center overflow-hidden bg-gradient-to-br from-emerald-200 via-emerald-50 to-emerald-900/12">
                   <Image 
                     src={encodeURI(service.image)} 
                     alt={service.name}

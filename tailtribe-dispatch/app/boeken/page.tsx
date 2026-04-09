@@ -321,7 +321,7 @@ export default function BookingPage() {
                         }`}
                       >
                         <div className="flex gap-4 items-center">
-                          <div className="relative flex h-14 w-14 flex-shrink-0 items-center justify-center overflow-hidden rounded-xl border border-black/5 bg-gradient-to-br from-emerald-50 to-white sm:h-16 sm:w-16">
+                          <div className="relative flex h-14 w-14 flex-shrink-0 items-center justify-center overflow-hidden rounded-xl border border-emerald-800/15 bg-gradient-to-br from-emerald-200 via-emerald-50 to-emerald-900/12 sm:h-16 sm:w-16">
                             <Image
                               src={encodeURI(service.image)}
                               alt={service.name}
