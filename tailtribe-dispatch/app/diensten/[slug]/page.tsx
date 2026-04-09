@@ -382,30 +382,16 @@ export default function DienstDetailPage({ params }: Props) {
           </nav>
 
           <header className="bg-white rounded-2xl shadow-sm border border-black/5 p-5 sm:p-8 md:p-10 flex flex-col md:flex-row gap-6 sm:gap-8 items-center">
-            <div className="relative h-28 w-28 sm:h-40 sm:w-40 md:h-48 md:w-48 flex-shrink-0 overflow-hidden rounded-2xl border border-black/5 bg-slate-100">
+            <div className="relative h-44 w-44 flex-shrink-0 overflow-hidden rounded-2xl border border-emerald-100/80 bg-gradient-to-br from-emerald-200 via-emerald-50 to-emerald-900/12 sm:h-52 sm:w-52 md:h-60 md:w-60">
               <Image
-                src={cover.src}
-                alt={cover.alt}
+                src={encodeURI(service.image)}
+                alt={service.name}
                 fill
                 priority
                 unoptimized
-                sizes="(max-width: 640px) 112px, (max-width: 768px) 160px, 192px"
-                className="object-cover"
-                referrerPolicy="no-referrer"
+                sizes="(max-width: 640px) 176px, (max-width: 768px) 208px, 240px"
+                className="object-contain object-center p-0 scale-[1.28] motion-reduce:scale-100"
               />
-              <div
-                className="absolute left-0 top-0 z-10 flex h-12 w-12 items-center justify-center rounded-br-xl bg-gradient-to-br from-emerald-200 via-emerald-50 to-emerald-900/12 shadow-sm ring-1 ring-white/70 sm:h-14 sm:w-14 sm:rounded-br-2xl"
-                aria-hidden
-              >
-                <Image
-                  src={encodeURI(service.image)}
-                  alt=""
-                  width={48}
-                  height={48}
-                  unoptimized
-                  className="h-9 w-9 object-contain sm:h-11 sm:w-11"
-                />
-              </div>
             </div>
             <div className="text-center md:text-left">
               <h1 className="text-2xl sm:text-4xl md:text-5xl font-bold text-gray-900 mb-3">
@@ -544,32 +530,15 @@ export default function DienstDetailPage({ params }: Props) {
             </div>
 
             <div className="flex justify-end">
-              <div className="bg-gradient-to-br from-green-500 via-emerald-400 to-blue-500 p-[3px] rounded-3xl shadow-[0_10px_30px_rgba(16,185,129,0.18)]">
-                <div
-                  className={
-                    service.id === 'EVENT_COMPANION'
-                      ? 'relative aspect-[3/4] w-[72vw] max-w-[420px] overflow-hidden rounded-[calc(1.5rem-3px)] border border-white/60 bg-white sm:w-[40vw] md:w-[22vw] lg:w-[16vw]'
-                      : 'relative aspect-[4/3] w-[88vw] max-w-[560px] overflow-hidden rounded-[calc(1.5rem-3px)] border border-white/60 bg-white sm:w-[65vw] md:w-[38vw] lg:w-[26vw]'
-                  }
-                >
-                  <Image
-                    src={cover.src}
-                    alt={cover.alt}
-                    fill
-                    unoptimized
-                    sizes={
-                      service.id === 'EVENT_COMPANION'
-                        ? '(max-width: 640px) 72vw, (max-width: 1024px) 40vw, 420px'
-                        : '(max-width: 640px) 88vw, (max-width: 1024px) 65vw, 560px'
-                    }
-                    className={
-                      service.id === 'EVENT_COMPANION'
-                        ? 'object-cover object-[50%_20%] md:[filter:brightness(1.08)]'
-                        : 'object-cover md:[filter:brightness(1.08)]'
-                    }
-                    referrerPolicy="no-referrer"
-                  />
-                </div>
+              <div className="relative h-44 w-44 flex-shrink-0 overflow-hidden rounded-3xl border border-emerald-200/90 bg-gradient-to-br from-emerald-200 via-emerald-50 to-emerald-900/20 shadow-[0_10px_30px_rgba(16,185,129,0.2)] ring-2 ring-emerald-400/25 sm:h-52 sm:w-52 md:h-60 md:w-60">
+                <Image
+                  src={encodeURI(service.image)}
+                  alt={service.name}
+                  fill
+                  unoptimized
+                  sizes="(max-width: 640px) 176px, (max-width: 768px) 208px, 240px"
+                  className="object-contain object-center p-0 scale-[1.28] motion-reduce:scale-100"
+                />
               </div>
             </div>
 
@@ -670,7 +639,6 @@ export default function DienstDetailPage({ params }: Props) {
             <h2 className="text-2xl md:text-3xl font-semibold text-gray-900 mb-6">Andere diensten</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-7">
               {related.map((s) => {
-                const relatedCover = getServiceMarketingCover(s.id)
                 return (
                 <Link
                   key={s.id}
@@ -681,15 +649,14 @@ export default function DienstDetailPage({ params }: Props) {
                   data-service-slug={s.slug}
                   className="group bg-white rounded-2xl shadow-sm hover:shadow-tt transition-all border border-black/5 overflow-hidden"
                 >
-                  <div className="relative h-36 w-full overflow-hidden bg-slate-100">
+                  <div className="relative flex h-40 w-full items-center justify-center overflow-hidden bg-gradient-to-br from-emerald-200 via-emerald-50 to-emerald-900/12 sm:h-44">
                     <Image
-                      src={relatedCover.src}
-                      alt={relatedCover.alt}
-                      fill
+                      src={encodeURI(s.image)}
+                      alt={s.name}
+                      width={160}
+                      height={160}
                       unoptimized
-                      sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                      className="object-cover transition-transform duration-300 group-hover:scale-105"
-                      referrerPolicy="no-referrer"
+                      className="h-[7.5rem] w-[7.5rem] scale-110 object-contain transition-transform duration-300 group-hover:scale-[1.18] motion-reduce:group-hover:scale-110 sm:h-32 sm:w-32"
                     />
                   </div>
                   <div className="p-5">
