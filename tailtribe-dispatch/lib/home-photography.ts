@@ -3,8 +3,8 @@ import type { DispatchService } from '@/lib/services'
 /** Curated Unsplash photography — één unieke foto per gebruik, natuurlijke huisdier+mens sfeer. */
 
 export const HOME_HERO = {
-  src: 'https://images.unsplash.com/photo-1601758228041-f3b2795255f1?auto=format&fit=crop&w=2400&q=85',
-  alt: 'Persoon en hond in warm, huiselijk licht — zorg en verbinding',
+  src: 'https://images.unsplash.com/photo-1568393698741-0bb5bdd68896?auto=format&fit=crop&w=3840&q=92',
+  alt: 'Baasje wandelt samen met husky in bosrijke omgeving — mens en dier in interactie',
 } as const
 
 /** Full-width rustpauze tussen diensten en “Hoe werkt het”. */

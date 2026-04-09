@@ -16,22 +16,31 @@ import {
   getHomeServiceCover,
 } from '@/lib/home-photography'
 
+const STAR_PATH =
+  'M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z'
+
 function StarRow({ value, size = 'md' }: { value: number; size?: 'sm' | 'md' }) {
-  const v = Math.min(5, Math.max(0, Math.round(value)))
+  const clamped = Math.min(5, Math.max(0, value))
   const dim = size === 'sm' ? 'h-3.5 w-3.5' : 'h-4 w-4'
   return (
-    <span className="inline-flex gap-0.5" role="img" aria-label={`${value} van 5 sterren`}>
-      {Array.from({ length: 5 }, (_, i) => (
-        <svg
-          key={i}
-          className={`${dim} ${i < v ? 'text-amber-400' : 'text-slate-200'}`}
-          viewBox="0 0 20 20"
-          fill="currentColor"
-          aria-hidden
-        >
-          <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-        </svg>
-      ))}
+    <span className="inline-flex gap-0.5" role="img" aria-label={`${clamped} van 5 sterren`}>
+      {[0, 1, 2, 3, 4].map((i) => {
+        const fill = Math.min(1, Math.max(0, clamped - i))
+        return (
+          <span key={i} className={`relative inline-flex ${dim} shrink-0`}>
+            <svg className={`${dim} text-slate-200`} viewBox="0 0 20 20" fill="currentColor" aria-hidden>
+              <path d={STAR_PATH} />
+            </svg>
+            {fill > 0 ? (
+              <span className="absolute left-0 top-0 h-full overflow-hidden" style={{ width: `${fill * 100}%` }}>
+                <svg className={`${dim} text-amber-400`} viewBox="0 0 20 20" fill="currentColor" aria-hidden>
+                  <path d={STAR_PATH} />
+                </svg>
+              </span>
+            ) : null}
+          </span>
+        )
+      })}
     </span>
   )
 }
@@ -74,9 +83,18 @@ const HOME_FAQS = [
   },
 ] as const
 
+function formatNlRating(rating: number) {
+  return rating.toLocaleString('nl-BE', { minimumFractionDigits: 0, maximumFractionDigits: 1 })
+}
+
 export default function HomePageClient() {
   const { data: session } = useSession()
   const reviewAgg = getPublicReviewsAggregateRating()
+  const ratingLabel = formatNlRating(reviewAgg.ratingValue)
+  const googleReviewLine =
+    'reviewCount' in reviewAgg && reviewAgg.reviewCount != null
+      ? `${ratingLabel}/5 · ${reviewAgg.reviewCount} reviews op Google`
+      : `${ratingLabel}/5 gemiddeld op Google`
 
   const bookingHref =
     session?.user?.role === 'OWNER' ? '/dashboard/owner/new-booking' : '/boeken'
@@ -104,7 +122,8 @@ export default function HomePageClient() {
             alt={HOME_HERO.alt}
             fill
             priority
-            sizes="100vw"
+            quality={92}
+            sizes="(max-width: 640px) 120vw, 100vw"
             className="object-cover object-[center_28%] sm:object-[center_22%]"
           />
           <div
@@ -130,19 +149,15 @@ export default function HomePageClient() {
                 door heel België.
               </p>
 
-              {reviewAgg ? (
-                <a
-                  href={GOOGLE_REVIEWS_URL}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="mt-6 inline-flex flex-wrap items-center gap-3 rounded-2xl border border-white/15 bg-white/10 px-4 py-3 backdrop-blur-md transition duration-200 hover:border-white/25 hover:bg-white/15"
-                >
-                  <StarRow value={reviewAgg.ratingValue} />
-                  <span className="text-sm font-medium text-white">
-                    {reviewAgg.ratingValue}/5 · {reviewAgg.reviewCount} reviews op Google
-                  </span>
-                </a>
-              ) : null}
+              <a
+                href={GOOGLE_REVIEWS_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-6 inline-flex flex-wrap items-center gap-3 rounded-2xl border border-white/15 bg-white/10 px-4 py-3 backdrop-blur-md transition duration-200 hover:border-white/25 hover:bg-white/15"
+              >
+                <StarRow value={reviewAgg.ratingValue} />
+                <span className="text-sm font-medium text-white">{googleReviewLine}</span>
+              </a>
 
               <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
                 <Link
@@ -208,14 +223,14 @@ export default function HomePageClient() {
             <p className="copy-pretty mx-auto mt-4 max-w-2xl text-base leading-relaxed text-slate-600 sm:text-lg">
               Grote foto’s, heldere keuze: kies wat past bij jouw huisdier. Elke kaart linkt naar de volledige uitleg.
             </p>
-            {reviewAgg ? (
-              <div className="mt-5 flex flex-wrap items-center justify-center gap-2 text-sm text-slate-600">
-                <StarRow value={reviewAgg.ratingValue} />
-                <span className="font-medium text-slate-800">
-                  {reviewAgg.ratingValue}/5 gemiddeld op Google ({reviewAgg.reviewCount} reviews)
-                </span>
-              </div>
-            ) : null}
+            <div className="mt-5 flex flex-wrap items-center justify-center gap-2 text-sm text-slate-600">
+              <StarRow value={reviewAgg.ratingValue} />
+              <span className="font-medium text-slate-800">
+                {'reviewCount' in reviewAgg && reviewAgg.reviewCount != null
+                  ? `${ratingLabel}/5 gemiddeld op Google (${reviewAgg.reviewCount} reviews)`
+                  : `${ratingLabel}/5 gemiddeld op Google`}
+              </span>
+            </div>
           </div>
 
           <div className="mx-auto grid max-w-6xl grid-cols-1 gap-8 md:grid-cols-2 md:gap-9 lg:grid-cols-3">

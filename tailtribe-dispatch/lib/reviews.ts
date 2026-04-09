@@ -40,18 +40,35 @@ export function getServiceReviews(serviceId: string) {
   return matching.length > 0 ? matching : PUBLIC_REVIEWS
 }
 
-/** Gemiddelde + aantal van PUBLIC_REVIEWS; vereist door Google bij meerdere `review` op Organization. */
+function parseGoogleBusinessRating(): number {
+  const raw = process.env.NEXT_PUBLIC_GOOGLE_BUSINESS_RATING
+  if (raw === undefined || raw.trim() === '') return 4.4
+  const n = Number(String(raw).replace(',', '.'))
+  if (!Number.isFinite(n)) return 4.4
+  return Math.min(5, Math.max(1, Math.round(n * 10) / 10))
+}
+
+function parseGoogleBusinessReviewCount(): number | undefined {
+  const raw = process.env.NEXT_PUBLIC_GOOGLE_BUSINESS_REVIEW_COUNT
+  if (raw === undefined || raw.trim() === '') return undefined
+  const n = parseInt(raw, 10)
+  return Number.isFinite(n) && n > 0 ? n : undefined
+}
+
+/**
+ * Zichtbaar gemiddelde zoals op Google Business (hero, JSON-LD).
+ * Standaard 4,4. Override: NEXT_PUBLIC_GOOGLE_BUSINESS_RATING en optioneel NEXT_PUBLIC_GOOGLE_BUSINESS_REVIEW_COUNT.
+ */
 export function getPublicReviewsAggregateRating() {
-  if (PUBLIC_REVIEWS.length === 0) return undefined
-  const sum = PUBLIC_REVIEWS.reduce((acc, r) => acc + r.rating, 0)
-  const avg = sum / PUBLIC_REVIEWS.length
+  const ratingValue = parseGoogleBusinessRating()
+  const reviewCount = parseGoogleBusinessReviewCount()
   return {
-    '@type': 'AggregateRating',
-    ratingValue: Math.round(avg * 10) / 10,
-    reviewCount: PUBLIC_REVIEWS.length,
+    '@type': 'AggregateRating' as const,
+    ratingValue,
+    ...(reviewCount != null ? { reviewCount } : {}),
     bestRating: 5,
     worstRating: 1,
-  } as const
+  }
 }
 
 export function getOrganizationReviewSchema() {
