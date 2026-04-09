@@ -7,7 +7,7 @@ import { SiteFooter } from '@/components/SiteFooter'
 import { ProviderSpotlight } from '@/components/ProviderSpotlight'
 import { ExternalLink } from '@/components/ExternalLink'
 import { DISPATCH_SERVICES, getDispatchServiceBySlug } from '@/lib/services'
-import { withAssetVersion } from '@/lib/service-icons'
+import { getServiceMarketingCover } from '@/lib/home-photography'
 import { routes } from '@/lib/routes'
 import { getPublicAppUrl } from '@/lib/env'
 import { GOOGLE_REVIEWS_URL, getServiceReviews } from '@/lib/reviews'
@@ -26,6 +26,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     return { title: 'Dienst niet gevonden', description: 'Deze dienst bestaat niet.' }
   }
 
+  const cover = getServiceMarketingCover(service.id)
   const pageTitle = service.detailTitle ?? service.name
   const canonicalUrl = new URL(`/diensten/${service.slug}`, baseUrl).toString()
   const pageDescription =
@@ -43,6 +44,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       siteName: 'TailTribe',
       locale: 'nl_BE',
       type: 'website',
+      images: [{ url: cover.src, width: 1200, height: 630, alt: cover.alt }],
     },
   }
 }
@@ -102,7 +104,8 @@ export default function DienstDetailPage({ params }: Props) {
 
   const baseUrl = getPublicAppUrl()
   const canonicalUrl = new URL(`/diensten/${service.slug}`, baseUrl).toString()
-  const imageUrl = new URL(service.image, baseUrl).toString()
+  const cover = getServiceMarketingCover(service.id)
+  const imageUrl = cover.src
 
   const serviceJsonLd = {
     '@context': 'https://schema.org',
@@ -378,15 +381,15 @@ export default function DienstDetailPage({ params }: Props) {
           </nav>
 
           <header className="bg-white rounded-2xl shadow-sm border border-black/5 p-5 sm:p-8 md:p-10 flex flex-col md:flex-row gap-6 sm:gap-8 items-center">
-            <div className="relative h-28 w-28 sm:h-40 sm:w-40 md:h-48 md:w-48 flex-shrink-0 overflow-hidden rounded-2xl border border-black/5 bg-gradient-to-br from-emerald-50 to-blue-50">
+            <div className="relative h-28 w-28 sm:h-40 sm:w-40 md:h-48 md:w-48 flex-shrink-0 overflow-hidden rounded-2xl border border-black/5 bg-slate-100">
               <Image
-                src={withAssetVersion(service.image)}
-                alt={service.name}
-                width={192}
-                height={192}
+                src={cover.src}
+                alt={cover.alt}
+                fill
                 priority
+                quality={90}
                 sizes="(max-width: 640px) 112px, (max-width: 768px) 160px, 192px"
-                className="h-full w-full object-contain p-3 md:[filter:hue-rotate(28deg)_saturate(0.62)_brightness(0.98)_contrast(1.08)]"
+                className="object-cover"
               />
             </div>
             <div className="text-center md:text-left">
@@ -525,141 +528,34 @@ export default function DienstDetailPage({ params }: Props) {
               )}
             </div>
 
-            {service.id === 'GROUP_DOG_WALKING' && (
-              <div className="flex justify-end">
-                <div className="bg-gradient-to-br from-green-500 via-emerald-400 to-blue-500 p-[3px] rounded-3xl shadow-[0_10px_30px_rgba(16,185,129,0.18)]">
-                  <div className="relative aspect-[4/3] w-[88vw] max-w-[560px] overflow-hidden rounded-[calc(1.5rem-3px)] border border-white/60 bg-white sm:w-[65vw] md:w-[38vw] lg:w-[26vw]">
-                    <Image
-                      src={withAssetVersion('/assets/groepsuitlaat-hero.jpg')}
-                      alt="Hondenuitlaatservice in actie"
-                      fill
-                      sizes="(max-width: 640px) 88vw, (max-width: 1024px) 65vw, 560px"
-                      className="object-cover md:[filter:brightness(1.08)]"
-                    />
-                  </div>
+            <div className="flex justify-end">
+              <div className="bg-gradient-to-br from-green-500 via-emerald-400 to-blue-500 p-[3px] rounded-3xl shadow-[0_10px_30px_rgba(16,185,129,0.18)]">
+                <div
+                  className={
+                    service.id === 'EVENT_COMPANION'
+                      ? 'relative aspect-[3/4] w-[72vw] max-w-[420px] overflow-hidden rounded-[calc(1.5rem-3px)] border border-white/60 bg-white sm:w-[40vw] md:w-[22vw] lg:w-[16vw]'
+                      : 'relative aspect-[4/3] w-[88vw] max-w-[560px] overflow-hidden rounded-[calc(1.5rem-3px)] border border-white/60 bg-white sm:w-[65vw] md:w-[38vw] lg:w-[26vw]'
+                  }
+                >
+                  <Image
+                    src={cover.src}
+                    alt={cover.alt}
+                    fill
+                    quality={88}
+                    sizes={
+                      service.id === 'EVENT_COMPANION'
+                        ? '(max-width: 640px) 72vw, (max-width: 1024px) 40vw, 420px'
+                        : '(max-width: 640px) 88vw, (max-width: 1024px) 65vw, 560px'
+                    }
+                    className={
+                      service.id === 'EVENT_COMPANION'
+                        ? 'object-cover object-[50%_20%] md:[filter:brightness(1.08)]'
+                        : 'object-cover md:[filter:brightness(1.08)]'
+                    }
+                  />
                 </div>
               </div>
-            )}
-            {service.id === 'DOG_WALKING' && (
-              <div className="flex justify-end">
-                <div className="bg-gradient-to-br from-green-500 via-emerald-400 to-blue-500 p-[3px] rounded-3xl shadow-[0_10px_30px_rgba(16,185,129,0.18)]">
-                  <div className="relative aspect-[4/3] w-[88vw] max-w-[560px] overflow-hidden rounded-[calc(1.5rem-3px)] border border-white/60 bg-white sm:w-[65vw] md:w-[38vw] lg:w-[26vw]">
-                    <Image
-                      src={withAssetVersion('/assets/hondenuitlaat-hero.jpg')}
-                      alt="Hondenuitlaat in actie"
-                      fill
-                      sizes="(max-width: 640px) 88vw, (max-width: 1024px) 65vw, 560px"
-                      className="object-cover md:[filter:brightness(1.08)]"
-                    />
-                  </div>
-                </div>
-              </div>
-            )}
-            {service.id === 'DOG_TRAINING' && (
-              <div className="flex justify-end">
-                <div className="bg-gradient-to-br from-green-500 via-emerald-400 to-blue-500 p-[3px] rounded-3xl shadow-[0_10px_30px_rgba(16,185,129,0.18)]">
-                  <div className="relative aspect-[4/3] w-[88vw] max-w-[560px] overflow-hidden rounded-[calc(1.5rem-3px)] border border-white/60 bg-white sm:w-[65vw] md:w-[38vw] lg:w-[26vw]">
-                    <Image
-                      src={withAssetVersion('/assets/dog-training-hero.jpg')}
-                      alt="Hondentraining in actie"
-                      fill
-                      sizes="(max-width: 640px) 88vw, (max-width: 1024px) 65vw, 560px"
-                      className="object-cover md:[filter:brightness(1.08)]"
-                    />
-                  </div>
-                </div>
-              </div>
-            )}
-            {service.id === 'PET_SITTING' && (
-              <div className="flex justify-end">
-                <div className="bg-gradient-to-br from-green-500 via-emerald-400 to-blue-500 p-[3px] rounded-3xl shadow-[0_10px_30px_rgba(16,185,129,0.18)]">
-                  <div className="relative aspect-[4/3] w-[88vw] max-w-[560px] overflow-hidden rounded-[calc(1.5rem-3px)] border border-white/60 bg-white sm:w-[65vw] md:w-[38vw] lg:w-[26vw]">
-                    <Image
-                      src={withAssetVersion('/assets/kat-hero.jpg')}
-                      alt="Dierenoppas in actie"
-                      fill
-                      sizes="(max-width: 640px) 88vw, (max-width: 1024px) 65vw, 560px"
-                      className="object-cover md:[filter:brightness(1.08)]"
-                    />
-                  </div>
-                </div>
-              </div>
-            )}
-            {service.id === 'PET_BOARDING' && (
-              <div className="flex justify-end">
-                <div className="bg-gradient-to-br from-green-500 via-emerald-400 to-blue-500 p-[3px] rounded-3xl shadow-[0_10px_30px_rgba(16,185,129,0.18)]">
-                  <div className="relative aspect-[4/3] w-[88vw] max-w-[560px] overflow-hidden rounded-[calc(1.5rem-3px)] border border-white/60 bg-white sm:w-[65vw] md:w-[38vw] lg:w-[26vw]">
-                    <Image
-                      src={withAssetVersion('/assets/cavia-hero.jpg')}
-                      alt="Dierenopvang in actie"
-                      fill
-                      sizes="(max-width: 640px) 88vw, (max-width: 1024px) 65vw, 560px"
-                      className="object-cover md:[filter:brightness(1.08)]"
-                    />
-                  </div>
-                </div>
-              </div>
-            )}
-            {service.id === 'HOME_CARE' && (
-              <div className="flex justify-end">
-                <div className="bg-gradient-to-br from-green-500 via-emerald-400 to-blue-500 p-[3px] rounded-3xl shadow-[0_10px_30px_rgba(16,185,129,0.18)]">
-                  <div className="relative aspect-[4/3] w-[88vw] max-w-[560px] overflow-hidden rounded-[calc(1.5rem-3px)] border border-white/60 bg-white sm:w-[65vw] md:w-[38vw] lg:w-[26vw]">
-                    <Image
-                      src={withAssetVersion('/assets/rabbit-hero.jpg')}
-                      alt="Verzorging aan huis"
-                      fill
-                      sizes="(max-width: 640px) 88vw, (max-width: 1024px) 65vw, 560px"
-                      className="object-cover md:[filter:brightness(1.08)]"
-                    />
-                  </div>
-                </div>
-              </div>
-            )}
-            {service.id === 'PET_TRANSPORT' && (
-              <div className="flex justify-end">
-                <div className="bg-gradient-to-br from-green-500 via-emerald-400 to-blue-500 p-[3px] rounded-3xl shadow-[0_10px_30px_rgba(16,185,129,0.18)]">
-                  <div className="relative aspect-[4/3] w-[88vw] max-w-[560px] overflow-hidden rounded-[calc(1.5rem-3px)] border border-white/60 bg-white sm:w-[65vw] md:w-[38vw] lg:w-[26vw]">
-                    <Image
-                      src={withAssetVersion('/assets/cat-eye-hero.jpg')}
-                      alt="Transport huisdieren"
-                      fill
-                      sizes="(max-width: 640px) 88vw, (max-width: 1024px) 65vw, 560px"
-                      className="object-cover md:[filter:brightness(1.08)]"
-                    />
-                  </div>
-                </div>
-              </div>
-            )}
-            {service.id === 'SMALL_ANIMAL_CARE' && (
-              <div className="flex justify-end">
-                <div className="bg-gradient-to-br from-green-500 via-emerald-400 to-blue-500 p-[3px] rounded-3xl shadow-[0_10px_30px_rgba(16,185,129,0.18)]">
-                  <div className="relative aspect-[4/3] w-[88vw] max-w-[560px] overflow-hidden rounded-[calc(1.5rem-3px)] border border-white/60 bg-white sm:w-[65vw] md:w-[38vw] lg:w-[26vw]">
-                    <Image
-                      src={withAssetVersion('/assets/horse-hero.jpg')}
-                      alt="Verzorging van boerderijdieren"
-                      fill
-                      sizes="(max-width: 640px) 88vw, (max-width: 1024px) 65vw, 560px"
-                      className="object-cover md:[filter:brightness(1.08)]"
-                    />
-                  </div>
-                </div>
-              </div>
-            )}
-            {service.id === 'EVENT_COMPANION' && (
-              <div className="flex justify-end">
-                <div className="bg-gradient-to-br from-green-500 via-emerald-400 to-blue-500 p-[3px] rounded-3xl shadow-[0_10px_30px_rgba(16,185,129,0.18)]">
-                  <div className="relative aspect-[3/4] w-[72vw] max-w-[420px] overflow-hidden rounded-[calc(1.5rem-3px)] border border-white/60 bg-white sm:w-[40vw] md:w-[22vw] lg:w-[16vw]">
-                    <Image
-                      src={withAssetVersion('/assets/wedding-hero.jpg')}
-                      alt="Begeleiding events"
-                      fill
-                      sizes="(max-width: 640px) 72vw, (max-width: 1024px) 40vw, 420px"
-                      className="object-cover object-[50%_20%] md:[filter:brightness(1.08)]"
-                    />
-                  </div>
-                </div>
-              </div>
-            )}
+            </div>
 
             <div className="bg-white rounded-2xl shadow-sm border border-black/5 p-6 md:p-8 mt-6">
               <h2 className="text-2xl md:text-3xl font-semibold text-transparent bg-clip-text bg-gradient-to-r from-emerald-700 to-blue-700 mb-4">
@@ -757,7 +653,9 @@ export default function DienstDetailPage({ params }: Props) {
           <section className="mt-12 pb-10 md:pb-16">
             <h2 className="text-2xl md:text-3xl font-semibold text-gray-900 mb-6">Andere diensten</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-7">
-              {related.map((s) => (
+              {related.map((s) => {
+                const relatedCover = getServiceMarketingCover(s.id)
+                return (
                 <Link
                   key={s.id}
                   href={routes.dienst(s.slug)}
@@ -767,13 +665,14 @@ export default function DienstDetailPage({ params }: Props) {
                   data-service-slug={s.slug}
                   className="group bg-white rounded-2xl shadow-sm hover:shadow-tt transition-all border border-black/5 overflow-hidden"
                 >
-                  <div className="relative h-36 w-full overflow-hidden bg-gradient-to-br from-emerald-50 to-blue-50 p-5">
+                  <div className="relative h-36 w-full overflow-hidden bg-slate-100">
                     <Image
-                      src={withAssetVersion(s.image)}
-                      alt={s.name}
+                      src={relatedCover.src}
+                      alt={relatedCover.alt}
                       fill
+                      quality={85}
                       sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                      className="object-contain transition-transform duration-300 [filter:hue-rotate(28deg)_saturate(0.62)_brightness(0.98)_contrast(1.08)] group-hover:scale-105"
+                      className="object-cover transition-transform duration-300 group-hover:scale-105"
                     />
                   </div>
                   <div className="p-5">
@@ -781,7 +680,8 @@ export default function DienstDetailPage({ params }: Props) {
                     <div className="text-sm text-gray-600 mt-2">{s.desc}</div>
                   </div>
                 </Link>
-              ))}
+                )
+              })}
             </div>
           </section>
         </div>

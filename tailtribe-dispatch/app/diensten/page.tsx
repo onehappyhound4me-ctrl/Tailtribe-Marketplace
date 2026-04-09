@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { SiteHeader } from '@/components/SiteHeader'
 import { SiteFooter } from '@/components/SiteFooter'
 import { DISPATCH_SERVICES } from '@/lib/services'
-import { withAssetVersion } from '@/lib/service-icons'
+import { getServiceMarketingCover } from '@/lib/home-photography'
 import { routes } from '@/lib/routes'
 import { getPublicAppUrl } from '@/lib/env'
 
@@ -82,7 +82,9 @@ export default function DienstenPage() {
           </header>
 
           <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 mb-12">
-            {visibleServices.map((service, index) => (
+            {visibleServices.map((service, index) => {
+              const cover = getServiceMarketingCover(service.id)
+              return (
               <Link
                 key={service.id}
                 href={routes.dienst(service.slug)}
@@ -92,14 +94,15 @@ export default function DienstenPage() {
                 data-service-slug={service.slug}
                 className="group bg-white rounded-2xl shadow-sm hover:shadow-tt transition-all border border-black/5 overflow-hidden"
               >
-                <div className="relative h-36 w-full overflow-hidden bg-gradient-to-br from-emerald-50 to-blue-50 p-3 sm:h-40 sm:p-4">
+                <div className="relative h-36 w-full overflow-hidden bg-slate-100 sm:h-40">
                   <Image
-                    src={withAssetVersion(service.image)}
-                    alt={service.name}
+                    src={cover.src}
+                    alt={cover.alt}
                     fill
                     sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
                     priority={index < 3}
-                    className="object-contain transition-transform duration-300 md:group-hover:scale-105 md:[filter:hue-rotate(28deg)_saturate(0.62)_brightness(0.98)_contrast(1.08)]"
+                    quality={88}
+                    className="object-cover transition-transform duration-300 md:group-hover:scale-105"
                   />
                 </div>
                 <div className="p-5 sm:p-6">
@@ -110,7 +113,8 @@ export default function DienstenPage() {
                   <div className="mt-4 text-sm font-semibold text-emerald-700">Meer info →</div>
                 </div>
               </Link>
-            ))}
+              )
+            })}
           </section>
 
           <section className="mb-12 rounded-3xl border border-black/5 bg-white p-6 md:p-8 shadow-sm">

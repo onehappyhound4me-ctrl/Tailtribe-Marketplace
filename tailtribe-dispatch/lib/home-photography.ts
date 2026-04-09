@@ -84,6 +84,9 @@ const HOME_SERVICE_COVER: Record<
   },
 }
 
-export function getHomeServiceCover(serviceId: DispatchService['id']) {
+/** Per-dienst marketingfoto (Unsplash). `DispatchService.image` wijst naar /assets/*.png die vaak niet in de repo staan. */
+export function getServiceMarketingCover(serviceId: DispatchService['id']) {
   return HOME_SERVICE_COVER[serviceId]
 }
+
+export const getHomeServiceCover = getServiceMarketingCover

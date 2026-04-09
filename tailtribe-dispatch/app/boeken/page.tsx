@@ -9,7 +9,7 @@ import { SiteHeader } from '@/components/SiteHeader'
 import { SiteFooter } from '@/components/SiteFooter'
 import { DISPATCH_SERVICES } from '@/lib/services'
 import { trackEvent } from '@/lib/analytics'
-import { withAssetVersion } from '@/lib/service-icons'
+import { getServiceMarketingCover } from '@/lib/home-photography'
 import { routes } from '@/lib/routes'
 
 const TIME_WINDOWS = [
@@ -307,7 +307,9 @@ export default function BookingPage() {
                     <p className="text-sm text-red-700 mb-3">{fieldErrors.service}</p>
                   )}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {DISPATCH_SERVICES.map((service, index) => (
+                    {DISPATCH_SERVICES.map((service, index) => {
+                      const cover = getServiceMarketingCover(service.id)
+                      return (
                       <button
                         key={service.id}
                         type="button"
@@ -321,14 +323,15 @@ export default function BookingPage() {
                         }`}
                       >
                         <div className="flex gap-4 items-center">
-                          <div className="relative h-14 w-14 flex-shrink-0 overflow-hidden rounded-xl border border-black/5 bg-gradient-to-br from-emerald-50 to-blue-50 sm:h-16 sm:w-16">
+                          <div className="relative h-14 w-14 flex-shrink-0 overflow-hidden rounded-xl border border-black/5 bg-slate-100 sm:h-16 sm:w-16">
                             <Image
-                              src={withAssetVersion(service.image)}
-                              alt={service.name}
+                              src={cover.src}
+                              alt={cover.alt}
                               fill
                               sizes="64px"
                               priority={index < 6}
-                              className="object-contain p-2 [filter:hue-rotate(28deg)_saturate(0.62)_brightness(0.98)_contrast(1.08)]"
+                              quality={85}
+                              className="object-cover"
                             />
                           </div>
                           <div>
@@ -337,7 +340,8 @@ export default function BookingPage() {
                           </div>
                         </div>
                       </button>
-                    ))}
+                      )
+                    })}
                   </div>
                   <div className="mt-6 flex flex-col-reverse sm:flex-row sm:items-center sm:justify-between gap-3">
                     <button
