@@ -26,20 +26,20 @@ export type HomeSectionPhoto = { src: string; alt: string; title: string; captio
 
 export const HOME_FEATURED_CARE: HomeSectionPhoto[] = [
   {
-    src: '/marketing/featured-1.jpg',
-    alt: 'Kinderen en hond spelen buiten — vertrouwen en routine',
+    src: '/marketing/service-oppas.jpg',
+    alt: 'Zachte hond die rustig naar de camera kijkt — vertrouwen en rust in de eigen omgeving',
     title: 'Warme match',
     caption: 'We koppelen aan verzorgers die aansluiten bij jouw routine en dier.',
   },
   {
-    src: '/marketing/featured-2.jpg',
-    alt: 'Twee honden tijdens een buitenwandeling',
+    src: '/marketing/service-hondenuitlaat.jpg',
+    alt: 'Vrolijke hond kijkt naar baasje tijdens een wandeling buiten',
     title: 'Beweging & rust',
     caption: 'Van korte uitstappen tot oppas aan huis — alles in één aanvraag.',
   },
   {
-    src: '/marketing/featured-3.jpg',
-    alt: 'Persoon met hond in natuurlijke omgeving',
+    src: '/marketing/service-thuis.jpg',
+    alt: 'Hond ontspannen op een zachte deken thuis — zorg in de vertrouwde omgeving',
     title: 'Zorg op maat',
     caption: 'Geen standaardpakket: we stemmen af op wat jouw huisdier nodig heeft.',
   },
