@@ -1,9 +1,10 @@
 import type { Metadata } from 'next'
+import { HOME_HERO } from '@/lib/home-photography'
 import { getPublicAppUrl } from '@/lib/env'
 import HomePageClient from './home-client'
 
 const appUrl = getPublicAppUrl()
-const ogImageUrl = `${appUrl}/assets/hero-marketplace.jpg`
+const ogImageUrl = HOME_HERO.src
 
 export const metadata: Metadata = {
   title: 'Hondenuitlaat, hondenoppas en kattenoppas in België | TailTribe',

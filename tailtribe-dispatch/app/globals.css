@@ -116,8 +116,10 @@
       bg-gradient-to-r from-emerald-500 via-emerald-600 to-emerald-700 
       shadow-[0_10px_30px_rgba(16,185,129,0.32)] 
       hover:shadow-[0_14px_34px_rgba(16,185,129,0.38)] 
-      transition-all duration-200 ease-out 
-      hover:-translate-y-[1px] active:translate-y-[0px] 
+      transition-all duration-300 ease-out 
+      motion-safe:hover:-translate-y-px motion-safe:hover:scale-[1.02]
+      motion-reduce:hover:translate-y-0 motion-reduce:hover:scale-100
+      active:translate-y-0 active:scale-[0.99]
       focus:ring-2 focus:ring-offset-2 focus:ring-emerald-400;
   }
 
@@ -125,7 +127,8 @@
     @apply inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold text-white
       bg-gradient-to-r from-emerald-600 to-emerald-700 shadow-sm
       hover:from-emerald-500 hover:to-emerald-600 hover:shadow-md
-      transition-all duration-200 ease-out
+      transition-all duration-300 ease-out
+      motion-safe:hover:scale-[1.02] motion-reduce:hover:scale-100
       focus:ring-2 focus:ring-offset-2 focus:ring-emerald-300;
   }
 
@@ -133,7 +136,8 @@
     @apply inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold
       border border-emerald-200 bg-white text-emerald-900 shadow-sm
       hover:bg-emerald-50 hover:border-emerald-300
-      transition-all duration-200
+      transition-all duration-300 ease-out
+      motion-safe:hover:scale-[1.02] motion-reduce:hover:scale-100
       focus:ring-2 focus:ring-offset-2 focus:ring-emerald-200;
   }
   

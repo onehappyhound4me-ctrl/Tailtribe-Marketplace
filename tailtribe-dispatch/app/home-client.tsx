@@ -6,12 +6,50 @@ import { useSession } from 'next-auth/react'
 import { SiteHeader } from '@/components/SiteHeader'
 import { SiteFooter } from '@/components/SiteFooter'
 import { DISPATCH_SERVICES } from '@/lib/services'
-import { withAssetVersion } from '@/lib/service-icons'
 import { routes } from '@/lib/routes'
-import { GOOGLE_REVIEWS_URL, PUBLIC_REVIEWS } from '@/lib/reviews'
+import { getPublicReviewsAggregateRating, GOOGLE_REVIEWS_URL, PUBLIC_REVIEWS } from '@/lib/reviews'
+import {
+  HOME_FEATURED_CARE,
+  HOME_HERO,
+  HOME_HOW_IMAGE,
+  HOME_MID_BANNER,
+  getHomeServiceCover,
+} from '@/lib/home-photography'
 
-const HERO_IMG_PRIMARY = '/assets/hero-marketplace.jpg?v=1'
-const HERO_IMG_URL = encodeURI(HERO_IMG_PRIMARY)
+function StarRow({ value, size = 'md' }: { value: number; size?: 'sm' | 'md' }) {
+  const v = Math.min(5, Math.max(0, Math.round(value)))
+  const dim = size === 'sm' ? 'h-3.5 w-3.5' : 'h-4 w-4'
+  return (
+    <span className="inline-flex gap-0.5" role="img" aria-label={`${value} van 5 sterren`}>
+      {Array.from({ length: 5 }, (_, i) => (
+        <svg
+          key={i}
+          className={`${dim} ${i < v ? 'text-amber-400' : 'text-slate-200'}`}
+          viewBox="0 0 20 20"
+          fill="currentColor"
+          aria-hidden
+        >
+          <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+        </svg>
+      ))}
+    </span>
+  )
+}
+
+function VerifiedPill() {
+  return (
+    <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-emerald-800 ring-1 ring-emerald-200/80">
+      <svg className="h-3.5 w-3.5 text-emerald-600" viewBox="0 0 20 20" fill="currentColor" aria-hidden>
+        <path
+          fillRule="evenodd"
+          d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+          clipRule="evenodd"
+        />
+      </svg>
+      Netwerk
+    </span>
+  )
+}
 
 const HOME_FAQS = [
   {
@@ -38,6 +76,7 @@ const HOME_FAQS = [
 
 export default function HomePageClient() {
   const { data: session } = useSession()
+  const reviewAgg = getPublicReviewsAggregateRating()
 
   const bookingHref =
     session?.user?.role === 'OWNER' ? '/dashboard/owner/new-booking' : '/boeken'
@@ -53,299 +92,367 @@ export default function HomePageClient() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-green-50 via-white to-blue-50">
+    <div className="min-h-screen bg-gradient-to-b from-slate-50 via-white to-emerald-50/40">
       <SiteHeader primaryCtaHref={bookingHref} primaryCtaLabel="Boek Nu" />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }} />
 
-      <section className="w-full">
-        <div className="w-full">
-          <div className="relative w-full aspect-[16/9] overflow-hidden bg-gradient-to-b from-green-50 via-white to-blue-50">
-            <Image
-              src={HERO_IMG_URL}
-              alt="TailTribe — dierenverzorging in België: hondenuitlaat, dierenoppas en verzorging aan huis"
-              fill
-              priority
-              sizes="100vw"
-              className="object-contain [filter:brightness(1.08)_saturate(1.04)_blur(0.6px)]"
-            />
-            <div className="absolute inset-0 bg-black/12" />
+      {/* Hero — full-bleed beeld, overlay, sterke hiërarchie */}
+      <section className="relative w-full">
+        <div className="relative min-h-[min(88vh,920px)] w-full overflow-hidden bg-slate-900">
+          <Image
+            src={HOME_HERO.src}
+            alt={HOME_HERO.alt}
+            fill
+            priority
+            sizes="100vw"
+            className="object-cover object-[center_28%] sm:object-[center_22%]"
+          />
+          <div
+            className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/45 to-black/25 motion-safe:transition-opacity"
+            aria-hidden
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-black/55 via-transparent to-transparent" aria-hidden />
 
-            <div className="absolute inset-x-0 top-4 sm:top-6 md:top-8 lg:top-10 z-10 px-4 sm:px-8 md:px-12">
-              <div className="mx-auto text-center max-w-5xl">
-                <h1
-                  className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-bold leading-tight text-white"
-                  style={{ textShadow: '0 3px 12px rgba(0,0,0,0.55)' }}
+          <div className="relative z-10 mx-auto flex min-h-[min(88vh,920px)] max-w-7xl flex-col justify-end px-4 pb-14 pt-28 sm:px-6 sm:pb-16 sm:pt-32 md:justify-center md:pb-20 md:pl-10 md:pr-8 lg:pl-14">
+            <div className="max-w-2xl text-left">
+              <p className="mb-3 text-xs font-semibold uppercase tracking-[0.2em] text-emerald-200/95 sm:text-sm">
+                Zorg die voelbaar is
+              </p>
+              <h1 className="font-heading text-4xl font-bold leading-[1.08] tracking-tight text-white sm:text-5xl md:text-6xl lg:text-7xl">
+                De juiste{' '}
+                <span className="bg-gradient-to-r from-emerald-200 to-teal-200 bg-clip-text text-transparent">
+                  dierenoppasser
+                </span>{' '}
+                voor jouw maatje
+              </h1>
+              <p className="mt-5 max-w-xl text-base leading-relaxed text-white/90 sm:text-lg md:text-xl">
+                Van uitlaat en oppas tot training en transport — aanvraag in enkele minuten, persoonlijke opvolging
+                door heel België.
+              </p>
+
+              {reviewAgg ? (
+                <a
+                  href={GOOGLE_REVIEWS_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="mt-6 inline-flex flex-wrap items-center gap-3 rounded-2xl border border-white/15 bg-white/10 px-4 py-3 backdrop-blur-md transition duration-200 hover:border-white/25 hover:bg-white/15"
                 >
-                  Vind de juiste{' '}
-                  <span className="text-green-200 transition-colors duration-200 hover:text-white hover:drop-shadow-[0_0_12px_rgba(74,222,128,0.85)]">
-                    dierenoppasser
-                  </span>{' '}
-                  voor je huisdier
-                </h1>
+                  <StarRow value={reviewAgg.ratingValue} />
+                  <span className="text-sm font-medium text-white">
+                    {reviewAgg.ratingValue}/5 · {reviewAgg.reviewCount} reviews op Google
+                  </span>
+                </a>
+              ) : null}
+
+              <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
+                <Link
+                  href={bookingHref}
+                  className="group inline-flex min-h-[48px] items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-emerald-500 to-emerald-600 px-7 py-3.5 text-base font-semibold text-white shadow-[0_12px_40px_rgba(16,185,129,0.35)] ring-1 ring-white/10 transition duration-200 hover:scale-[1.02] hover:from-emerald-400 hover:to-emerald-500 hover:shadow-[0_16px_44px_rgba(16,185,129,0.42)] motion-reduce:hover:scale-100 active:scale-[0.99]"
+                >
+                  Start je aanvraag
+                  <svg
+                    className="h-5 w-5 transition-transform duration-200 group-hover:translate-x-0.5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                    aria-hidden
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                  </svg>
+                </Link>
+                <Link
+                  href="/verzorger-aanmelden"
+                  className="inline-flex min-h-[48px] items-center justify-center gap-2 rounded-2xl border border-white/30 bg-white/10 px-6 py-3.5 text-base font-semibold text-white backdrop-blur-sm transition duration-200 hover:border-white/50 hover:bg-white/20"
+                >
+                  Word verzorger
+                </Link>
+              </div>
+
+              <div className="mt-8 flex flex-wrap gap-x-6 gap-y-2 text-sm text-white/85">
+                <span className="inline-flex items-center gap-2">
+                  <span className="h-2 w-2 rounded-full bg-emerald-400 shadow-[0_0_12px_rgba(52,211,153,0.9)]" />
+                  Gescreend netwerk
+                </span>
+                <span className="inline-flex items-center gap-2">
+                  <span className="h-2 w-2 rounded-full bg-emerald-400 shadow-[0_0_12px_rgba(52,211,153,0.9)]" />
+                  Snel antwoord
+                </span>
+                <span className="inline-flex items-center gap-2">
+                  <span className="h-2 w-2 rounded-full bg-emerald-400 shadow-[0_0_12px_rgba(52,211,153,0.9)]" />
+                  Maatwerk, geen standaard checkout
+                </span>
               </div>
             </div>
           </div>
         </div>
 
-        <div className="container mx-auto px-4 sm:px-6 pt-8 sm:pt-10 pb-14 sm:pb-16">
-          <div className="max-w-5xl mx-auto">
-            <div className="mx-auto max-w-4xl">
-              <div className="rounded-3xl bg-white/70 backdrop-blur-sm border border-emerald-100/70 shadow-[0_12px_40px_rgba(16,185,129,0.10)] px-5 py-6 sm:px-8 sm:py-7">
-                <div className="text-center">
-                  <p className="copy-pretty text-base font-heading font-medium text-gray-900 leading-relaxed tracking-[-0.01em] sm:hidden">
-                    Van hondenuitlaat en kattenoppas tot verzorging voor kleine huisdieren, paarden, vissen en
-                    kleinvee. Wij regelen de match en opvolging.
-                  </p>
-                  <p className="copy-pretty hidden sm:block sm:text-lg md:text-xl font-heading font-medium text-gray-900 leading-relaxed tracking-[-0.01em]">
-                    Van hondenuitlaat en kattenoppas tot verzorging voor kleine huisdieren, paarden, vissen en
-                    kleinvee. Wij regelen de match en opvolging.
-                  </p>
-                  <p className="mt-2 text-sm sm:text-base md:text-lg text-emerald-950/90 font-semibold tracking-[-0.01em]">
-                    Voor en door dierenverzorgers
-                  </p>
-                </div>
-
-                <div className="mt-6 sm:mt-7 flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center items-stretch sm:items-center">
-                  <Link
-                    href={bookingHref}
-                    className="group relative w-full sm:w-auto inline-flex items-center justify-center gap-1.5 overflow-hidden rounded-full bg-gradient-to-r from-emerald-600 to-green-600 px-5 sm:px-6 py-3 text-[14px] font-semibold text-white shadow-md ring-1 ring-emerald-600/20 transition-all duration-200 hover:-translate-y-0.5 hover:from-emerald-500 hover:to-green-500 hover:shadow-lg active:translate-y-0 focus:outline-none focus:ring-2 focus:ring-emerald-300 min-h-[44px]"
-                  >
-                    <span className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-200 group-hover:opacity-100 bg-[radial-gradient(circle_at_30%_20%,rgba(255,255,255,0.18),transparent_55%)]" />
-                    Boek Nu
-                    <svg
-                      className="h-4 w-4 opacity-90 transition-transform duration-200 group-hover:translate-x-0.5"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                      aria-hidden="true"
-                    >
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                    </svg>
-                  </Link>
-
-                  <Link
-                    href="/verzorger-aanmelden"
-                    className="group w-full sm:w-auto inline-flex items-center justify-center gap-1.5 rounded-full bg-emerald-50 border border-emerald-200 px-5 sm:px-6 py-3 text-[14px] font-semibold text-emerald-800 shadow-sm ring-1 ring-emerald-200/80 transition-all duration-200 hover:bg-emerald-100 hover:border-emerald-300 hover:ring-emerald-300/80 active:translate-y-0 focus:outline-none focus:ring-2 focus:ring-emerald-200 min-h-[44px]"
-                  >
-                    <span className="sm:whitespace-nowrap">Join our tribe: werk met dieren</span>
-                    <svg
-                      className="h-4 w-4 text-emerald-700 transition-transform duration-200 group-hover:translate-x-0.5"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                      aria-hidden="true"
-                    >
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                    </svg>
-                  </Link>
-                </div>
-
-                <div className="mt-4 flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-xs sm:text-sm text-gray-600">
-                  <span className="inline-flex items-center gap-1.5">
-                    <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
-                    Gescreende verzorgers
-                  </span>
-                  <span className="inline-flex items-center gap-1.5">
-                    <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
-                    Snelle bevestiging
-                  </span>
-                  <span className="inline-flex items-center gap-1.5">
-                    <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
-                    Afspraak op maat
-                  </span>
-                </div>
-              </div>
-            </div>
+        {/* Secundaire trust-strip */}
+        <div className="border-b border-emerald-100/60 bg-white/80 backdrop-blur-sm">
+          <div className="container mx-auto max-w-5xl px-4 py-6 sm:px-6">
+            <p className="text-center text-sm font-medium leading-relaxed text-slate-600 sm:text-base">
+              <span className="text-slate-900">Voor en door dierenverzorgers.</span>{' '}
+              Van hondenuitlaat en kattenoppas tot zorg voor kleinvee en paarden — wij matchen en volgen op.
+            </p>
           </div>
         </div>
       </section>
 
-      <section id="services" className="py-16 px-4 sm:px-6 lg:px-8">
+      {/* Diensten — premium cards, foto eerst */}
+      <section id="services" className="scroll-mt-28 py-20 px-4 sm:px-6 lg:px-8">
         <div className="container mx-auto max-w-7xl">
-          <div className="max-w-3xl mx-auto text-center mb-12">
-            <h2 className="text-2xl sm:text-4xl md:text-5xl font-bold mb-3 sm:mb-4 text-gray-800">
+          <div className="mx-auto mb-14 max-w-3xl text-center">
+            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-emerald-700">Aanbod</p>
+            <h2 className="mt-3 font-heading text-3xl font-bold text-slate-900 sm:text-4xl md:text-5xl">
               Ontdek onze diensten
             </h2>
-            <p className="copy-pretty text-sm sm:text-base md:text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed">
-              Van honden en katten tot vogels, konijnen, paarden, vissen en kleinvee
+            <p className="copy-pretty mx-auto mt-4 max-w-2xl text-base leading-relaxed text-slate-600 sm:text-lg">
+              Grote foto’s, heldere keuze: kies wat past bij jouw huisdier. Elke kaart linkt naar de volledige uitleg.
             </p>
+            {reviewAgg ? (
+              <div className="mt-5 flex flex-wrap items-center justify-center gap-2 text-sm text-slate-600">
+                <StarRow value={reviewAgg.ratingValue} />
+                <span className="font-medium text-slate-800">
+                  {reviewAgg.ratingValue}/5 gemiddeld op Google ({reviewAgg.reviewCount} reviews)
+                </span>
+              </div>
+            ) : null}
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 md:gap-10 max-w-6xl mx-auto">
-            {DISPATCH_SERVICES.map((service, index) => (
-              <Link
-                key={service.id}
-                href={routes.dienst(service.slug)}
-                data-nav="service"
-                data-component="HomePage.ServicesGrid"
-                data-service-id={service.id}
-                data-service-slug={service.slug}
-                className="group bg-gradient-to-br from-white via-white to-emerald-50 rounded-2xl shadow-md hover:shadow-2xl transition-all duration-300 overflow-hidden border border-emerald-100 hover:border-emerald-200 transform hover:-translate-y-1"
-              >
-                <div className="relative h-36 w-full overflow-hidden bg-gradient-to-br from-emerald-50 to-blue-50 p-3 sm:h-40 sm:p-4">
-                  <Image
-                    src={withAssetVersion(service.image)}
-                    alt={service.name}
-                    fill
-                    sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                    priority={index < 3}
-                    className="object-contain transition-transform duration-300 md:group-hover:scale-105 md:[filter:hue-rotate(28deg)_saturate(0.62)_brightness(0.98)_contrast(1.08)]"
-                  />
-                </div>
-                <div className="p-5 sm:p-6 pt-6">
-                  <h3 className="text-lg font-bold mb-2 text-transparent bg-clip-text bg-gradient-to-r from-emerald-700 to-blue-700 group-hover:from-emerald-600 group-hover:to-blue-600 transition-colors">
-                    {service.name}
-                  </h3>
-                  <p className="copy-pretty text-sm text-emerald-900/90 leading-relaxed line-clamp-3">{service.desc}</p>
-                </div>
-              </Link>
-            ))}
+          <div className="mx-auto grid max-w-6xl grid-cols-1 gap-8 md:grid-cols-2 md:gap-9 lg:grid-cols-3">
+            {DISPATCH_SERVICES.map((service, index) => {
+              const cover = getHomeServiceCover(service.id)
+              return (
+                <Link
+                  key={service.id}
+                  href={routes.dienst(service.slug)}
+                  data-nav="service"
+                  data-component="HomePage.ServicesGrid"
+                  data-service-id={service.id}
+                  data-service-slug={service.slug}
+                  className="group flex flex-col overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-[0_8px_30px_rgba(15,23,42,0.06)] ring-1 ring-slate-100 transition duration-300 hover:-translate-y-1 hover:border-emerald-200/80 hover:shadow-[0_20px_50px_rgba(16,185,129,0.12)] motion-reduce:transition-none motion-reduce:hover:translate-y-0"
+                >
+                  <div className="relative aspect-[4/3] w-full overflow-hidden">
+                    <Image
+                      src={cover.src}
+                      alt={cover.alt}
+                      fill
+                      sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                      priority={index < 3}
+                      className="object-cover transition duration-300 ease-out group-hover:scale-105 motion-reduce:group-hover:scale-100"
+                    />
+                    <div
+                      className="pointer-events-none absolute inset-0 bg-gradient-to-t from-slate-900/35 via-transparent to-transparent opacity-80"
+                      aria-hidden
+                    />
+                  </div>
+                  <div className="flex flex-1 flex-col gap-3 p-5 sm:p-6">
+                    <div className="flex items-start justify-between gap-2">
+                      <h3 className="text-lg font-bold text-slate-900 transition-colors group-hover:text-emerald-800 sm:text-xl">
+                        {service.name}
+                      </h3>
+                      <VerifiedPill />
+                    </div>
+                    <p className="copy-pretty line-clamp-3 flex-1 text-sm leading-relaxed text-slate-600">
+                      {service.desc}
+                    </p>
+                    <span className="inline-flex items-center gap-1 text-sm font-semibold text-emerald-700">
+                      Meer info
+                      <svg className="h-4 w-4 transition group-hover:translate-x-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                      </svg>
+                    </span>
+                  </div>
+                </Link>
+              )
+            })}
           </div>
         </div>
       </section>
 
-      <section className="py-16 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-blue-50 to-green-50">
+      {/* Visuele ademruimte */}
+      <section className="px-4 pb-16 sm:px-6 lg:px-8">
+        <div className="container mx-auto max-w-7xl">
+          <div className="relative aspect-[21/9] min-h-[200px] w-full overflow-hidden rounded-2xl shadow-[0_20px_50px_rgba(15,23,42,0.08)] ring-1 ring-slate-200/80 sm:aspect-[24/9] md:min-h-[280px]">
+            <Image
+              src={HOME_MID_BANNER.src}
+              alt={HOME_MID_BANNER.alt}
+              fill
+              sizes="(max-width: 1280px) 100vw, 1280px"
+              className="object-cover object-[center_35%]"
+            />
+            <div className="absolute inset-0 bg-gradient-to-r from-emerald-950/55 via-emerald-900/20 to-transparent" aria-hidden />
+            <div className="absolute inset-y-0 left-0 flex max-w-lg flex-col justify-center px-6 sm:px-10 md:px-12">
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-emerald-200/95">Moment van zorg</p>
+              <p className="mt-3 font-heading text-2xl font-bold text-white sm:text-3xl md:text-4xl">
+                Mensen en dieren, één team
+              </p>
+              <p className="mt-3 text-sm leading-relaxed text-white/90 sm:text-base">
+                Dat is wat we visueel en in de communicatie willen uitstralen: warmte, duidelijkheid en vertrouwen.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Hoe werkt het — split layout */}
+      <section className="bg-gradient-to-br from-emerald-50/80 via-white to-sky-50/50 py-20 px-4 sm:px-6 lg:px-8">
         <div className="container mx-auto max-w-6xl">
-          <div className="max-w-3xl mx-auto text-center mb-12">
-            <h2 className="text-2xl sm:text-4xl md:text-5xl font-bold mb-3 sm:mb-4 text-gray-800">
+          <div className="mx-auto mb-14 max-w-3xl text-center">
+            <h2 className="font-heading text-3xl font-bold text-slate-900 sm:text-4xl md:text-5xl">
               Hoe werkt het?
             </h2>
-            <p className="copy-pretty text-sm sm:text-base md:text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed">
-              In 3 eenvoudige stappen naar de perfecte dierenoppas
+            <p className="copy-pretty mx-auto mt-4 max-w-2xl text-base text-slate-600 sm:text-lg">
+              Drie duidelijke stappen — daarna nemen wij de match en opvolging voor onze rekening.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto items-stretch">
-            {[
-              {
-                step: '1',
-                title: 'Vul je aanvraag in',
-                desc: 'Kies je dienst en datum, vul kort je gegevens in; klaar in 2 minuten',
-              },
-              {
-                step: '2',
-                title: 'Wij plannen de juiste verzorger',
-                desc: 'We matchen je aanvraag, stemmen kort af en plannen de juiste verzorger',
-              },
-              {
-                step: '3',
-                title: 'Relax & Geniet',
-                desc: 'Na bevestiging komt de verzorger langs; samen stemmen jullie planning en afspraken af',
-              },
-            ].map((item) => (
-              <div
-                key={item.step}
-                className="text-center flex flex-col items-center h-full bg-white/70 rounded-2xl p-6 shadow-sm border border-emerald-100"
-              >
-                <div className="w-16 h-16 bg-gradient-to-br from-green-600 to-blue-600 text-white rounded-full flex items-center justify-center text-2xl font-bold mx-auto mb-4 shadow-lg">
-                  {item.step}
+          <div className="grid items-center gap-12 lg:grid-cols-2 lg:gap-16">
+            <div className="relative order-2 aspect-[4/5] w-full max-w-md overflow-hidden rounded-2xl shadow-[0_24px_60px_rgba(15,23,42,0.12)] ring-1 ring-slate-200/60 sm:max-w-none lg:order-1">
+              <Image
+                src={HOME_HOW_IMAGE.src}
+                alt={HOME_HOW_IMAGE.alt}
+                fill
+                sizes="(max-width: 1024px) 100vw, 50vw"
+                className="object-cover object-[center_30%]"
+              />
+            </div>
+            <div className="order-1 space-y-6 lg:order-2">
+              {[
+                {
+                  step: '1',
+                  title: 'Vul je aanvraag in',
+                  desc: 'Kies je dienst, vertel kort wat je nodig hebt — klaar in enkele minuten.',
+                },
+                {
+                  step: '2',
+                  title: 'Wij zoeken de juiste verzorger',
+                  desc: 'We matchen op beschikbaarheid, regio en type zorg. Je hoort snel van ons.',
+                },
+                {
+                  step: '3',
+                  title: 'Afspraak met rust',
+                  desc: 'Na bevestiging stem je samen met de verzorger de details af.',
+                },
+              ].map((item) => (
+                <div
+                  key={item.step}
+                  className="flex gap-5 rounded-2xl border border-white/80 bg-white/90 p-6 shadow-[0_8px_30px_rgba(15,23,42,0.05)] backdrop-blur-sm transition duration-200 hover:border-emerald-100 hover:shadow-[0_12px_36px_rgba(16,185,129,0.08)]"
+                >
+                  <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 text-xl font-bold text-white shadow-lg">
+                    {item.step}
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-bold text-slate-900">{item.title}</h3>
+                    <p className="copy-pretty mt-2 text-sm leading-relaxed text-slate-600 sm:text-base">{item.desc}</p>
+                  </div>
                 </div>
-                <h3 className="text-xl font-bold mb-2 text-gray-800">{item.title}</h3>
-                <p className="copy-pretty text-gray-600 text-center text-sm sm:text-base leading-relaxed px-2">{item.desc}</p>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         </div>
       </section>
 
-      <section className="py-16 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-blue-50 to-purple-50">
+      {/* Waarom + featured zorg (beelden) */}
+      <section className="py-20 px-4 sm:px-6 lg:px-8">
         <div className="container mx-auto max-w-6xl">
-          <div className="max-w-3xl mx-auto text-center mb-12">
-            <h2 className="text-2xl sm:text-4xl md:text-5xl font-bold mb-3 sm:mb-4 text-gray-800">
-              Waarom TailTribe?
-            </h2>
-            <p className="copy-pretty text-sm sm:text-base md:text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed">
-              Jij vraagt aan, wij nemen je gemoedsrust op ons: we regelen en volgen op met zorg
+          <div className="mx-auto mb-14 max-w-3xl text-center">
+            <h2 className="font-heading text-3xl font-bold text-slate-900 sm:text-4xl md:text-5xl">Waarom TailTribe?</h2>
+            <p className="copy-pretty mx-auto mt-4 max-w-2xl text-base text-slate-600 sm:text-lg">
+              Minder gedoe, meer zekerheid — zodat jij je kan focussen op je huisdier.
             </p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+          <div className="mb-16 grid gap-8 md:grid-cols-3">
             {[
               {
-                title: 'Gescreende verzorgers',
-                desc: 'We werken met betrouwbare verzorgers en zoeken de beste match voor jouw aanvraag',
+                title: 'Gescreend netwerk',
+                desc: 'We werken met zorgvuldig geselecteerde verzorgers en zoeken de best passende match.',
               },
               {
-                title: 'Snelle bevestiging',
-                desc: 'We reageren snel: we bevestigen je aanvraag en stemmen de details kort af',
+                title: 'Snelle opvolging',
+                desc: 'Je aanvraag krijgt prioriteit: we reageren rap en houden het persoonlijk.',
               },
               {
-                title: 'Afspraak op maat',
-                desc: 'Geen online betaling: we spreken prijs en details af op basis van jouw situatie',
+                title: 'Maatwerk',
+                desc: 'Geen vaste checkout-flow: prijs en werkwijze stemmen we af op jouw situatie.',
               },
             ].map((benefit) => (
               <div
                 key={benefit.title}
-                className="group bg-white rounded-2xl p-6 sm:p-8 shadow-md hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 border border-gray-100"
+                className="rounded-2xl border border-slate-100 bg-white p-7 shadow-[0_8px_30px_rgba(15,23,42,0.05)] transition duration-300 hover:-translate-y-1 hover:shadow-[0_20px_45px_rgba(15,23,42,0.09)] motion-reduce:hover:translate-y-0"
               >
-                <div className="w-16 h-16 bg-gradient-to-br from-green-600 to-blue-600 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                  {benefit.title === 'Gescreende verzorgers' && (
-                    <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-                      />
-                    </svg>
-                  )}
-                  {benefit.title === 'Snelle bevestiging' && (
-                    <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-                      />
-                    </svg>
-                  )}
-                  {benefit.title === 'Afspraak op maat' && (
-                    <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"
-                      />
-                    </svg>
-                  )}
+                <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 text-white shadow-md">
+                  <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
                 </div>
-                <h3 className="text-xl sm:text-2xl font-bold mb-3 text-gray-800">{benefit.title}</h3>
-                <p className="copy-pretty text-gray-600 text-sm sm:text-base leading-relaxed">{benefit.desc}</p>
+                <h3 className="text-xl font-bold text-slate-900">{benefit.title}</h3>
+                <p className="copy-pretty mt-3 text-sm leading-relaxed text-slate-600 sm:text-base">{benefit.desc}</p>
               </div>
             ))}
           </div>
 
-          <div className="mt-10 rounded-3xl border border-emerald-100 bg-white/80 p-6 shadow-sm">
-            <p className="text-sm font-semibold uppercase tracking-[0.14em] text-emerald-800">Voor welke dieren?</p>
-            <h3 className="mt-3 text-2xl font-semibold text-gray-900">Zorg voor meer dan alleen honden en katten</h3>
-            <p className="mt-4 max-w-3xl text-base leading-8 text-gray-700">
-              TailTribe helpt bij services voor honden, katten, vogels, kleine huisdieren zoals hamsters en konijnen,
-              paarden, vissen en kleinvee. Zo kun je ook voor andere dieren rekenen op zorg op maat, thuis of tijdens
-              je afwezigheid.
+          <div className="mb-12 rounded-[20px] border border-emerald-100 bg-gradient-to-br from-white to-emerald-50/40 p-8 shadow-sm md:p-10">
+            <p className="text-xs font-semibold uppercase tracking-[0.14em] text-emerald-800">Diergroepen</p>
+            <h3 className="mt-3 font-heading text-2xl font-semibold text-slate-900 md:text-3xl">
+              Meer dan honden en katten alleen
+            </h3>
+            <p className="mt-4 max-w-3xl text-base leading-relaxed text-slate-700">
+              Ook voor vogels, kleine huisdieren, paarden, vissen en kleinvee kan je via TailTribe zorg op maat
+              aanvragen — thuis of tijdens je afwezigheid.
             </p>
+          </div>
+
+          <p className="mb-8 text-center text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">
+            Zo voelt goede zorg
+          </p>
+          <div className="grid gap-8 md:grid-cols-3">
+            {HOME_FEATURED_CARE.map((item) => (
+              <div
+                key={item.src}
+                className="group flex flex-col overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-[0_8px_30px_rgba(15,23,42,0.06)] transition duration-300 hover:-translate-y-1 hover:shadow-[0_18px_48px_rgba(15,23,42,0.1)] motion-reduce:hover:translate-y-0"
+              >
+                <div className="relative aspect-[5/4] overflow-hidden">
+                  <Image
+                    src={item.src}
+                    alt={item.alt}
+                    fill
+                    sizes="(max-width: 768px) 100vw, 33vw"
+                    className="object-cover transition duration-300 group-hover:scale-105 motion-reduce:group-hover:scale-100"
+                  />
+                </div>
+                <div className="flex flex-1 flex-col gap-2 p-6">
+                  <div className="flex items-center justify-between gap-2">
+                    <h3 className="font-heading text-lg font-bold text-slate-900">{item.title}</h3>
+                    <VerifiedPill />
+                  </div>
+                  <p className="text-sm leading-relaxed text-slate-600">{item.caption}</p>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       </section>
 
-      <section className="py-16 px-4 sm:px-6 lg:px-8">
+      {/* Reviews */}
+      <section className="bg-slate-50/90 py-20 px-4 sm:px-6 lg:px-8">
         <div className="container mx-auto max-w-6xl">
-          <div className="mx-auto mb-12 max-w-3xl text-center">
-            <p className="text-sm font-semibold uppercase tracking-[0.14em] text-emerald-800">Ervaringen</p>
-            <h2 className="mt-3 text-2xl sm:text-4xl md:text-5xl font-bold text-gray-800">
-              Wat baasjes waarderen aan TailTribe
+          <div className="mx-auto mb-14 max-w-3xl text-center">
+            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-emerald-800">Ervaringen</p>
+            <h2 className="mt-3 font-heading text-3xl font-bold text-slate-900 sm:text-4xl md:text-5xl">
+              Wat baasjes waarderen
             </h2>
-            <p className="mx-auto mt-4 max-w-2xl text-sm leading-relaxed text-gray-600 sm:text-base md:text-xl">
-              Echte feedback van klanten die duidelijkheid, opvolging en zorg voor hun huisdier belangrijk vinden.
+            <p className="mx-auto mt-4 max-w-2xl text-base leading-relaxed text-slate-600">
+              Echte meningen over duidelijke communicatie, opvolging en zorg voor het dier.
             </p>
-            <p className="mx-auto mt-5 max-w-2xl text-center">
+            <p className="mx-auto mt-5">
               <a
                 href={GOOGLE_REVIEWS_URL}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-1.5 text-sm font-medium text-emerald-800 underline decoration-emerald-800/30 underline-offset-4 transition hover:text-emerald-900 hover:decoration-emerald-800"
+                className="inline-flex items-center gap-1.5 text-sm font-semibold text-emerald-800 underline decoration-emerald-800/30 underline-offset-4 transition hover:text-emerald-900"
               >
-                Meer reviews op Google
+                Alle reviews op Google
                 <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
                 </svg>
@@ -353,44 +460,73 @@ export default function HomePageClient() {
             </p>
           </div>
 
-          <div className="mx-auto grid max-w-6xl gap-6 md:grid-cols-3">
+          <div className="mx-auto grid max-w-6xl gap-8 md:grid-cols-3">
             {PUBLIC_REVIEWS.map((review) => (
               <article
                 key={review.name}
-                className="group flex h-full flex-col rounded-3xl border border-slate-200/80 bg-white p-7 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl"
+                className="group flex h-full flex-col rounded-2xl border border-slate-200/90 bg-white p-7 shadow-[0_8px_30px_rgba(15,23,42,0.05)] transition duration-300 hover:-translate-y-1 hover:border-emerald-200/60 hover:shadow-[0_20px_50px_rgba(16,185,129,0.1)] motion-reduce:hover:translate-y-0"
               >
-                <div className="mb-5 flex items-start justify-between gap-4">
+                <div className="mb-4 flex items-start justify-between gap-3">
                   <div className="flex items-center gap-3">
-                    <div className="flex h-11 w-11 items-center justify-center rounded-full bg-gradient-to-br from-emerald-500 to-blue-600 font-bold text-white shadow-sm">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-500 to-blue-600 text-lg font-bold text-white shadow-md">
                       {review.name.charAt(0)}
                     </div>
                     <div>
-                      <p className="font-semibold text-gray-900">{review.name}</p>
-                      <p className="mt-1 inline-flex rounded-full bg-slate-100 px-2.5 py-1 text-[11px] font-medium uppercase tracking-[0.08em] text-slate-600">
+                      <p className="font-semibold text-slate-900">{review.name}</p>
+                      <p className="mt-1 inline-flex rounded-full bg-slate-100 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-slate-600">
                         {review.sourceLabel}
                       </p>
                     </div>
                   </div>
-                  <svg className="h-8 w-8 flex-shrink-0 text-emerald-200" viewBox="0 0 32 32" fill="currentColor" aria-hidden="true">
-                    <path d="M10.5 14C10.5 9.857 13.857 6.5 18 6.5h1v4h-1A3.5 3.5 0 0 0 14.5 14v.25A3.25 3.25 0 0 1 17.75 17.5v1A5.5 5.5 0 0 1 12.25 24H11v-4h1.25a1.5 1.5 0 0 0 1.5-1.5v-1a.75.75 0 0 0-.75-.75H10.5V14Zm11 0C21.5 9.857 24.857 6.5 29 6.5h1v4h-1a3.5 3.5 0 0 0-3.5 3.5v.25a3.25 3.25 0 0 1 3.25 3.25v1A5.5 5.5 0 0 1 23.25 24H22v-4h1.25a1.5 1.5 0 0 0 1.5-1.5v-1a.75.75 0 0 0-.75-.75H21.5V14Z" />
-                  </svg>
+                  <StarRow value={review.rating} />
                 </div>
-                <p className="flex-1 text-sm leading-7 text-slate-700 sm:text-base">{review.quote}</p>
+                <p className="flex-1 text-sm leading-relaxed text-slate-700 sm:text-[15px]">{review.quote}</p>
               </article>
             ))}
           </div>
         </div>
       </section>
 
-      <section className="pb-16 px-4 sm:px-6 lg:px-8">
+      {/* Afsluitende CTA */}
+      <section className="py-16 px-4 sm:px-6 lg:px-8">
         <div className="container mx-auto max-w-5xl">
-          <div className="bg-white rounded-2xl shadow-sm border border-black/5 p-6 sm:p-8">
-            <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-4">Veelgestelde vragen</h2>
-            <div className="space-y-4">
+          <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-emerald-600 via-emerald-700 to-teal-800 px-8 py-12 text-center shadow-[0_24px_60px_rgba(5,150,105,0.35)] sm:px-12 sm:py-14">
+            <div className="pointer-events-none absolute -left-20 -top-20 h-64 w-64 rounded-full bg-white/10 blur-3xl" aria-hidden />
+            <div className="pointer-events-none absolute -bottom-24 -right-16 h-72 w-72 rounded-full bg-teal-400/20 blur-3xl" aria-hidden />
+            <h2 className="relative font-heading text-2xl font-bold text-white sm:text-3xl md:text-4xl">
+              Klaar om het verschil te voelen?
+            </h2>
+            <p className="relative mx-auto mt-4 max-w-2xl text-base text-emerald-50 sm:text-lg">
+              Geen lange formulier-hel. Wel een duidelijke aanvraag en mensen die meedenken.
+            </p>
+            <div className="relative mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
+              <Link
+                href={bookingHref}
+                className="inline-flex min-h-[48px] items-center justify-center rounded-2xl bg-white px-8 py-3.5 text-base font-semibold text-emerald-800 shadow-lg transition duration-200 hover:scale-[1.03] hover:bg-emerald-50 motion-reduce:hover:scale-100"
+              >
+                Boek nu
+              </Link>
+              <Link
+                href="/diensten"
+                className="inline-flex min-h-[48px] items-center justify-center rounded-2xl border-2 border-white/40 px-8 py-3.5 text-base font-semibold text-white transition duration-200 hover:border-white hover:bg-white/10"
+              >
+                Bekijk alle diensten
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* FAQ */}
+      <section className="pb-20 px-4 sm:px-6 lg:px-8">
+        <div className="container mx-auto max-w-5xl">
+          <div className="rounded-2xl border border-slate-200/80 bg-white p-6 shadow-[0_8px_30px_rgba(15,23,42,0.04)] sm:p-10">
+            <h2 className="font-heading text-2xl font-bold text-slate-900 sm:text-3xl">Veelgestelde vragen</h2>
+            <div className="mt-8 space-y-4">
               {HOME_FAQS.map((f) => (
-                <div key={f.q} className="rounded-xl border border-black/5 p-5">
-                  <h3 className="font-semibold text-gray-900 mb-2">{f.q}</h3>
-                  <p className="text-gray-700 leading-relaxed">{f.a}</p>
+                <div key={f.q} className="rounded-2xl border border-slate-100 bg-slate-50/50 p-6 transition hover:border-emerald-100/80">
+                  <h3 className="font-semibold text-slate-900">{f.q}</h3>
+                  <p className="mt-2 text-slate-700 leading-relaxed">{f.a}</p>
                 </div>
               ))}
             </div>
