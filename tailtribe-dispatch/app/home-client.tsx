@@ -116,23 +116,27 @@ export default function HomePageClient() {
 
       {/* Hero — full-bleed beeld, overlay, sterke hiërarchie */}
       <section className="relative w-full">
-        <div className="relative min-h-[min(88vh,920px)] w-full overflow-hidden bg-slate-900">
+        <div className="relative min-h-[min(88vh,920px)] w-full overflow-hidden bg-gradient-to-br from-emerald-800 via-teal-900 to-slate-900">
           <Image
             src={HOME_HERO.src}
             alt={HOME_HERO.alt}
             fill
             priority
-            quality={92}
+            unoptimized
             sizes="(max-width: 640px) 120vw, 100vw"
-            className="object-cover object-[center_28%] sm:object-[center_22%]"
+            className="z-0 object-cover object-[center_28%] sm:object-[center_22%]"
+            referrerPolicy="no-referrer"
           />
           <div
-            className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/45 to-black/25 motion-safe:transition-opacity"
+            className="absolute inset-0 z-[1] bg-gradient-to-t from-black/55 via-black/30 to-black/15 motion-safe:transition-opacity"
             aria-hidden
           />
-          <div className="absolute inset-0 bg-gradient-to-r from-black/55 via-transparent to-transparent" aria-hidden />
+          <div
+            className="absolute inset-0 z-[1] bg-gradient-to-r from-black/40 via-transparent to-transparent"
+            aria-hidden
+          />
 
-          <div className="relative z-10 mx-auto flex min-h-[min(88vh,920px)] max-w-7xl flex-col justify-end px-4 pb-14 pt-28 sm:px-6 sm:pb-16 sm:pt-32 md:justify-center md:pb-20 md:pl-10 md:pr-8 lg:pl-14">
+          <div className="relative z-[2] mx-auto flex min-h-[min(88vh,920px)] max-w-7xl flex-col justify-end px-4 pb-14 pt-28 sm:px-6 sm:pb-16 sm:pt-32 md:justify-center md:pb-20 md:pl-10 md:pr-8 lg:pl-14">
             <div className="max-w-2xl text-left">
               <p className="mb-3 text-xs font-semibold uppercase tracking-[0.2em] text-emerald-200/95 sm:text-sm">
                 Zorg die voelbaar is
@@ -246,14 +250,16 @@ export default function HomePageClient() {
                   data-service-slug={service.slug}
                   className="group flex flex-col overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-[0_8px_30px_rgba(15,23,42,0.06)] ring-1 ring-slate-100 transition duration-300 hover:-translate-y-1 hover:border-emerald-200/80 hover:shadow-[0_20px_50px_rgba(16,185,129,0.12)] motion-reduce:transition-none motion-reduce:hover:translate-y-0"
                 >
-                  <div className="relative aspect-[4/3] w-full overflow-hidden">
+                  <div className="relative aspect-[4/3] w-full overflow-hidden bg-slate-200">
                     <Image
                       src={cover.src}
                       alt={cover.alt}
                       fill
+                      unoptimized
                       sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
                       priority={index < 3}
                       className="object-cover transition duration-300 ease-out group-hover:scale-105 motion-reduce:group-hover:scale-100"
+                      referrerPolicy="no-referrer"
                     />
                     <div
                       className="pointer-events-none absolute inset-0 bg-gradient-to-t from-slate-900/35 via-transparent to-transparent opacity-80"
@@ -287,16 +293,21 @@ export default function HomePageClient() {
       {/* Visuele ademruimte */}
       <section className="px-4 pb-16 sm:px-6 lg:px-8">
         <div className="container mx-auto max-w-7xl">
-          <div className="relative aspect-[21/9] min-h-[200px] w-full overflow-hidden rounded-2xl shadow-[0_20px_50px_rgba(15,23,42,0.08)] ring-1 ring-slate-200/80 sm:aspect-[24/9] md:min-h-[280px]">
+          <div className="relative aspect-[21/9] min-h-[200px] w-full overflow-hidden rounded-2xl bg-slate-800 shadow-[0_20px_50px_rgba(15,23,42,0.08)] ring-1 ring-slate-200/80 sm:aspect-[24/9] md:min-h-[280px]">
             <Image
               src={HOME_MID_BANNER.src}
               alt={HOME_MID_BANNER.alt}
               fill
+              unoptimized
               sizes="(max-width: 1280px) 100vw, 1280px"
               className="object-cover object-[center_35%]"
+              referrerPolicy="no-referrer"
             />
-            <div className="absolute inset-0 bg-gradient-to-r from-emerald-950/55 via-emerald-900/20 to-transparent" aria-hidden />
-            <div className="absolute inset-y-0 left-0 flex max-w-lg flex-col justify-center px-6 sm:px-10 md:px-12">
+            <div
+              className="absolute inset-0 z-[1] bg-gradient-to-r from-emerald-950/55 via-emerald-900/20 to-transparent"
+              aria-hidden
+            />
+            <div className="absolute inset-y-0 left-0 z-[2] flex max-w-lg flex-col justify-center px-6 sm:px-10 md:px-12">
               <p className="text-xs font-semibold uppercase tracking-[0.18em] text-emerald-200/95">Moment van zorg</p>
               <p className="mt-3 font-heading text-2xl font-bold text-white sm:text-3xl md:text-4xl">
                 Mensen en dieren, één team
@@ -322,13 +333,15 @@ export default function HomePageClient() {
           </div>
 
           <div className="grid items-center gap-12 lg:grid-cols-2 lg:gap-16">
-            <div className="relative order-2 aspect-[4/5] w-full max-w-md overflow-hidden rounded-2xl shadow-[0_24px_60px_rgba(15,23,42,0.12)] ring-1 ring-slate-200/60 sm:max-w-none lg:order-1">
+            <div className="relative order-2 aspect-[4/5] w-full max-w-md overflow-hidden rounded-2xl bg-slate-200 shadow-[0_24px_60px_rgba(15,23,42,0.12)] ring-1 ring-slate-200/60 sm:max-w-none lg:order-1">
               <Image
                 src={HOME_HOW_IMAGE.src}
                 alt={HOME_HOW_IMAGE.alt}
                 fill
+                unoptimized
                 sizes="(max-width: 1024px) 100vw, 50vw"
                 className="object-cover object-[center_30%]"
+                referrerPolicy="no-referrer"
               />
             </div>
             <div className="order-1 space-y-6 lg:order-2">
@@ -427,13 +440,15 @@ export default function HomePageClient() {
                 key={item.src}
                 className="group flex flex-col overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-[0_8px_30px_rgba(15,23,42,0.06)] transition duration-300 hover:-translate-y-1 hover:shadow-[0_18px_48px_rgba(15,23,42,0.1)] motion-reduce:hover:translate-y-0"
               >
-                <div className="relative aspect-[5/4] overflow-hidden">
+                <div className="relative aspect-[5/4] overflow-hidden bg-slate-200">
                   <Image
                     src={item.src}
                     alt={item.alt}
                     fill
+                    unoptimized
                     sizes="(max-width: 768px) 100vw, 33vw"
                     className="object-cover transition duration-300 group-hover:scale-105 motion-reduce:group-hover:scale-100"
+                    referrerPolicy="no-referrer"
                   />
                 </div>
                 <div className="flex flex-1 flex-col gap-2 p-6">

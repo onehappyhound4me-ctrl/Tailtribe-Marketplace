@@ -99,10 +99,11 @@ export default function DienstenPage() {
                     src={cover.src}
                     alt={cover.alt}
                     fill
+                    unoptimized
                     sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
                     priority={index < 3}
-                    quality={88}
                     className="object-cover transition-transform duration-300 md:group-hover:scale-105"
+                    referrerPolicy="no-referrer"
                   />
                 </div>
                 <div className="p-5 sm:p-6">

@@ -387,9 +387,10 @@ export default function DienstDetailPage({ params }: Props) {
                 alt={cover.alt}
                 fill
                 priority
-                quality={90}
+                unoptimized
                 sizes="(max-width: 640px) 112px, (max-width: 768px) 160px, 192px"
                 className="object-cover"
+                referrerPolicy="no-referrer"
               />
             </div>
             <div className="text-center md:text-left">
@@ -541,7 +542,7 @@ export default function DienstDetailPage({ params }: Props) {
                     src={cover.src}
                     alt={cover.alt}
                     fill
-                    quality={88}
+                    unoptimized
                     sizes={
                       service.id === 'EVENT_COMPANION'
                         ? '(max-width: 640px) 72vw, (max-width: 1024px) 40vw, 420px'
@@ -552,6 +553,7 @@ export default function DienstDetailPage({ params }: Props) {
                         ? 'object-cover object-[50%_20%] md:[filter:brightness(1.08)]'
                         : 'object-cover md:[filter:brightness(1.08)]'
                     }
+                    referrerPolicy="no-referrer"
                   />
                 </div>
               </div>
@@ -670,9 +672,10 @@ export default function DienstDetailPage({ params }: Props) {
                       src={relatedCover.src}
                       alt={relatedCover.alt}
                       fill
-                      quality={85}
+                      unoptimized
                       sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
                       className="object-cover transition-transform duration-300 group-hover:scale-105"
+                      referrerPolicy="no-referrer"
                     />
                   </div>
                   <div className="p-5">

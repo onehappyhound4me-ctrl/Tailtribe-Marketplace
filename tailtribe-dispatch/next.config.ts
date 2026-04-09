@@ -35,23 +35,25 @@ const nextConfig: NextConfig = {
     ignoreDuringBuilds: true,
   },
   images: {
-    // Local dev (incl. iPhone testing over LAN) can fail to serve `/_next/image`
-    // depending on environment/binaries. When unoptimized, Next/Image uses the
-    // original asset URL (e.g. /assets/...) which is much more reliable locally.
-    // Keep optimization enabled in production (Vercel).
-    unoptimized: isDev,
+    // Next's image optimizer (`/_next/image`) can return empty/broken responses for some
+    // remote hosts on certain edge setups. Loading the HTTPS src directly is more reliable
+    // for Unsplash/Pexels and matches dev behaviour.
+    unoptimized: true,
     remotePatterns: [
       {
         protocol: "https",
         hostname: "images.unsplash.com",
+        pathname: "/**",
       },
       {
         protocol: "https",
         hostname: "images.pexels.com",
+        pathname: "/**",
       },
       {
         protocol: "https",
         hostname: "source.unsplash.com",
+        pathname: "/**",
       },
     ],
   },

@@ -328,10 +328,11 @@ export default function BookingPage() {
                               src={cover.src}
                               alt={cover.alt}
                               fill
+                              unoptimized
                               sizes="64px"
                               priority={index < 6}
-                              quality={85}
                               className="object-cover"
+                              referrerPolicy="no-referrer"
                             />
                           </div>
                           <div>

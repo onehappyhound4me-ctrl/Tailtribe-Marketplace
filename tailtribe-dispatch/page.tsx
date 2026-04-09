@@ -124,10 +124,11 @@ export default function HomePage() {
                     src={cover.src} 
                     alt={cover.alt}
                     fill
+                    unoptimized
                     sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
                     priority={index < 3}
-                    quality={88}
                     className="object-cover transition-transform duration-300 group-hover:scale-105"
+                    referrerPolicy="no-referrer"
                   />
                 </div>
                 <div className="p-6 pt-7">
