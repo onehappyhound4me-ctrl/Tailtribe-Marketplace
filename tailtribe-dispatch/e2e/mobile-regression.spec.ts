@@ -45,8 +45,8 @@ test.describe('mobile regression', () => {
     await page.goto('/diensten')
     await acceptCookiesIfPresent(page)
 
-    // Service cards use /assets/*.png icons; ensure several are actually loaded.
-    await assertImagesBySrcHealthy(page, { srcIncludes: '/assets/', minCount: 6 })
+    // Service cards use self-hosted /marketing/*.jpg covers; ensure several load.
+    await assertImagesBySrcHealthy(page, { srcIncludes: '/marketing/', minCount: 6 })
     await guard.expectNoIssues()
   })
 

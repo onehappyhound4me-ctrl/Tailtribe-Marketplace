@@ -6,6 +6,7 @@ import { useSession } from 'next-auth/react'
 import { SiteHeader } from '@/components/SiteHeader'
 import { SiteFooter } from '@/components/SiteFooter'
 import { DISPATCH_SERVICES } from '@/lib/services'
+import { getServiceMarketingCover } from '@/lib/home-photography'
 import { routes } from '@/lib/routes'
 
 // Gebruik een lokale hero-afbeelding uit /public.
@@ -107,6 +108,7 @@ export default function HomePage() {
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10 md:gap-12 max-w-6xl mx-auto">
             {DISPATCH_SERVICES.map((service, index) => {
+              const cover = getServiceMarketingCover(service.id)
               return (
               <Link 
                 key={service.id}
@@ -117,15 +119,16 @@ export default function HomePage() {
                 data-service-slug={service.slug}
                 className="group bg-gradient-to-br from-white via-white to-emerald-50 rounded-2xl shadow-md hover:shadow-2xl transition-all duration-300 overflow-hidden border border-emerald-100 hover:border-emerald-200 transform hover:-translate-y-1"
               >
-                <div className="relative flex h-40 w-full items-center justify-center overflow-hidden bg-gradient-to-br from-emerald-200 via-emerald-50 to-emerald-900/12">
+                <div className="relative h-40 w-full overflow-hidden bg-slate-100">
                   <Image 
-                    src={encodeURI(service.image)} 
-                    alt={service.name}
-                    width={128}
-                    height={128}
+                    src={cover.src} 
+                    alt={cover.alt}
+                    fill
                     unoptimized
+                    sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
                     priority={index < 3}
-                    className="h-28 w-28 object-contain transition-transform duration-300 group-hover:scale-105"
+                    className="object-cover transition-transform duration-300 group-hover:scale-105"
+                    referrerPolicy="no-referrer"
                   />
                 </div>
                 <div className="p-6 pt-7">
