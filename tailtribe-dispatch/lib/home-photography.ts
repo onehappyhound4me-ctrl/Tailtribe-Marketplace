@@ -51,40 +51,40 @@ const HOME_SERVICE_COVER: Record<
   { src: string; alt: string }
 > = {
   DOG_WALKING: {
-    src: '/marketing/service-hondenuitlaat.jpg',
-    alt: 'Hondenuitlaat: hond wandelt met begeleider, focus op welzijn en tempo',
+    src: '/marketing/service-hondenuitlaat.png',
+    alt: 'Hondenuitlaat: band tussen mens en hond in het groen — wandeling en welzijn',
   },
   GROUP_DOG_WALKING: {
     src: '/marketing/service-groep.jpg',
     alt: 'Hondenuitlaatservice: sociale groepswandeling met andere honden',
   },
   DOG_TRAINING: {
-    src: '/marketing/service-training.jpg',
-    alt: 'Hondentraining aan huis: trainer en hond oefenen samen op het gras',
+    src: '/marketing/service-training.png',
+    alt: 'Hondentraining: trainer en hond oefenen samen buiten in het bos',
   },
   PET_SITTING: {
     src: '/marketing/service-oppas.png',
     alt: 'Dierenoppas: kat rustig thuis op een stoel — vertrouwde omgeving en routine',
   },
   PET_BOARDING: {
-    src: '/marketing/service-opvang.jpg',
-    alt: 'Dierenopvang: veilig verblijf en routine buiten de eigen woning',
+    src: '/marketing/service-opvang.png',
+    alt: 'Dierenopvang: veel verschillende huisdieren — brede zorg en aandacht',
   },
   HOME_CARE: {
-    src: '/marketing/service-thuis.jpg',
-    alt: 'Verzorging aan huis: korte bezoeken voor voeding, check-in en basiszorg',
+    src: '/marketing/service-thuis.png',
+    alt: 'Verzorging aan huis: ook kleine huisdieren zoals een cavia — rust en routine',
   },
   PET_TRANSPORT: {
-    src: '/marketing/service-transport.jpg',
-    alt: 'Dierentransport: veilig vervoer van huisdier in een voertuig',
+    src: '/marketing/service-transport.png',
+    alt: 'Dierentransport: huisdieren comfortabel vervoeren (bijv. in een huisdierenbuggy)',
   },
   SMALL_ANIMAL_CARE: {
-    src: '/marketing/service-kleinvee.jpg',
-    alt: 'Zorg voor paarden en kleinvee op stal of erf — voeding, water en controle',
+    src: '/marketing/service-kleinvee.png',
+    alt: 'Verzorging boerderijdieren: paard en mens op stal of erf — rustige zorg',
   },
   EVENT_COMPANION: {
-    src: '/marketing/service-event.jpg',
-    alt: 'Hond netjes begeleid bij een trouwfeest of drukke gelegenheid',
+    src: '/marketing/service-event.png',
+    alt: 'Begeleiding op events: hond netjes bij het bruidspaar op een trouwfeest',
   },
 }
 

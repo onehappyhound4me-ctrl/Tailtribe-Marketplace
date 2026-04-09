@@ -45,3 +45,5 @@ prisma/**/*.db-journal
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+public/marketing/_import/
