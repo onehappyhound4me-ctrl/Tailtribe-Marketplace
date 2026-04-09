@@ -8,13 +8,7 @@ import { SiteFooter } from '@/components/SiteFooter'
 import { DISPATCH_SERVICES } from '@/lib/services'
 import { routes } from '@/lib/routes'
 import { getPublicReviewsAggregateRating, GOOGLE_REVIEWS_URL, PUBLIC_REVIEWS } from '@/lib/reviews'
-import {
-  HOME_FEATURED_CARE,
-  HOME_HERO,
-  HOME_HOW_IMAGE,
-  HOME_MID_BANNER,
-  getHomeServiceCover,
-} from '@/lib/home-photography'
+import { HOME_FEATURED_CARE, HOME_HERO, HOME_HOW_IMAGE, HOME_MID_BANNER } from '@/lib/home-photography'
 
 const STAR_PATH =
   'M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z'
@@ -219,7 +213,7 @@ export default function HomePageClient() {
         </div>
       </section>
 
-      {/* Diensten — foto per dienst (zelfde beelden als op de dienstpagina) */}
+      {/* Diensten — pictogrammen (detailpagina toont de sfeerfoto’s) */}
       <section id="services" className="scroll-mt-28 py-20 px-4 sm:px-6 lg:px-8">
         <div className="container mx-auto max-w-7xl">
           <div className="mx-auto mb-14 max-w-3xl text-center">
@@ -228,7 +222,7 @@ export default function HomePageClient() {
               Ontdek onze diensten
             </h2>
             <p className="copy-pretty mx-auto mt-4 max-w-2xl text-base leading-relaxed text-slate-600 sm:text-lg">
-              Heldere foto per dienst: kies wat past bij jouw huisdier. Elke kaart linkt naar de volledige uitleg.
+              Elk pictogram staat voor een dienst. Klik door voor de volledige uitleg en foto’s op de dienstpagina.
             </p>
             <div className="mt-5 flex flex-wrap items-center justify-center gap-2 text-sm text-slate-600">
               <StarRow value={reviewAgg.ratingValue} />
@@ -242,7 +236,6 @@ export default function HomePageClient() {
 
           <div className="mx-auto grid max-w-6xl grid-cols-1 gap-8 md:grid-cols-2 md:gap-9 lg:grid-cols-3">
             {DISPATCH_SERVICES.map((service, index) => {
-              const cover = getHomeServiceCover(service.id)
               return (
                 <Link
                   key={service.id}
@@ -253,20 +246,15 @@ export default function HomePageClient() {
                   data-service-slug={service.slug}
                   className="group flex flex-col overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-[0_8px_30px_rgba(15,23,42,0.06)] ring-1 ring-slate-100 transition duration-300 hover:-translate-y-1 hover:border-emerald-200/80 hover:shadow-[0_20px_50px_rgba(16,185,129,0.12)] motion-reduce:transition-none motion-reduce:hover:translate-y-0"
                 >
-                  <div className="relative aspect-[4/3] w-full overflow-hidden bg-slate-200">
+                  <div className="relative flex aspect-[4/3] w-full items-center justify-center overflow-hidden bg-gradient-to-br from-emerald-200 via-emerald-50 to-emerald-900/12">
                     <Image
-                      src={cover.src}
-                      alt={cover.alt}
-                      fill
+                      src={encodeURI(service.image)}
+                      alt={service.name}
+                      width={160}
+                      height={160}
                       unoptimized
-                      sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
                       priority={index < 3}
-                      className="object-cover transition duration-300 ease-out group-hover:scale-105 motion-reduce:group-hover:scale-100"
-                      referrerPolicy="no-referrer"
-                    />
-                    <div
-                      className="pointer-events-none absolute inset-0 bg-gradient-to-t from-slate-900/35 via-transparent to-transparent opacity-80"
-                      aria-hidden
+                      className="h-28 w-28 object-contain transition duration-300 ease-out group-hover:scale-105 motion-reduce:group-hover:scale-100 sm:h-32 sm:w-32"
                     />
                   </div>
                   <div className="flex flex-1 flex-col gap-3 p-5 sm:p-6">
