@@ -24,22 +24,23 @@ export const HOME_HOW_IMAGE = {
 
 export type HomeSectionPhoto = { src: string; alt: string; title: string; caption: string }
 
+/** Homepage “Zo voelt goede zorg” alleen; geen hergebruik van service-*.jpg of hero/mid/how. */
 export const HOME_FEATURED_CARE: HomeSectionPhoto[] = [
   {
-    src: '/marketing/service-oppas.jpg',
-    alt: 'Zachte hond die rustig naar de camera kijkt — vertrouwen en rust in de eigen omgeving',
+    src: '/marketing/featured-1.jpg',
+    alt: 'Intiem moment tussen mens en huisdier — vertrouwen en persoonlijke aandacht',
     title: 'Warme match',
     caption: 'We koppelen aan verzorgers die aansluiten bij jouw routine en dier.',
   },
   {
-    src: '/marketing/service-hondenuitlaat.jpg',
-    alt: 'Vrolijke hond kijkt naar baasje tijdens een wandeling buiten',
+    src: '/marketing/featured-2.jpg',
+    alt: 'Hond in beweging buiten — frisse lucht en gecontroleerde uitstappen',
     title: 'Beweging & rust',
     caption: 'Van korte uitstappen tot oppas aan huis — alles in één aanvraag.',
   },
   {
-    src: '/marketing/service-thuis.jpg',
-    alt: 'Hond ontspannen op een zachte deken thuis — zorg in de vertrouwde omgeving',
+    src: '/marketing/featured-3.jpg',
+    alt: 'Rustige zorg in een huiselijke omgeving — afgestemd op jouw huisdier',
     title: 'Zorg op maat',
     caption: 'Geen standaardpakket: we stemmen af op wat jouw huisdier nodig heeft.',
   },
@@ -51,39 +52,39 @@ const HOME_SERVICE_COVER: Record<
 > = {
   DOG_WALKING: {
     src: '/marketing/service-hondenuitlaat.jpg',
-    alt: 'Vrolijke hond kijkt naar baasje tijdens wandeling',
+    alt: 'Hondenuitlaat: hond wandelt met begeleider, focus op welzijn en tempo',
   },
   GROUP_DOG_WALKING: {
     src: '/marketing/service-groep.jpg',
-    alt: 'Meerdere honden samen tijdens een wandeling buiten',
+    alt: 'Hondenuitlaatservice: sociale groepswandeling met andere honden',
   },
   DOG_TRAINING: {
     src: '/marketing/service-training.jpg',
-    alt: 'Mens en hond samen op het gras — trainingsmoment',
+    alt: 'Hondentraining aan huis: trainer en hond oefenen samen op het gras',
   },
   PET_SITTING: {
     src: '/marketing/service-oppas.jpg',
-    alt: 'Zachte hond die rustig naar de camera kijkt',
+    alt: 'Dierenoppas aan huis: rust en routine in de eigen woonomgeving',
   },
   PET_BOARDING: {
     src: '/marketing/service-opvang.jpg',
-    alt: 'Hond ontspannen op een zachte deken binnen',
+    alt: 'Dierenopvang: veilig verblijf en routine buiten de eigen woning',
   },
   HOME_CARE: {
     src: '/marketing/service-thuis.jpg',
-    alt: 'Hond ontspannen op een zachte deken binnen',
+    alt: 'Verzorging aan huis: korte bezoeken voor voeding, check-in en basiszorg',
   },
   PET_TRANSPORT: {
     src: '/marketing/service-transport.jpg',
-    alt: 'Hond kijkt veilig uit het raam van een voertuig',
+    alt: 'Dierentransport: veilig vervoer van huisdier in een voertuig',
   },
   SMALL_ANIMAL_CARE: {
     src: '/marketing/service-kleinvee.jpg',
-    alt: 'Kinderen en hond buiten — zorg voor huisdieren',
+    alt: 'Zorg voor paarden en kleinvee op stal of erf — voeding, water en controle',
   },
   EVENT_COMPANION: {
     src: '/marketing/service-event.jpg',
-    alt: 'Mens met hond in de natuur',
+    alt: 'Hond netjes begeleid bij een trouwfeest of drukke gelegenheid',
   },
 }
 
