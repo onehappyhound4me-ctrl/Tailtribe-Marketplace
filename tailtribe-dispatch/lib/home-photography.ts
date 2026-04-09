@@ -63,8 +63,8 @@ const HOME_SERVICE_COVER: Record<
     alt: 'Hondentraining aan huis: trainer en hond oefenen samen op het gras',
   },
   PET_SITTING: {
-    src: '/marketing/service-oppas.jpg',
-    alt: 'Dierenoppas aan huis: rust en routine in de eigen woonomgeving',
+    src: '/marketing/service-oppas.png',
+    alt: 'Dierenoppas: kat rustig thuis op een stoel — vertrouwde omgeving en routine',
   },
   PET_BOARDING: {
     src: '/marketing/service-opvang.jpg',
