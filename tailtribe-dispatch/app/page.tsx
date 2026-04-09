@@ -4,7 +4,7 @@ import { getPublicAppUrl } from '@/lib/env'
 import HomePageClient from './home-client'
 
 const appUrl = getPublicAppUrl()
-const ogImageUrl = HOME_HERO.src
+const ogImageUrl = `${appUrl.replace(/\/$/, '')}${HOME_HERO.src}`
 
 export const metadata: Metadata = {
   title: 'Hondenuitlaat, hondenoppas en kattenoppas in België | TailTribe',
