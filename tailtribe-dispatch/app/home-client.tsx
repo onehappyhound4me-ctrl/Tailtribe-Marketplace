@@ -138,6 +138,9 @@ export default function HomePageClient() {
 
           <div className="relative z-[2] mx-auto flex min-h-[min(88vh,920px)] max-w-7xl flex-col justify-end px-4 pb-14 pt-28 sm:px-6 sm:pb-16 sm:pt-32 md:justify-center md:pb-20 md:pl-10 md:pr-8 lg:pl-14">
             <div className="max-w-2xl text-left">
+              <p className="mb-2 text-sm font-semibold text-white/95 sm:text-base">
+                Voor en door dierenverzorgers
+              </p>
               <p className="mb-3 text-xs font-semibold uppercase tracking-[0.2em] text-emerald-200/95 sm:text-sm">
                 Zorg die voelbaar is
               </p>
