@@ -393,6 +393,19 @@ export default function DienstDetailPage({ params }: Props) {
                 className="object-cover"
                 referrerPolicy="no-referrer"
               />
+              <div
+                className="absolute left-0 top-0 z-10 flex h-12 w-12 items-center justify-center rounded-br-xl bg-gradient-to-br from-emerald-200 via-emerald-50 to-emerald-900/12 shadow-sm ring-1 ring-white/70 sm:h-14 sm:w-14 sm:rounded-br-2xl"
+                aria-hidden
+              >
+                <Image
+                  src={encodeURI(service.image)}
+                  alt=""
+                  width={48}
+                  height={48}
+                  unoptimized
+                  className="h-9 w-9 object-contain sm:h-11 sm:w-11"
+                />
+              </div>
             </div>
             <div className="text-center md:text-left">
               <h1 className="text-2xl sm:text-4xl md:text-5xl font-bold text-gray-900 mb-3">
