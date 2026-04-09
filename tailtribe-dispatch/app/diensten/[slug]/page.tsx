@@ -381,16 +381,16 @@ export default function DienstDetailPage({ params }: Props) {
             <span className="text-gray-900">{service.name}</span>
           </nav>
 
-          <header className="bg-white rounded-2xl shadow-sm border border-black/5 p-5 sm:p-8 md:p-10 flex flex-col md:flex-row gap-6 sm:gap-8 items-center">
-            <div className="relative h-44 w-44 flex-shrink-0 overflow-hidden rounded-2xl border border-emerald-100/80 bg-gradient-to-br from-emerald-200 via-emerald-50 to-emerald-900/12 sm:h-52 sm:w-52 md:h-60 md:w-60">
+          <header className="bg-white rounded-2xl shadow-sm border border-black/5 p-5 sm:p-8 md:p-10 flex flex-col md:flex-row gap-6 sm:gap-8 items-start">
+            <div className="relative h-36 w-36 flex-shrink-0 self-start overflow-hidden rounded-2xl border border-emerald-100/80 bg-gradient-to-br from-emerald-200 via-emerald-50 to-emerald-900/12 sm:h-40 sm:w-40 md:h-44 md:w-44">
               <Image
                 src={encodeURI(service.image)}
                 alt={service.name}
                 fill
                 priority
                 unoptimized
-                sizes="(max-width: 640px) 176px, (max-width: 768px) 208px, 240px"
-                className="object-contain object-center p-0 scale-[1.28] motion-reduce:scale-100"
+                sizes="(max-width: 640px) 144px, (max-width: 768px) 160px, 176px"
+                className="object-contain object-center p-0 scale-[1.18] motion-reduce:scale-100"
               />
             </div>
             <div className="text-center md:text-left">
@@ -529,16 +529,31 @@ export default function DienstDetailPage({ params }: Props) {
               )}
             </div>
 
-            <div className="flex justify-end">
-              <div className="relative h-44 w-44 flex-shrink-0 overflow-hidden rounded-3xl border border-emerald-200/90 bg-gradient-to-br from-emerald-200 via-emerald-50 to-emerald-900/20 shadow-[0_10px_30px_rgba(16,185,129,0.2)] ring-2 ring-emerald-400/25 sm:h-52 sm:w-52 md:h-60 md:w-60">
-                <Image
-                  src={encodeURI(service.image)}
-                  alt={service.name}
-                  fill
-                  unoptimized
-                  sizes="(max-width: 640px) 176px, (max-width: 768px) 208px, 240px"
-                  className="object-contain object-center p-0 scale-[1.28] motion-reduce:scale-100"
-                />
+            <div className="flex justify-center px-0 sm:px-2">
+              <div className="w-full max-w-3xl">
+                <div className="bg-gradient-to-br from-green-500 via-emerald-400 to-blue-500 p-[3px] rounded-3xl shadow-[0_10px_30px_rgba(16,185,129,0.18)]">
+                  <div
+                    className={
+                      service.id === 'EVENT_COMPANION'
+                        ? 'relative aspect-[3/4] max-h-[min(72vh,520px)] w-full overflow-hidden rounded-[calc(1.5rem-3px)] border border-white/60 bg-slate-100 mx-auto max-w-md'
+                        : 'relative aspect-[4/3] w-full overflow-hidden rounded-[calc(1.5rem-3px)] border border-white/60 bg-slate-100'
+                    }
+                  >
+                    <Image
+                      src={cover.src}
+                      alt={cover.alt}
+                      fill
+                      unoptimized
+                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 90vw, 768px"
+                      className={
+                        service.id === 'EVENT_COMPANION'
+                          ? 'object-cover object-[50%_22%] md:[filter:brightness(1.06)]'
+                          : 'object-cover md:[filter:brightness(1.06)]'
+                      }
+                      referrerPolicy="no-referrer"
+                    />
+                  </div>
+                </div>
               </div>
             </div>
 
@@ -649,14 +664,14 @@ export default function DienstDetailPage({ params }: Props) {
                   data-service-slug={s.slug}
                   className="group bg-white rounded-2xl shadow-sm hover:shadow-tt transition-all border border-black/5 overflow-hidden"
                 >
-                  <div className="relative flex h-40 w-full items-center justify-center overflow-hidden bg-gradient-to-br from-emerald-200 via-emerald-50 to-emerald-900/12 sm:h-44">
+                  <div className="relative flex h-36 w-full items-center justify-center overflow-hidden bg-gradient-to-br from-emerald-200 via-emerald-50 to-emerald-900/12 sm:h-40">
                     <Image
                       src={encodeURI(s.image)}
                       alt={s.name}
-                      width={160}
-                      height={160}
+                      width={128}
+                      height={128}
                       unoptimized
-                      className="h-[7.5rem] w-[7.5rem] scale-110 object-contain transition-transform duration-300 group-hover:scale-[1.18] motion-reduce:group-hover:scale-110 sm:h-32 sm:w-32"
+                      className="h-24 w-24 scale-105 object-contain transition-transform duration-300 group-hover:scale-110 motion-reduce:group-hover:scale-105 sm:h-28 sm:w-28"
                     />
                   </div>
                   <div className="p-5">
