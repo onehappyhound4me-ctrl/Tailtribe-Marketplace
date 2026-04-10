@@ -136,7 +136,7 @@ export default function HomePageClient() {
                 Voor en door dierenverzorgers
               </p>
               <p className="mb-3 text-xs font-semibold uppercase tracking-[0.2em] text-emerald-200/95 sm:text-sm">
-                Zorg die voelbaar is
+                Join our tribe
               </p>
               <h1 className="font-heading text-4xl font-bold leading-[1.08] tracking-tight text-white sm:text-5xl md:text-6xl lg:text-7xl">
                 De juiste{' '}
@@ -180,7 +180,7 @@ export default function HomePageClient() {
                   href="/verzorger-aanmelden"
                   className="inline-flex min-h-[48px] items-center justify-center gap-2 rounded-2xl border border-white/30 bg-white/10 px-6 py-3.5 text-base font-semibold text-white backdrop-blur-sm transition duration-200 hover:border-white/50 hover:bg-white/20"
                 >
-                  Word verzorger
+                  Word dierenoppasser
                 </Link>
               </div>
 

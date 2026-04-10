@@ -85,7 +85,7 @@ export default function HomePage() {
                 href="/verzorger-aanmelden"
                 className="inline-flex items-center justify-center px-7 py-4 rounded-full font-semibold bg-white/20 text-white border border-white/30 backdrop-blur hover:bg-white/30 transition shadow-lg"
               >
-                Word verzorger: werk met dieren
+                Word dierenoppasser: werk met dieren
               </Link>
             </div>
 
