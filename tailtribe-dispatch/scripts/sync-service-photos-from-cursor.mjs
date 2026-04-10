@@ -34,6 +34,7 @@ const MAP = [
   ['images_wedding-7dfe4108-b8b2-46c8-a591-bee2453f8cef', 'service-event.png'],
   ['images_cavia-7382d586-d603-4ca2-8ba8-31b02b3c7efe', 'service-thuis.png'],
   ['images_kat-fb54f8a3-9534-4ccb-89f0-16841c0716a4', 'service-oppas.png'],
+  ['images_Bio_foto_Arno-e8492924-7d92-4616-b1cf-5c06d44d56f9', 'service-hondenuitlaatservice.png'],
 ]
 
 function main() {

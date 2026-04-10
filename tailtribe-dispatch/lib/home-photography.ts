@@ -55,8 +55,9 @@ const HOME_SERVICE_COVER: Record<
     alt: 'Hondenuitlaat: baasje wandelt met hond in groene omgeving',
   },
   GROUP_DOG_WALKING: {
-    src: '/marketing/service-groep.jpg',
-    alt: 'Hondenuitlaatservice: sociale groepswandeling met andere honden',
+    src: '/marketing/service-hondenuitlaatservice.png',
+    alt:
+      'Hondenuitlaatservice: professionele hondenuitlater wandelt met een groep verschillende honden in een groot, zonnig grasveld onder een strakblauwe lucht',
   },
   DOG_TRAINING: {
     src: '/marketing/service-training.png',
