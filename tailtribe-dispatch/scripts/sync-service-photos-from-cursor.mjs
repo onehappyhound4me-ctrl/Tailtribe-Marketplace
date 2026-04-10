@@ -4,8 +4,9 @@
  *
  *   node scripts/sync-service-photos-from-cursor.mjs
  *
- * Na sync: `npm run build:hondenuitlaatservice-cover` om de Charlotte-bron lichter te verwerken
- * naar `service-hondenuitlaatservice.png`.
+ * Na sync:
+ * - `npm run build:hondenuitlaatservice-cover` → Charlotte naar `service-hondenuitlaatservice.png`
+ * - `npm run build:service-event-cover` → trouw/event-foto neutraler (minder groene achtergrond)
  *
  * Optioneel: set CURSOR_ASSETS_DIR=pad\naar\assets
  */
