@@ -33,14 +33,14 @@ export const HOME_FEATURED_CARE: HomeSectionPhoto[] = [
     caption: 'We koppelen aan verzorgers die aansluiten bij jouw routine en dier.',
   },
   {
-    src: '/marketing/featured-2.jpg',
-    alt: 'Hond in beweging buiten — frisse lucht en gecontroleerde uitstappen',
+    src: '/marketing/featured-beweging-rust.png',
+    alt: 'Mens en hond in beweging in de natuur — actieve wandeling met rustmoment',
     title: 'Beweging & rust',
     caption: 'Van korte uitstappen tot oppas aan huis — alles in één aanvraag.',
   },
   {
-    src: '/marketing/featured-3.jpg',
-    alt: 'Rustige zorg in een huiselijke omgeving — afgestemd op jouw huisdier',
+    src: '/marketing/featured-zorg-op-maat.png',
+    alt: 'Kat ontspannen thuis in een rustige setting — zorg op maat in vertrouwde omgeving',
     title: 'Zorg op maat',
     caption: 'Geen standaardpakket: we stemmen af op wat jouw huisdier nodig heeft.',
   },
