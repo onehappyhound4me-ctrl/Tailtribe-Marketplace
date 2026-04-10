@@ -1,6 +1,6 @@
 /**
- * Bouwt public/marketing/service-hondenuitlaatservice.png vanuit de Charlotte/DSC-asset
- * (iets lichter en zuiverder voor de marketingcover).
+ * Bouwt public/marketing/service-hondenuitlaatservice.png vanuit de Charlotte/DSC-asset.
+ * Standaard: iets neutraler — minder fel en minder geel (lagere helderheid/verzadiging).
  *
  *   node scripts/build-hondenuitlaatservice-cover.mjs
  *
@@ -56,10 +56,9 @@ async function main() {
   try {
     const info = await sharp(tmp)
       .rotate()
-      .modulate({ brightness: 1.13, saturation: 1.05 })
-      .gamma(1.07)
-      .linear(1.025, 10)
-      .sharpen({ sigma: 0.7, m1: 0.85, m2: 3, x1: 2, y2: 10, y3: 20 })
+      .modulate({ brightness: 0.98, saturation: 0.88 })
+      .linear(0.98, -8)
+      .sharpen({ sigma: 0.55, m1: 0.75, m2: 3, x1: 2, y2: 10, y3: 20 })
       .png({ compressionLevel: 9, adaptiveFiltering: true })
       .toFile(outFile)
 
