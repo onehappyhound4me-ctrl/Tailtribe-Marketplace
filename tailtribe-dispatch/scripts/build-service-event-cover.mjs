@@ -1,11 +1,10 @@
 /**
- * Maakt `service-event.png` geschikt voor de site: achtergrondloof wordt sterk gedempt (groen mag niet domineren).
- * Werkt met RGB: groen-kanaal omlaag + lagere verzadiging + koelere hue — geen groene “glow” meer.
- * Bron: public/marketing/service-event.png (of RAW na sync, zie hieronder).
+ * Schrijft `service-event.png` vanuit `service-event-source.png` (EXIF-rotatie + PNG-optimalisatie).
+ * Geen kleurfilter meer: de beeldbankfoto is neutraal.
  *
  *   node scripts/build-service-event-cover.mjs
  *
- * Na `npm run sync:service-photos` opnieuw draaien als je een nieuwe wedding-bron hebt geüpload.
+ * Na sync: bron staat in `service-event-source.png` — dit script opnieuw draaien.
  */
 import fs from 'fs'
 import path from 'path'
@@ -38,11 +37,11 @@ async function main() {
     } else {
       const assetsDir = process.env.CURSOR_ASSETS_DIR || defaultAssets
       const name = fs.existsSync(assetsDir)
-        ? fs.readdirSync(assetsDir).find((f) => f.includes('images_wedding-7dfe4108'))
+        ? fs.readdirSync(assetsDir).find((f) => f.includes('images_wedding-13cc4555'))
         : null
       if (!name) {
         console.error(
-          'Geen bron: commit/public marketing/service-event-source.png, of sync wedding-asset, of SRC='
+          'Geen bron: public/marketing/service-event-source.png, of wedding-asset in Cursor assets, of SRC='
         )
         process.exit(1)
       }
@@ -53,16 +52,8 @@ async function main() {
   const tmp = path.join(root, '.tmp-service-event-src.png')
   fs.copyFileSync(input, tmp)
   try {
-    // Geen zware G-matrix (geeft snel magenta op huid/wit). Wel: loof dempen via
-    // lagere verzadiging + hue naar koeler grijs-groen i.p.v. fel limoengroen.
     const buf = await sharp(tmp)
       .rotate()
-      .modulate({
-        brightness: 1.03,
-        saturation: 0.76,
-        hue: -22,
-      })
-      .linear(1.02, -5)
       .png({ compressionLevel: 9, adaptiveFiltering: true })
       .toBuffer()
 

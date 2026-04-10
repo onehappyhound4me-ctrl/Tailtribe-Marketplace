@@ -6,7 +6,7 @@
  *
  * Na sync:
  * - `npm run build:hondenuitlaatservice-cover` → Charlotte naar `service-hondenuitlaatservice.png`
- * - `npm run build:service-event-cover` → trouw/event-foto neutraler (minder groene achtergrond)
+ * - `npm run build:service-event-cover` → optimaliseert `service-event.png` vanuit `service-event-source.png`
  *
  * Optioneel: set CURSOR_ASSETS_DIR=pad\naar\assets
  */
@@ -36,7 +36,7 @@ const MAP = [
   ['images_iStock-1296353202-64919a02-9d40-4109-990a-b15d86238e1c', 'service-opvang.png'],
   ['images_horse-4a0f0a8e-7b62-44dd-8b06-0baea5dc6b81', 'service-kleinvee.png'],
   ['images_cat_eye-aade70ba-f14a-4d80-be01-e84beeb06bc6', 'service-transport.png'],
-  ['images_wedding-7dfe4108-b8b2-46c8-a591-bee2453f8cef', 'service-event-source.png'],
+  ['images_wedding-13cc4555', 'service-event-source.png'],
   ['images_cavia-7382d586-d603-4ca2-8ba8-31b02b3c7efe', 'service-thuis.png'],
   ['images_kat-fb54f8a3-9534-4ccb-89f0-16841c0716a4', 'service-oppas.png'],
   ['_DSC_charlotte_2', 'service-hondenuitlaatservice-source.png'],

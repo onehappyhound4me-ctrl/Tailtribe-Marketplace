@@ -86,7 +86,7 @@ const HOME_SERVICE_COVER: Record<
   },
   EVENT_COMPANION: {
     src: '/marketing/service-event.png',
-    alt: 'Begeleiding op events: bruid met hond op een trouwlocatie — rustige, lichte sfeer',
+    alt: 'Begeleiding op events: bruid met golden retriever op een trouwlocatie — helder en professioneel',
   },
 }
 
