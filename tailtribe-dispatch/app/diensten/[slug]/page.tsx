@@ -382,8 +382,20 @@ export default function DienstDetailPage({ params }: Props) {
           </nav>
 
           <header className="bg-white rounded-2xl shadow-sm border border-black/5 p-5 sm:p-8 md:p-10 flex flex-col md:flex-row gap-6 sm:gap-8 items-start">
-            <div className="relative flex h-36 w-36 flex-shrink-0 items-center justify-center self-start rounded-2xl bg-gradient-to-b from-slate-50 via-white to-emerald-50/35 p-2 shadow-[0_6px_24px_rgba(15,23,42,0.06)] ring-1 ring-emerald-200/55 sm:h-40 sm:w-40 sm:p-2.5 md:h-44 md:w-44">
-              <div className="relative h-full w-full overflow-hidden rounded-xl bg-white p-3 ring-1 ring-emerald-100/70 sm:p-3.5">
+            <div
+              className={
+                service.id === 'EVENT_COMPANION'
+                  ? 'relative flex h-36 w-36 flex-shrink-0 items-center justify-center self-start rounded-2xl bg-slate-100 p-2 shadow-[0_6px_24px_rgba(15,23,42,0.06)] ring-1 ring-slate-200/80 sm:h-40 sm:w-40 sm:p-2.5 md:h-44 md:w-44'
+                  : 'relative flex h-36 w-36 flex-shrink-0 items-center justify-center self-start rounded-2xl bg-gradient-to-b from-slate-50 via-white to-emerald-50/35 p-2 shadow-[0_6px_24px_rgba(15,23,42,0.06)] ring-1 ring-emerald-200/55 sm:h-40 sm:w-40 sm:p-2.5 md:h-44 md:w-44'
+              }
+            >
+              <div
+                className={
+                  service.id === 'EVENT_COMPANION'
+                    ? 'relative h-full w-full overflow-hidden rounded-xl bg-white ring-1 ring-slate-200/70'
+                    : 'relative h-full w-full overflow-hidden rounded-xl bg-white p-3 ring-1 ring-emerald-100/70 sm:p-3.5'
+                }
+              >
                 <Image
                   src={encodeURI(service.image)}
                   alt={service.name}
@@ -391,7 +403,11 @@ export default function DienstDetailPage({ params }: Props) {
                   priority
                   unoptimized
                   sizes="(max-width: 640px) 144px, (max-width: 768px) 160px, 176px"
-                  className="object-contain object-center p-1 scale-[1.12] motion-reduce:scale-100"
+                  className={
+                    service.id === 'EVENT_COMPANION'
+                      ? 'object-cover object-center'
+                      : 'object-contain object-center p-1 scale-[1.12] motion-reduce:scale-100'
+                  }
                 />
               </div>
             </div>
@@ -533,29 +549,35 @@ export default function DienstDetailPage({ params }: Props) {
 
             <div className="flex justify-center px-0 sm:px-2">
               <div className="w-full max-w-3xl">
-                <div className="bg-gradient-to-br from-green-500 via-emerald-400 to-blue-500 p-[3px] rounded-3xl shadow-[0_10px_30px_rgba(16,185,129,0.18)]">
-                  <div
-                    className={
-                      service.id === 'EVENT_COMPANION'
-                        ? 'relative aspect-[3/4] max-h-[min(72vh,520px)] w-full overflow-hidden rounded-[calc(1.5rem-3px)] border border-white/60 bg-slate-100 mx-auto max-w-md'
-                        : 'relative aspect-[4/3] w-full overflow-hidden rounded-[calc(1.5rem-3px)] border border-white/60 bg-slate-100'
-                    }
-                  >
-                    <Image
-                      src={cover.src}
-                      alt={cover.alt}
-                      fill
-                      unoptimized
-                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 90vw, 768px"
-                      className={
-                        service.id === 'EVENT_COMPANION'
-                          ? 'object-cover object-[50%_22%] md:[filter:brightness(1.06)]'
-                          : 'object-cover md:[filter:brightness(1.06)]'
-                      }
-                      referrerPolicy="no-referrer"
-                    />
+                {service.id === 'EVENT_COMPANION' ? (
+                  <div className="mx-auto w-full overflow-hidden rounded-3xl border border-slate-200/90 bg-white shadow-[0_12px_40px_rgba(15,23,42,0.1)]">
+                    <div className="relative aspect-[4/3] w-full bg-neutral-100">
+                      <Image
+                        src={cover.src}
+                        alt={cover.alt}
+                        fill
+                        sizes="(max-width: 1024px) 100vw, 896px"
+                        unoptimized
+                        className="object-cover object-center"
+                        referrerPolicy="no-referrer"
+                      />
+                    </div>
                   </div>
-                </div>
+                ) : (
+                  <div className="bg-gradient-to-br from-green-500 via-emerald-400 to-blue-500 p-[3px] rounded-3xl shadow-[0_10px_30px_rgba(16,185,129,0.18)]">
+                    <div className="relative aspect-[4/3] w-full overflow-hidden rounded-[calc(1.5rem-3px)] border border-white/60 bg-slate-100">
+                      <Image
+                        src={cover.src}
+                        alt={cover.alt}
+                        fill
+                        unoptimized
+                        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 90vw, 768px"
+                        className="object-cover md:[filter:brightness(1.06)]"
+                        referrerPolicy="no-referrer"
+                      />
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
 
