@@ -46,7 +46,7 @@ export default function HomePage() {
             >
               Vind de juiste{' '}
               <span className="text-green-200 transition-colors duration-200 hover:text-white hover:drop-shadow-[0_0_12px_rgba(74,222,128,0.85)]">
-                dierenoppaser
+                dierenoppasser
               </span>{' '}
               voor je huisdier
             </h1>

@@ -143,7 +143,7 @@ export default function HomePageClient() {
                 <span className="bg-gradient-to-r from-emerald-200 to-teal-200 bg-clip-text text-transparent">
                   dierenoppasser
                 </span>{' '}
-                voor jouw maatje
+                voor je huisdier
               </h1>
               <p className="mt-5 max-w-xl text-base leading-relaxed text-white/90 sm:text-lg md:text-xl">
                 Van uitlaat en oppas tot training en transport — aanvraag in enkele minuten, persoonlijke opvolging
