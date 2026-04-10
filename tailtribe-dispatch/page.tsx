@@ -44,11 +44,11 @@ export default function HomePage() {
               className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold mb-6 leading-tight text-white"
               style={{ textShadow: '0 3px 12px rgba(0,0,0,0.55)' }}
             >
-              Vind de juiste{' '}
+              Vind een betrouwbare{' '}
               <span className="text-green-200 transition-colors duration-200 hover:text-white hover:drop-shadow-[0_0_12px_rgba(74,222,128,0.85)]">
                 dierenoppasser
               </span>{' '}
-              voor je huisdier
+              in jouw buurt
             </h1>
             <p className="text-lg sm:text-xl md:text-2xl mb-4 max-w-3xl mx-auto">
               <span
@@ -117,16 +117,18 @@ export default function HomePage() {
                 data-service-slug={service.slug}
                 className="group bg-gradient-to-br from-white via-white to-emerald-50 rounded-2xl shadow-md hover:shadow-2xl transition-all duration-300 overflow-hidden border border-emerald-100 hover:border-emerald-200 transform hover:-translate-y-1"
               >
-                <div className="relative flex h-40 w-full items-center justify-center overflow-hidden bg-gradient-to-br from-emerald-200 via-emerald-50 to-emerald-900/12">
-                  <Image 
-                    src={encodeURI(service.image)} 
-                    alt={service.name}
-                    width={128}
-                    height={128}
-                    unoptimized
-                    priority={index < 3}
-                    className="h-28 w-28 object-contain transition-transform duration-300 group-hover:scale-105"
-                  />
+                <div className="relative flex h-44 w-full items-center justify-center overflow-hidden bg-gradient-to-b from-slate-50 via-white to-emerald-50/35 px-4 py-5 sm:h-48 sm:px-5 sm:py-6">
+                  <div className="flex h-36 w-36 items-center justify-center rounded-2xl bg-white p-4 shadow-[0_6px_24px_rgba(15,23,42,0.06)] ring-1 ring-emerald-200/55 sm:h-40 sm:w-40 sm:p-5">
+                    <Image
+                      src={encodeURI(service.image)}
+                      alt={service.name}
+                      width={128}
+                      height={128}
+                      unoptimized
+                      priority={index < 3}
+                      className="h-[5.25rem] w-[5.25rem] object-contain transition-transform duration-300 group-hover:scale-[1.04]"
+                    />
+                  </div>
                 </div>
                 <div className="p-6 pt-7">
                   <h3 className="text-lg font-bold mb-3 text-transparent bg-clip-text bg-gradient-to-r from-emerald-700 to-blue-700 group-hover:from-emerald-600 group-hover:to-blue-600 transition-colors">

@@ -7,7 +7,7 @@ const appUrl = getPublicAppUrl()
 const ogImageUrl = `${appUrl.replace(/\/$/, '')}${HOME_HERO.src}`
 
 export const metadata: Metadata = {
-  title: 'Hondenuitlaat, hondenoppas en kattenoppas in België | TailTribe',
+  title: 'Vind een betrouwbare dierenoppasser in jouw buurt | TailTribe',
   description:
     'Vraag hondenuitlaat, hondenoppas, kattenoppas, hondenopvang en dierenverzorging aan in België. TailTribe matcht je met gescreende verzorgers en volgt je aanvraag persoonlijk op.',
   alternates: {
@@ -18,7 +18,7 @@ export const metadata: Metadata = {
     type: 'website',
     url: '/',
     siteName: 'TailTribe',
-    title: 'Hondenuitlaat, hondenoppas en kattenoppas in België | TailTribe',
+    title: 'Vind een betrouwbare dierenoppasser in jouw buurt | TailTribe',
     description:
       'Vraag hondenuitlaat, hondenoppas, kattenoppas, hondenopvang en dierenverzorging aan in België.',
     locale: 'nl_BE',
@@ -33,7 +33,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Hondenuitlaat, hondenoppas en kattenoppas in België | TailTribe',
+    title: 'Vind een betrouwbare dierenoppasser in jouw buurt | TailTribe',
     description:
       'Vraag hondenuitlaat, hondenoppas, kattenoppas, hondenopvang en dierenverzorging aan in België.',
     images: [ogImageUrl],

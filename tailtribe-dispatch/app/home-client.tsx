@@ -139,11 +139,11 @@ export default function HomePageClient() {
                 Join our tribe
               </p>
               <h1 className="font-heading text-4xl font-bold leading-[1.08] tracking-tight text-white sm:text-5xl md:text-6xl lg:text-7xl">
-                De juiste{' '}
+                Vind een betrouwbare{' '}
                 <span className="bg-gradient-to-r from-emerald-200 to-teal-200 bg-clip-text text-transparent">
                   dierenoppasser
                 </span>{' '}
-                voor je huisdier
+                in jouw buurt
               </h1>
               <p className="mt-5 max-w-xl text-base leading-relaxed text-white/90 sm:text-lg md:text-xl">
                 Van uitlaat en oppas tot training en transport — aanvraag in enkele minuten, persoonlijke opvolging
@@ -246,16 +246,18 @@ export default function HomePageClient() {
                   data-service-slug={service.slug}
                   className="group flex flex-col overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-[0_8px_30px_rgba(15,23,42,0.06)] ring-1 ring-slate-100 transition duration-300 hover:-translate-y-1 hover:border-emerald-200/80 hover:shadow-[0_20px_50px_rgba(16,185,129,0.12)] motion-reduce:transition-none motion-reduce:hover:translate-y-0"
                 >
-                  <div className="relative flex aspect-[4/3] w-full items-center justify-center overflow-hidden bg-gradient-to-br from-emerald-200 via-emerald-50 to-emerald-900/12">
-                    <Image
-                      src={encodeURI(service.image)}
-                      alt={service.name}
-                      width={160}
-                      height={160}
-                      unoptimized
-                      priority={index < 3}
-                      className="h-28 w-28 object-contain transition duration-300 ease-out group-hover:scale-105 motion-reduce:group-hover:scale-100 sm:h-32 sm:w-32"
-                    />
+                  <div className="relative flex aspect-[4/3] w-full items-center justify-center overflow-hidden bg-gradient-to-b from-slate-50 via-white to-emerald-50/35 px-4 py-6 sm:px-5 sm:py-7">
+                    <div className="flex h-36 w-36 items-center justify-center rounded-2xl bg-white p-5 shadow-[0_6px_24px_rgba(15,23,42,0.06)] ring-1 ring-emerald-200/55 sm:h-40 sm:w-40 sm:p-6">
+                      <Image
+                        src={encodeURI(service.image)}
+                        alt={service.name}
+                        width={160}
+                        height={160}
+                        unoptimized
+                        priority={index < 3}
+                        className="h-[5.75rem] w-[5.75rem] object-contain transition duration-300 ease-out group-hover:scale-[1.04] motion-reduce:group-hover:scale-100 sm:h-28 sm:w-28"
+                      />
+                    </div>
                   </div>
                   <div className="flex flex-1 flex-col gap-3 p-5 sm:p-6">
                     <div className="flex items-start justify-between gap-2">

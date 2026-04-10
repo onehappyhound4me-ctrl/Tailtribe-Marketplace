@@ -92,16 +92,18 @@ export default function DienstenPage() {
                 data-service-slug={service.slug}
                 className="group bg-white rounded-2xl shadow-sm hover:shadow-tt transition-all border border-black/5 overflow-hidden"
               >
-                <div className="relative flex h-36 w-full items-center justify-center overflow-hidden bg-gradient-to-br from-emerald-200 via-emerald-50 to-emerald-900/12 sm:h-40">
-                  <Image
-                    src={encodeURI(service.image)}
-                    alt={service.name}
-                    width={120}
-                    height={120}
-                    unoptimized
-                    priority={index < 3}
-                    className="h-24 w-24 object-contain transition-transform duration-300 md:group-hover:scale-105 sm:h-28 sm:w-28"
-                  />
+                <div className="relative flex h-40 w-full items-center justify-center overflow-hidden bg-gradient-to-b from-slate-50 via-white to-emerald-50/35 px-4 py-5 sm:h-44 sm:px-5 sm:py-6">
+                  <div className="flex h-32 w-32 items-center justify-center rounded-2xl bg-white p-4 shadow-[0_6px_24px_rgba(15,23,42,0.06)] ring-1 ring-emerald-200/55 sm:h-36 sm:w-36 sm:p-5">
+                    <Image
+                      src={encodeURI(service.image)}
+                      alt={service.name}
+                      width={120}
+                      height={120}
+                      unoptimized
+                      priority={index < 3}
+                      className="h-[5.25rem] w-[5.25rem] object-contain transition-transform duration-300 md:group-hover:scale-[1.04] sm:h-24 sm:w-24"
+                    />
+                  </div>
                 </div>
                 <div className="p-5 sm:p-6">
                   <h2 className="text-lg font-bold text-gray-900 group-hover:text-green-700 transition-colors mb-2">

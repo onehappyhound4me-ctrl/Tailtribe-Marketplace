@@ -382,16 +382,18 @@ export default function DienstDetailPage({ params }: Props) {
           </nav>
 
           <header className="bg-white rounded-2xl shadow-sm border border-black/5 p-5 sm:p-8 md:p-10 flex flex-col md:flex-row gap-6 sm:gap-8 items-start">
-            <div className="relative h-36 w-36 flex-shrink-0 self-start overflow-hidden rounded-2xl border border-emerald-100/80 bg-gradient-to-br from-emerald-200 via-emerald-50 to-emerald-900/12 sm:h-40 sm:w-40 md:h-44 md:w-44">
-              <Image
-                src={encodeURI(service.image)}
-                alt={service.name}
-                fill
-                priority
-                unoptimized
-                sizes="(max-width: 640px) 144px, (max-width: 768px) 160px, 176px"
-                className="object-contain object-center p-0 scale-[1.18] motion-reduce:scale-100"
-              />
+            <div className="relative flex h-36 w-36 flex-shrink-0 items-center justify-center self-start rounded-2xl bg-gradient-to-b from-slate-50 via-white to-emerald-50/35 p-2 shadow-[0_6px_24px_rgba(15,23,42,0.06)] ring-1 ring-emerald-200/55 sm:h-40 sm:w-40 sm:p-2.5 md:h-44 md:w-44">
+              <div className="relative h-full w-full overflow-hidden rounded-xl bg-white p-3 ring-1 ring-emerald-100/70 sm:p-3.5">
+                <Image
+                  src={encodeURI(service.image)}
+                  alt={service.name}
+                  fill
+                  priority
+                  unoptimized
+                  sizes="(max-width: 640px) 144px, (max-width: 768px) 160px, 176px"
+                  className="object-contain object-center p-1 scale-[1.12] motion-reduce:scale-100"
+                />
+              </div>
             </div>
             <div className="text-center md:text-left">
               <h1 className="text-2xl sm:text-4xl md:text-5xl font-bold text-gray-900 mb-3">
@@ -664,15 +666,17 @@ export default function DienstDetailPage({ params }: Props) {
                   data-service-slug={s.slug}
                   className="group bg-white rounded-2xl shadow-sm hover:shadow-tt transition-all border border-black/5 overflow-hidden"
                 >
-                  <div className="relative flex h-36 w-full items-center justify-center overflow-hidden bg-gradient-to-br from-emerald-200 via-emerald-50 to-emerald-900/12 sm:h-40">
-                    <Image
-                      src={encodeURI(s.image)}
-                      alt={s.name}
-                      width={128}
-                      height={128}
-                      unoptimized
-                      className="h-24 w-24 scale-105 object-contain transition-transform duration-300 group-hover:scale-110 motion-reduce:group-hover:scale-105 sm:h-28 sm:w-28"
-                    />
+                  <div className="relative flex h-40 w-full items-center justify-center overflow-hidden bg-gradient-to-b from-slate-50 via-white to-emerald-50/35 px-3 py-4 sm:h-44 sm:px-4 sm:py-5">
+                    <div className="flex h-32 w-32 items-center justify-center rounded-2xl bg-white p-3 shadow-[0_6px_24px_rgba(15,23,42,0.06)] ring-1 ring-emerald-200/55 sm:h-36 sm:w-36 sm:p-4">
+                      <Image
+                        src={encodeURI(s.image)}
+                        alt={s.name}
+                        width={128}
+                        height={128}
+                        unoptimized
+                        className="h-20 w-20 object-contain transition-transform duration-300 group-hover:scale-[1.04] motion-reduce:group-hover:scale-100 sm:h-24 sm:w-24"
+                      />
+                    </div>
                   </div>
                   <div className="p-5">
                     <div className="font-semibold text-gray-900 group-hover:text-green-700 transition-colors">{s.name}</div>
