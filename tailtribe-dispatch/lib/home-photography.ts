@@ -12,8 +12,8 @@ export const HOME_HERO = {
 
 /** Full-width rustpauze tussen diensten en “Hoe werkt het”. */
 export const HOME_MID_BANNER = {
-  src: '/marketing/mid-banner.jpg',
-  alt: 'Hond en baasje samen, blije interactie op de voorgrond',
+  src: '/marketing/service-hondenuitlaat.png',
+  alt: 'Mens en hond als team in de natuur — vertrouwen en verbinding',
 } as const
 
 /** Visueel anker naast de stappen. */
