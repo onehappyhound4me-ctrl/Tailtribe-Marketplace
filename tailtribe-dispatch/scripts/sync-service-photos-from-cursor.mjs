@@ -26,6 +26,7 @@ const assetsDir = process.env.CURSOR_ASSETS_DIR || defaultAssets
 
 /** Bronbestandsnaam (substring match) -> bestemming in public/marketing */
 const MAP = [
+  ['20240131_131318000_iOS', 'service-hondenuitlaat-wandeling.png'],
   ['images_dog_chinees-5e0fdca3-c42a-41e8-bba6-2ef8a3056da3', 'service-hondenuitlaat.png'],
   ['images_dog_training__2_-896ba3cb-b703-4bde-a763-e31b1aa81e55', 'service-training.png'],
   ['images_iStock-1296353202-64919a02-9d40-4109-990a-b15d86238e1c', 'service-opvang.png'],

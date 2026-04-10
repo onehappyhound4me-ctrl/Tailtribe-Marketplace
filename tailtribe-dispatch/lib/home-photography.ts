@@ -51,8 +51,9 @@ const HOME_SERVICE_COVER: Record<
   { src: string; alt: string }
 > = {
   DOG_WALKING: {
-    src: '/marketing/how-it-works.jpg',
-    alt: 'Hondenuitlaat: baasje wandelt met hond in groene omgeving',
+    src: '/marketing/service-hondenuitlaat-wandeling.png',
+    alt:
+      'Hondenuitlaat: professionele uitlater in het bos met honden tijdens een wandeling — persoonlijk contact en controle',
   },
   GROUP_DOG_WALKING: {
     src: '/marketing/service-hondenuitlaatservice.png',
