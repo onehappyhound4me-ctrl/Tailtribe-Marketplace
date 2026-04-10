@@ -1,5 +1,6 @@
 /**
- * Maakt `service-event.png` neutraler: minder fel groen/geel in de achtergrond (loof/licht).
+ * Maakt `service-event.png` geschikt voor de site: achtergrondloof wordt sterk gedempt (groen mag niet domineren).
+ * Werkt met RGB: groen-kanaal omlaag + lagere verzadiging + koelere hue — geen groene “glow” meer.
  * Bron: public/marketing/service-event.png (of RAW na sync, zie hieronder).
  *
  *   node scripts/build-service-event-cover.mjs
@@ -34,15 +35,15 @@ async function main() {
     const bundled = path.join(marketingDir, 'service-event-source.png')
     if (fs.existsSync(bundled)) {
       input = bundled
-    } else if (fs.existsSync(outFile)) {
-      input = outFile
     } else {
       const assetsDir = process.env.CURSOR_ASSETS_DIR || defaultAssets
       const name = fs.existsSync(assetsDir)
         ? fs.readdirSync(assetsDir).find((f) => f.includes('images_wedding-7dfe4108'))
         : null
       if (!name) {
-        console.error('Geen bron: zet service-event.png in marketing, of sync wedding-asset, of SRC=')
+        console.error(
+          'Geen bron: commit/public marketing/service-event-source.png, of sync wedding-asset, of SRC='
+        )
         process.exit(1)
       }
       input = path.join(assetsDir, name)
@@ -52,14 +53,16 @@ async function main() {
   const tmp = path.join(root, '.tmp-service-event-src.png')
   fs.copyFileSync(input, tmp)
   try {
+    // Geen zware G-matrix (geeft snel magenta op huid/wit). Wel: loof dempen via
+    // lagere verzadiging + hue naar koeler grijs-groen i.p.v. fel limoengroen.
     const buf = await sharp(tmp)
       .rotate()
       .modulate({
-        brightness: 1.02,
-        saturation: 0.84,
-        hue: -6,
+        brightness: 1.03,
+        saturation: 0.76,
+        hue: -22,
       })
-      .linear(1.0, -4)
+      .linear(1.02, -5)
       .png({ compressionLevel: 9, adaptiveFiltering: true })
       .toBuffer()
 

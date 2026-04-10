@@ -86,7 +86,7 @@ const HOME_SERVICE_COVER: Record<
   },
   EVENT_COMPANION: {
     src: '/marketing/service-event.png',
-    alt: 'Begeleiding op events: hond netjes bij het bruidspaar op een trouwfeest',
+    alt: 'Begeleiding op events: bruid met hond op een trouwlocatie — rustige, lichte sfeer',
   },
 }
 
