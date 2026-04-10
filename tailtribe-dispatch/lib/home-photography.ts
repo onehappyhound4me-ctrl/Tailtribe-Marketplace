@@ -27,8 +27,8 @@ export type HomeSectionPhoto = { src: string; alt: string; title: string; captio
 /** Homepage “Zo voelt goede zorg” alleen; geen hergebruik van service-*.jpg of hero/mid/how. */
 export const HOME_FEATURED_CARE: HomeSectionPhoto[] = [
   {
-    src: '/marketing/featured-1.jpg',
-    alt: 'Intiem moment tussen mens en huisdier — vertrouwen en persoonlijke aandacht',
+    src: '/marketing/featured-warme-match.png',
+    alt: 'Warme band tussen mens en hond — vertrouwen, rust en echte connectie',
     title: 'Warme match',
     caption: 'We koppelen aan verzorgers die aansluiten bij jouw routine en dier.',
   },
