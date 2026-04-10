@@ -4,6 +4,9 @@
  *
  *   node scripts/sync-service-photos-from-cursor.mjs
  *
+ * Na sync: `npm run build:hondenuitlaatservice-cover` om de Charlotte-bron lichter te verwerken
+ * naar `service-hondenuitlaatservice.png`.
+ *
  * Optioneel: set CURSOR_ASSETS_DIR=pad\naar\assets
  */
 import fs from 'fs'
@@ -26,7 +29,7 @@ const assetsDir = process.env.CURSOR_ASSETS_DIR || defaultAssets
 
 /** Bronbestandsnaam (substring match) -> bestemming in public/marketing */
 const MAP = [
-  ['20240131_131318000_iOS', 'service-hondenuitlaat-wandeling.png'],
+  ['hero-option-1', 'service-hondenuitlaat-wandeling.jpg'],
   ['images_dog_chinees-5e0fdca3-c42a-41e8-bba6-2ef8a3056da3', 'service-hondenuitlaat.png'],
   ['images_dog_training__2_-896ba3cb-b703-4bde-a763-e31b1aa81e55', 'service-training.png'],
   ['images_iStock-1296353202-64919a02-9d40-4109-990a-b15d86238e1c', 'service-opvang.png'],
@@ -35,7 +38,7 @@ const MAP = [
   ['images_wedding-7dfe4108-b8b2-46c8-a591-bee2453f8cef', 'service-event.png'],
   ['images_cavia-7382d586-d603-4ca2-8ba8-31b02b3c7efe', 'service-thuis.png'],
   ['images_kat-fb54f8a3-9534-4ccb-89f0-16841c0716a4', 'service-oppas.png'],
-  ['images_Bio_foto_Arno-e8492924-7d92-4616-b1cf-5c06d44d56f9', 'service-hondenuitlaatservice.png'],
+  ['_DSC_charlotte_2', 'service-hondenuitlaatservice-source.png'],
 ]
 
 function main() {

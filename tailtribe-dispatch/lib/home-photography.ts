@@ -51,14 +51,14 @@ const HOME_SERVICE_COVER: Record<
   { src: string; alt: string }
 > = {
   DOG_WALKING: {
-    src: '/marketing/service-hondenuitlaat-wandeling.png',
+    src: '/marketing/service-hondenuitlaat-wandeling.jpg',
     alt:
-      'Hondenuitlaat: professionele uitlater in het bos met honden tijdens een wandeling — persoonlijk contact en controle',
+      'Hondenuitlaat: professionele begeleiding — vrouw wandelt met een golden retriever aan de lijn op een pad in een groen park',
   },
   GROUP_DOG_WALKING: {
     src: '/marketing/service-hondenuitlaatservice.png',
     alt:
-      'Hondenuitlaatservice: professionele hondenuitlater wandelt met een groep verschillende honden in een groot, zonnig grasveld onder een strakblauwe lucht',
+      'Hondenuitlaatservice: professionele hondenuitlater rent door de duinen met een groep enthousiaste honden van verschillende rassen',
   },
   DOG_TRAINING: {
     src: '/marketing/service-training.png',
