@@ -55,24 +55,40 @@ function parseGoogleBusinessReviewCount(): number | undefined {
   return Number.isFinite(n) && n > 0 ? n : undefined
 }
 
-/**
- * Zichtbaar gemiddelde zoals op Google Business (hero, JSON-LD).
- * Standaard 4,4. Override: NEXT_PUBLIC_GOOGLE_BUSINESS_RATING en optioneel NEXT_PUBLIC_GOOGLE_BUSINESS_REVIEW_COUNT.
- */
-export function getPublicReviewsAggregateRating() {
-  const ratingValue = parseGoogleBusinessRating()
-  const reviewCount = parseGoogleBusinessReviewCount()
+/** Gemiddelde en optioneel aantal reviews (UI: homepage, sterren). */
+export function getPublicReviewsDisplayRating(): { ratingValue: number; reviewCount: number | undefined } {
   return {
-    '@type': 'AggregateRating' as const,
-    ratingValue,
-    ...(reviewCount != null ? { reviewCount } : {}),
+    ratingValue: parseGoogleBusinessRating(),
+    reviewCount: parseGoogleBusinessReviewCount(),
+  }
+}
+
+/**
+ * AggregateRating voor JSON-LD — alleen als `reviewCount` bekend is (Google vereist reviewCount of ratingCount).
+ * Zet NEXT_PUBLIC_GOOGLE_BUSINESS_REVIEW_COUNT in productie voor rich results.
+ */
+function getPublicReviewsAggregateRatingForSchema():
+  | {
+      '@type': 'AggregateRating'
+      ratingValue: number
+      reviewCount: number
+      bestRating: number
+      worstRating: number
+    }
+  | undefined {
+  const reviewCount = parseGoogleBusinessReviewCount()
+  if (reviewCount == null) return undefined
+  return {
+    '@type': 'AggregateRating',
+    ratingValue: parseGoogleBusinessRating(),
+    reviewCount,
     bestRating: 5,
     worstRating: 1,
   }
 }
 
 export function getOrganizationReviewSchema() {
-  const aggregateRating = getPublicReviewsAggregateRating()
+  const aggregateRating = getPublicReviewsAggregateRatingForSchema()
   return {
     ...(aggregateRating ? { aggregateRating } : {}),
     review: PUBLIC_REVIEWS.map((review) => ({

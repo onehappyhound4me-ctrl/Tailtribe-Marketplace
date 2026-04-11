@@ -7,7 +7,7 @@ import { SiteHeader } from '@/components/SiteHeader'
 import { SiteFooter } from '@/components/SiteFooter'
 import { DISPATCH_SERVICES } from '@/lib/services'
 import { routes } from '@/lib/routes'
-import { getPublicReviewsAggregateRating, GOOGLE_REVIEWS_URL, PUBLIC_REVIEWS } from '@/lib/reviews'
+import { getPublicReviewsDisplayRating, GOOGLE_REVIEWS_URL, PUBLIC_REVIEWS } from '@/lib/reviews'
 import { HOME_FEATURED_CARE, HOME_HERO, HOME_HOW_IMAGE, HOME_MID_BANNER } from '@/lib/home-photography'
 
 const STAR_PATH =
@@ -83,11 +83,11 @@ function formatNlRating(rating: number) {
 
 export default function HomePageClient() {
   const { data: session } = useSession()
-  const reviewAgg = getPublicReviewsAggregateRating()
-  const ratingLabel = formatNlRating(reviewAgg.ratingValue)
+  const { ratingValue, reviewCount } = getPublicReviewsDisplayRating()
+  const ratingLabel = formatNlRating(ratingValue)
   const googleReviewLine =
-    'reviewCount' in reviewAgg && reviewAgg.reviewCount != null
-      ? `${ratingLabel}/5 · ${reviewAgg.reviewCount} reviews op Google`
+    reviewCount != null
+      ? `${ratingLabel}/5 · ${reviewCount} reviews op Google`
       : `${ratingLabel}/5 gemiddeld op Google`
 
   const bookingHref =
@@ -156,7 +156,7 @@ export default function HomePageClient() {
                 rel="noopener noreferrer"
                 className="mt-6 inline-flex flex-wrap items-center gap-3 rounded-2xl border border-white/15 bg-white/10 px-4 py-3 backdrop-blur-md transition duration-200 hover:border-white/25 hover:bg-white/15"
               >
-                <StarRow value={reviewAgg.ratingValue} />
+                <StarRow value={ratingValue} />
                 <span className="text-sm font-medium text-white">{googleReviewLine}</span>
               </a>
 
@@ -225,10 +225,10 @@ export default function HomePageClient() {
               Elk pictogram staat voor een dienst. Klik door voor de volledige uitleg en foto’s op de dienstpagina.
             </p>
             <div className="mt-5 flex flex-wrap items-center justify-center gap-2 text-sm text-slate-600">
-              <StarRow value={reviewAgg.ratingValue} />
+              <StarRow value={ratingValue} />
               <span className="font-medium text-slate-800">
-                {'reviewCount' in reviewAgg && reviewAgg.reviewCount != null
-                  ? `${ratingLabel}/5 gemiddeld op Google (${reviewAgg.reviewCount} reviews)`
+                {reviewCount != null
+                  ? `${ratingLabel}/5 gemiddeld op Google (${reviewCount} reviews)`
                   : `${ratingLabel}/5 gemiddeld op Google`}
               </span>
             </div>
