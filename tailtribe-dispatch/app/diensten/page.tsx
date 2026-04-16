@@ -12,7 +12,7 @@ const canonicalUrl = new URL('/diensten', appUrl).toString()
 export const metadata: Metadata = {
   title: 'Hondenuitlaat, dierenoppas, hondentraining en opvang | TailTribe België',
   description:
-    'Hondenuitlaat (dog walker), dierenoppas, hondentraining, hondenopvang, transport en verzorging aan huis in België. TailTribe matcht je aanvraag met gescreende verzorgers.',
+    'Hondenuitlaat (dog walker), dierenoppas, hondentraining, hondenopvang, dagopvang voor honden, transport en verzorging aan huis in België. TailTribe matcht je aanvraag met gescreende verzorgers.',
   alternates: { canonical: canonicalUrl },
   openGraph: {
     title: 'Hondenuitlaat, dierenoppas, hondentraining en opvang | TailTribe België',

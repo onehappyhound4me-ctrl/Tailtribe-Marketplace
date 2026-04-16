@@ -24,7 +24,7 @@ export const metadata: Metadata = {
     template: '%s | TailTribe',
   },
   description:
-    'Vraag hondenuitlaat, hondenoppas, kattenoppas, hondenopvang en dierenverzorging aan in België via TailTribe.',
+    'Vraag hondenuitlaat, hondenoppas, kattenoppas, hondenopvang, dagopvang voor honden en dierenverzorging aan in België via TailTribe.',
   manifest: '/manifest.webmanifest',
   themeColor: '#10b981',
   icons: {
@@ -44,7 +44,7 @@ export const metadata: Metadata = {
     url: '/',
     siteName: 'TailTribe',
     title: 'Hondenuitlaat, hondenoppas en kattenoppas in België | TailTribe',
-    description: 'Vraag hondenuitlaat, hondenoppas, kattenoppas, hondenopvang en dierenverzorging aan in België.',
+    description: 'Vraag hondenuitlaat, hondenoppas, kattenoppas, hondenopvang, dagopvang voor honden en dierenverzorging aan in België.',
     locale: 'nl_BE',
     images: [
       {

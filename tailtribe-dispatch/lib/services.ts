@@ -94,14 +94,14 @@ export const DISPATCH_SERVICES: DispatchService[] = [
   {
     id: 'GROUP_DOG_WALKING',
     name: 'Hondenuitlaatservice',
-    desc: 'Hondenuitlaatservice aan huis met sociale daguitstappen en ophalen',
+    desc: 'Hondenuitlaatservice aan huis met sociale daguitstappen, dagopvang voor honden en ophalen',
     slug: 'hondenuitlaatservice',
     image: '/assets/groepsuitlaat.png',
     detailTitle: 'Hondenuitlaatservice aan huis – avontuurlijke daguitstappen',
     metaDescription:
-      'Hondenuitlaatservice aan huis in België: sociale groepswandelingen, daguitstappen, ophalen en terugbrengen. Voor sociale honden. Vraag je beschikbaarheid via TailTribe.',
+      'Hondenuitlaatservice en dagopvang voor honden in België: sociale groepswandelingen, daguitstappen, ophalen en terugbrengen. Voor sociale honden. Vraag je beschikbaarheid via TailTribe.',
     priceGuide:
-      'Richtbedrag exclusief btw: een volledige hondenuitlaatservice (daguitstap met ophalen en terugbrengen) wordt in de praktijk vaak rond €45 per dag gehanteerd. Prijs kan variëren met locatie, planning en het profiel van je hond. Concrete offerte na je aanvraag.',
+      'Richtbedrag exclusief btw: een volledige hondenuitlaatservice of dagopvang voor honden (daguitstap met ophalen en terugbrengen) wordt in de praktijk vaak rond €45 per dag gehanteerd. Prijs kan variëren met locatie, planning en het profiel van je hond. Concrete offerte na je aanvraag.',
     providerSpotlight: {
       name: 'One Happy Hound',
       href: 'https://onehappyhound.be/?utm_source=tailtribe&utm_medium=referral&utm_campaign=hondenuitlaatservice',

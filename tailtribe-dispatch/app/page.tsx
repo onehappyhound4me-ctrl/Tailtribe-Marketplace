@@ -9,7 +9,7 @@ const ogImageUrl = `${appUrl.replace(/\/$/, '')}${HOME_HERO.src}`
 export const metadata: Metadata = {
   title: 'Vind een betrouwbare dierenoppasser in jouw buurt | TailTribe',
   description:
-    'Vraag hondenuitlaat, hondenoppas, kattenoppas, hondenopvang en dierenverzorging aan in België. TailTribe matcht je met gescreende verzorgers en volgt je aanvraag persoonlijk op.',
+    'Vraag hondenuitlaat, hondenoppas, kattenoppas, hondenopvang, dagopvang voor honden en dierenverzorging aan in België. TailTribe matcht je met gescreende verzorgers en volgt je aanvraag persoonlijk op.',
   alternates: {
     canonical: '/',
     languages: { 'nl-BE': '/', 'x-default': '/' },
