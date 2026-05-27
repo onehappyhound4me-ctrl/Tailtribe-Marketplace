@@ -83,14 +83,25 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ success: true, created: 0, total: 0 })
   }
 
+  const targetIds = targets.map((t) => t.id)
+  const existingOffers = await prisma.bookingOffer.findMany({
+    where: { caregiverId, bookingId: { in: targetIds } },
+    select: { bookingId: true },
+  })
+  const existingBookingIds = new Set(existingOffers.map((o) => o.bookingId))
+  const toCreate = targets.filter((t) => !existingBookingIds.has(t.id))
+
+  if (toCreate.length === 0) {
+    return NextResponse.json({ success: true, created: 0, total: targets.length })
+  }
+
   const res = await prisma.bookingOffer.createMany({
-    data: targets.map((t) => ({
+    data: toCreate.map((t) => ({
       bookingId: t.id,
       caregiverId,
       unit: priceEntry.unit,
       priceCents: priceEntry.priceCents,
     })),
-    skipDuplicates: true,
   })
 
   // Notify once (best-effort)
