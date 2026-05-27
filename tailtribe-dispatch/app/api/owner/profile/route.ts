@@ -1,20 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
-import { getImpersonationContext } from '@/lib/impersonation'
+import { requireRole } from '@/lib/effective-session'
 
 export async function GET() {
   const session = await auth()
-  const impersonation = getImpersonationContext(session)
-  const effectiveRole = impersonation?.role ?? session?.user?.role
-
-  if (!session || effectiveRole !== 'OWNER') {
+  const authz = requireRole(session, ['OWNER'])
+  if (!authz.ok) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
   try {
     const profile = await prisma.ownerProfile.findUnique({
-      where: { userId: impersonation?.role === 'OWNER' ? impersonation.userId : session.user.id },
+      where: { userId: authz.userId },
     })
 
     if (!profile) {
@@ -33,8 +31,8 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   const session = await auth()
-
-  if (!session || session.user.role !== 'OWNER') {
+  const authz = requireRole(session, ['OWNER'])
+  if (!authz.ok) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
@@ -44,7 +42,7 @@ export async function POST(request: NextRequest) {
 
     // Check if profile exists
     const existing = await prisma.ownerProfile.findUnique({
-      where: { userId: session.user.id },
+      where: { userId: authz.userId },
     })
 
     let profile
@@ -52,7 +50,7 @@ export async function POST(request: NextRequest) {
     if (existing) {
       // Update
       profile = await prisma.ownerProfile.update({
-        where: { userId: session.user.id },
+        where: { userId: authz.userId },
         data: {
           city,
           postalCode,
@@ -65,7 +63,7 @@ export async function POST(request: NextRequest) {
       // Create
       profile = await prisma.ownerProfile.create({
         data: {
-          userId: session.user.id,
+          userId: authz.userId,
           city,
           postalCode,
           region: region || null,

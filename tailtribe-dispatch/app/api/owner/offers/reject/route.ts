@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
-import { getImpersonationContext } from '@/lib/impersonation'
+import { requireRole } from '@/lib/effective-session'
 import { createNotification } from '@/lib/notifications'
 import { SERVICE_LABELS } from '@/lib/services'
 
@@ -10,13 +10,11 @@ export const dynamic = 'force-dynamic'
 
 export async function POST(req: NextRequest) {
   const session = await auth()
-  const impersonation = getImpersonationContext(session)
-  const effectiveRole = impersonation?.role ?? session?.user?.role
-  const ownerId = impersonation?.role === 'OWNER' ? impersonation.userId : session?.user?.id
-
-  if (!session || effectiveRole !== 'OWNER' || !ownerId) {
+  const authz = requireRole(session, ['OWNER'])
+  if (!authz.ok) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
+  const ownerId = authz.userId
 
   const body = await req.json().catch(() => ({}))
   const { caregiverId, bookingIds } = body as { caregiverId?: string; bookingIds?: string[] }

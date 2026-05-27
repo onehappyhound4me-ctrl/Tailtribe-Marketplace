@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { getTodayStringInZone } from '@/lib/date-utils'
-import { getImpersonationContext } from '@/lib/impersonation'
+import { requireRole } from '@/lib/effective-session'
 import { createNotification } from '@/lib/notifications'
 import { buildAdminBookingReceivedEmail, sendAdminOwnerConfirmedEmail, sendAssignmentEmail, sendOwnerAssignmentEmail } from '@/lib/email'
 import { sendTransactionalEmail } from '@/lib/mailer'
@@ -13,10 +13,8 @@ import { assertCaregiverNotDoubleBooked } from '@/lib/availability'
 
 export async function GET(request: NextRequest) {
   const session = await auth()
-  const impersonation = getImpersonationContext(session)
-  const effectiveRole = impersonation?.role ?? session?.user?.role
-
-  if (!session || effectiveRole !== 'OWNER') {
+  const authz = requireRole(session, ['OWNER'])
+  if (!authz.ok) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
@@ -31,7 +29,7 @@ export async function GET(request: NextRequest) {
     const cutoffUtc = new Date(todayUtc)
     cutoffUtc.setUTCDate(cutoffUtc.getUTCDate() - 90)
 
-    const ownerId = impersonation?.role === 'OWNER' ? impersonation.userId : session.user.id
+    const ownerId = authz.userId
 
     const bookings = await prisma.booking.findMany({
       where: {
@@ -150,10 +148,11 @@ function slotStartUtc(date: string, timeWindow?: string, time?: string) {
 
 export async function POST(request: NextRequest) {
   const session = await auth()
-
-  if (!session || session.user.role !== 'OWNER') {
+  const authz = requireRole(session, ['OWNER'])
+  if (!authz.ok) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
+  const ownerId = authz.userId
 
   try {
     const body = await request.json()
@@ -193,7 +192,7 @@ export async function POST(request: NextRequest) {
     // Create booking
     const booking = await prisma.booking.create({
       data: {
-        ownerId: session.user.id,
+        ownerId,
         service,
         date: slotStart,
         time: time || null,
@@ -215,7 +214,7 @@ export async function POST(request: NextRequest) {
     void (async () => {
       try {
         const owner = await prisma.user.findUnique({
-          where: { id: session.user.id },
+          where: { id: ownerId },
           select: { email: true, firstName: true, lastName: true, phone: true },
         })
         const appUrl = getPublicAppUrl()
@@ -267,8 +266,8 @@ export async function POST(request: NextRequest) {
 
 export async function PATCH(request: NextRequest) {
   const session = await auth()
-
-  if (!session || session.user.role !== 'OWNER') {
+  const authz = requireRole(session, ['OWNER'])
+  if (!authz.ok) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
@@ -296,7 +295,7 @@ export async function PATCH(request: NextRequest) {
       },
     },
   })
-  if (!booking || booking.ownerId !== session.user.id) {
+  if (!booking || booking.ownerId !== authz.userId) {
     return NextResponse.json({ error: 'Booking niet gevonden' }, { status: 404 })
   }
 
@@ -339,7 +338,7 @@ export async function PATCH(request: NextRequest) {
     const confirmed = await prisma.booking.updateMany({
       where: {
         id: booking.id,
-        ownerId: session.user.id,
+        ownerId: authz.userId,
         status: { in: ['PENDING', 'ASSIGNED'] },
         OR: [{ caregiverId: null }, { caregiverId }],
       },

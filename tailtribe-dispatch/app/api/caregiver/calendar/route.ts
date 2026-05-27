@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { auth } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
-import { getImpersonationContext } from '@/lib/impersonation'
+import { requireRole } from '@/lib/effective-session'
 import { getTodayStringInZone } from '@/lib/date-utils'
 
 export const dynamic = 'force-dynamic'
@@ -14,19 +14,12 @@ function parseMidnightUtc(dateStr: string) {
 export async function GET() {
   try {
     const session = await auth()
-    const impersonation = getImpersonationContext(session)
-    const effectiveRole = impersonation?.role ?? session?.user?.role
-
-    if (!session?.user?.id) {
+    const authz = requireRole(session, ['CAREGIVER'])
+    if (!authz.ok) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    if (effectiveRole !== 'CAREGIVER') {
-      return NextResponse.json({ error: 'Not a caregiver' }, { status: 403 })
-    }
-
-    const caregiverUserId =
-      impersonation?.role === 'CAREGIVER' ? impersonation.userId : session.user.id
+    const caregiverUserId = authz.userId
 
     // Find caregiver profile
     const profile = await prisma.caregiverProfile.findUnique({

@@ -6,6 +6,7 @@ import { assertCaregiverAvailable, assertCaregiverNotDoubleBooked } from '@/lib/
 import { sendTransactionalEmail } from '@/lib/mailer'
 import { SERVICE_LABELS } from '@/lib/services'
 import { getPublicAppUrl } from '@/lib/env'
+import { requireRole } from '@/lib/effective-session'
 
 const TIME_WINDOW_STARTS: Record<string, string> = {
   MORNING: '07:00',
@@ -38,7 +39,8 @@ const slotStartUtc = (date: string, timeWindow?: string, time?: string) => {
 export async function POST(request: NextRequest) {
   try {
     const session = await auth()
-    if (!session || session.user.role !== 'OWNER') {
+    const authz = requireRole(session, ['OWNER'])
+    if (!authz.ok) {
       return NextResponse.json(
         { error: 'Je bent niet ingelogd of je sessie is verlopen. Log opnieuw in.' },
         { status: 401 }
@@ -46,11 +48,11 @@ export async function POST(request: NextRequest) {
     }
 
     const ownerProfile = await prisma.ownerProfile.findUnique({
-      where: { userId: session.user.id },
+      where: { userId: authz.userId },
     })
 
     const owner = await prisma.user.findUnique({
-      where: { id: session.user.id },
+      where: { id: authz.userId },
       select: { email: true, firstName: true, lastName: true, phone: true },
     })
 
@@ -124,7 +126,7 @@ export async function POST(request: NextRequest) {
       const caregiverId = typeof booking.caregiverId === 'string' ? booking.caregiverId.trim() : null
 
       return {
-        ownerId: session.user.id,
+        ownerId: authz.userId,
         service: booking.service,
         date: slotDate,
         timeWindow: booking.timeWindow,

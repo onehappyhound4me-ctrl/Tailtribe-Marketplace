@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { auth } from '@/lib/auth'
 import prisma from '@/lib/prisma'
-import { getImpersonationContext } from '@/lib/impersonation'
+import { requireRole } from '@/lib/effective-session'
 
 export const dynamic = 'force-dynamic'
 export const runtime = 'nodejs'
@@ -9,16 +9,15 @@ export const runtime = 'nodejs'
 export async function GET() {
   try {
     const session = await auth()
-    const impersonation = getImpersonationContext(session)
-    const effectiveRole = impersonation?.role ?? session?.user?.role
-    if (!session || effectiveRole !== 'OWNER') {
+    const authz = requireRole(session, ['OWNER'])
+    if (!authz.ok) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
     // Haal alle voltooide of bevestigde bookings op waar een verzorger aan is toegewezen
     const bookings = await prisma.booking.findMany({
       where: {
-        ownerId: impersonation?.role === 'OWNER' ? impersonation.userId : session.user.id,
+        ownerId: authz.userId,
         caregiverId: { not: null },
         status: { in: ['CONFIRMED', 'COMPLETED'] }
       },

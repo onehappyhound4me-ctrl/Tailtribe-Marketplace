@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { DISPATCH_SERVICES } from '@/lib/services'
-import { getImpersonationContext } from '@/lib/impersonation'
+import { requireRole } from '@/lib/effective-session'
 
 const ALLOWED_PRICING_UNITS = ['HALF_HOUR', 'HOUR', 'HALF_DAY', 'DAY'] as const
 type PricingUnit = (typeof ALLOWED_PRICING_UNITS)[number]
@@ -76,16 +76,14 @@ const parseServicePricing = (raw: unknown, services: string[]) => {
 
 export async function GET() {
   const session = await auth()
-  const impersonation = getImpersonationContext(session)
-  const effectiveRole = impersonation?.role ?? session?.user?.role
-
-  if (!session || effectiveRole !== 'CAREGIVER') {
+  const authz = requireRole(session, ['CAREGIVER'])
+  if (!authz.ok) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
   try {
     const profile = await prisma.caregiverProfile.findUnique({
-      where: { userId: impersonation?.role === 'CAREGIVER' ? impersonation.userId : session.user.id },
+      where: { userId: authz.userId },
     })
 
     if (!profile) {
@@ -96,7 +94,7 @@ export async function GET() {
     const nextServicesJson = JSON.stringify(normalizedServices)
     if (profile.services !== nextServicesJson) {
       await prisma.caregiverProfile.update({
-        where: { userId: session.user.id },
+        where: { userId: authz.userId },
         data: { services: nextServicesJson },
       })
     }
@@ -113,8 +111,8 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   const session = await auth()
-
-  if (!session || session.user.role !== 'CAREGIVER') {
+  const authz = requireRole(session, ['CAREGIVER'])
+  if (!authz.ok) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
@@ -148,7 +146,7 @@ export async function POST(request: NextRequest) {
 
     // Check if profile exists
     const existing = await prisma.caregiverProfile.findUnique({
-      where: { userId: session.user.id },
+      where: { userId: authz.userId },
     })
 
     let profile
@@ -169,7 +167,7 @@ export async function POST(request: NextRequest) {
     if (existing) {
       // Update existing profile
       profile = await prisma.caregiverProfile.update({
-        where: { userId: session.user.id },
+        where: { userId: authz.userId },
         data: {
           city,
           postalCode,
@@ -192,7 +190,7 @@ export async function POST(request: NextRequest) {
       // Create new profile
       profile = await prisma.caregiverProfile.create({
         data: {
-          userId: session.user.id,
+          userId: authz.userId,
           city,
           postalCode,
           region: region || null,

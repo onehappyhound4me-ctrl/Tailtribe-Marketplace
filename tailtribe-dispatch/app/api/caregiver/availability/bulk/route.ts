@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { auth } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { assertSlotNotInPast } from '@/lib/date-utils'
+import { requireRole } from '@/lib/effective-session'
 
 // Helper om datum string naar UTC datum te converteren zonder timezone shift
 function parseUTCDate(dateString: string): Date {
@@ -12,18 +13,14 @@ function parseUTCDate(dateString: string): Date {
 export async function POST(request: Request) {
   try {
     const session = await auth()
-
-    if (!session?.user?.id) {
+    const authz = requireRole(session, ['CAREGIVER'])
+    if (!authz.ok) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
-
-    if (session.user.role !== 'CAREGIVER') {
-      return NextResponse.json({ error: 'Not a caregiver' }, { status: 403 })
     }
 
     // Find caregiver profile
     const profile = await prisma.caregiverProfile.findUnique({
-      where: { userId: session.user.id },
+      where: { userId: authz.userId },
     })
 
     if (!profile) {

@@ -2,8 +2,15 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { sendWelcomeEmail } from '@/lib/email'
 import { getPublicAppUrl } from '@/lib/env'
+import { checkRateLimit } from '@/lib/rate-limit'
 
 export async function GET(req: NextRequest) {
+  const ip = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown'
+  const rate = await checkRateLimit(`auth-verify:${ip}`, 30, 10 * 60 * 1000)
+  if (!rate.allowed) {
+    return NextResponse.json({ error: 'Te veel aanvragen. Probeer later opnieuw.' }, { status: 429 })
+  }
+
   const baseUrl = getPublicAppUrl()
   const { searchParams } = new URL(req.url)
   const token = searchParams.get('token')?.trim()
