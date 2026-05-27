@@ -1,4 +1,6 @@
+import type { NextRequest } from 'next/server'
 import { NextResponse } from 'next/server'
+import { requireAuthHealthToken } from '@/lib/auth-health-token'
 import { getPublicAppUrl } from '@/lib/env'
 
 export const runtime = 'nodejs'
@@ -36,7 +38,10 @@ async function fetchStatus(url: string) {
   }
 }
 
-export async function GET() {
+export async function GET(req: NextRequest) {
+  const denied = requireAuthHealthToken(req)
+  if (denied) return denied
+
   const appUrl = getPublicAppUrl()
   const robotsUrl = new URL('/robots.txt', appUrl).toString()
   const sitemapUrl = new URL('/sitemap.xml', appUrl).toString()

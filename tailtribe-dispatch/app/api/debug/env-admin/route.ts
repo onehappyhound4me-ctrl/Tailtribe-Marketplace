@@ -1,4 +1,6 @@
+import type { NextRequest } from 'next/server'
 import { NextResponse } from 'next/server'
+import { requireAuthHealthToken } from '@/lib/auth-health-token'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
@@ -23,7 +25,10 @@ function maskEmail(email: string) {
   return `${name.slice(0, 1)}***@${domain}`
 }
 
-export async function GET() {
+export async function GET(req: NextRequest) {
+  const denied = requireAuthHealthToken(req)
+  if (denied) return denied
+
   const rawEmail = process.env.ADMIN_LOGIN_EMAIL ?? ''
   const rawPassword = process.env.ADMIN_LOGIN_PASSWORD ?? ''
   const email = normalizeEnvValue(rawEmail).trim().toLowerCase()

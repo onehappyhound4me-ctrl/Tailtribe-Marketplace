@@ -18,7 +18,9 @@ export default function VisibilityDebugPage() {
           <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">Visibility / SEO / Analytics debug</h1>
           <p className="text-sm sm:text-base text-gray-600 mb-6">
             Deze pagina helpt objectief te checken of <code className="font-mono">robots.txt</code>,{' '}
-            <code className="font-mono">sitemap.xml</code> en analytics events werken. Geen login nodig.
+            <code className="font-mono">sitemap.xml</code> en analytics events werken. In productie: voeg{' '}
+            <code className="font-mono">?authHealthToken=…</code> toe (zelfde waarde als{' '}
+            <code className="font-mono">AUTH_HEALTH_TOKEN</code>) om de SEO health-check te laden.
           </p>
           <VisibilityDebugClient />
         </div>

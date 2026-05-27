@@ -14,9 +14,10 @@ See `ENV_TEMPLATE.md` for the full template.
 ## Recommended security / diagnostics
 
 - **`AUTH_HEALTH_TOKEN`** — long random secret. Needed to call **in production**:
-  - `GET /api/auth/health`
-  - `GET /api/health/email`  
-  Send header: `x-auth-health-token: <same value>`.
+  - `GET /api/auth/health`, `/api/health/email`, `/api/health/seo`
+  - `GET /api/debug/build`, `/api/debug/env-admin`  
+  Send header: `x-auth-health-token: <same value>`.  
+  For `/debug/visibility`, use query `?authHealthToken=<same value>`.
 
 ## Post-deploy smoke tests (manual)
 

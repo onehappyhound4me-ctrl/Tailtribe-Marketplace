@@ -1,5 +1,6 @@
 import type { NextRequest } from 'next/server'
 import { NextResponse } from 'next/server'
+import { requireAuthHealthToken } from '@/lib/auth-health-token'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
@@ -16,13 +17,8 @@ function mask(value: string | null) {
 }
 
 export async function GET(req: NextRequest) {
-  if (process.env.NODE_ENV === 'production') {
-    const expected = (process.env.AUTH_HEALTH_TOKEN ?? '').trim()
-    const provided = (req.headers.get('x-auth-health-token') ?? '').trim()
-    if (!expected || provided !== expected) {
-      return NextResponse.json({ error: 'Not Found' }, { status: 404 })
-    }
-  }
+  const denied = requireAuthHealthToken(req)
+  if (denied) return denied
 
   const resendKey = pick('RESEND_API_KEY')
   const smtpHost = pick('SMTP_HOST')

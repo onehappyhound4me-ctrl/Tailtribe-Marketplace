@@ -47,8 +47,10 @@ GA_API_SECRET=
 RESET_PASSWORD_ADMIN_KEY=
 
 # Productie: bescherm diagnostics (anders 404).
-# Geldt voor GET /api/auth/health én GET /api/health/email.
+# Geldt o.a. voor GET /api/auth/health, /api/health/email, /api/health/seo,
+# /api/debug/build en /api/debug/env-admin.
 # Request header: x-auth-health-token: <zelfde waarde>
+# Visibility debug: /debug/visibility?authHealthToken=<zelfde waarde>
 AUTH_HEALTH_TOKEN=
 
 # Afzender (belangrijk voor deliverability, vooral Gmail):
@@ -81,8 +83,8 @@ Komt dit e‑mailadres al voor als **verzorger of admin**, dan kun je niet nog e
 
 Staat het account nog op **“e-mail nog niet geverifieerd”** na registratie met wachtwoord, dan blokkeert TailTribe Google-login voor dat adres tot de verificatielinks is gevolgd. Oplossing: mailbox controleren **of** inloggen met wachtwoord.
 
-### Diagnostics 404 op `/api/health/email` of `/api/auth/health`
+### Diagnostics 404 (health / debug API)
 
-In **production** vragen deze routes een ingestelde **`AUTH_HEALTH_TOKEN`** en header **`x-auth-health-token`**. Zonder token is **404** bewust (geen informatielek).
+In **production** vragen health- en debug-API’s een ingestelde **`AUTH_HEALTH_TOKEN`** en header **`x-auth-health-token`**. Zonder token is **404** bewust (geen informatielek). Voor `/debug/visibility` kun je dezelfde waarde als query **`?authHealthToken=`** meegeven.
 
 Zie ook `DEPLOYMENT_CHECKLIST.md`.

@@ -9,8 +9,12 @@ on:
   pull_request:
     paths:
       - "tailtribe-dispatch/**"
-  # Disabled on push to main to prevent repeated failure emails.
-  # Run on PRs (and manually) instead.
+      - ".github/workflows/mobile-e2e.yml"
+  push:
+    branches: [main]
+    paths:
+      - "tailtribe-dispatch/**"
+      - ".github/workflows/mobile-e2e.yml"
 
 jobs:
   mobile-e2e:

@@ -1,4 +1,6 @@
+import type { NextRequest } from 'next/server'
 import { NextResponse } from 'next/server'
+import { requireAuthHealthToken } from '@/lib/auth-health-token'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
@@ -8,7 +10,10 @@ function pick(name: string) {
   return v ? v : null
 }
 
-export async function GET() {
+export async function GET(req: NextRequest) {
+  const denied = requireAuthHealthToken(req)
+  if (denied) return denied
+
   // Safe, minimal deployment info to confirm what version is live.
   const payload = {
     app: 'tailtribe-dispatch',

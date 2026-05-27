@@ -28,6 +28,11 @@ export function VisibilityDebugClient() {
   const [seoHealthError, setSeoHealthError] = useState<string | null>(null)
   const [eventsTick, setEventsTick] = useState(0)
 
+  const authHealthToken = useMemo(() => {
+    if (typeof window === 'undefined') return ''
+    return new URLSearchParams(window.location.search).get('authHealthToken')?.trim() ?? ''
+  }, [])
+
   const utm = useMemo(() => {
     if (typeof window === 'undefined') return null
     const sp = new URLSearchParams(window.location.search)
@@ -44,7 +49,9 @@ export function VisibilityDebugClient() {
     let alive = true
     ;(async () => {
       try {
-        const res = await fetch('/api/health/seo', { cache: 'no-store' })
+        const headers: HeadersInit = {}
+        if (authHealthToken) headers['x-auth-health-token'] = authHealthToken
+        const res = await fetch('/api/health/seo', { cache: 'no-store', headers })
         const json = await res.json().catch(() => null)
         if (!alive) return
         if (!res.ok) {
@@ -61,7 +68,7 @@ export function VisibilityDebugClient() {
     return () => {
       alive = false
     }
-  }, [])
+  }, [authHealthToken])
 
   // Refresh local event list (in-memory buffer).
   useEffect(() => {
