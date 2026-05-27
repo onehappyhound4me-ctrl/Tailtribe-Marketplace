@@ -1,3 +1,4 @@
+import type { NextRequest } from 'next/server'
 import { NextResponse } from 'next/server'
 
 export const runtime = 'nodejs'
@@ -14,7 +15,15 @@ function mask(value: string | null) {
   return `${value.slice(0, 2)}***${value.slice(-2)}`
 }
 
-export async function GET() {
+export async function GET(req: NextRequest) {
+  if (process.env.NODE_ENV === 'production') {
+    const expected = (process.env.AUTH_HEALTH_TOKEN ?? '').trim()
+    const provided = (req.headers.get('x-auth-health-token') ?? '').trim()
+    if (!expected || provided !== expected) {
+      return NextResponse.json({ error: 'Not Found' }, { status: 404 })
+    }
+  }
+
   const resendKey = pick('RESEND_API_KEY')
   const smtpHost = pick('SMTP_HOST')
   const smtpUser = pick('SMTP_USER')

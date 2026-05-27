@@ -46,6 +46,11 @@ GA_API_SECRET=
 # Gebruik een lange random value. Verwijder nadien of draai opnieuw.
 RESET_PASSWORD_ADMIN_KEY=
 
+# Productie: bescherm diagnostics (anders 404).
+# Geldt voor GET /api/auth/health én GET /api/health/email.
+# Request header: x-auth-health-token: <zelfde waarde>
+AUTH_HEALTH_TOKEN=
+
 # Afzender (belangrijk voor deliverability, vooral Gmail):
 # Gebruik een verified domain/sender in Resend (SPF/DKIM).
 DISPATCH_EMAIL_FROM=TailTribe <noreply@tailtribe.be>
