@@ -19,7 +19,7 @@ on:
 jobs:
   mobile-e2e:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 25
     defaults:
       run:
         working-directory: tailtribe-dispatch
@@ -29,8 +29,8 @@ jobs:
       NEXTAUTH_SECRET: ci-nextauth-secret-please-change-32chars-minimum
       NEXTAUTH_URL: http://localhost:3000
       NEXT_PUBLIC_APP_URL: http://localhost:3000
-      # Ensure Playwright uses build+start parity mode in CI.
-      PW_SERVER: prod
+      # App is pre-built in CI; Playwright only starts the server.
+      PW_SERVER: start
 
     steps:
       - uses: actions/checkout@v4
@@ -50,11 +50,14 @@ jobs:
           npx prisma generate --schema prisma/schema.prisma
           npx prisma db push --schema prisma/schema.prisma
 
+      - name: Production build
+        run: npm run build
+
       - name: Install Playwright browsers
         run: npx playwright install --with-deps
 
       - name: Run mobile E2E tests
-        run: npm run test:e2e
+        run: npm run test:e2e:mobile
 
       - name: Upload Playwright report
         if: always()

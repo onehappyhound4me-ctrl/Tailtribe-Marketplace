@@ -11,6 +11,7 @@ const PORT = Number(process.env.PW_PORT ?? process.env.PORT ?? 3000)
 const baseURL = process.env.PW_BASE_URL ?? `http://localhost:${PORT}`
 const serverMode = process.env.PW_SERVER ?? (process.env.CI ? 'prod' : 'dev')
 const useWebServer = !process.env.PW_BASE_URL
+const isCi = Boolean(process.env.CI)
 
 // Windows (and sometimes OneDrive/AV) can block deletion of prior run artifacts (e.g. `.last-run.json`).
 // Avoid deleting by writing each run's artifacts to a fresh folder.
@@ -19,15 +20,19 @@ const outputDir = path.join('test-results', runId)
 const reportDir = path.join('playwright-report', runId)
 
 const webServerCommand =
-  serverMode === 'prod'
-    ? `npm run build && npm run start -- -p ${PORT}`
-    : `npm run dev -- --port ${PORT}`
+  serverMode === 'start'
+    ? `npm run start -- -p ${PORT}`
+    : serverMode === 'prod'
+      ? `npm run build && npm run start -- -p ${PORT}`
+      : `npm run dev -- --port ${PORT}`
 
 export default defineConfig({
   testDir: './e2e',
   timeout: 60_000,
-  fullyParallel: true,
-  retries: process.env.CI ? 2 : 0,
+  // CI uses one Next server; parallel workers cause 60s navigation timeouts.
+  fullyParallel: !isCi,
+  workers: isCi ? 1 : undefined,
+  retries: isCi ? 2 : 0,
   outputDir,
   reporter: [['list'], ['html', { open: 'never', outputFolder: reportDir }]],
 
@@ -52,8 +57,8 @@ export default defineConfig({
     ? {
         command: webServerCommand,
         url: baseURL,
-        reuseExistingServer: !process.env.CI,
-        timeout: 120_000,
+        reuseExistingServer: !isCi,
+        timeout: serverMode === 'start' ? 60_000 : 300_000,
         stdout: 'pipe',
         stderr: 'pipe',
       }
@@ -70,6 +75,7 @@ export default defineConfig({
     },
     {
       name: 'mobile-webkit-iphone',
+      testIgnore: [/desktop-diensten-navigation\.spec\.ts/, /desktop-diagnostics-gate\.spec\.ts/],
       use: {
         ...devices['iPhone 14'],
         browserName: 'webkit',
@@ -77,6 +83,7 @@ export default defineConfig({
     },
     {
       name: 'mobile-chromium-pixel',
+      testIgnore: [/desktop-diensten-navigation\.spec\.ts/, /desktop-diagnostics-gate\.spec\.ts/],
       use: {
         ...devices['Pixel 7'],
         browserName: 'chromium',
