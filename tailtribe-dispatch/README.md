@@ -2,6 +2,8 @@
 
 Simpele dispatch site voor dierenverzorging - zonder SaaS complexiteit.
 
+**Deploy / env / post-release checks:** zie [`DEPLOYMENT_CHECKLIST.md`](./DEPLOYMENT_CHECKLIST.md).
+
 ## 🔎 Visibility / SEO / Analytics (proof checklist)
 
 Belangrijkste URLs:

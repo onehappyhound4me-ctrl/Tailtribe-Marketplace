@@ -33,7 +33,8 @@ export default function LoginPage() {
         OAuthAccountNotLinked:
           'Dit account is al gekoppeld aan een andere loginmethode. Log in met je originele methode.',
         OAuthCreateAccount: 'Er ging iets mis bij het aanmaken van je account. Probeer opnieuw.',
-        AccessDenied: 'Toegang geweigerd. Controleer je account of rechten.',
+        AccessDenied:
+          'Toegang geweigerd. Heb je net geregistreerd met wachtwoord? Verifieer eerst je e-mail (link in je mailbox) en probeer daarna opnieuw — of log in met je wachtwoord. Google-login volgt pas na verificatie.',
         default: 'Inloggen mislukt. Probeer opnieuw.',
       }[errorParam] ?? 'Inloggen mislukt. Probeer opnieuw.'
     : null

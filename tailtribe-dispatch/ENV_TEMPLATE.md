@@ -70,3 +70,19 @@ DISPATCH_ADMIN_EMAIL=steven@tailtribe.be
 Als je lokaal test op iPhone via je LAN IP (bv. `http://192.168.1.5:3000`), voeg dan ook deze redirect URI toe in Google Cloud:- `http://192.168.1.5:3000/api/auth/callback/google`
 
 En zorg dat je lokale `.env.local` dezelfde host gebruikt voor `NEXT_PUBLIC_APP_URL` en `NEXTAUTH_URL`.
+
+## Troubleshooting (productiegedrag)
+
+### Publieke aanvraag (`/boeken`) wordt geweigerd
+
+Komt dit e‑mailadres al voor als **verzorger of admin**, dan kun je niet nog eens als anonieme lead dat adres gebruiken. De gebruiker moet **inloggen** (eigen account) of een ander adres kiezen.
+
+### Google-login lukt niet direct na registreren
+
+Staat het account nog op **“e-mail nog niet geverifieerd”** na registratie met wachtwoord, dan blokkeert TailTribe Google-login voor dat adres tot de verificatielinks is gevolgd. Oplossing: mailbox controleren **of** inloggen met wachtwoord.
+
+### Diagnostics 404 op `/api/health/email` of `/api/auth/health`
+
+In **production** vragen deze routes een ingestelde **`AUTH_HEALTH_TOKEN`** en header **`x-auth-health-token`**. Zonder token is **404** bewust (geen informatielek).
+
+Zie ook `DEPLOYMENT_CHECKLIST.md`.

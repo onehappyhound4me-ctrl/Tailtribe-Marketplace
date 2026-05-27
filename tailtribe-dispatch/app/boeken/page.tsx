@@ -26,6 +26,7 @@ export default function BookingPage() {
   const bookingStartSentRef = useRef(false)
   const [loading, setLoading] = useState(false)
   const [submitError, setSubmitError] = useState<string | null>(null)
+  const [showBookingLoginHint, setShowBookingLoginHint] = useState(false)
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({})
   const formTopRef = useRef<HTMLDivElement | null>(null)
   
@@ -187,6 +188,7 @@ export default function BookingPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setSubmitError(null)
+    setShowBookingLoginHint(false)
     setFieldErrors({})
 
     if (step < 4) {
@@ -230,6 +232,10 @@ export default function BookingPage() {
         setFieldErrors(data.fieldErrors)
         setSubmitError('Controleer de velden hieronder en probeer opnieuw.')
         return
+      }
+
+      if (response.status === 403) {
+        setShowBookingLoginHint(true)
       }
 
       if (typeof data?.error === 'string' && data.error.trim()) {
@@ -281,7 +287,21 @@ export default function BookingPage() {
           <div className="bg-white rounded-2xl shadow-tt p-6 sm:p-8" ref={formTopRef}>
             {submitError && (
               <div className="mb-6 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-red-800">
-                {submitError}
+                <p>{submitError}</p>
+                {showBookingLoginHint ? (
+                  <p className="mt-3 text-sm">
+                    <Link href="/login" className="font-semibold text-red-900 underline decoration-red-900/30">
+                      Ga naar inloggen
+                    </Link>
+                    {' · '}
+                    <Link
+                      href="/contact"
+                      className="font-medium text-red-800 underline decoration-red-800/30"
+                    >
+                      Contact
+                    </Link>
+                  </p>
+                ) : null}
               </div>
             )}
             <form onSubmit={handleSubmit} aria-busy={loading}>
