@@ -54,6 +54,11 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Password must be at least 6 characters.' }, { status: 400 })
   }
 
+  const emailRate = await checkRateLimit(`admin-reset-password:${email}`, 3, 60 * 60 * 1000)
+  if (!emailRate.allowed) {
+    return NextResponse.json({ error: 'Te veel pogingen. Probeer later opnieuw.' }, { status: 429 })
+  }
+
   console.log(
     JSON.stringify({
       event: 'admin.reset_password.request',

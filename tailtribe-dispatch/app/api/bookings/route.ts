@@ -6,6 +6,7 @@ import { auth } from '@/lib/auth'
 import { buildAdminBookingReceivedEmail, buildOwnerBookingReceivedEmail } from '@/lib/email'
 import { prisma } from '@/lib/prisma'
 import { checkRateLimit } from '@/lib/rate-limit'
+import { requireRole } from '@/lib/effective-session'
 import { sendTransactionalEmail } from '@/lib/mailer'
 import { getPublicAppUrl } from '@/lib/env'
 import { PUBLIC_MESSAGES } from '@/lib/public-user-message'
@@ -318,11 +319,12 @@ async function resolvePublicBookingOwner(
   data: BookingInput
 ) {
   if (session?.user?.id) {
-    const user = await prisma.user.findUnique({ where: { id: session.user.id } })
-    if (!user) return null
-    if (user.role !== 'OWNER') {
+    const authz = requireRole(session, ['OWNER'])
+    if (!authz.ok) {
       return { error: 'Alleen baasjes kunnen via dit formulier een aanvraag indienen.' as const }
     }
+    const user = await prisma.user.findUnique({ where: { id: authz.userId } })
+    if (!user) return null
     return { user }
   }
 
@@ -335,15 +337,11 @@ async function resolvePublicBookingOwner(
           'Dit e-mailadres hoort bij een bestaand account. Log in met je account of gebruik een ander adres.' as const,
       }
     }
-    const user = await prisma.user.update({
-      where: { id: existing.id },
-      data: {
-        firstName: data.firstName.trim(),
-        lastName: data.lastName.trim(),
-        phone: data.phone?.trim() || undefined,
-      },
-    })
-    return { user }
+    // Never mutate an existing owner profile from an anonymous booking form.
+    return {
+      error:
+        'Er bestaat al een account met dit e-mailadres. Log in om een aanvraag in te dienen.' as const,
+    }
   }
 
   const user = await prisma.user.create({

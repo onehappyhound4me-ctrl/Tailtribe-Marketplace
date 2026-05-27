@@ -3,6 +3,7 @@ import { DISPATCH_SERVICES } from '@/lib/services'
 import { auth } from '@/lib/auth'
 import prisma from '@/lib/prisma'
 import { sendTransactionalEmail } from '@/lib/mailer'
+import { checkRateLimit } from '@/lib/rate-limit'
 
 export const dynamic = 'force-dynamic'
 export const runtime = 'nodejs'
@@ -212,7 +213,10 @@ function parseJsonArray(raw: string | null | undefined): string[] {
   }
 }
 
-async function upsertPendingApplication(rec: CaregiverApplicationRecord): Promise<string> {
+async function upsertPendingApplication(
+  rec: CaregiverApplicationRecord,
+  session: { user?: { id?: string } } | null
+): Promise<string> {
   const email = String(rec.email || '').trim().toLowerCase()
   if (!email) throw new Error('Missing email')
 
@@ -227,6 +231,13 @@ async function upsertPendingApplication(rec: CaregiverApplicationRecord): Promis
 
   if (existing?.caregiverProfile?.isApproved) {
     throw new Error('Je hebt al een verzorgersaccount. Gebruik je dashboard om je profiel te beheren.')
+  }
+
+  if (existing) {
+    const isSameUser = Boolean(session?.user?.id && session.user.id === existing.id)
+    if (!isSameUser) {
+      throw new Error('EXISTING_APPLICATION')
+    }
   }
 
   const servicesJson = JSON.stringify(Array.isArray(rec.services) ? rec.services : [])
@@ -388,6 +399,12 @@ function formatServiceLabels(ids: string[]) {
 export async function POST(request: NextRequest) {
   const requestId = `${Date.now()}-${Math.random().toString(16).slice(2, 8)}`
   try {
+    const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown'
+    const ipRate = await checkRateLimit(`caregiver-apply:${ip}`, 5, 10 * 60 * 1000)
+    if (!ipRate.allowed) {
+      return NextResponse.json({ error: 'Te veel aanvragen. Probeer later opnieuw.' }, { status: 429 })
+    }
+
     const session = await auth()
     if (session?.user?.role === 'OWNER') {
       return NextResponse.json(
@@ -411,6 +428,12 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'VALIDATION_ERROR', fieldErrors: validated.fieldErrors }, { status: 400 })
     }
 
+    const emailNorm = validated.data.email.trim().toLowerCase()
+    const emailRate = await checkRateLimit(`caregiver-apply:${emailNorm}`, 3, 60 * 60 * 1000)
+    if (!emailRate.allowed) {
+      return NextResponse.json({ error: 'Te veel aanvragen. Probeer later opnieuw.' }, { status: 429 })
+    }
+
     const rec: CaregiverApplicationRecord = {
       id: 'pending',
       ...validated.data,
@@ -430,9 +453,18 @@ export async function POST(request: NextRequest) {
 
     let userId: string
     try {
-      userId = await upsertPendingApplication(rec)
+      userId = await upsertPendingApplication(rec, session)
     } catch (e) {
       const msg = getErrorMessage(e)
+      if (msg.includes('EXISTING_APPLICATION')) {
+        return NextResponse.json(
+          {
+            error:
+              'Er bestaat al een aanmelding met dit e-mailadres. Log in met je account of gebruik een ander e-mailadres.',
+          },
+          { status: 400 }
+        )
+      }
       if (msg.includes('ander type gebruiker')) {
         return NextResponse.json(
           {

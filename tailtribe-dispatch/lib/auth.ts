@@ -4,6 +4,7 @@ import GoogleProvider from 'next-auth/providers/google'
 import { prisma } from './prisma'
 import bcrypt from 'bcryptjs'
 import { applyAuthBaseUrlEnv } from './auth-base-url'
+import { checkRateLimit } from './rate-limit'
 
 const normalizeEmail = (value?: string | null) => String(value ?? '').trim().toLowerCase()
 
@@ -139,13 +140,26 @@ function buildAuth() {
             return null
           }
 
+          const emailAttempt = normalizeEmail(credentials.email as string)
+          const loginRate = await checkRateLimit(`credentials-login:${emailAttempt}`, 15, 15 * 60 * 1000)
+          if (!loginRate.allowed) {
+            return null
+          }
+
           // Emergency/admin login via env vars (works in every environment).
           // This avoids DB/email verification bootstrapping issues.
           const envAdmin = getEnvAdminCredentials()
           try {
-            const emailAttempt = normalizeEmail(credentials.email as string)
             const passAttempt = String(credentials.password ?? '').trim()
             if (envAdmin && emailAttempt === envAdmin.email) {
+              const adminRate = await checkRateLimit(
+                `credentials-login-admin:${emailAttempt}`,
+                5,
+                15 * 60 * 1000
+              )
+              if (!adminRate.allowed) {
+                return null
+              }
               if (passAttempt === envAdmin.password) {
                 return {
                   id: 'env-admin',
@@ -165,7 +179,7 @@ function buildAuth() {
           }
 
           const user = await prisma.user.findUnique({
-            where: { email: normalizeEmail(credentials.email as string) },
+            where: { email: emailAttempt },
           })
 
           if (!user) {
