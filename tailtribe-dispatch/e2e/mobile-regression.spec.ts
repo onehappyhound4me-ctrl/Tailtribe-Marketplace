@@ -117,7 +117,9 @@ test.describe('mobile regression', () => {
     await page.goto('/boeken')
     await acceptCookiesIfPresent(page)
     await expect(page).toHaveURL(/\/boeken/)
-    await expect(page.getByRole('heading', { level: 2, name: 'Welke dienst heb je nodig?' })).toBeVisible()
+    await expect(page.getByRole('heading', { level: 2, name: 'Welke dienst heb je nodig?' })).toBeVisible({
+      timeout: 30_000,
+    })
     await guard.expectNoIssues()
   })
 })

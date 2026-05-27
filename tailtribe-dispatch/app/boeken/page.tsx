@@ -171,18 +171,13 @@ export default function BookingPage() {
     })
   }
 
-  // Show loading while checking authentication
-  if (status === 'loading') {
+  // Logged-in owners are redirected to the dashboard booking flow (see useEffect above).
+  if (status === 'authenticated' && session?.user?.role === 'OWNER') {
     return (
       <div className="min-h-screen bg-gradient-to-b from-green-50 via-white to-blue-50 flex items-center justify-center">
-        <div className="text-xl text-gray-600">Laden...</div>
+        <div className="text-xl text-gray-600">Doorverwijzen naar je dashboard…</div>
       </div>
     )
-  }
-
-  // Don't render form if owner is redirected to dashboard flow
-  if (session?.user?.role === 'OWNER') {
-    return null
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
