@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { DISPATCH_SERVICES } from '@/lib/services'
 import { assertSlotNotInPast } from '@/lib/date-utils'
+import { assertCaregiverAvailable, assertCaregiverNotDoubleBooked } from '@/lib/availability'
 import { auth } from '@/lib/auth'
 import { buildAdminBookingReceivedEmail, buildOwnerBookingReceivedEmail } from '@/lib/email'
 import { prisma } from '@/lib/prisma'
@@ -312,6 +313,52 @@ function ensureAdmin(session: any) {
   return session && session.user?.role === 'ADMIN'
 }
 
+async function resolvePublicBookingOwner(
+  session: { user?: { id?: string; role?: string } } | null,
+  data: BookingInput
+) {
+  if (session?.user?.id) {
+    const user = await prisma.user.findUnique({ where: { id: session.user.id } })
+    if (!user) return null
+    if (user.role !== 'OWNER') {
+      return { error: 'Alleen baasjes kunnen via dit formulier een aanvraag indienen.' as const }
+    }
+    return { user }
+  }
+
+  const email = data.email.trim().toLowerCase()
+  const existing = await prisma.user.findUnique({ where: { email } })
+  if (existing) {
+    if (existing.role !== 'OWNER') {
+      return {
+        error:
+          'Dit e-mailadres hoort bij een bestaand account. Log in met je account of gebruik een ander adres.' as const,
+      }
+    }
+    const user = await prisma.user.update({
+      where: { id: existing.id },
+      data: {
+        firstName: data.firstName.trim(),
+        lastName: data.lastName.trim(),
+        phone: data.phone?.trim() || undefined,
+      },
+    })
+    return { user }
+  }
+
+  const user = await prisma.user.create({
+    data: {
+      email,
+      role: 'OWNER',
+      firstName: data.firstName.trim(),
+      lastName: data.lastName.trim(),
+      phone: data.phone?.trim() || null,
+      emailVerified: null,
+    },
+  })
+  return { user }
+}
+
 export async function GET() {
   const session = await auth()
   if (!ensureAdmin(session)) {
@@ -354,25 +401,14 @@ export async function POST(request: NextRequest) {
 
     // Allow public bookings (lead form). If not signed in, upsert an OWNER user by email.
     // Keep this minimal: do NOT create nested profiles here (avoids DB/schema mismatch issues).
-    const ownerUser = session?.user?.id
-      ? await prisma.user.findUnique({ where: { id: session.user.id } })
-      : await prisma.user.upsert({
-          where: { email: validated.data.email.trim().toLowerCase() },
-          update: {
-            firstName: validated.data.firstName.trim(),
-            lastName: validated.data.lastName.trim(),
-            phone: validated.data.phone?.trim() || undefined,
-            role: 'OWNER',
-          },
-          create: {
-            email: validated.data.email.trim().toLowerCase(),
-            role: 'OWNER',
-            firstName: validated.data.firstName.trim(),
-            lastName: validated.data.lastName.trim(),
-            phone: validated.data.phone?.trim() || null,
-            emailVerified: null,
-          },
-        })
+    const ownerResult = await resolvePublicBookingOwner(session, validated.data)
+    if (!ownerResult || 'error' in ownerResult) {
+      return NextResponse.json(
+        { error: ownerResult && 'error' in ownerResult ? ownerResult.error : PUBLIC_MESSAGES.bookingFailed },
+        { status: 403 }
+      )
+    }
+    const ownerUser = ownerResult.user
 
     if (!ownerUser?.id) {
       return NextResponse.json({ error: PUBLIC_MESSAGES.bookingFailed }, { status: 500 })
@@ -457,19 +493,23 @@ export async function POST(request: NextRequest) {
       contactPreferenceLabel,
     })
 
-    // IMPORTANT: admin notification email must not silently fail.
-    // If email isn't configured in Vercel, we want an explicit error instead of "no mail received".
-    await sendTransactionalEmail({
-      to: adminEmail,
-      subject: adminEmailPayload.subject,
-      html: adminEmailPayload.html,
-      replyTo: validated.data.email,
-      required: true,
-      meta: {
-        kind: 'booking-received-admin',
-        service: String(validated.data.service ?? ''),
-      },
-    })
+    // Admin notification is best-effort: booking is already saved; a failed email must not
+    // make the user retry and create duplicate bookings.
+    try {
+      await sendTransactionalEmail({
+        to: adminEmail,
+        subject: adminEmailPayload.subject,
+        html: adminEmailPayload.html,
+        replyTo: validated.data.email,
+        required: false,
+        meta: {
+          kind: 'booking-received-admin',
+          service: String(validated.data.service ?? ''),
+        },
+      })
+    } catch (emailErr) {
+      console.error('[api/bookings] admin notification email failed:', emailErr)
+    }
 
     // Owner confirmation email is best-effort (don't block booking success on email deliverability).
     void sendTransactionalEmail({
@@ -507,13 +547,51 @@ export async function PATCH(request: NextRequest) {
       return NextResponse.json({ error: 'Missing booking id' }, { status: 400 })
     }
 
+    const existing = await prisma.booking.findUnique({
+      where: { id },
+      select: {
+        id: true,
+        date: true,
+        timeWindow: true,
+        time: true,
+      },
+    })
+    if (!existing) {
+      return NextResponse.json({ error: 'Booking not found' }, { status: 404 })
+    }
+
     const allowedStatuses: BookingStatus[] = ['PENDING', 'ASSIGNED', 'CONFIRMED', 'COMPLETED']
     const data: Record<string, any> = {}
     if (typeof body.status === 'string' && allowedStatuses.includes(body.status as BookingStatus)) {
       data.status = body.status
     }
     if (typeof body.adminNotes === 'string') data.adminNotes = body.adminNotes
-    if (typeof body.caregiverId === 'string') data.caregiverId = body.caregiverId
+    const caregiverId = typeof body.caregiverId === 'string' ? body.caregiverId : undefined
+    if (caregiverId) {
+      data.caregiverId = caregiverId
+      if (!data.status) data.status = 'ASSIGNED'
+
+      try {
+        assertSlotNotInPast({
+          date: existing.date.toISOString().slice(0, 10),
+          timeWindow: existing.timeWindow,
+          time: existing.time ?? undefined,
+        })
+        await assertCaregiverAvailable({
+          caregiverUserId: caregiverId,
+          date: existing.date,
+          timeWindow: existing.timeWindow,
+        })
+        await assertCaregiverNotDoubleBooked({
+          caregiverUserId: caregiverId,
+          date: existing.date,
+          timeWindow: existing.timeWindow,
+          excludeBookingId: existing.id,
+        })
+      } catch (err: any) {
+        return NextResponse.json({ error: err.message ?? 'Ongeldige toewijzing' }, { status: 400 })
+      }
+    }
 
     const updated = await prisma.booking.update({
       where: { id },

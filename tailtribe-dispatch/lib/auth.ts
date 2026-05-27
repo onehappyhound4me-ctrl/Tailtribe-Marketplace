@@ -38,6 +38,10 @@ const splitName = (fullName?: string | null) => {
 const getOrCreateOAuthUser = async (email: string, name?: string | null) => {
   const existing = await prisma.user.findUnique({ where: { email } })
   if (existing) {
+    // Block OAuth takeover of unverified password registrations.
+    if (existing.passwordHash && !existing.emailVerified) {
+      throw new Error('OAUTH_CREDENTIALS_PENDING')
+    }
     // If the user signs in via Google, we can safely mark the email as verified.
     // (Google only returns verified emails for standard OAuth flows.)
     if (!existing.emailVerified) {
@@ -256,6 +260,15 @@ function buildAuth() {
             type: account?.type,
             hasEmail: Boolean(user?.email),
           })
+        }
+        if (account?.provider === 'google' && user?.email) {
+          const existing = await prisma.user.findUnique({
+            where: { email: user.email.trim().toLowerCase() },
+            select: { passwordHash: true, emailVerified: true },
+          })
+          if (existing?.passwordHash && !existing.emailVerified) {
+            return false
+          }
         }
         return true
       },

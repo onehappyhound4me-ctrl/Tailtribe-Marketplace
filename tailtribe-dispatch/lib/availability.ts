@@ -6,7 +6,7 @@ type AvailabilityCheck = {
   timeWindow?: string
 }
 
-const toUtcDate = (input: Date | string) => {
+export const toUtcDate = (input: Date | string) => {
   if (typeof input === 'string') {
     const [year, month, day] = input.split('-').map(Number)
     return new Date(Date.UTC(year, month - 1, day, 0, 0, 0, 0))
@@ -15,7 +15,7 @@ const toUtcDate = (input: Date | string) => {
   return new Date(Date.UTC(input.getUTCFullYear(), input.getUTCMonth(), input.getUTCDate(), 0, 0, 0, 0))
 }
 
-export const isCaregiverAvailable = async ({ caregiverUserId, date }: AvailabilityCheck) => {
+export const isCaregiverAvailable = async ({ caregiverUserId, date, timeWindow }: AvailabilityCheck) => {
   const profile = await prisma.caregiverProfile.findUnique({
     where: { userId: caregiverUserId },
     select: { id: true },
@@ -28,6 +28,7 @@ export const isCaregiverAvailable = async ({ caregiverUserId, date }: Availabili
       caregiverId: profile.id,
       date: toUtcDate(date),
       isAvailable: true,
+      ...(timeWindow ? { timeWindow } : {}),
     },
     select: { id: true },
   })
@@ -39,5 +40,55 @@ export const assertCaregiverAvailable = async (params: AvailabilityCheck) => {
   const ok = await isCaregiverAvailable(params)
   if (!ok) {
     throw new Error('Verzorger is niet beschikbaar op deze dag')
+  }
+}
+
+type DoubleBookingCheck = AvailabilityCheck & {
+  excludeBookingId?: string
+  excludeOccurrenceId?: string
+}
+
+/** Reject when caregiver already has another active assignment in the same date + timeWindow. */
+export const assertCaregiverNotDoubleBooked = async ({
+  caregiverUserId,
+  date,
+  timeWindow,
+  excludeBookingId,
+  excludeOccurrenceId,
+}: DoubleBookingCheck) => {
+  if (!timeWindow) {
+    throw new Error('timeWindow is required for conflict check')
+  }
+
+  const dayStart = toUtcDate(date)
+  const dayEnd = new Date(dayStart)
+  dayEnd.setUTCHours(23, 59, 59, 999)
+
+  const conflictBooking = await prisma.booking.findFirst({
+    where: {
+      caregiverId: caregiverUserId,
+      timeWindow,
+      status: { notIn: ['CANCELLED', 'ARCHIVED'] },
+      date: { gte: dayStart, lte: dayEnd },
+      ...(excludeBookingId ? { id: { not: excludeBookingId } } : {}),
+    },
+    select: { id: true },
+  })
+  if (conflictBooking) {
+    throw new Error('Verzorger is al toegewezen aan een andere opdracht in dit tijdsblok')
+  }
+
+  const conflictOccurrence = await prisma.bookingOccurrence.findFirst({
+    where: {
+      assignedCaregiverId: caregiverUserId,
+      timeWindow,
+      status: { not: 'CANCELLED' },
+      scheduledDate: { gte: dayStart, lte: dayEnd },
+      ...(excludeOccurrenceId ? { id: { not: excludeOccurrenceId } } : {}),
+    },
+    select: { id: true },
+  })
+  if (conflictOccurrence) {
+    throw new Error('Verzorger is al toegewezen aan een andere opdracht in dit tijdsblok')
   }
 }

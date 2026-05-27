@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/lib/auth'
 import prisma from '@/lib/prisma'
 import { getTodayStringInZone } from '@/lib/date-utils'
-import { assertCaregiverAvailable } from '@/lib/availability'
+import { assertCaregiverAvailable, assertCaregiverNotDoubleBooked } from '@/lib/availability'
 import { sendTransactionalEmail } from '@/lib/mailer'
 import { SERVICE_LABELS } from '@/lib/services'
 import { getPublicAppUrl } from '@/lib/env'
@@ -96,6 +96,11 @@ export async function POST(request: NextRequest) {
             date: booking.date,
             timeWindow: booking.timeWindow,
           })
+          await assertCaregiverNotDoubleBooked({
+            caregiverUserId: booking.caregiverId,
+            date: booking.date,
+            timeWindow: booking.timeWindow,
+          })
         } catch (err: any) {
           return NextResponse.json(
             { error: err.message ?? 'Verzorger is niet beschikbaar voor dit tijdsblok' },
@@ -105,40 +110,54 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Maak alle bookings aan
-    const createdBookings = await Promise.all(
-      bookings.map((booking: any) => {
-        const slotDate = slotStartUtc(booking.date, booking.timeWindow, booking.time)
-        const resolvedCity = String(booking.city ?? '').trim() || ownerProfile?.city || ''
-        const resolvedPostal = String(booking.postalCode ?? '').trim() || ownerProfile?.postalCode || ''
-        const resolvedAddress = String(booking.address ?? '').trim() || ownerProfile?.address || ''
-        const inputRegion = String(booking.region ?? '').trim()
-        const sameAsHome =
-          ownerProfile &&
-          normalize(resolvedCity) === normalize(ownerProfile.city) &&
-          normalize(resolvedPostal) === normalize(ownerProfile.postalCode)
-        const resolvedRegion = inputRegion || (sameAsHome ? ownerProfile?.region ?? null : null)
+    const bookingPayloads = bookings.map((booking: any) => {
+      const slotDate = slotStartUtc(booking.date, booking.timeWindow, booking.time)
+      const resolvedCity = String(booking.city ?? '').trim() || ownerProfile?.city || ''
+      const resolvedPostal = String(booking.postalCode ?? '').trim() || ownerProfile?.postalCode || ''
+      const resolvedAddress = String(booking.address ?? '').trim() || ownerProfile?.address || ''
+      const inputRegion = String(booking.region ?? '').trim()
+      const sameAsHome =
+        ownerProfile &&
+        normalize(resolvedCity) === normalize(ownerProfile.city) &&
+        normalize(resolvedPostal) === normalize(ownerProfile.postalCode)
+      const resolvedRegion = inputRegion || (sameAsHome ? ownerProfile?.region ?? null : null)
+      const caregiverId = typeof booking.caregiverId === 'string' ? booking.caregiverId.trim() : null
 
-        return prisma.booking.create({
-          data: {
-            ownerId: session.user.id,
-            service: booking.service,
-            date: slotDate,
-            timeWindow: booking.timeWindow,
-            city: resolvedCity,
-            postalCode: resolvedPostal,
-            region: resolvedRegion,
-            address: resolvedAddress,
-            petName: booking.petName,
-            petType: booking.petType,
-            petDetails: booking.petDetails || '',
-            message: booking.message || '',
-            status: booking.status || 'PENDING', // Kan ASSIGNED zijn bij direct booking
-            caregiverId: booking.caregiverId || null, // Direct toegewezen verzorger
-            isRecurring: booking.isRecurring || false,
-          },
-        })
-      })
+      return {
+        ownerId: session.user.id,
+        service: booking.service,
+        date: slotDate,
+        timeWindow: booking.timeWindow,
+        city: resolvedCity,
+        postalCode: resolvedPostal,
+        region: resolvedRegion,
+        address: resolvedAddress,
+        petName: booking.petName,
+        petType: booking.petType,
+        petDetails: booking.petDetails || '',
+        message: booking.message || '',
+        status: caregiverId ? 'ASSIGNED' : 'PENDING',
+        caregiverId,
+        isRecurring: booking.isRecurring || false,
+      }
+    })
+
+    const batchAssignmentKeys = new Set<string>()
+    for (const payload of bookingPayloads) {
+      if (payload.caregiverId) {
+        const key = `${payload.caregiverId}|${payload.date.toISOString()}|${payload.timeWindow}`
+        if (batchAssignmentKeys.has(key)) {
+          return NextResponse.json(
+            { error: 'Dezelfde verzorger kan niet twee keer hetzelfde tijdsblok in één aanvraag krijgen.' },
+            { status: 400 }
+          )
+        }
+        batchAssignmentKeys.add(key)
+      }
+    }
+
+    const createdBookings = await prisma.$transaction(
+      bookingPayloads.map((data) => prisma.booking.create({ data }))
     )
 
     // Admin email notification (best-effort)

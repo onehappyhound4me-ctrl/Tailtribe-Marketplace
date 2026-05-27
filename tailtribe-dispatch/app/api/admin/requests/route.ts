@@ -5,7 +5,7 @@ import { getEligibleCaregiversWithOptions } from '@/lib/matching'
 import { assertSlotNotInPast } from '@/lib/date-utils'
 import { createNotification } from '@/lib/notifications'
 import { sendAssignmentEmail, sendCancellationEmail, sendOwnerAssignmentEmail } from '@/lib/email'
-import { assertCaregiverAvailable } from '@/lib/availability'
+import { assertCaregiverAvailable, assertCaregiverNotDoubleBooked } from '@/lib/availability'
 import { SERVICE_LABELS } from '@/lib/services'
 import { provinceSlugFromPostalCode } from '@/data/be-geo'
 import { getPublicAppUrl } from '@/lib/env'
@@ -219,6 +219,12 @@ export async function PATCH(req: NextRequest) {
           caregiverUserId: caregiverId,
           date: occurrence.scheduledDate,
           timeWindow: occurrence.timeWindow,
+        })
+        await assertCaregiverNotDoubleBooked({
+          caregiverUserId: caregiverId,
+          date: occurrence.scheduledDate,
+          timeWindow: occurrence.timeWindow,
+          excludeOccurrenceId: occurrenceId,
         })
       } catch (err: any) {
         return NextResponse.json(

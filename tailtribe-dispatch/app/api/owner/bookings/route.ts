@@ -9,6 +9,7 @@ import { sendTransactionalEmail } from '@/lib/mailer'
 import { SERVICE_LABELS } from '@/lib/services'
 import { getEligibleCaregiversWithOptions } from '@/lib/matching'
 import { getPublicAppUrl } from '@/lib/env'
+import { assertCaregiverNotDoubleBooked } from '@/lib/availability'
 
 export async function GET(request: NextRequest) {
   const session = await auth()
@@ -300,6 +301,13 @@ export async function PATCH(request: NextRequest) {
   }
 
   if (caregiverId) {
+    if (booking.caregiverId && booking.caregiverId !== caregiverId) {
+      return NextResponse.json({ error: 'Er is al een andere verzorger toegewezen.' }, { status: 409 })
+    }
+    if (booking.caregiverId === caregiverId && booking.status === 'CONFIRMED') {
+      return NextResponse.json({ success: true })
+    }
+
     const offer = await prisma.bookingOffer.findUnique({
       where: {
         bookingId_caregiverId: {
@@ -317,10 +325,32 @@ export async function PATCH(request: NextRequest) {
       return NextResponse.json({ error: 'Deze verzorger is niet voorgesteld.' }, { status: 400 })
     }
 
-    await prisma.booking.update({
-      where: { id: booking.id },
+    try {
+      await assertCaregiverNotDoubleBooked({
+        caregiverUserId: caregiverId,
+        date: booking.date,
+        timeWindow: booking.timeWindow,
+        excludeBookingId: booking.id,
+      })
+    } catch (err: any) {
+      return NextResponse.json({ error: err.message ?? 'Verzorger is niet beschikbaar' }, { status: 400 })
+    }
+
+    const confirmed = await prisma.booking.updateMany({
+      where: {
+        id: booking.id,
+        ownerId: session.user.id,
+        status: { in: ['PENDING', 'ASSIGNED'] },
+        OR: [{ caregiverId: null }, { caregiverId }],
+      },
       data: { caregiverId, status: 'CONFIRMED' },
     })
+    if (confirmed.count === 0) {
+      return NextResponse.json(
+        { error: 'Aanvraag kon niet bevestigd worden (mogelijk al verwerkt).' },
+        { status: 409 }
+      )
+    }
 
     await prisma.bookingOffer.deleteMany({ where: { bookingId: booking.id } })
 

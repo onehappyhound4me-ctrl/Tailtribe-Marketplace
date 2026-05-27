@@ -160,8 +160,24 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ error: 'Missing id' }, { status: 400 })
     }
 
+    const profile = await prisma.caregiverProfile.findUnique({
+      where: { userId: session.user.id },
+      select: { id: true },
+    })
+    if (!profile) {
+      return NextResponse.json({ error: 'Profiel niet gevonden' }, { status: 400 })
+    }
+
+    const slot = await prisma.availability.findFirst({
+      where: { id, caregiverId: profile.id },
+      select: { id: true },
+    })
+    if (!slot) {
+      return NextResponse.json({ error: 'Beschikbaarheid niet gevonden' }, { status: 404 })
+    }
+
     await prisma.availability.delete({
-      where: { id },
+      where: { id: slot.id },
     })
 
     return NextResponse.json({ success: true })
