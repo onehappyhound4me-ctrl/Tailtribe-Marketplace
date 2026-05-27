@@ -1,0 +1,48 @@
+name: TailTribe dispatch (quality)
+
+concurrency:
+  group: tailtribe-dispatch-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - "tailtribe-dispatch/**"
+      - ".github/workflows/tailtribe-dispatch-ci.yml"
+  push:
+    branches: [main]
+    paths:
+      - "tailtribe-dispatch/**"
+      - ".github/workflows/tailtribe-dispatch-ci.yml"
+
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: tailtribe-dispatch
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: tailtribe-dispatch/package-lock.json
+
+      - name: Install deps
+        run: npm ci
+
+      - name: Prisma schema (sqlite) + generate
+        run: |
+          node scripts/select-prisma-schema.js sqlite
+          npx prisma generate --schema prisma/schema.prisma
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Unit tests
+        run: npm run test:unit
