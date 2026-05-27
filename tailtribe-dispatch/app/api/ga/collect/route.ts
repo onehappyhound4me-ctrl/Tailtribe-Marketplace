@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+import { checkRateLimit } from '@/lib/rate-limit'
 
 export const runtime = 'nodejs'
 
@@ -15,6 +16,15 @@ type MpPayload = {
 }
 
 export async function POST(req: Request) {
+  const ip =
+    req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
+    req.headers.get('x-real-ip')?.trim() ||
+    'unknown'
+  const rate = await checkRateLimit(`ga-collect:${ip}`, 120, 60 * 1000)
+  if (!rate.allowed) {
+    return NextResponse.json({ ok: false, error: 'Too many requests.' }, { status: 429 })
+  }
+
   const measurementId = String(process.env.GA_MEASUREMENT_ID ?? process.env.NEXT_PUBLIC_GA_ID ?? '').trim()
   const apiSecret = String(process.env.GA_API_SECRET ?? '').trim()
 

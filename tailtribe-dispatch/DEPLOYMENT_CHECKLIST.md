@@ -6,7 +6,7 @@ Short list after deploying `main` to Vercel (or another host).
 
 - `DATABASE_URL` — hosted PostgreSQL (not SQLite).
 - `NEXTAUTH_SECRET` (or `AUTH_SECRET`)
-- `NEXTAUTH_URL` and `NEXT_PUBLIC_APP_URL` — **`https://tailtribe.be`** (no trailing slash). Avoid relying only on `VERCEL_URL` for emails and canonical links.
+- `NEXTAUTH_URL` and `NEXT_PUBLIC_APP_URL` — **`https://tailtribe.be`** (no trailing slash). **Set both explicitly in Vercel Production** so reset/booking emails never use `*.vercel.app`. (If unset on production, code falls back to `https://tailtribe.be`.)
 - Email: `RESEND_API_KEY` and/or SMTP, plus `DISPATCH_EMAIL_FROM`, `DISPATCH_ADMIN_EMAIL`.
 
 See `ENV_TEMPLATE.md` for the full template.

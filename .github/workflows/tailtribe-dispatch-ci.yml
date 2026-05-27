@@ -46,3 +46,11 @@ jobs:
 
       - name: Unit tests
         run: npm run test:unit
+
+      - name: Production build
+        env:
+          DATABASE_URL: file:./prisma/dev.db
+          NEXTAUTH_SECRET: ci-nextauth-secret-please-change-32chars-minimum
+          NEXTAUTH_URL: http://localhost:3000
+          NEXT_PUBLIC_APP_URL: https://tailtribe.be
+        run: npm run build

@@ -73,6 +73,12 @@ export function getPublicAppUrl() {
   const explicit = normalizeBaseUrl('NEXT_PUBLIC_APP_URL', raw, { required: false, allowHttpInDev: true })
   if (explicit) return explicit
 
+  // Production deploys: use the marketing domain for emails/links when env is unset.
+  // Avoids password-reset and booking mails pointing at *.vercel.app.
+  if (isProd() && process.env.VERCEL_ENV === 'production') {
+    return 'https://tailtribe.be'
+  }
+
   // Vercel sets `VERCEL_URL` (no protocol), e.g. "tailtribe.vercel.app" or a preview URL.
   const vercelUrl = String(process.env.VERCEL_URL ?? '').trim()
   if (vercelUrl) {
