@@ -101,6 +101,7 @@ export default function DienstenPage() {
                       height={120}
                       unoptimized
                       priority={index < 3}
+                      loading={index < 3 ? undefined : 'eager'}
                       className="h-[5.25rem] w-[5.25rem] object-contain transition-transform duration-300 md:group-hover:scale-[1.04] sm:h-24 sm:w-24"
                     />
                   </div>

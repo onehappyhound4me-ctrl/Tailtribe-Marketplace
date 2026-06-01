@@ -188,8 +188,27 @@ export async function assertSomeImagesHealthy(page: Page, minCount: number) {
   }
 }
 
+// Trigger lazy-loaded images (loading="lazy") by scrolling the page top→bottom→top.
+// WebKit is stricter than Chromium about not fetching off-screen images until visible.
+export async function scrollToLoadLazyImages(page: Page) {
+  await page.evaluate(async () => {
+    const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms))
+    const step = Math.max(200, Math.floor(window.innerHeight * 0.8))
+    const maxScroll = () =>
+      Math.max(document.body.scrollHeight, document.documentElement.scrollHeight)
+    for (let y = 0; y <= maxScroll(); y += step) {
+      window.scrollTo(0, y)
+      await sleep(120)
+    }
+    window.scrollTo(0, 0)
+    await sleep(120)
+  })
+}
+
 export async function assertImagesBySrcHealthy(page: Page, opts: { srcIncludes: string; minCount: number }) {
-  const deadline = Date.now() + 8_000
+  // Make sure lazy/below-the-fold images are requested before we assert on them.
+  await scrollToLoadLazyImages(page)
+  const deadline = Date.now() + 15_000
   while (true) {
     const res = await page.evaluate(({ srcIncludes }) => {
       const imgs = Array.from(document.querySelectorAll<HTMLImageElement>('img')).filter((img) =>
