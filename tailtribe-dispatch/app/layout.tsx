@@ -1,4 +1,4 @@
-import type { Metadata } from 'next'
+import type { Metadata, Viewport } from 'next'
 import './globals.css'
 import { Suspense } from 'react'
 import { SessionProvider } from '@/components/SessionProvider'
@@ -26,7 +26,6 @@ export const metadata: Metadata = {
   description:
     'Vraag hondenuitlaat, hondenoppas, kattenoppas, hondenopvang, dagopvang voor honden en dierenverzorging aan in België via TailTribe.',
   manifest: '/manifest.webmanifest',
-  themeColor: '#10b981',
   icons: {
     // Make favicon explicit so browsers don't fall back to Vercel's default.
     icon: ['/favicon.svg', '/tailtribe_logo_masked_1751977129022.png'],
@@ -61,6 +60,10 @@ export const metadata: Metadata = {
     description: 'Vraag hondenuitlaat, hondenoppas, kattenoppas, hondenopvang en dierenverzorging aan in België.',
     images: [ogImageUrl],
   },
+}
+
+export const viewport: Viewport = {
+  themeColor: '#10b981',
 }
 
 export default function RootLayout({
