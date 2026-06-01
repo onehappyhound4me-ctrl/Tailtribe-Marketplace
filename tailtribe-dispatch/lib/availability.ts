@@ -1,4 +1,9 @@
 import prisma from '@/lib/prisma'
+import type { Prisma } from '@prisma/client'
+
+// Accepts either the base client or an interactive transaction client,
+// so conflict checks can run inside the same transaction as the confirm.
+type DbClient = typeof prisma | Prisma.TransactionClient
 
 type AvailabilityCheck = {
   caregiverUserId: string
@@ -49,13 +54,16 @@ type DoubleBookingCheck = AvailabilityCheck & {
 }
 
 /** Reject when caregiver already has another active assignment in the same date + timeWindow. */
-export const assertCaregiverNotDoubleBooked = async ({
-  caregiverUserId,
-  date,
-  timeWindow,
-  excludeBookingId,
-  excludeOccurrenceId,
-}: DoubleBookingCheck) => {
+export const assertCaregiverNotDoubleBooked = async (
+  {
+    caregiverUserId,
+    date,
+    timeWindow,
+    excludeBookingId,
+    excludeOccurrenceId,
+  }: DoubleBookingCheck,
+  client: DbClient = prisma
+) => {
   if (!timeWindow) {
     throw new Error('timeWindow is required for conflict check')
   }
@@ -64,7 +72,7 @@ export const assertCaregiverNotDoubleBooked = async ({
   const dayEnd = new Date(dayStart)
   dayEnd.setUTCHours(23, 59, 59, 999)
 
-  const conflictBooking = await prisma.booking.findFirst({
+  const conflictBooking = await client.booking.findFirst({
     where: {
       caregiverId: caregiverUserId,
       timeWindow,
@@ -78,7 +86,7 @@ export const assertCaregiverNotDoubleBooked = async ({
     throw new Error('Verzorger is al toegewezen aan een andere opdracht in dit tijdsblok')
   }
 
-  const conflictOccurrence = await prisma.bookingOccurrence.findFirst({
+  const conflictOccurrence = await client.bookingOccurrence.findFirst({
     where: {
       assignedCaregiverId: caregiverUserId,
       timeWindow,

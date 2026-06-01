@@ -324,34 +324,69 @@ export async function PATCH(request: NextRequest) {
       return NextResponse.json({ error: 'Deze verzorger is niet voorgesteld.' }, { status: 400 })
     }
 
+    // Confirm atomically: re-check double-booking AND flip the status inside one
+    // transaction. On Postgres we use Serializable isolation so two owners can't
+    // confirm the same caregiver for the same slot concurrently (TOCTOU race).
+    // SQLite (CI/local) serializes writes already and rejects isolationLevel, so
+    // we only pass the option on Postgres.
+    const CONFLICT = 'DOUBLE_BOOKED'
+    const ALREADY = 'ALREADY_PROCESSED'
+    const isPostgres = (process.env.DATABASE_URL ?? '').startsWith('postgres')
+    const txOptions = isPostgres ? ({ isolationLevel: 'Serializable' } as any) : undefined
+
     try {
-      await assertCaregiverNotDoubleBooked({
-        caregiverUserId: caregiverId,
-        date: booking.date,
-        timeWindow: booking.timeWindow,
-        excludeBookingId: booking.id,
-      })
+      await prisma.$transaction(async (tx) => {
+        try {
+          await assertCaregiverNotDoubleBooked(
+            {
+              caregiverUserId: caregiverId,
+              date: booking.date,
+              timeWindow: booking.timeWindow,
+              excludeBookingId: booking.id,
+            },
+            tx
+          )
+        } catch (err: any) {
+          throw Object.assign(new Error(err?.message ?? 'Verzorger is niet beschikbaar'), {
+            ttCode: CONFLICT,
+          })
+        }
+
+        const confirmed = await tx.booking.updateMany({
+          where: {
+            id: booking.id,
+            ownerId: authz.userId,
+            status: { in: ['PENDING', 'ASSIGNED'] },
+            OR: [{ caregiverId: null }, { caregiverId }],
+          },
+          data: { caregiverId, status: 'CONFIRMED' },
+        })
+        if (confirmed.count === 0) {
+          throw Object.assign(new Error('already processed'), { ttCode: ALREADY })
+        }
+
+        await tx.bookingOffer.deleteMany({ where: { bookingId: booking.id } })
+      }, txOptions)
     } catch (err: any) {
-      return NextResponse.json({ error: err.message ?? 'Verzorger is niet beschikbaar' }, { status: 400 })
+      if (err?.ttCode === CONFLICT) {
+        return NextResponse.json({ error: err.message }, { status: 400 })
+      }
+      if (err?.ttCode === ALREADY) {
+        return NextResponse.json(
+          { error: 'Aanvraag kon niet bevestigd worden (mogelijk al verwerkt).' },
+          { status: 409 }
+        )
+      }
+      // Postgres serialization conflict under concurrent confirms → safe to retry.
+      if (err?.code === 'P2034') {
+        return NextResponse.json(
+          { error: 'Aanvraag wordt al verwerkt. Probeer het opnieuw.' },
+          { status: 409 }
+        )
+      }
+      console.error('Failed to confirm booking:', err)
+      return NextResponse.json({ error: 'Bevestigen mislukt' }, { status: 500 })
     }
-
-    const confirmed = await prisma.booking.updateMany({
-      where: {
-        id: booking.id,
-        ownerId: authz.userId,
-        status: { in: ['PENDING', 'ASSIGNED'] },
-        OR: [{ caregiverId: null }, { caregiverId }],
-      },
-      data: { caregiverId, status: 'CONFIRMED' },
-    })
-    if (confirmed.count === 0) {
-      return NextResponse.json(
-        { error: 'Aanvraag kon niet bevestigd worden (mogelijk al verwerkt).' },
-        { status: 409 }
-      )
-    }
-
-    await prisma.bookingOffer.deleteMany({ where: { bookingId: booking.id } })
 
     const serviceLabel =
       SERVICE_LABELS[booking.service as keyof typeof SERVICE_LABELS] ?? booking.service
