@@ -106,16 +106,6 @@ export default function BookingPage() {
 
   const [dateDraft, setDateDraft] = useState('')
 
-  // Track the start of the booking flow (page view).
-  useEffect(() => {
-    trackEvent('booking_start', {
-      flow: 'public',
-      entry: 'boeken',
-      service_prefill: serviceParam ?? undefined,
-    })
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
-
   const addDateValue = (raw: string) => {
     const d = (raw ?? '').trim()
     if (!d) return
@@ -140,8 +130,6 @@ export default function BookingPage() {
     })
     setDateDraft('')
   }
-
-  const addDate = () => addDateValue(dateDraft)
 
   const scrollFormToTop = () => {
     const el = formTopRef.current
@@ -278,6 +266,22 @@ export default function BookingPage() {
             </div>
           </div>
 
+          {/* Reassurance bar — reduces hesitation for first-time visitors */}
+          <div className="mb-6 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-sm font-medium text-emerald-900">
+            {['Gratis & vrijblijvend', 'Reactie binnen 24 uur', 'Gescreende verzorgers'].map((item) => (
+              <span key={item} className="inline-flex items-center gap-1.5">
+                <svg viewBox="0 0 20 20" className="h-4 w-4 flex-shrink-0 fill-emerald-600" aria-hidden>
+                  <path
+                    fillRule="evenodd"
+                    d="M16.704 5.29a1 1 0 0 1 .006 1.414l-7.5 7.56a1 1 0 0 1-1.425.002L3.29 9.77A1 1 0 1 1 4.704 8.35l3.08 3.08 6.79-6.84a1 1 0 0 1 1.414-.006Z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+                {item}
+              </span>
+            ))}
+          </div>
+
           {/* Form Card */}
           <div className="bg-white rounded-2xl shadow-tt p-6 sm:p-8" ref={formTopRef}>
             {submitError && (
@@ -408,7 +412,7 @@ export default function BookingPage() {
                     <div>
                       <label className="block text-sm font-medium mb-2">Datum(s)</label>
                       <div className="text-xs text-gray-500 mb-2">
-                        Kies een datum en klik vervolgens op “Datum toevoegen”. Je kan meerdere dagen kiezen (max 10).
+                        Kies een datum — die wordt meteen toegevoegd. Je kan meerdere dagen kiezen (max 10).
                       </div>
                       {(fieldErrors.dates || fieldErrors.date) && (
                         <p className="text-sm text-red-700 mb-2">{fieldErrors.dates || fieldErrors.date}</p>
@@ -422,20 +426,14 @@ export default function BookingPage() {
                           onChange={(e) => {
                             const v = e.target.value
                             setDateDraft(v)
+                            // Auto-add as soon as a valid date is picked so users
+                            // don't get stuck on a disabled "Verder" button.
+                            if (v) addDateValue(v)
                           }}
                           min={todayStr}
                           max={maxBookingDateStr}
                           className="flex-1 px-4 py-3 h-11 md:h-auto border border-gray-300 rounded-xl focus:ring-2 focus:ring-brand focus:border-transparent"
                         />
-                        <button
-                          type="button"
-                          onClick={() => {
-                            if (dateDraft) addDateValue(dateDraft)
-                          }}
-                          className="px-4 py-3 h-11 md:h-auto rounded-xl border border-gray-300 bg-white font-semibold text-gray-900 hover:bg-gray-50 inline-flex items-center justify-center text-sm"
-                        >
-                          Datum toevoegen
-                        </button>
                         <button
                           type="button"
                           onClick={() => {
@@ -630,7 +628,13 @@ export default function BookingPage() {
                     <button
                       type="submit"
                       formNoValidate
-                      disabled={!formData.firstName || !formData.email}
+                      disabled={
+                        !formData.firstName ||
+                        !formData.lastName ||
+                        !formData.email ||
+                        !formData.city ||
+                        !formData.postalCode
+                      }
                       className="btn-brand-compact disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       Verder
