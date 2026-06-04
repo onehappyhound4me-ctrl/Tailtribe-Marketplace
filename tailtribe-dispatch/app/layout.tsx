@@ -17,6 +17,10 @@ const ogImageUrl = `${appUrl}/assets/hero-marketplace.jpg`
 const orgLogoUrl = `${appUrl}/tailtribe_logo_masked_1751977129022.png`
 const organizationReviews = getOrganizationReviewSchema()
 
+// Paste the token from Google Search Console (HTML tag method) into the
+// GOOGLE_SITE_VERIFICATION env var. The meta tag only renders when it is set.
+const googleSiteVerification = (process.env.GOOGLE_SITE_VERIFICATION ?? '').trim()
+
 export const metadata: Metadata = {
   metadataBase: new URL(appUrl),
   title: {
@@ -26,6 +30,9 @@ export const metadata: Metadata = {
   description:
     'Vraag hondenuitlaat, hondenoppas, kattenoppas, hondenopvang, dagopvang voor honden en dierenverzorging aan in België via TailTribe.',
   manifest: '/manifest.webmanifest',
+  ...(googleSiteVerification
+    ? { verification: { google: googleSiteVerification } }
+    : {}),
   icons: {
     // Make favicon explicit so browsers don't fall back to Vercel's default.
     icon: ['/favicon.svg', '/tailtribe_logo_masked_1751977129022.png'],
