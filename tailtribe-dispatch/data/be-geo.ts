@@ -240,6 +240,16 @@ export const allPlaceTriples = () =>
     }))
   )
 
+// Curated subset (top places per province). Used to focus the sitemap / crawl
+// budget on the strongest local pages instead of every small place.
+export const topPlaceTriples = () =>
+  PROVINCES.flatMap((p) =>
+    p.topPlaces.map((pl) => ({
+      province: p.slug,
+      place: pl.slug,
+    }))
+  )
+
 export function getProvinceBySlug(slug: string): BEProvince | undefined {
   return PROVINCES.find((p) => p.slug === slug)
 }

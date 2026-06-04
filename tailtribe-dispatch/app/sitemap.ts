@@ -1,5 +1,5 @@
 import type { MetadataRoute } from 'next'
-import { allProvinceSlugs, allPlaceTriples } from '@/data/be-geo'
+import { allProvinceSlugs, topPlaceTriples } from '@/data/be-geo'
 import { DISPATCH_SERVICES } from '@/lib/services'
 import { getBlogPosts } from '@/lib/blog.server'
 import { getPublicAppUrl } from '@/lib/env'
@@ -48,7 +48,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: 0.6,
   }))
 
-  const cityPages = allPlaceTriples().map(({ province, place }) => ({
+  // Only advertise the curated top places (not every small place) so Google
+  // spends its crawl budget on the strongest local pages. The remaining
+  // service×place pages still exist and stay indexable via internal links.
+  const topPlaces = topPlaceTriples()
+
+  const cityPages = topPlaces.map(({ province, place }) => ({
     url: abs(`/be/${province}/${place}`),
     lastModified,
     changeFrequency: 'monthly' as const,
@@ -56,7 +61,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
   }))
 
   const servicePlacePages = DISPATCH_SERVICES.flatMap((s) =>
-    allPlaceTriples().map(({ province, place }) => ({
+    topPlaces.map(({ province, place }) => ({
       url: abs(`/diensten/${s.slug}/${province}/${place}`),
       lastModified,
       changeFrequency: 'monthly' as const,
