@@ -31,7 +31,15 @@ export function SiteHeader({ primaryCtaHref = '/boeken', primaryCtaLabel = 'Boek
   const prevPathnameRef = useRef<string | null>(null)
   const pathname = usePathname()
   const isHome = pathname === '/'
+  const isDiensten = pathname === routes.diensten || (pathname?.startsWith('/diensten/') ?? false)
+  const isOverOns = pathname === '/over-ons'
+  const isBlog = pathname === '/blog' || (pathname?.startsWith('/blog/') ?? false)
   const [mounted, setMounted] = useState(false)
+
+  const desktopNavClass = (active: boolean) =>
+    `hidden md:block transition whitespace-nowrap ${
+      active ? 'font-semibold text-emerald-800' : 'font-medium text-gray-700 hover:text-green-700'
+    }`
 
   const dashboardHref = (() => {
     const role = session?.user?.role
@@ -232,7 +240,12 @@ export function SiteHeader({ primaryCtaHref = '/boeken', primaryCtaLabel = 'Boek
           <a
             href={routes.diensten}
             onClick={onMobileNavClick(routes.diensten)}
-            className="rounded-xl border border-emerald-200 bg-white px-4 py-3 text-sm font-semibold text-gray-900 hover:bg-emerald-50 transition min-h-[44px] flex items-center justify-between"
+            aria-current={isDiensten ? 'page' : undefined}
+            className={`rounded-xl border px-4 py-3 text-sm font-semibold transition min-h-[44px] flex items-center justify-between ${
+              isDiensten
+                ? 'border-emerald-300 bg-emerald-50 text-emerald-900'
+                : 'border-emerald-200 bg-white text-gray-900 hover:bg-emerald-50'
+            }`}
           >
             Diensten
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" className="w-4 h-4 text-gray-400">
@@ -390,19 +403,22 @@ export function SiteHeader({ primaryCtaHref = '/boeken', primaryCtaLabel = 'Boek
             {/* Desktop Menu - alleen zichtbaar op md en groter */}
             <Link
               href={routes.diensten}
-              className="hidden md:block text-gray-700 hover:text-green-700 font-medium transition whitespace-nowrap"
+              className={desktopNavClass(isDiensten)}
+              aria-current={isDiensten ? 'page' : undefined}
             >
               Diensten
             </Link>
             <Link
               href="/over-ons"
-              className="hidden md:block text-gray-700 hover:text-green-700 font-medium transition whitespace-nowrap"
+              className={desktopNavClass(isOverOns)}
+              aria-current={isOverOns ? 'page' : undefined}
             >
               Over ons
             </Link>
             <Link
               href="/blog"
-              className="hidden md:block text-gray-700 hover:text-green-700 font-medium transition whitespace-nowrap"
+              className={desktopNavClass(isBlog)}
+              aria-current={isBlog ? 'page' : undefined}
             >
               Blog
             </Link>

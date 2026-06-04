@@ -4,25 +4,18 @@ import { SiteHeader } from '@/components/SiteHeader'
 import { SiteFooter } from '@/components/SiteFooter'
 import { PROVINCES } from '@/data/be-geo'
 import { getPublicAppUrl } from '@/lib/env'
+import { absoluteUrl, buildPageMetadata } from '@/lib/seo'
 
 const appUrl = getPublicAppUrl()
-const canonicalUrl = new URL('/be', appUrl).toString()
+const canonicalUrl = absoluteUrl('/be')
 
-export const metadata: Metadata = {
+export const metadata: Metadata = buildPageMetadata({
   title: 'Dierenoppas en hondenuitlaat per streek in België | TailTribe',
   description:
-    'Bekijk dierenoppas, hondenuitlaat, hondenoppas en huisdierenzorg per streek in België. Kies je provincie en vind sneller de juiste hulp voor je huisdier.',
-  alternates: { canonical: canonicalUrl },
-  openGraph: {
-    title: 'Dierenoppas en hondenuitlaat per streek in België | TailTribe',
-    description:
-      'Bekijk dierenoppas, hondenuitlaat, hondenoppas en huisdierenzorg per streek in België. Kies je provincie en vind sneller de juiste hulp voor je huisdier.',
-    url: canonicalUrl,
-    siteName: 'TailTribe',
-    locale: 'nl_BE',
-    type: 'website',
-  },
-}
+    'Bekijk dierenoppas, hondenuitlaat, hondenoppas en huisdierenzorg per provincie in België. Kies je streek en vind sneller de juiste hulp voor je huisdier.',
+  path: '/be',
+  ogImageAlt: 'TailTribe – dierenverzorging per provincie in België',
+})
 
 export default function BelgiumLandingPage() {
   const breadcrumbJsonLd = {

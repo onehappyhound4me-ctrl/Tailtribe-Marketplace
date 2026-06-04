@@ -2,26 +2,15 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { SiteHeader } from '@/components/SiteHeader'
 import { SiteFooter } from '@/components/SiteFooter'
-import { getPublicAppUrl } from '@/lib/env'
+import { buildPageMetadata } from '@/lib/seo'
 
-const appUrl = getPublicAppUrl()
-const canonicalUrl = new URL('/diensten/kattenoppas', appUrl).toString()
-
-export const metadata: Metadata = {
+export const metadata: Metadata = buildPageMetadata({
   title: 'Kattenoppas aan huis | Betrouwbare kattenoppas via TailTribe',
   description:
     'Zoek je een betrouwbare kattenoppas aan huis? Via TailTribe regel je kattenoppas door heel België: duidelijke aanvraag, postcode en persoonlijke opvolging.',
-  alternates: { canonical: canonicalUrl },
-  openGraph: {
-    title: 'Kattenoppas aan huis in België | TailTribe',
-    description:
-      'Kattenoppas aan huis tijdens vakantie, weekend weg of werkreis. Via TailTribe door heel België: aanvraag met locatie en persoonlijke afstemming.',
-    url: canonicalUrl,
-    siteName: 'TailTribe',
-    locale: 'nl_BE',
-    type: 'website',
-  },
-}
+  path: '/diensten/kattenoppas',
+  ogImageAlt: 'Kattenoppas aan huis in België – TailTribe',
+})
 
 export default function KattenoppasPage() {
   const faqJsonLd = {

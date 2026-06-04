@@ -1,24 +1,14 @@
 import type { Metadata } from 'next'
 import { SiteHeader } from '@/components/SiteHeader'
 import { SiteFooter } from '@/components/SiteFooter'
-import { getPublicAppUrl } from '@/lib/env'
+import { buildPageMetadata } from '@/lib/seo'
 
-const appUrl = getPublicAppUrl()
-const canonicalUrl = new URL('/contact', appUrl).toString()
-
-export const metadata: Metadata = {
-  title: 'Contact',
-  description: 'Contacteer TailTribe voor vragen over je aanvraag of dierenverzorging.',
-  alternates: { canonical: canonicalUrl },
-  openGraph: {
-    title: 'Contact',
-    description: 'Contacteer TailTribe voor vragen over je aanvraag of dierenverzorging.',
-    url: canonicalUrl,
-    siteName: 'TailTribe',
-    locale: 'nl_BE',
-    type: 'website',
-  },
-}
+export const metadata: Metadata = buildPageMetadata({
+  title: 'Contact TailTribe – vragen over je aanvraag',
+  description:
+    'Contacteer TailTribe voor vragen over hondenuitlaat, dierenoppas, opvang of je lopende aanvraag. We reageren zo snel mogelijk tijdens kantooruren.',
+  path: '/contact',
+})
 
 export default function ContactPage() {
   return (

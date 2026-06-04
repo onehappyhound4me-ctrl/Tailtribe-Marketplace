@@ -4,6 +4,7 @@ import { SiteFooter } from '@/components/SiteFooter'
 import { getBlogPosts } from '@/lib/blog.server'
 import { SafeImage } from '@/components/SafeImage'
 import { getStockCoverImage, resolveCoverImage } from '@/lib/cover-image'
+import { absoluteUrl } from '@/lib/seo'
 
 const formatDate = (value: string) =>
   new Date(`${value}T00:00:00Z`).toLocaleDateString('nl-BE', {
@@ -23,9 +24,27 @@ const categoryLabel: Record<string, string> = {
 export default function BlogIndexPage() {
   const posts = getBlogPosts()
 
+  const collectionJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'CollectionPage',
+    name: 'Vragen van huisdiereigenaars – TailTribe blog',
+    description:
+      'Praktische antwoorden op veelgestelde vragen over dierenoppas, hondenuitlaat, prijzen en hulp in België.',
+    url: absoluteUrl('/blog'),
+    inLanguage: 'nl-BE',
+    isPartOf: { '@type': 'WebSite', name: 'TailTribe', url: absoluteUrl('/') },
+    hasPart: posts.map((post) => ({
+      '@type': 'BlogPosting',
+      headline: post.title,
+      url: absoluteUrl(`/blog/${post.slug}`),
+      datePublished: post.date,
+    })),
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-green-50 via-white to-blue-50 flex flex-col">
       <SiteHeader primaryCtaHref="/boeken" primaryCtaLabel="Boek Nu" />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(collectionJsonLd) }} />
 
       <main className="container mx-auto px-4 py-12 pb-32 md:pb-40 flex-1">
         <div className="max-w-5xl mx-auto">

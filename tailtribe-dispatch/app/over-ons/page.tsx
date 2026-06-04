@@ -3,27 +3,17 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { SiteHeader } from '@/components/SiteHeader'
 import { SiteFooter } from '@/components/SiteFooter'
+import { PublicReviewsSummary } from '@/components/PublicReviewsSummary'
 import { withAssetVersion } from '@/lib/service-icons'
-import { getPublicAppUrl } from '@/lib/env'
+import { buildPageMetadata } from '@/lib/seo'
 
-const appUrl = getPublicAppUrl()
-const canonicalUrl = new URL('/over-ons', appUrl).toString()
-
-export const metadata: Metadata = {
-  title: 'Over ons',
+export const metadata: Metadata = buildPageMetadata({
+  title: 'Over TailTribe – professionele dierenverzorging in België',
   description:
-    'TailTribe is georganiseerd door professionele dierenverzorgers. Lees onze visie, missie en achtergrond, gebouwd op echte praktijkervaring.',
-  alternates: { canonical: canonicalUrl },
-  openGraph: {
-    title: 'Over ons',
-    description:
-      'TailTribe is georganiseerd door professionele dierenverzorgers. Lees onze visie, missie en achtergrond, gebouwd op echte praktijkervaring.',
-    url: canonicalUrl,
-    siteName: 'TailTribe',
-    locale: 'nl_BE',
-    type: 'website',
-  },
-}
+    'TailTribe is georganiseerd door professionele dierenverzorgers. Lees onze visie, missie en achtergrond — gebouwd op echte praktijkervaring met hondenuitlaat, oppas en dispatch in België.',
+  path: '/over-ons',
+  ogImageAlt: 'Over TailTribe – team en visie',
+})
 
 const VALUES = [
   { title: 'Voor en door professionals', desc: 'Gebouwd door ervaren dierenverzorgers die weten wat in de praktijk telt.' },
@@ -54,6 +44,9 @@ export default function OverOnsPage() {
               <h1 className="text-2xl sm:text-3xl md:text-[2.6rem] lg:text-[2.8rem] font-bold text-transparent bg-clip-text bg-gradient-to-r from-emerald-700 to-blue-700 leading-tight sm:leading-snug">
                 Gebouwd op echte ervaring
               </h1>
+              <div className="pt-2">
+                <PublicReviewsSummary align="start" />
+              </div>
               <p>
                 TailTribe is ontstaan uit jaren praktijkervaring in de dagelijkse zorg voor huisdieren. We weten uit de sector zelf
                 wat werkt én wat vaak ontbreekt: betrouwbare verzorging voor verschillende diersoorten, duidelijke afspraken en een

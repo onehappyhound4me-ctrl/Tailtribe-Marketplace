@@ -10,6 +10,7 @@ import { DISPATCH_SERVICES, getDispatchServiceBySlug } from '@/lib/services'
 import { getServiceMarketingCover } from '@/lib/home-photography'
 import { routes } from '@/lib/routes'
 import { getPublicAppUrl } from '@/lib/env'
+import { absoluteUrl, buildPageMetadata } from '@/lib/seo'
 import { GOOGLE_REVIEWS_URL, getServiceReviews } from '@/lib/reviews'
 type Props = {
   params: { slug: string }
@@ -20,34 +21,25 @@ export function generateStaticParams() {
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const baseUrl = getPublicAppUrl()
   const service = getDispatchServiceBySlug(params.slug)
   if (!service) {
     return { title: 'Dienst niet gevonden', description: 'Deze dienst bestaat niet.' }
   }
 
   const cover = getServiceMarketingCover(service.id)
-  const ogImageUrl = new URL(cover.src, baseUrl).toString()
+  const ogImageUrl = absoluteUrl(cover.src)
   const pageTitle = service.detailTitle ?? service.name
-  const canonicalUrl = new URL(`/diensten/${service.slug}`, baseUrl).toString()
   const pageDescription =
     service.metaDescription ??
     `${service.desc} Via TailTribe in heel België: korte aanvraag en persoonlijke opvolging.`
 
-  return {
+  return buildPageMetadata({
     title: pageTitle,
     description: pageDescription,
-    alternates: { canonical: canonicalUrl },
-    openGraph: {
-      title: pageTitle,
-      description: pageDescription,
-      url: canonicalUrl,
-      siteName: 'TailTribe',
-      locale: 'nl_BE',
-      type: 'website',
-      images: [{ url: ogImageUrl, width: 1200, height: 630, alt: cover.alt }],
-    },
-  }
+    path: `/diensten/${service.slug}`,
+    ogImage: ogImageUrl,
+    ogImageAlt: cover.alt,
+  })
 }
 
 export default function DienstDetailPage({ params }: Props) {
@@ -104,7 +96,7 @@ export default function DienstDetailPage({ params }: Props) {
   }
 
   const baseUrl = getPublicAppUrl()
-  const canonicalUrl = new URL(`/diensten/${service.slug}`, baseUrl).toString()
+  const canonicalUrl = absoluteUrl(`/diensten/${service.slug}`)
   const cover = getServiceMarketingCover(service.id)
   const imageUrl = new URL(cover.src, baseUrl).toString()
 
@@ -369,7 +361,10 @@ export default function DienstDetailPage({ params }: Props) {
           <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }} />
         ) : null}
         <div className="max-w-6xl mx-auto">
-          <nav className="flex items-center space-x-2 text-xs sm:text-sm text-gray-500 mb-5 sm:mb-6">
+          <nav
+            aria-label="Breadcrumb"
+            className="flex items-center space-x-2 text-xs sm:text-sm text-gray-500 mb-5 sm:mb-6"
+          >
             <Link href="/" className="hover:text-gray-700">
               Home
             </Link>

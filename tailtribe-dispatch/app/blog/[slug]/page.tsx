@@ -7,13 +7,14 @@ import { getBlogPostBySlug, getBlogPostSlugs } from '@/lib/blog.server'
 import { SafeImage } from '@/components/SafeImage'
 import { getStockCoverImage, resolveCoverImage } from '@/lib/cover-image'
 import { getPublicAppUrl } from '@/lib/env'
+import { absoluteUrl, buildPageMetadata } from '@/lib/seo'
 
 type Props = {
   params: { slug: string }
 }
 
 const appUrl = getPublicAppUrl()
-const toAbsoluteUrl = (url: string) => (url.startsWith('http') ? url : new URL(url, appUrl).toString())
+const toAbsoluteUrl = (url: string) => (url.startsWith('http') ? url : absoluteUrl(url))
 const ARTICLE_SECTION_LABELS = {
   'dog-walking': 'Hondenuitlaat',
   'pet-sitting': 'Dierenoppas',
@@ -32,42 +33,31 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     return { title: 'Artikel niet gevonden', description: 'Dit artikel bestaat niet.' }
   }
 
-  const canonicalUrl = new URL(`/blog/${post.slug}`, appUrl).toString()
   const coverImage = resolveCoverImage(post)
   const articleSection = ARTICLE_SECTION_LABELS[post.category ?? 'general']
   const isoDate = `${post.date}T00:00:00Z`
+  const coverAbsolute = toAbsoluteUrl(coverImage)
 
-  return {
+  const meta = buildPageMetadata({
     title: post.title,
     description: post.excerpt,
+    path: `/blog/${post.slug}`,
+    ogImage: coverAbsolute,
+    ogImageAlt: post.title,
+    type: 'article',
+    publishedTime: isoDate,
+    modifiedTime: isoDate,
     keywords: post.tags,
     authors: [{ name: 'TailTribe' }],
-    alternates: { canonical: canonicalUrl },
+  })
+
+  return {
+    ...meta,
     openGraph: {
-      title: post.title,
-      description: post.excerpt,
-      url: canonicalUrl,
-      siteName: 'TailTribe',
-      locale: 'nl_BE',
+      ...meta.openGraph,
       type: 'article',
-      publishedTime: isoDate,
-      modifiedTime: isoDate,
       authors: ['TailTribe'],
       section: articleSection,
-      images: [
-        {
-          url: toAbsoluteUrl(coverImage),
-          width: 1200,
-          height: 630,
-          alt: post.title,
-        },
-      ],
-    },
-    twitter: {
-      card: 'summary_large_image',
-      title: post.title,
-      description: post.excerpt,
-      images: [toAbsoluteUrl(coverImage)],
     },
   }
 }
@@ -83,7 +73,7 @@ export default function BlogPostPage({ params }: Props) {
   const post = getBlogPostBySlug(params.slug)
   if (!post) notFound()
 
-  const canonicalUrl = new URL(`/blog/${post.slug}`, appUrl).toString()
+  const canonicalUrl = absoluteUrl(`/blog/${post.slug}`)
   const coverImage = resolveCoverImage(post)
   const articleSection = ARTICLE_SECTION_LABELS[post.category ?? 'general']
   const jsonLd = {

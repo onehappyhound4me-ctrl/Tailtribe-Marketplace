@@ -2,24 +2,14 @@ import Link from 'next/link'
 import type { Metadata } from 'next'
 import { SiteHeader } from '@/components/SiteHeader'
 import { SiteFooter } from '@/components/SiteFooter'
-import { getPublicAppUrl } from '@/lib/env'
+import { buildPageMetadata } from '@/lib/seo'
 
-const appUrl = getPublicAppUrl()
-const canonicalUrl = new URL('/help', appUrl).toString()
-
-export const metadata: Metadata = {
-  title: 'FAQ',
-  description: 'Veelgestelde vragen over TailTribe, dierenverzorging en aanvragen.',
-  alternates: { canonical: canonicalUrl },
-  openGraph: {
-    title: 'FAQ',
-    description: 'Veelgestelde vragen over TailTribe, dierenverzorging en aanvragen.',
-    url: canonicalUrl,
-    siteName: 'TailTribe',
-    locale: 'nl_BE',
-    type: 'website',
-  },
-}
+export const metadata: Metadata = buildPageMetadata({
+  title: 'Veelgestelde vragen (FAQ) over TailTribe en aanvragen',
+  description:
+    'Antwoorden op veelgestelde vragen over TailTribe: aanvragen, betaling, verzorgers, annulatie, regio’s en veiligheid bij hondenuitlaat en dierenoppas in België.',
+  path: '/help',
+})
 
 const faqs = [
   {

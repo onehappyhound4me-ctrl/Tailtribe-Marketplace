@@ -244,7 +244,7 @@ export default function HomePageClient() {
                   data-component="HomePage.ServicesGrid"
                   data-service-id={service.id}
                   data-service-slug={service.slug}
-                  className="group flex flex-col overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-[0_8px_30px_rgba(15,23,42,0.06)] ring-1 ring-slate-100 transition duration-300 hover:-translate-y-1 hover:border-emerald-200/80 hover:shadow-[0_20px_50px_rgba(16,185,129,0.12)] motion-reduce:transition-none motion-reduce:hover:translate-y-0"
+                  className="group flex flex-col overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-[0_8px_30px_rgba(15,23,42,0.06)] ring-1 ring-slate-100 transition duration-300 hover:-translate-y-1 hover:border-emerald-200/80 hover:shadow-[0_20px_50px_rgba(16,185,129,0.12)] motion-reduce:transition-none motion-reduce:hover:translate-y-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2"
                 >
                   <div className="relative flex aspect-[4/3] w-full items-center justify-center overflow-hidden bg-gradient-to-b from-slate-50 via-white to-emerald-50/35 px-4 py-6 sm:px-5 sm:py-7">
                     <div className="flex h-36 w-36 items-center justify-center rounded-2xl bg-white p-5 shadow-[0_6px_24px_rgba(15,23,42,0.06)] ring-1 ring-emerald-200/55 sm:h-40 sm:w-40 sm:p-6">
