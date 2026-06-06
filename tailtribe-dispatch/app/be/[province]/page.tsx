@@ -4,6 +4,7 @@ import { notFound } from 'next/navigation'
 import { SiteHeader } from '@/components/SiteHeader'
 import { SiteFooter } from '@/components/SiteFooter'
 import { getProvinceBySlug, getPlacesByProvince } from '@/data/be-geo'
+import { getDispatchServiceBySlug } from '@/lib/services'
 import { getPublicAppUrl } from '@/lib/env'
 
 type Props = {
@@ -41,6 +42,10 @@ export default function ProvinceLandingPage({ params }: Props) {
   const places = getPlacesByProvince(params.province)
   const baseUrl = getPublicAppUrl()
   const canonicalUrl = `${baseUrl}/be/${province.slug}`
+
+  const petSitting = getDispatchServiceBySlug('dierenoppas')
+  const petSittingWhy = petSitting?.longDescription?.why ?? []
+  const petSittingIncludes = petSitting?.longDescription?.includes ?? []
 
   const breadcrumbJsonLd = {
     '@context': 'https://schema.org',
@@ -144,6 +149,49 @@ export default function ProvinceLandingPage({ params }: Props) {
               {['Betrouwbare matching', 'Aan huis waar mogelijk', 'Snelle terugkoppeling'].join(' · ')}
             </p>
           </header>
+
+          <section className="mb-12 rounded-2xl border border-slate-200/90 bg-white p-8 md:p-10">
+            <p className="text-xs font-medium uppercase tracking-[0.12em] text-slate-500">Over de dienst</p>
+            <h2 className="mt-2 text-xl font-semibold leading-snug text-slate-900 md:text-2xl">
+              Wat is dierenoppas?
+            </h2>
+            <p className="copy-pretty mt-4 max-w-2xl text-base leading-relaxed text-slate-600">
+              Dierenoppas is dé oplossing wanneer je weg bent en wil dat je huisdier aandacht, rust en
+              structuur krijgt in zijn eigen vertrouwde omgeving. De dierenoppasser komt bij jou thuis en
+              past op je hond, kat of ander huisdier — met duidelijke afspraken over routine, voeding en zorg.
+            </p>
+            {petSittingWhy.length > 0 ? (
+              <ul className="mt-6 space-y-3 border-t border-slate-100 pt-6">
+                {petSittingWhy.map((point) => (
+                  <li key={point} className="flex gap-3">
+                    <span className="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-emerald-600" aria-hidden />
+                    <span className="text-sm leading-relaxed text-slate-600">{point}</span>
+                  </li>
+                ))}
+              </ul>
+            ) : null}
+            {petSittingIncludes.length > 0 ? (
+              <>
+                <h3 className="mt-8 font-semibold text-slate-900">Wat houdt het in?</h3>
+                <ul className="mt-4 space-y-3">
+                  {petSittingIncludes.map((point) => (
+                    <li key={point} className="flex gap-3">
+                      <span className="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-emerald-600" aria-hidden />
+                      <span className="text-sm leading-relaxed text-slate-600">{point}</span>
+                    </li>
+                  ))}
+                </ul>
+              </>
+            ) : null}
+            <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+              <Link href="/boeken?service=PET_SITTING" className="btn-brand-compact">
+                Dierenoppas aanvragen
+              </Link>
+              <Link href="/diensten/dierenoppas" className="btn-secondary-compact sm:inline-flex">
+                Volledige uitleg over dierenoppas
+              </Link>
+            </div>
+          </section>
 
           {province.slug === 'antwerpen' ? (
             <section className="mb-12 rounded-2xl border border-slate-200/90 bg-white p-8 md:p-10">

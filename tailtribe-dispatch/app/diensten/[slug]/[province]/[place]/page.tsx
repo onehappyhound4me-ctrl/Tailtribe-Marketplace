@@ -65,6 +65,9 @@ export default function LocalServicePlacePage({ params }: Props) {
   const canonicalUrl = `${baseUrl}/diensten/${service.slug}/${province.slug}/${place.slug}`
   const servicePageUrl = `${baseUrl}/diensten/${service.slug}`
 
+  const whyPoints = service.longDescription?.why ?? []
+  const includesPoints = service.longDescription?.includes ?? []
+
   const faqs = [
     {
       q: `Kan ik ${service.name.toLowerCase()} in ${place.name} aanvragen?`,
@@ -172,6 +175,50 @@ export default function LocalServicePlacePage({ params }: Props) {
               </Link>
             </div>
           </header>
+
+          {whyPoints.length > 0 ? (
+            <section className="mb-10 rounded-2xl border border-slate-200/90 bg-white p-8 md:p-10">
+              <p className="text-xs font-medium uppercase tracking-[0.12em] text-slate-500">Over de dienst</p>
+              <h2 className="mt-2 text-xl font-semibold leading-snug text-slate-900 md:text-2xl">
+                Wat is {service.name.toLowerCase()}?
+              </h2>
+              <p className="copy-pretty mt-4 max-w-2xl text-base leading-relaxed text-slate-600">
+                {service.desc}
+              </p>
+              <ul className="mt-6 space-y-3 border-t border-slate-100 pt-6">
+                {whyPoints.map((point) => (
+                  <li key={point} className="flex gap-3">
+                    <span className="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-emerald-600" aria-hidden />
+                    <span className="text-sm leading-relaxed text-slate-600">{point}</span>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          ) : null}
+
+          {includesPoints.length > 0 ? (
+            <section className="mb-10 rounded-2xl border border-slate-200/90 bg-white p-8 md:p-10">
+              <p className="text-xs font-medium uppercase tracking-[0.12em] text-slate-500">Wat mag je verwachten</p>
+              <h2 className="mt-2 text-xl font-semibold leading-snug text-slate-900 md:text-2xl">
+                Wat houdt {service.name.toLowerCase()} in?
+              </h2>
+              <ul className="mt-6 space-y-3 border-t border-slate-100 pt-6">
+                {includesPoints.map((point) => (
+                  <li key={point} className="flex gap-3">
+                    <span className="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-emerald-600" aria-hidden />
+                    <span className="text-sm leading-relaxed text-slate-600">{point}</span>
+                  </li>
+                ))}
+              </ul>
+              <p className="copy-pretty mt-6 text-sm leading-relaxed text-slate-500">
+                Wil je meer detail over wat typisch inbegrepen is? Bekijk de{' '}
+                <Link href={routes.dienst(service.slug)} className="font-medium text-emerald-800 underline-offset-2 hover:underline">
+                  volledige uitleg over {service.name.toLowerCase()}
+                </Link>
+                .
+              </p>
+            </section>
+          ) : null}
 
           <section className="mb-10 rounded-2xl border border-slate-200/90 bg-white p-8 md:p-10">
             <h2 className="text-xl font-semibold text-slate-900">Veelgestelde vragen</h2>
