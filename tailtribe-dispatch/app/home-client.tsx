@@ -387,7 +387,7 @@ export default function HomePageClient() {
             {[
               {
                 title: 'Gescreend netwerk',
-                desc: 'We werken met zorgvuldig geselecteerde verzorgers en zoeken de best passende match.',
+                desc: 'Voor en door dierenverzorgers werken we met zorgvuldig geselecteerde verzorgers en zoeken we de best passende match.',
               },
               {
                 title: 'Snelle opvolging',
