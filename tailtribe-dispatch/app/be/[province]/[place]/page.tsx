@@ -3,11 +3,17 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { SiteHeader } from '@/components/SiteHeader'
 import { SiteFooter } from '@/components/SiteFooter'
-import { getProvinceBySlug, getPlaceBySlugs, getPlacesByProvince } from '@/data/be-geo'
+import { allPlaceTriples, getProvinceBySlug, getPlaceBySlugs, getPlacesByProvince } from '@/data/be-geo'
 import { getPublicAppUrl } from '@/lib/env'
 
 type Props = {
   params: { province: string; place: string }
+}
+
+export const dynamicParams = false
+
+export function generateStaticParams() {
+  return allPlaceTriples().map(({ province, place }) => ({ province, place }))
 }
 
 function isGroepsuitlaatFocus(provinceSlug: string, placeSlug: string) {
@@ -59,9 +65,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const baseUrl = getPublicAppUrl()
   const province = getProvinceBySlug(params.province)
   const place = getPlaceBySlugs(params.province, params.place)
-  if (!province || !place) {
-    return { title: 'Locatie niet gevonden', description: 'De opgevraagde locatie bestaat niet.' }
-  }
+  if (!province || !place) notFound()
 
   const canonicalUrl = `${baseUrl}/be/${province.slug}/${place.slug}`
   const focus = isGroepsuitlaatFocus(province.slug, place.slug)

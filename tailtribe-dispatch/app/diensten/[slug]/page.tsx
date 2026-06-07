@@ -16,15 +16,15 @@ type Props = {
   params: { slug: string }
 }
 
+export const dynamicParams = false
+
 export function generateStaticParams() {
   return DISPATCH_SERVICES.map((s) => ({ slug: s.slug }))
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const service = getDispatchServiceBySlug(params.slug)
-  if (!service) {
-    return { title: 'Dienst niet gevonden', description: 'Deze dienst bestaat niet.' }
-  }
+  if (!service) notFound()
 
   const cover = getServiceMarketingCover(service.id)
   const ogImageUrl = absoluteUrl(cover.src)

@@ -3,7 +3,7 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { SiteHeader } from '@/components/SiteHeader'
 import { SiteFooter } from '@/components/SiteFooter'
-import { getProvinceBySlug, getPlacesByProvince } from '@/data/be-geo'
+import { allProvinceSlugs, getProvinceBySlug, getPlacesByProvince } from '@/data/be-geo'
 import { getDispatchServiceBySlug } from '@/lib/services'
 import { getPublicAppUrl } from '@/lib/env'
 
@@ -11,12 +11,16 @@ type Props = {
   params: { province: string }
 }
 
+export const dynamicParams = false
+
+export function generateStaticParams() {
+  return allProvinceSlugs().map((province) => ({ province }))
+}
+
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const baseUrl = getPublicAppUrl()
   const province = getProvinceBySlug(params.province)
-  if (!province) {
-    return { title: 'Streek niet gevonden', description: 'De opgevraagde streek bestaat niet.' }
-  }
+  if (!province) notFound()
 
   const canonicalUrl = `${baseUrl}/be/${province.slug}`
 
