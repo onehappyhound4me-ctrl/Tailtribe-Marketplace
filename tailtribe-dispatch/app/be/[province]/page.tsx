@@ -6,6 +6,7 @@ import { SiteFooter } from '@/components/SiteFooter'
 import { allProvinceSlugs, getProvinceBySlug, getPlacesByProvince } from '@/data/be-geo'
 import { getDispatchServiceBySlug } from '@/lib/services'
 import { getPublicAppUrl } from '@/lib/env'
+import { buildPageMetadata } from '@/lib/seo'
 
 type Props = {
   params: { province: string }
@@ -18,25 +19,17 @@ export function generateStaticParams() {
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const baseUrl = getPublicAppUrl()
   const province = getProvinceBySlug(params.province)
   if (!province) notFound()
 
-  const canonicalUrl = `${baseUrl}/be/${province.slug}`
+  const canonicalPath = `/be/${province.slug}`
 
-  return {
+  return buildPageMetadata({
     title: `Dierenoppas in ${province.name} | TailTribe`,
     description: `Vind een betrouwbare dierenoppasser in ${province.name} voor hondenuitlaat, dierenoppas, dierenopvang en verzorging aan huis. TailTribe helpt je sneller naar de juiste match voor je huisdier.`,
-    alternates: { canonical: canonicalUrl },
-    openGraph: {
-      title: `Dierenoppas in ${province.name} | TailTribe`,
-      description: `Vind een betrouwbare dierenoppasser in ${province.name} voor hondenuitlaat, dierenoppas, dierenopvang en verzorging aan huis. TailTribe helpt je sneller naar de juiste match voor je huisdier.`,
-      url: canonicalUrl,
-      siteName: 'TailTribe',
-      locale: 'nl_BE',
-      type: 'website',
-    },
-  }
+    path: canonicalPath,
+    ogImageAlt: `Dierenverzorging in ${province.name} – TailTribe`,
+  })
 }
 
 export default function ProvinceLandingPage({ params }: Props) {

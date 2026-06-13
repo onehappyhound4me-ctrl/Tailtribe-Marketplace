@@ -5,6 +5,8 @@ import { SiteHeader } from '@/components/SiteHeader'
 import { SiteFooter } from '@/components/SiteFooter'
 import { allPlaceTriples, getProvinceBySlug, getPlaceBySlugs, getPlacesByProvince } from '@/data/be-geo'
 import { getPublicAppUrl } from '@/lib/env'
+import { getServiceMarketingCover } from '@/lib/home-photography'
+import { absoluteUrl, buildPageMetadata } from '@/lib/seo'
 
 type Props = {
   params: { province: string; place: string }
@@ -62,12 +64,11 @@ const ANTWERP_DOG_WALKING_PARKS: Record<string, string> = {
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const baseUrl = getPublicAppUrl()
   const province = getProvinceBySlug(params.province)
   const place = getPlaceBySlugs(params.province, params.place)
   if (!province || !place) notFound()
 
-  const canonicalUrl = `${baseUrl}/be/${province.slug}/${place.slug}`
+  const canonicalPath = `/be/${province.slug}/${place.slug}`
   const focus = isGroepsuitlaatFocus(province.slug, place.slug)
   const title = focus
     ? `Hondenuitlaatservice aan huis – ${place.name} | TailTribe`
@@ -75,20 +76,15 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const description = focus
     ? `Hondenuitlaatservice aan huis – ${place.name}: betrouwbare dierenoppasser, sociale daguitstappen, ophalen en terugbrengen, zorgvuldige matching en veilige routes in ${place.name} en omgeving.`
     : `Van hondenuitlaat en dierenoppas tot dierenopvang en verzorging aan huis in ${place.name}. Voor en door dierenverzorgers: hier vind je de juiste match voor je huisdier.`
+  const cover = getServiceMarketingCover(focus ? 'GROUP_DOG_WALKING' : 'PET_SITTING')
 
-  return {
+  return buildPageMetadata({
     title,
     description,
-    alternates: { canonical: canonicalUrl },
-    openGraph: {
-      title,
-      description,
-      url: canonicalUrl,
-      siteName: 'TailTribe',
-      locale: 'nl_BE',
-      type: 'website',
-    },
-  }
+    path: canonicalPath,
+    ogImage: absoluteUrl(cover.src),
+    ogImageAlt: cover.alt,
+  })
 }
 
 export default function PlaceLandingPage({ params }: Props) {

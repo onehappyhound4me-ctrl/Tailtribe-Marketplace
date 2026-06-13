@@ -8,6 +8,8 @@ import { DISPATCH_SERVICES, getDispatchServiceBySlug } from '@/lib/services'
 import { getPublicAppUrl } from '@/lib/env'
 import { routes } from '@/lib/routes'
 import { localServiceLocationDescription } from '@/lib/local-service-landing'
+import { getServiceMarketingCover } from '@/lib/home-photography'
+import { absoluteUrl, buildPageMetadata } from '@/lib/seo'
 
 type Props = {
   params: { slug: string; province: string; place: string }
@@ -28,7 +30,6 @@ export function generateStaticParams() {
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const baseUrl = getPublicAppUrl()
   const service = getDispatchServiceBySlug(params.slug)
   const province = getProvinceBySlug(params.province)
   const place = getPlaceBySlugs(params.province, params.place)
@@ -36,23 +37,18 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     return { title: 'Pagina niet gevonden', description: 'Deze pagina bestaat niet.' }
   }
 
-  const canonicalUrl = `${baseUrl}/diensten/${service.slug}/${province.slug}/${place.slug}`
+  const canonicalPath = `/diensten/${service.slug}/${province.slug}/${place.slug}`
   const title = `${service.name} – ${place.name} (${province.name}) | TailTribe`
   const description = localServiceLocationDescription(service, place, province)
+  const cover = getServiceMarketingCover(service.id)
 
-  return {
+  return buildPageMetadata({
     title,
     description,
-    alternates: { canonical: canonicalUrl },
-    openGraph: {
-      title,
-      description,
-      url: canonicalUrl,
-      siteName: 'TailTribe',
-      locale: 'nl_BE',
-      type: 'website',
-    },
-  }
+    path: canonicalPath,
+    ogImage: absoluteUrl(cover.src),
+    ogImageAlt: cover.alt,
+  })
 }
 
 export default function LocalServicePlacePage({ params }: Props) {
