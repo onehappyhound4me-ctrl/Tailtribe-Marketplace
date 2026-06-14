@@ -64,23 +64,40 @@ export function getPublicReviewsDisplayRating(): { ratingValue: number; reviewCo
 }
 
 /**
- * AggregateRating voor JSON-LD — alleen als `reviewCount` bekend is (Google vereist reviewCount of ratingCount).
- * Zet NEXT_PUBLIC_GOOGLE_BUSINESS_REVIEW_COUNT in productie voor rich results.
+ * AggregateRating voor JSON-LD — verplicht wanneer Organization/LocalBusiness meerdere `review`-items heeft.
+ * Prefer env (echte Google Business stats); anders fallback op de gecureerde PUBLIC_REVIEWS.
  */
-function getPublicReviewsAggregateRatingForSchema():
-  | {
-      '@type': 'AggregateRating'
-      ratingValue: number
-      reviewCount: number
-      bestRating: number
-      worstRating: number
+function getPublicReviewsAggregateRatingForSchema(): {
+  '@type': 'AggregateRating'
+  ratingValue: number
+  reviewCount: number
+  bestRating: number
+  worstRating: number
+} {
+  const envCount = parseGoogleBusinessReviewCount()
+  const envRating = parseGoogleBusinessRating()
+
+  if (envCount != null) {
+    return {
+      '@type': 'AggregateRating',
+      ratingValue: envRating,
+      reviewCount: envCount,
+      bestRating: 5,
+      worstRating: 1,
     }
-  | undefined {
-  const reviewCount = parseGoogleBusinessReviewCount()
-  if (reviewCount == null) return undefined
+  }
+
+  const reviewCount = PUBLIC_REVIEWS.length
+  const ratingValue =
+    reviewCount > 0
+      ? Math.round(
+          (PUBLIC_REVIEWS.reduce((sum, review) => sum + review.rating, 0) / reviewCount) * 10
+        ) / 10
+      : envRating
+
   return {
     '@type': 'AggregateRating',
-    ratingValue: parseGoogleBusinessRating(),
+    ratingValue,
     reviewCount,
     bestRating: 5,
     worstRating: 1,
@@ -90,7 +107,7 @@ function getPublicReviewsAggregateRatingForSchema():
 export function getOrganizationReviewSchema() {
   const aggregateRating = getPublicReviewsAggregateRatingForSchema()
   return {
-    ...(aggregateRating ? { aggregateRating } : {}),
+    aggregateRating,
     review: PUBLIC_REVIEWS.map((review) => ({
       '@type': 'Review',
       reviewRating: {
