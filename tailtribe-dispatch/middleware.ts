@@ -134,6 +134,18 @@ export default async function middleware(req: NextRequest) {
     }
   }
 
+  // Only these areas actually require an account. Everything else that isn't
+  // a known route should fall through to Next's 404 instead of redirecting
+  // anonymous visitors (and search engines) to /login.
+  const protectedPrefixes = ['/dashboard', '/admin', '/chat', '/community']
+  const isProtectedRoute = protectedPrefixes.some(
+    (route) => pathname === route || pathname.startsWith(`${route}/`)
+  )
+
+  if (!isProtectedRoute) {
+    return NextResponse.next()
+  }
+
   // Protected routes - require authentication
   if (!isAuthed) {
     const loginUrl = new URL('/login', req.url)
