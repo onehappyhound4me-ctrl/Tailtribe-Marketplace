@@ -57,11 +57,15 @@ function VerifiedPill() {
 const HOME_FAQS = [
   {
     q: 'In welke regio werken jullie?',
-    a: 'Beschikbaarheid kan per dienst en regio verschillen; na je aanvraag bevestigen we snel wat haalbaar is.',
+    a: 'We nemen aanvragen aan in heel België, met het grootste netwerk in Vlaanderen en regio Antwerpen. Vul je postcode in bij je aanvraag en je hoort meestal dezelfde werkdag wat mogelijk is.',
+  },
+  {
+    q: 'Wat kost het?',
+    a: 'Ter indicatie (excl. btw): een hondenwandeling van 30–60 minuten kost meestal €12–€25, een volledige daguitstap met ophalen rond €45, en oppas of opvang €40–€60 per dag. Na je aanvraag krijg je snel een concrete prijs op maat.',
   },
   {
     q: 'Hoe snel nemen jullie contact op?',
-    a: 'Na je aanvraag nemen we zo snel mogelijk contact op om alles af te stemmen (meestal dezelfde werkdag).',
+    a: 'Na je aanvraag nemen we meestal dezelfde werkdag contact op. Dringend? Bel of WhatsApp ons op +32 489 29 50 45, dan helpen we je meteen.',
   },
   {
     q: 'Is er online betaling?',
@@ -73,7 +77,7 @@ const HOME_FAQS = [
   },
   {
     q: 'Kan ik last-minute boeken?',
-    a: 'Soms wel, afhankelijk van capaciteit. Vermeld “spoed” in je aanvraag, dan kijken we meteen wat haalbaar is.',
+    a: 'Vaak wel. Vermeld “spoed” in je aanvraag of bel ons rechtstreeks op +32 489 29 50 45, dan kijken we meteen wat vandaag nog haalbaar is.',
   },
 ] as const
 
@@ -183,6 +187,22 @@ export default function HomePageClient() {
                   Word dierenoppasser
                 </Link>
               </div>
+
+              <p className="mt-4 text-sm text-white/85">
+                Liever even bellen of appen?{' '}
+                <a href="tel:+32489295045" className="font-semibold text-white underline decoration-white/40 underline-offset-2 hover:decoration-white">
+                  +32 489 29 50 45
+                </a>
+                {' · '}
+                <a
+                  href="https://wa.me/32489295045?text=Hallo%20TailTribe%2C%20ik%20zoek%20hulp%20voor%20mijn%20huisdier."
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="font-semibold text-white underline decoration-white/40 underline-offset-2 hover:decoration-white"
+                >
+                  WhatsApp ons
+                </a>
+              </p>
 
               <div className="mt-8 flex flex-wrap gap-x-6 gap-y-2 text-sm text-white/85">
                 <span className="inline-flex items-center gap-2">

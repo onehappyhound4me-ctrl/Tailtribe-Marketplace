@@ -267,7 +267,7 @@ export default function BookingPage() {
           </div>
 
           {/* Reassurance bar — reduces hesitation for first-time visitors */}
-          <div className="mb-6 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-sm font-medium text-emerald-900">
+          <div className="mb-3 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-sm font-medium text-emerald-900">
             {['Gratis & vrijblijvend', 'Reactie binnen 24 uur', 'Gescreende verzorgers'].map((item) => (
               <span key={item} className="inline-flex items-center gap-1.5">
                 <svg viewBox="0 0 20 20" className="h-4 w-4 flex-shrink-0 fill-emerald-600" aria-hidden>
@@ -281,6 +281,24 @@ export default function BookingPage() {
               </span>
             ))}
           </div>
+
+          {/* Direct contact fallback — catches visitors who abandon the form */}
+          <p className="mb-6 text-center text-sm text-gray-600">
+            Liever direct contact?{' '}
+            <a href="tel:+32489295045" className="font-semibold text-emerald-700 hover:underline">
+              Bel +32 489 29 50 45
+            </a>{' '}
+            of{' '}
+            <a
+              href="https://wa.me/32489295045?text=Hallo%20TailTribe%2C%20ik%20wil%20graag%20een%20aanvraag%20doen."
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-semibold text-emerald-700 hover:underline"
+            >
+              stuur een WhatsApp
+            </a>
+            .
+          </p>
 
           {/* Form Card */}
           <div className="bg-white rounded-2xl shadow-tt p-6 sm:p-8" ref={formTopRef}>
