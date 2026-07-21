@@ -36,8 +36,8 @@ export default {
         'tt': 'var(--tt-radius)',
       },
       fontFamily: {
-        'sans': ['Inter', 'system-ui', 'Segoe UI', 'Roboto', 'sans-serif'],
-        'heading': ['Sora', 'Inter', 'system-ui', 'sans-serif'],
+        'sans': ['var(--font-inter)', 'Inter', 'system-ui', 'Segoe UI', 'Roboto', 'sans-serif'],
+        'heading': ['var(--font-sora)', 'Sora', 'var(--font-inter)', 'Inter', 'system-ui', 'sans-serif'],
       },
       boxShadow: {
         'tt': '0 10px 25px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',

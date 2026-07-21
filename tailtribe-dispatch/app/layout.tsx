@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from 'next'
+import { Inter, Sora } from 'next/font/google'
 import './globals.css'
 import { Suspense } from 'react'
 import { SessionProvider } from '@/components/SessionProvider'
@@ -11,6 +12,19 @@ import { AnalyticsDebugBadge } from '@/components/AnalyticsDebugBadge'
 import { AnalyticsEventCapture } from '@/components/AnalyticsEventCapture'
 import { getPublicAppUrl } from '@/lib/env'
 import { getOrganizationReviewSchema } from '@/lib/reviews'
+
+// Self-hosted fonts via next/font: no render-blocking Google Fonts CSS and
+// no layout shift when the webfont swaps in (adjustFontFallback).
+const inter = Inter({
+  subsets: ['latin'],
+  variable: '--font-inter',
+  display: 'swap',
+})
+const sora = Sora({
+  subsets: ['latin'],
+  variable: '--font-sora',
+  display: 'swap',
+})
 
 const appUrl = getPublicAppUrl()
 const ogImageUrl = `${appUrl}/assets/hero-marketplace.jpg`
@@ -79,7 +93,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="nl-BE" className="h-full">
+    <html lang="nl-BE" className={`h-full ${inter.variable} ${sora.variable}`}>
       <body className="h-full antialiased font-sans">
         <SessionProvider>
           <NavigationClickGuards />
