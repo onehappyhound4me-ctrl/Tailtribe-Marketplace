@@ -151,13 +151,26 @@ const waalsBrabantPlaces: BEPlace[] = [
   { name: 'Ottignies-Louvain-la-Neuve', slug: 'ottignies-louvain-la-neuve', lat: 50.6689, lng: 4.6128 },
 ]
 
+// Curated top places for Antwerpen: the city + districts, plus the actual
+// service area of our strongest partner (Kalmthout–Kapellen–Brasschaat).
+const antwerpenTopSlugs = [
+  'antwerpen',
+  'berchem',
+  'wilrijk',
+  'deurne',
+  'kalmthout',
+  'kapellen',
+  'brasschaat',
+  'mechelen',
+]
+
 export const PROVINCES: BEProvince[] = [
   // Flanders
   {
     name: 'Antwerpen',
     slug: 'antwerpen',
     region: 'vlaanderen',
-    topPlaces: antwerpenPlaces.slice(0, 4),
+    topPlaces: antwerpenPlaces.filter((p) => antwerpenTopSlugs.includes(p.slug)),
     allPlaces: antwerpenPlaces,
   },
   {
@@ -232,23 +245,32 @@ export const PROVINCES: BEProvince[] = [
 // Helper functions
 export const allProvinceSlugs = () => PROVINCES.map((p) => p.slug)
 
-export const allPlaceTriples = () =>
-  PROVINCES.flatMap((p) =>
-    (p.allPlaces ?? p.topPlaces).map((pl) => ({
-      province: p.slug,
-      place: pl.slug,
-    }))
-  )
+// We only publish local landing pages for the Dutch-language market we
+// actually serve. Publishing Dutch pages for Walloon cities (or every small
+// place) creates hundreds of near-identical pages that Google treats as
+// doorway/thin content and that can suppress the whole domain.
+const LOCAL_PAGE_REGIONS = new Set<BEProvince['region']>(['vlaanderen', 'brussel'])
 
-// Curated subset (top places per province). Used to focus the sitemap / crawl
-// budget on the strongest local pages instead of every small place.
-export const topPlaceTriples = () =>
-  PROVINCES.flatMap((p) =>
+export const hasLocalPlacePages = (provinceSlug: string) => {
+  const province = getProvinceBySlug(provinceSlug)
+  return Boolean(province && LOCAL_PAGE_REGIONS.has(province.region))
+}
+
+// Curated set of place pages we generate + advertise: top places per
+// Flemish/Brussels province. Everything else falls through to a 404.
+export const localTopPlaceTriples = () =>
+  PROVINCES.filter((p) => LOCAL_PAGE_REGIONS.has(p.region)).flatMap((p) =>
     p.topPlaces.map((pl) => ({
       province: p.slug,
       place: pl.slug,
     }))
   )
+
+export const isLocalTopPlace = (provinceSlug: string, placeSlug: string) => {
+  const province = getProvinceBySlug(provinceSlug)
+  if (!province || !LOCAL_PAGE_REGIONS.has(province.region)) return false
+  return province.topPlaces.some((pl) => pl.slug === placeSlug)
+}
 
 export function getProvinceBySlug(slug: string): BEProvince | undefined {
   return PROVINCES.find((p) => p.slug === slug)

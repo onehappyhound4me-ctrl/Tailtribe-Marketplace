@@ -3,8 +3,8 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { SiteHeader } from '@/components/SiteHeader'
 import { SiteFooter } from '@/components/SiteFooter'
-import { allPlaceTriples, getPlaceBySlugs, getProvinceBySlug } from '@/data/be-geo'
-import { DISPATCH_SERVICES, getDispatchServiceBySlug } from '@/lib/services'
+import { localTopPlaceTriples, getPlaceBySlugs, getProvinceBySlug } from '@/data/be-geo'
+import { LOCAL_SEO_SERVICE_IDS, getDispatchServiceBySlug, localSeoServices } from '@/lib/services'
 import { getPublicAppUrl } from '@/lib/env'
 import { routes } from '@/lib/routes'
 import { localServiceLocationDescription } from '@/lib/local-service-landing'
@@ -19,8 +19,10 @@ type Props = {
 export const dynamicParams = false
 
 export function generateStaticParams() {
-  const triples = allPlaceTriples()
-  return DISPATCH_SERVICES.flatMap((s) =>
+  // Curated set: core services × top places in Vlaanderen/Brussel.
+  // All other combinations return a 404 so Google drops the thin pages.
+  const triples = localTopPlaceTriples()
+  return localSeoServices().flatMap((s) =>
     triples.map(({ province, place }) => ({
       slug: s.slug,
       province,
@@ -33,7 +35,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const service = getDispatchServiceBySlug(params.slug)
   const province = getProvinceBySlug(params.province)
   const place = getPlaceBySlugs(params.province, params.place)
-  if (!service || !province || !place) {
+  if (!service || !LOCAL_SEO_SERVICE_IDS.has(service.id) || !province || !place) {
     return { title: 'Pagina niet gevonden', description: 'Deze pagina bestaat niet.' }
   }
 
@@ -56,7 +58,7 @@ export default function LocalServicePlacePage({ params }: Props) {
   const service = getDispatchServiceBySlug(params.slug)
   const province = getProvinceBySlug(params.province)
   const place = getPlaceBySlugs(params.province, params.place)
-  if (!service || !province || !place) notFound()
+  if (!service || !LOCAL_SEO_SERVICE_IDS.has(service.id) || !province || !place) notFound()
 
   const canonicalUrl = `${baseUrl}/diensten/${service.slug}/${province.slug}/${place.slug}`
   const servicePageUrl = `${baseUrl}/diensten/${service.slug}`

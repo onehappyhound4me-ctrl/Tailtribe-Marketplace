@@ -358,5 +358,19 @@ export function getDispatchServiceBySlug(slug: string) {
   return DISPATCH_SERVICES.find((s) => s.slug === slug)
 }
 
+// Only services with real local search volume get service×place landing
+// pages. Generating city pages for every service (events, farm animals, …)
+// created hundreds of near-identical thin pages that hurt the whole domain.
+export const LOCAL_SEO_SERVICE_IDS: ReadonlySet<string> = new Set<DispatchService['id']>([
+  'DOG_WALKING',
+  'GROUP_DOG_WALKING',
+  'DOG_TRAINING',
+  'PET_SITTING',
+  'PET_BOARDING',
+])
+
+export const localSeoServices = () =>
+  DISPATCH_SERVICES.filter((s) => LOCAL_SEO_SERVICE_IDS.has(s.id))
+
 
 

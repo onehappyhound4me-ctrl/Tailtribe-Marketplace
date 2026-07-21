@@ -3,8 +3,9 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { SiteHeader } from '@/components/SiteHeader'
 import { SiteFooter } from '@/components/SiteFooter'
-import { allPlaceTriples, getProvinceBySlug, getPlaceBySlugs, getPlacesByProvince } from '@/data/be-geo'
+import { localTopPlaceTriples, getProvinceBySlug, getPlaceBySlugs } from '@/data/be-geo'
 import { getPublicAppUrl } from '@/lib/env'
+import { LOCAL_SEO_SERVICE_IDS } from '@/lib/services'
 import { getServiceMarketingCover } from '@/lib/home-photography'
 import { absoluteUrl, buildPageMetadata } from '@/lib/seo'
 
@@ -15,7 +16,9 @@ type Props = {
 export const dynamicParams = false
 
 export function generateStaticParams() {
-  return allPlaceTriples().map(({ province, place }) => ({ province, place }))
+  // Only curated top places in Vlaanderen/Brussel get a local landing page.
+  // Other combinations return a 404 so Google drops the thin pages.
+  return localTopPlaceTriples().map(({ province, place }) => ({ province, place }))
 }
 
 function isGroepsuitlaatFocus(provinceSlug: string, placeSlug: string) {
@@ -469,7 +472,11 @@ export default function PlaceLandingPage({ params }: Props) {
                   ) : null}
                   <div className="mt-5">
                     <Link
-                      href={`/diensten/${service.slug}`}
+                      href={
+                        LOCAL_SEO_SERVICE_IDS.has(service.id)
+                          ? `/diensten/${service.slug}/${province.slug}/${place.slug}`
+                          : `/diensten/${service.slug}`
+                      }
                       className="btn-secondary-compact"
                     >
                       Bekijk {service.name}

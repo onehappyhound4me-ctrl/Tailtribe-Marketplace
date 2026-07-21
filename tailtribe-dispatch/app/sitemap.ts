@@ -1,6 +1,6 @@
 import type { MetadataRoute } from 'next'
-import { allProvinceSlugs, topPlaceTriples } from '@/data/be-geo'
-import { DISPATCH_SERVICES } from '@/lib/services'
+import { allProvinceSlugs, localTopPlaceTriples } from '@/data/be-geo'
+import { DISPATCH_SERVICES, localSeoServices } from '@/lib/services'
 import { getBlogPosts } from '@/lib/blog.server'
 import { getPublicAppUrl } from '@/lib/env'
 
@@ -48,10 +48,10 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: 0.6,
   }))
 
-  // Only advertise the curated top places (not every small place) so Google
-  // spends its crawl budget on the strongest local pages. The remaining
-  // service×place pages still exist and stay indexable via internal links.
-  const topPlaces = topPlaceTriples()
+  // Curated local pages only: top places in Vlaanderen/Brussel, and only
+  // core services with real local search volume. This matches exactly what
+  // we generate — everything else is a 404.
+  const topPlaces = localTopPlaceTriples()
 
   const cityPages = topPlaces.map(({ province, place }) => ({
     url: abs(`/be/${province}/${place}`),
@@ -60,7 +60,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: 0.5,
   }))
 
-  const servicePlacePages = DISPATCH_SERVICES.flatMap((s) =>
+  const servicePlacePages = localSeoServices().flatMap((s) =>
     topPlaces.map(({ province, place }) => ({
       url: abs(`/diensten/${s.slug}/${province}/${place}`),
       lastModified,

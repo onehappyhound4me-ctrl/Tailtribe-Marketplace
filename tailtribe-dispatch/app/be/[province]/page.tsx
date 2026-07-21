@@ -3,7 +3,7 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { SiteHeader } from '@/components/SiteHeader'
 import { SiteFooter } from '@/components/SiteFooter'
-import { allProvinceSlugs, getProvinceBySlug, getPlacesByProvince } from '@/data/be-geo'
+import { allProvinceSlugs, getProvinceBySlug, hasLocalPlacePages } from '@/data/be-geo'
 import { getDispatchServiceBySlug } from '@/lib/services'
 import { getPublicAppUrl } from '@/lib/env'
 import { buildPageMetadata } from '@/lib/seo'
@@ -36,7 +36,9 @@ export default function ProvinceLandingPage({ params }: Props) {
   const province = getProvinceBySlug(params.province)
   if (!province) notFound()
 
-  const places = getPlacesByProvince(params.province)
+  // Only link to place pages that actually exist (curated top places in
+  // Vlaanderen/Brussel). Walloon provinces get no Dutch city pages.
+  const places = hasLocalPlacePages(province.slug) ? province.topPlaces : []
   const baseUrl = getPublicAppUrl()
   const canonicalUrl = `${baseUrl}/be/${province.slug}`
 
@@ -54,7 +56,7 @@ export default function ProvinceLandingPage({ params }: Props) {
     ],
   }
 
-  const placeLinks = places.slice(0, 6).map((place, index) => ({
+  const placeLinks = places.map((place, index) => ({
     '@type': 'ListItem',
     position: index + 1,
     name: place.name,
@@ -110,10 +112,12 @@ export default function ProvinceLandingPage({ params }: Props) {
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
         />
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListJsonLd) }}
-        />
+        {placeLinks.length > 0 ? (
+          <script
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListJsonLd) }}
+          />
+        ) : null}
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
@@ -244,37 +248,54 @@ export default function ProvinceLandingPage({ params }: Props) {
             </ul>
           </section>
 
-          <section className="mb-12 rounded-2xl border border-slate-200/90 bg-white p-8 md:p-10">
-            <p className="text-xs font-medium uppercase tracking-[0.12em] text-slate-500">Populaire locaties</p>
-            <h2 className="mt-2 text-xl font-semibold leading-snug text-slate-900 md:text-2xl">
-              Snel naar een veelgevraagde plek in {province.name}
-            </h2>
-            <p className="copy-pretty mt-4 max-w-2xl text-base leading-relaxed text-slate-600">
-              Kies een locatie hieronder, of start meteen je aanvraag als je vooral snel hulp zoekt.
-            </p>
-            <div className="mt-8 grid grid-cols-2 gap-2 sm:gap-3 md:grid-cols-2 lg:grid-cols-3">
-              {places.slice(0, 6).map((place) => (
-                <Link
-                  key={place.slug}
-                  href={`/be/${province.slug}/${place.slug}`}
-                  className="group flex min-h-[44px] flex-col justify-center rounded-xl border border-slate-200/80 bg-slate-50/40 px-3 py-3 text-slate-800 transition hover:border-slate-300 hover:bg-white sm:min-h-0 sm:px-4 sm:py-4"
-                >
-                  <div className="font-medium leading-snug text-slate-900 group-hover:text-emerald-800 transition-colors">
-                    {place.name}
-                  </div>
-                  <div className="mt-1 text-xs text-slate-500">Bekijk →</div>
-                </Link>
-              ))}
-            </div>
-            <div className="mt-8 flex flex-col gap-4 border-t border-slate-100 pt-8 sm:flex-row sm:items-center sm:justify-between">
-              <p className="text-sm leading-relaxed text-slate-600">
-                Staat je stad er niet tussen? Vermeld je locatie in je aanvraag.
+          {places.length > 0 ? (
+            <section className="mb-12 rounded-2xl border border-slate-200/90 bg-white p-8 md:p-10">
+              <p className="text-xs font-medium uppercase tracking-[0.12em] text-slate-500">Populaire locaties</p>
+              <h2 className="mt-2 text-xl font-semibold leading-snug text-slate-900 md:text-2xl">
+                Snel naar een veelgevraagde plek in {province.name}
+              </h2>
+              <p className="copy-pretty mt-4 max-w-2xl text-base leading-relaxed text-slate-600">
+                Kies een locatie hieronder, of start meteen je aanvraag als je vooral snel hulp zoekt.
               </p>
-              <Link href="/boeken" className="btn-brand-compact shrink-0">
-                Dien je aanvraag in
-              </Link>
-            </div>
-          </section>
+              <div className="mt-8 grid grid-cols-2 gap-2 sm:gap-3 md:grid-cols-2 lg:grid-cols-3">
+                {places.map((place) => (
+                  <Link
+                    key={place.slug}
+                    href={`/be/${province.slug}/${place.slug}`}
+                    className="group flex min-h-[44px] flex-col justify-center rounded-xl border border-slate-200/80 bg-slate-50/40 px-3 py-3 text-slate-800 transition hover:border-slate-300 hover:bg-white sm:min-h-0 sm:px-4 sm:py-4"
+                  >
+                    <div className="font-medium leading-snug text-slate-900 group-hover:text-emerald-800 transition-colors">
+                      {place.name}
+                    </div>
+                    <div className="mt-1 text-xs text-slate-500">Bekijk →</div>
+                  </Link>
+                ))}
+              </div>
+              <div className="mt-8 flex flex-col gap-4 border-t border-slate-100 pt-8 sm:flex-row sm:items-center sm:justify-between">
+                <p className="text-sm leading-relaxed text-slate-600">
+                  Staat je stad er niet tussen? Vermeld je locatie in je aanvraag.
+                </p>
+                <Link href="/boeken" className="btn-brand-compact shrink-0">
+                  Dien je aanvraag in
+                </Link>
+              </div>
+            </section>
+          ) : (
+            <section className="mb-12 rounded-2xl border border-slate-200/90 bg-white p-8 md:p-10">
+              <h2 className="text-xl font-semibold leading-snug text-slate-900 md:text-2xl">
+                Hulp nodig in {province.name}?
+              </h2>
+              <p className="copy-pretty mt-4 max-w-2xl text-base leading-relaxed text-slate-600">
+                Dien je aanvraag in met je postcode en wensen; we bekijken wat haalbaar is in jouw regio en nemen
+                persoonlijk contact op.
+              </p>
+              <div className="mt-8">
+                <Link href="/boeken" className="btn-brand-compact shrink-0">
+                  Dien je aanvraag in
+                </Link>
+              </div>
+            </section>
+          )}
 
           <section className="rounded-2xl border border-slate-200/90 bg-white p-8 md:p-10">
             <p className="text-xs font-medium uppercase tracking-[0.12em] text-slate-500">Veelgestelde vragen</p>
