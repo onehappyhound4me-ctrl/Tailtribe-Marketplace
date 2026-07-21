@@ -255,9 +255,9 @@ export const DISPATCH_SERVICES: DispatchService[] = [
     desc: 'Transport van dieren, transport hond en transport kat op afspraak',
     slug: 'transport-huisdieren',
     image: '/assets/transport van huisdieren.png',
-    detailTitle: 'Transport van dieren | Hond en kat veilig vervoerd',
+    detailTitle: 'Dierentransport in België | Transport hond & kat aan huis',
     metaDescription:
-      'Transport van hond of kat in België: veilig vervoer naar dierenarts, opvang of afspraak. Timing, bench en instructies afgestemd. Vraag transport via TailTribe.',
+      'Dierentransport in heel België: veilig transport van je hond of kat naar dierenarts, opvang, luchthaven of nieuw adres. Ophalen aan huis, bench en instructies afgestemd. Vraag je transport aan via TailTribe.',
     priceGuide:
       'Richtbedrag exclusief btw: korte ritten worden vaak tussen €20 en €40 aangerekend. Voor langere afstanden komt er doorgaans tussen €0,50 en €1 per kilometer bij, in overleg na route en timing. Vraag je verplaatsing aan voor een helder totaalbeeld.',
     longDescription: {

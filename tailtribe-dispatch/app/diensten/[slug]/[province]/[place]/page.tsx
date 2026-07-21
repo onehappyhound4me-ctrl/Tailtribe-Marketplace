@@ -18,6 +18,16 @@ type Props = {
 /** Alleen vooraf gegenereerde combinaties (geen dunne fallbacks op willekeurige URL’s). */
 export const dynamicParams = false
 
+// Title/H1 keywords per service, afgestemd op wat mensen echt zoeken
+// (Search Console: "hondenoppas antwerpen", "hondenschool kalmthout", …).
+const LOCAL_TITLE_KEYWORDS: Record<string, string> = {
+  DOG_WALKING: 'Hondenuitlaat',
+  GROUP_DOG_WALKING: 'Hondenuitlaatservice',
+  DOG_TRAINING: 'Hondentraining & hondenschool',
+  PET_SITTING: 'Dierenoppas & hondenoppas aan huis',
+  PET_BOARDING: 'Hondenopvang & dierenopvang',
+}
+
 export function generateStaticParams() {
   // Curated set: core services × top places in Vlaanderen/Brussel.
   // All other combinations return a 404 so Google drops the thin pages.
@@ -40,7 +50,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   }
 
   const canonicalPath = `/diensten/${service.slug}/${province.slug}/${place.slug}`
-  const title = `${service.name} – ${place.name} (${province.name}) | TailTribe`
+  const titleKeyword = LOCAL_TITLE_KEYWORDS[service.id] ?? service.name
+  const title = `${titleKeyword} – ${place.name} | TailTribe`
   const description = localServiceLocationDescription(service, place, province)
   const cover = getServiceMarketingCover(service.id)
 
@@ -149,7 +160,7 @@ export default function LocalServicePlacePage({ params }: Props) {
               Lokale aanvraag · {province.name}
             </p>
             <h1 className="mt-3 text-3xl font-semibold tracking-tight text-slate-900 md:text-4xl md:leading-tight">
-              {service.name} – {place.name}
+              {LOCAL_TITLE_KEYWORDS[service.id] ?? service.name} – {place.name}
             </h1>
             <p className="copy-pretty mt-4 text-base leading-relaxed text-slate-600 md:text-lg">
               Zoek je <strong className="font-medium text-slate-800">{service.name.toLowerCase()}</strong> in{' '}
