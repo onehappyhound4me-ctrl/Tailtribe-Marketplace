@@ -276,20 +276,24 @@ export default function DienstDetailPage({ params }: Props) {
               : service.id === 'PET_TRANSPORT'
                 ? [
                     {
+                      q: 'Wat kost dierentransport?',
+                      a: 'Ter indicatie (excl. btw): korte ritten kosten meestal €20 tot €40. Voor langere afstanden komt er doorgaans €0,50 tot €1 per kilometer bij. Na je aanvraag krijg je een concrete prijs op basis van route en timing.',
+                    },
+                    {
                       q: 'Vervoeren jullie zowel honden als katten?',
-                      a: 'Ja. We stemmen bench, harnas en rit af op je dier en de bestemming.',
+                      a: 'Ja. We vervoeren honden, katten en in overleg ook andere huisdieren. Bench, harnas en rit worden afgestemd op je dier en de bestemming.',
                     },
                     {
-                      q: 'Kan transport naar de dierenarts of naar opvang?',
-                      a: 'Ja, dat zijn veelvoorkomende routes. Geef bestemming, timing en bijzonderheden door in je aanvraag.',
-                    },
-                    {
-                      q: 'Wat heb ik klaar te leggen?',
-                      a: 'Een passende bench of draagmand, papieren indien nodig, en duidelijke instructies rond medicatie of stress-triggers.',
+                      q: 'Naar welke bestemmingen kan het transport?',
+                      a: 'Veelvoorkomende ritten zijn naar de dierenarts, opvang of trimmer, maar ook naar de luchthaven of een nieuw adres bij verhuis. Geef bestemming, timing en bijzonderheden door in je aanvraag.',
                     },
                     {
                       q: 'Dekken jullie heel België?',
-                      a: 'Beschikbaarheid hangt af van rit en planning. Na je aanvraag zie je snel wat haalbaar is.',
+                      a: 'Ja. Via ons netwerk van dierenverzorgers nemen we transportaanvragen door heel België aan. Na je aanvraag bevestigen we snel wat haalbaar is voor jouw route en timing.',
+                    },
+                    {
+                      q: 'Wat heb ik klaar te leggen?',
+                      a: 'Een passende bench of draagmand (of meld het als je die niet hebt), papieren indien nodig, en duidelijke instructies rond medicatie of stress-triggers.',
                     },
                   ]
                 : service.id === 'SMALL_ANIMAL_CARE'
