@@ -50,8 +50,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   }
 
   const canonicalPath = `/diensten/${service.slug}/${province.slug}/${place.slug}`
+  // buildPageMetadata voegt zelf "| TailTribe" toe.
   const titleKeyword = LOCAL_TITLE_KEYWORDS[service.id] ?? service.name
-  const title = `${titleKeyword} – ${place.name} | TailTribe`
+  const title = `${titleKeyword} – ${place.name}`
   const description = localServiceLocationDescription(service, place, province)
   const cover = getServiceMarketingCover(service.id)
 
