@@ -21,10 +21,10 @@ export const dynamicParams = false
 // Title/H1 keywords per service, afgestemd op wat mensen echt zoeken
 // (Search Console: "hondenoppas antwerpen", "hondenschool kalmthout", …).
 const LOCAL_TITLE_KEYWORDS: Record<string, string> = {
-  DOG_WALKING: 'Hondenuitlaat',
+  DOG_WALKING: 'Hondenuitlaatdienst & hondenuitlater',
   GROUP_DOG_WALKING: 'Hondenuitlaatservice',
   DOG_TRAINING: 'Hondentraining & hondenschool',
-  PET_SITTING: 'Dierenoppas & hondenoppas aan huis',
+  PET_SITTING: 'Hondenoppas & dierenoppas aan huis',
   PET_BOARDING: 'Hondenopvang & dierenopvang',
 }
 

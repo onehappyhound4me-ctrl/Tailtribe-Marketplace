@@ -60,9 +60,9 @@ export const DISPATCH_SERVICES: DispatchService[] = [
     desc: 'Hondenuitlaat aan huis met een vaste hondenuitlater of dog walker, met focus op welzijn, tempo en veiligheid',
     slug: 'hondenuitlaat',
     image: '/assets/Hondenuitlaat.png',
-    detailTitle: 'Hondenuitlaat aan huis | Professionele hondenuitlater',
+    detailTitle: 'Hondenuitlaatdienst | Hondenuitlaat aan huis met professionele hondenuitlater',
     metaDescription:
-      'Hondenuitlaat en dog walker aan huis in België. Vaste hondenuitlater, wandeling op tempo, welzijn en veiligheid. Vraag via TailTribe — we matchen en volgen persoonlijk op.',
+      'Hondenuitlaatdienst en uitlaatservice aan huis in België. Vaste hondenuitlater of dog walker, wandeling op tempo, welzijn en veiligheid. Vraag via TailTribe — we matchen en volgen persoonlijk op.',
     priceGuide:
       'Richtbedrag exclusief btw: voor een wandeling van 30 tot 60 minuten ligt de gebruikelijke marktindicatie meestal tussen €12 en €25. Het exacte tarief hangt af van regio, frequentie, je hond en concrete afspraken. Na je aanvraag krijg je een offerte op maat.',
     longDescription: {
@@ -159,9 +159,9 @@ export const DISPATCH_SERVICES: DispatchService[] = [
     desc: 'Dierenoppas en hondenoppas aan huis in het comfort van je eigen woonst',
     slug: 'dierenoppas',
     image: '/assets/hondenoppas.png',
-    detailTitle: 'Dierenoppas en hondenoppas aan huis',
+    detailTitle: 'Dierenoppas en hondenoppas aan huis | Hondensitter & dogsitter',
     metaDescription:
-      'Dierenoppas en hondenoppas aan huis in België: betrouwbare dierenoppasser, hondenoppasser of dog sitter. Routine, voeding en updates. Match via TailTribe.',
+      'Dierenoppas, hondenoppas en kattenoppas aan huis in België: betrouwbare dierenoppasser, hondensitter of dogsitter. Routine, voeding en updates. Match via TailTribe.',
     priceGuide:
       'Richtbedrag exclusief btw: dierenoppas aan huis ligt vaak tussen €40 en €60 per dag, naargelang duur, aantal bezoeken, routine en zorgzwaarte. Dit zijn indicaties; je ontvangt een concrete prijs na je aanvraag.',
     longDescription: {
@@ -223,9 +223,9 @@ export const DISPATCH_SERVICES: DispatchService[] = [
     desc: 'Dierenverzorging aan huis en aan huis dierenoppas voor je huisdier',
     slug: 'verzorging-aan-huis',
     image: '/assets/home-visit.png',
-    detailTitle: 'Dierenverzorging aan huis | Aan huis dierenoppas',
+    detailTitle: 'Huisoppas & dierenverzorging aan huis | Aan huis dierenoppas',
     metaDescription:
-      'Dierenverzorging aan huis in België: bezoeken voor voeding, wandeling, kattenbak en check-in. Minder stress, eigen omgeving. Plan zorg via TailTribe.',
+      'Huisoppas en dierenverzorging aan huis in België: bezoeken voor voeding, wandeling, kattenbak en check-in. Minder stress, eigen omgeving. Plan zorg via TailTribe.',
     priceGuide:
       'Richtbedrag exclusief btw: korte verzorging aan huis (check-in, voeding, kattenbak, korte wandeling, …) ligt meestal tussen €20 en €40 per bezoek, afhankelijk van tijd en het afgesproken takenpakket. Concrete prijs na je aanvraag.',
     longDescription: {
