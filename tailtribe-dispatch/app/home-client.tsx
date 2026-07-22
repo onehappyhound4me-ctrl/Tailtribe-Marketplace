@@ -486,7 +486,8 @@ export default function HomePageClient() {
               Wat baasjes waarderen
             </h2>
             <p className="mx-auto mt-4 max-w-2xl text-base leading-relaxed text-slate-600">
-              Echte meningen over duidelijke communicatie, opvolging en zorg voor het dier.
+              Reviews van onze hondenuitlaatservice:{' '}
+              <span className="font-semibold text-slate-800">One Happy Hound</span>.
             </p>
             <p className="mx-auto mt-5">
               <a

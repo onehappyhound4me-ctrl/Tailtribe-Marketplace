@@ -9,12 +9,14 @@ const baseUrl = getPublicAppUrl()
 const canonicalUrl = new URL('/google-reviews', baseUrl).toString()
 
 export const metadata: Metadata = {
-  title: 'Reviews over TailTribe',
-  description: 'Lees reviews over TailTribe, bekijk ervaringen van baasjes en ga door naar onze Google reviews.',
+  title: 'Reviews — hondenuitlaatservice One Happy Hound',
+  description:
+    'Reviews van onze hondenuitlaatservice One Happy Hound. Lees ervaringen van baasjes en bekijk alle Google-reviews.',
   alternates: { canonical: canonicalUrl },
   openGraph: {
-    title: 'Reviews over TailTribe',
-    description: 'Lees reviews over TailTribe, bekijk ervaringen van baasjes en ga door naar onze Google reviews.',
+    title: 'Reviews — hondenuitlaatservice One Happy Hound',
+    description:
+      'Reviews van onze hondenuitlaatservice One Happy Hound. Lees ervaringen van baasjes en bekijk alle Google-reviews.',
     url: canonicalUrl,
     siteName: 'TailTribe',
     locale: 'nl_BE',
@@ -26,7 +28,7 @@ export default function GoogleReviewsPage() {
   const reviewsJsonLd = {
     '@context': 'https://schema.org',
     '@type': 'WebPage',
-    name: 'Reviews over TailTribe',
+    name: 'Reviews van onze hondenuitlaatservice One Happy Hound',
     url: canonicalUrl,
     mainEntity: { '@id': `${baseUrl}/#organization` },
   }
@@ -39,10 +41,12 @@ export default function GoogleReviewsPage() {
         <div className="mx-auto w-full max-w-5xl space-y-8">
           <div className="rounded-3xl border border-emerald-100 bg-white shadow-sm p-6 sm:p-8 md:p-10 text-center">
             <p className="text-sm font-semibold uppercase tracking-[0.14em] text-emerald-800">Reviews</p>
-            <h1 className="mt-3 text-3xl sm:text-4xl font-bold text-gray-900">Wat baasjes over TailTribe zeggen</h1>
+            <h1 className="mt-3 text-3xl sm:text-4xl font-bold text-gray-900">
+              Reviews van onze hondenuitlaatservice: One Happy Hound
+            </h1>
             <p className="mt-4 mx-auto max-w-2xl text-base leading-8 text-gray-700">
-              Vertrouwen is alles wanneer je hulp zoekt voor je hond, kat of ander huisdier. Daarom tonen we hier
-              enkele zichtbare reviews en linken we ook door naar onze Google reviews.
+              De Google-reviews onder TailTribe gaan over de groepsuitlaat van onze partner{' '}
+              <strong>One Happy Hound</strong>. Hieronder enkele ervaringen — alle reviews vind je op Google.
             </p>
             <div className="mt-8">
               <a
@@ -86,9 +90,9 @@ export default function GoogleReviewsPage() {
           <div className="rounded-2xl border border-emerald-100 bg-white p-6 shadow-sm sm:p-8">
             <h2 className="text-2xl font-semibold text-gray-900">Waarom deze reviews belangrijk zijn</h2>
             <p className="mt-4 max-w-3xl text-base leading-8 text-gray-700">
-              Wie zoekt naar hondenuitlaat, hondenoppas, kattenoppas of hondenopvang wil vooral weten of een platform
-              betrouwbaar aanvoelt. Deze reviews geven extra zekerheid naast onze uitleg op de dienstpagina&apos;s en de
-              ervaringen op Google.
+              Wie zoekt naar een hondenuitlaatservice wil weten of de honden goed begeleid worden. Deze reviews gaan
+              over de groepsuitlaat van <strong>One Happy Hound</strong> — en geven extra zekerheid naast onze
+              dienstpagina&apos;s.
             </p>
             <div className="mt-6 flex flex-col gap-3 sm:flex-row">
               <Link href="/diensten" className="btn-secondary-compact">
