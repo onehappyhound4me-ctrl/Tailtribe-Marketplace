@@ -159,29 +159,31 @@ export const DISPATCH_SERVICES: DispatchService[] = [
     desc: 'Dierenoppas en hondenoppas aan huis in het comfort van je eigen woonst',
     slug: 'dierenoppas',
     image: '/assets/hondenoppas.png',
-    detailTitle: 'Dierenoppas en hondenoppas aan huis | Hondensitter & dogsitter',
+    detailTitle: 'Dierenoppas aan huis in België | Hondenoppas & kattenoppas',
     metaDescription:
-      'Dierenoppas, hondenoppas en kattenoppas aan huis in België: betrouwbare dierenoppasser, hondensitter of dogsitter. Routine, voeding en updates. Match via TailTribe.',
+      'Dierenoppas aan huis in België: hondenoppas, kattenoppas of dogsitter terwijl jij weg bent. Eigen woning, vaste routine, updates. Vraag je oppas aan via TailTribe.',
     priceGuide:
-      'Richtbedrag exclusief btw: dierenoppas aan huis ligt vaak tussen €40 en €60 per dag, naargelang duur, aantal bezoeken, routine en zorgzwaarte. Dit zijn indicaties; je ontvangt een concrete prijs na je aanvraag.',
+      'Richtbedrag exclusief btw: dierenoppas aan huis ligt vaak tussen €40 en €60 per dag, naargelang duur, aantal bezoeken, routine en zorgzwaarte. Nachtoppas of meerdere dieren kan hoger liggen. Dit zijn indicaties; je ontvangt een concrete prijs na je aanvraag.',
     longDescription: {
       why: [
         'Oppas is ideaal wanneer je een betrouwbare dierenoppasser of hondenoppasser zoekt terwijl jij weg bent.',
         'We stemmen verwachtingen af: routine, voeding, wandelingen en comfort.',
       ],
       whyText:
-        'Dierenoppas is de ideale oplossing wanneer je even geen opvang hebt, maar wél zekerheid wil dat je huisdier aandacht, rust en structuur krijgt. Zoek je specifiek een hondenoppas, hondenoppasser of zelfs een dog sitter aan huis, dan valt dat ook onder deze dienst. Bij deze dienst komt de verzorger bij jou thuis en past op je huisdier in het comfort van je eigen woonst. We werken met duidelijke afspraken en stemmen de zorg af op het karakter en de routine van je dier.\n\nHet doel is simpel: jouw huisdier voelt zich veilig en comfortabel in de eigen omgeving, en jij kan met een gerust hart weg. We houden rekening met gewoontes, energiepeil, eventuele gevoeligheden en (waar van toepassing) medicatie volgens jouw instructies.',
+        'Dierenoppas aan huis is de oplossing wanneer je huisdier het best in de eigen woning blijft — zonder transportstress of vreemde omgeving. Via TailTribe regel je een dierenoppasser, hondenoppas of dogsitter in België die jouw routine volgt: voeding, wandelingen, rust, speeltijd en (indien nodig) medicatie.\n\nAnders dan dierenopvang of pension blijft je hond of kat thuis, met eigen geuren, slaapplek en vertrouwde regels. Dat is vooral waardevol bij gevoelige dieren, pups in opbouw, oudere huisdieren of katten die slecht reizen.\n\nAnders dan korte “verzorging aan huis”-bezoeken gaat dierenoppas vaak over een langere afwezigheid: een weekend, een week vakantie, of meerdere opeenvolgende dagen. We stemmen af of dat via dagbezoeken, avondchecks of (in overleg) overnachting bij jou thuis gebeurt.\n\nHet doel is eenvoudig: jouw huisdier blijft veilig en op ritme, jij vertrekt met een helder plan en bereikbare opvolging.',
       includes: [
         'Afspraak op maat (dag, nacht of meerdere dagen).',
         'Duidelijke afspraken over voeding, medicatie en gewoontes.',
         'Geschikt voor hondenoppas, kattenoppas en bredere oppas aan huis.',
       ],
       includesText:
-        'We starten met een korte afstemming (telefonisch of via bericht): wie is je huisdier, wat is de routine, wat zijn de do’s & don’ts en welke momenten zijn belangrijk (voeding, wandelingen, rust, speeltijd).\n\nTijdens de oppasperiode (bij jou thuis) zorgen we voor:\n- voeding en water volgens jouw schema\n- wandelingen of beweging op maat (indien nodig)\n- aandacht, rustmomenten en toezicht\n- opvolging van afspraken rond gedrag (bv. geen zetel, bench, …)\n\nIndien gewenst spreken we ook af hoe vaak je een update ontvangt (kort berichtje of foto).',
+        'We starten met een korte intake (bericht of telefoon): soort dier, karakter, routine, toegang tot de woning, noodcontacten en wat er wél/niet mag.\n\nTijdens de oppasperiode bij jou thuis zorgen we typisch voor:\n- voeding en vers water volgens jouw schema\n- wandelingen of beweging op maat (hond)\n- kattenbak, rust en korte check-ins (kat)\n- aandacht, speeltijd en toezicht zonder je huis “over te nemen”\n- opvolging van huisregels (bench, zetel, bezoek, …)\n- medicatie alleen volgens jouw schriftelijke instructies\n\nUpdates: op verzoek een kort bericht of foto na een bezoek of op vaste momenten. Zo weet je wat er gebeurt zonder dat je constant moet appen.\n\nZoek je vooral korte dagelijkse check-ins zonder volledige oppasperiode? Kijk dan ook naar onze dienst verzorging aan huis. Specifiek voor katten hebben we ook een aparte pagina kattenoppas.',
       tips: [
-        'Neem favoriete voeding/snacks mee (en vermeld eventuele allergieën).',
-        'Geef duidelijke instructies rond routine en grenzen (bench, sofa, bezoek, …).',
-        'Noteer noodcontacten en dierenartsgegevens (voor de zekerheid).',
+        'Leg voeding, snacks en (indien nodig) medicatie klaar met duidelijke dosering.',
+        'Schrijf routine en huisregels op (wandeltijden, bench, sofa, bezoek, alarm).',
+        'Regel toegang vooraf: sleuteloverdracht, code, sleutelkluis of buur — een sleutelcontract is mogelijk.',
+        'Noteer noodcontacten + dierenarts (naam, telefoon, eventuele verzekering).',
+        'Vermeld je postcode in de aanvraag zodat we lokaal kunnen matchen in België.',
       ],
     },
   },

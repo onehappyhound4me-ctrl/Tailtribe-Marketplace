@@ -137,7 +137,7 @@ export default function DienstDetailPage({ params }: Props) {
         : service.id === 'DOG_TRAINING'
           ? 'Op zoek naar een hondentrainer aan huis of een praktisch alternatief voor de klassieke hondenschool? We bekijken training op maat van jouw hond, gedrag en dagelijks leven.'
         : service.id === 'PET_SITTING'
-          ? 'Zoek je hondenoppas, een hondenoppasser of een betrouwbare dog sitter aan huis? Dierenoppas aan huis is ideaal als je huisdier het best in de eigen omgeving blijft. We volgen jouw routine en spreken duidelijke afspraken af voor voeding, wandelen en updates.'
+          ? 'Zoek je dierenoppas of hondenoppas aan huis in België? Een dierenoppasser of dogsitter past op in jouw woning — ideaal voor vakantie, een weekend weg of als je hond of kat slecht naar een pension gaat. We volgen jouw routine voor voeding, wandelen, rust en updates.'
           : service.id === 'PET_BOARDING'
             ? 'Hondenopvang of dierenopvang nodig in een veilige omgeving? We maken afspraken op maat rond routine, voeding, rust en verblijfsduur. Geschikt voor vakantie, langere periodes of extra ondersteuning.'
             : service.id === 'HOME_CARE'
@@ -211,24 +211,40 @@ export default function DienstDetailPage({ params }: Props) {
         : service.id === 'PET_SITTING'
           ? [
               {
+                q: 'Wat is het verschil tussen dierenoppas en dierenopvang?',
+                a: 'Bij dierenoppas blijft je huisdier bij jou thuis. Bij dierenopvang of pension gaat het dier naar een andere locatie. Oppas aan huis is vaak rustiger voor katten, gevoelige honden en dieren die slecht reizen.',
+              },
+              {
                 q: 'Komt de dierenoppas bij mij thuis?',
-                a: 'Ja. Dierenoppas gebeurt in het comfort van je eigen woonst, volgens jouw routine en afspraken.',
+                a: 'Ja. Dierenoppas gebeurt in je eigen woning, volgens jouw routine en afspraken rond toegang, voeding en aanwezigheid.',
               },
               {
                 q: 'Doen jullie ook hondenoppas aan huis?',
-                a: 'Ja. Hondenoppas aan huis valt binnen deze dienst. We bekijken je routine, wandelingen, voeding en de praktische afspraken rond aanwezigheid en updates.',
+                a: 'Ja. Hondenoppas of een dogsitter aan huis valt binnen deze dienst: wandelingen, voeding, rust en updates stemmen we af op jouw hond.',
+              },
+              {
+                q: 'Wat is het verschil met verzorging aan huis?',
+                a: 'Verzorging aan huis zijn meestal kortere bezoeken (check-in, voeding, kattenbak, korte wandeling). Dierenoppas is bredere oppas over een langere periode — weekend, vakantie of meerdere dagen.',
+              },
+              {
+                q: 'Is overnachting bij mij thuis mogelijk?',
+                a: 'In overleg wel. Geef in je aanvraag door of je dagbezoeken, avondchecks of nachtoppas zoekt — dan bekijken we wat haalbaar is in jouw regio.',
               },
               {
                 q: 'Krijg ik updates?',
-                a: 'Op verzoek sturen we een korte update (bericht/foto) na het bezoek of op afgesproken momenten.',
+                a: 'Op verzoek sturen we een korte update (bericht of foto) na een bezoek of op vaste momenten die we vooraf afspreken.',
               },
               {
                 q: 'Wat moet ik klaarleggen?',
-                a: 'Voeding, (eventuele) medicatie-instructies, contactgegevens en duidelijke afspraken rond toegang/sleutel.',
+                a: 'Voeding, eventuele medicatie-instructies, noodcontacten, dierenartsgegevens en een duidelijke afspraak rond sleutel of toegangscode.',
               },
               {
                 q: 'Doen jullie ook kattenoppas?',
-                a: 'Ja. We plannen bezoeken op maat (voeding, water, kattenbak, aandacht en controle).',
+                a: 'Ja. We plannen bezoeken op maat (voeding, water, kattenbak, aandacht en controle). Meer details vind je ook op onze pagina kattenoppas.',
+              },
+              {
+                q: 'Werken jullie in heel België?',
+                a: 'We nemen aanvragen door heel België aan. Vermeld je postcode — beschikbaarheid hangt af van lokale verzorgers en planning. We volgen elke aanvraag persoonlijk op.',
               },
             ]
           : service.id === 'PET_BOARDING'
@@ -649,6 +665,31 @@ export default function DienstDetailPage({ params }: Props) {
                 </Link>
                 .
               </p>
+              {service.id === 'PET_SITTING' ? (
+                <p className="mt-3 max-w-2xl text-sm leading-relaxed text-slate-600 sm:text-base">
+                  Gerelateerd:{' '}
+                  <Link
+                    href="/diensten/kattenoppas"
+                    className="font-medium text-emerald-800 underline-offset-2 hover:underline"
+                  >
+                    kattenoppas aan huis
+                  </Link>
+                  {' · '}
+                  <Link
+                    href="/diensten/verzorging-aan-huis"
+                    className="font-medium text-emerald-800 underline-offset-2 hover:underline"
+                  >
+                    verzorging aan huis
+                  </Link>
+                  {' · '}
+                  <Link
+                    href="/diensten/dierenopvang"
+                    className="font-medium text-emerald-800 underline-offset-2 hover:underline"
+                  >
+                    dierenopvang
+                  </Link>
+                </p>
+              ) : null}
             </div>
 
             {faqs ? (
