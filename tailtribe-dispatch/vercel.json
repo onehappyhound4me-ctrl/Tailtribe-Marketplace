@@ -1,4 +1,9 @@
 {
-  "buildCommand": "node scripts/select-prisma-schema.js postgres && npx prisma generate && next build"
+  "buildCommand": "node scripts/select-prisma-schema.js postgres && npx prisma generate && next build",
+  "crons": [
+    {
+      "path": "/api/cron/verification-reminders",
+      "schedule": "0 9 * * *"
+    }
+  ]
 }
-

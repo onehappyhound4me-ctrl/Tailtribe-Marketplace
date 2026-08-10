@@ -63,6 +63,70 @@ export async function sendVerificationEmail(email: string, token: string) {
   })
 }
 
+export async function sendVerificationReminderEmail(email: string, firstName: string, token: string) {
+  const verificationUrl = `${baseUrl()}/api/auth/verify?token=${token}`
+  const name = firstName?.trim() || 'daar'
+
+  const subject = 'Herinnering: bevestig je e-mailadres voor TailTribe'
+  const text = [
+    `Hallo ${name},`,
+    '',
+    'Je hebt je onlangs geregistreerd bij TailTribe, maar je e-mailadres is nog niet bevestigd.',
+    'Zonder bevestiging kan je niet inloggen.',
+    '',
+    `Bevestig via deze link: ${verificationUrl}`,
+    '',
+    'Deze link is 7 dagen geldig.',
+    'Heb je dit niet aangevraagd? Dan kan je deze e-mail negeren.',
+  ].join('\n')
+
+  const html = `
+    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+      <div style="display:none;max-height:0;overflow:hidden;opacity:0;color:transparent;">
+        Je registratie bij TailTribe wacht nog op bevestiging.
+      </div>
+      <h1 style="color: #10b981; margin: 0 0 8px 0;">Je account wacht nog op je</h1>
+      <p style="margin: 0 0 14px 0; color:#111827;">
+        Hallo ${name}, je hebt je onlangs geregistreerd bij TailTribe, maar je e-mailadres is
+        nog niet bevestigd. Zonder bevestiging kan je niet inloggen.
+      </p>
+      <div style="text-align: center; margin: 30px 0;">
+        <a href="${verificationUrl}"
+           style="background: linear-gradient(to right, #10b981, #3b82f6);
+                  color: white;
+                  padding: 15px 30px;
+                  text-decoration: none;
+                  border-radius: 25px;
+                  font-weight: bold;
+                  display: inline-block;">
+          Bevestig e-mailadres
+        </a>
+      </div>
+      <p style="margin: 0 0 10px 0; color:#111827;">
+        Werkt de knop niet? Kopieer deze link in je browser:
+      </p>
+      <p style="margin: 0 0 18px 0; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size: 12px; word-break: break-all;">
+        <a href="${verificationUrl}" style="color:#2563eb; text-decoration: underline;">${verificationUrl}</a>
+      </p>
+      <p style="color: #666; font-size: 12px; margin-top: 30px;">
+        Deze link is 7 dagen geldig. Als je dit niet hebt aangevraagd, negeer deze email dan.
+      </p>
+    </div>
+  `
+
+  await sendTransactionalEmail({
+    to: email,
+    subject,
+    html,
+    text,
+    meta: {
+      kind: 'verify-email-reminder',
+      url: verificationUrl,
+    },
+    required: true,
+  })
+}
+
 export async function sendWelcomeEmail(email: string, firstName: string) {
   const appUrl = baseUrl()
 
