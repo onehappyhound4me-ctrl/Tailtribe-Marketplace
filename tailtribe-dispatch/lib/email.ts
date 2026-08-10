@@ -81,36 +81,49 @@ export async function sendVerificationReminderEmail(email: string, firstName: st
   ].join('\n')
 
   const html = `
-    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+    <div style="font-family: Arial, sans-serif; max-width: 520px; margin: 0 auto; padding: 16px;">
       <div style="display:none;max-height:0;overflow:hidden;opacity:0;color:transparent;">
         Je registratie bij TailTribe wacht nog op bevestiging.
       </div>
-      <h1 style="color: #10b981; margin: 0 0 8px 0;">Je account wacht nog op je</h1>
-      <p style="margin: 0 0 14px 0; color:#111827;">
-        Hallo ${name}, je hebt je onlangs geregistreerd bij TailTribe, maar je e-mailadres is
-        nog niet bevestigd. Zonder bevestiging kan je niet inloggen.
-      </p>
-      <div style="text-align: center; margin: 30px 0;">
-        <a href="${verificationUrl}"
-           style="background: linear-gradient(to right, #10b981, #3b82f6);
-                  color: white;
-                  padding: 15px 30px;
-                  text-decoration: none;
-                  border-radius: 25px;
-                  font-weight: bold;
-                  display: inline-block;">
-          Bevestig e-mailadres
-        </a>
+      <div style="border: 1px solid #e5e7eb; border-radius: 12px; overflow: hidden;">
+        <div style="background: linear-gradient(to right, #10b981, #3b82f6); padding: 14px 24px;">
+          <span style="color: #ffffff; font-size: 18px; font-weight: bold;">TailTribe</span>
+        </div>
+        <div style="padding: 20px 24px; background: #ffffff;">
+          <h1 style="color: #111827; font-size: 20px; margin: 0 0 10px 0;">Je account wacht nog op je</h1>
+          <p style="margin: 0 0 8px 0; color: #374151; font-size: 14px; line-height: 1.5;">
+            Hallo ${name},
+          </p>
+          <p style="margin: 0 0 16px 0; color: #374151; font-size: 14px; line-height: 1.5;">
+            Je hebt je geregistreerd bij TailTribe, maar je e-mailadres is nog niet bevestigd.
+            Zonder bevestiging kan je niet inloggen. Eén klik en je bent klaar:
+          </p>
+          <div style="text-align: center; margin: 0 0 16px 0;">
+            <a href="${verificationUrl}"
+               style="background: linear-gradient(to right, #10b981, #3b82f6);
+                      color: #ffffff;
+                      padding: 12px 28px;
+                      text-decoration: none;
+                      border-radius: 8px;
+                      font-weight: bold;
+                      font-size: 15px;
+                      display: inline-block;">
+              Bevestig e-mailadres
+            </a>
+          </div>
+          <p style="margin: 0 0 4px 0; color: #6b7280; font-size: 12px;">
+            Werkt de knop niet? Kopieer deze link in je browser:
+          </p>
+          <p style="margin: 0; font-size: 11px; word-break: break-all;">
+            <a href="${verificationUrl}" style="color: #2563eb; text-decoration: underline;">${verificationUrl}</a>
+          </p>
+        </div>
+        <div style="padding: 12px 24px; background: #f9fafb; border-top: 1px solid #e5e7eb;">
+          <p style="margin: 0; color: #9ca3af; font-size: 11px; line-height: 1.5;">
+            Deze link is 7 dagen geldig. Heb je dit niet aangevraagd? Dan kan je deze e-mail negeren.
+          </p>
+        </div>
       </div>
-      <p style="margin: 0 0 10px 0; color:#111827;">
-        Werkt de knop niet? Kopieer deze link in je browser:
-      </p>
-      <p style="margin: 0 0 18px 0; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size: 12px; word-break: break-all;">
-        <a href="${verificationUrl}" style="color:#2563eb; text-decoration: underline;">${verificationUrl}</a>
-      </p>
-      <p style="color: #666; font-size: 12px; margin-top: 30px;">
-        Deze link is 7 dagen geldig. Als je dit niet hebt aangevraagd, negeer deze email dan.
-      </p>
     </div>
   `
 
