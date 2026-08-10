@@ -42,6 +42,20 @@ export async function POST(request: NextRequest) {
     const { email, password, firstName, lastName, phone, role, address, city, postalCode, region, acceptTerms } = body
     const emailNormalized = normalizeEmail(email)
 
+    // Anti-bot: honeypot (hidden field real users never fill) + minimum form time.
+    // Reply with a fake success so bots don't learn they were detected.
+    const fakeSuccess = () =>
+      NextResponse.json({ success: true, message: 'Controleer je email voor verificatie' })
+    if (typeof body.website === 'string' && body.website.trim().length > 0) {
+      console.warn('[register] honeypot triggered', { ip })
+      return fakeSuccess()
+    }
+    const formStartedAt = Number(body.formStartedAt)
+    if (!Number.isFinite(formStartedAt) || Date.now() - formStartedAt < 3000) {
+      console.warn('[register] form submitted too fast or without timestamp', { ip })
+      return fakeSuccess()
+    }
+
     // Validatie
     if (!emailNormalized || !password || !firstName || !lastName || !role) {
       return NextResponse.json(

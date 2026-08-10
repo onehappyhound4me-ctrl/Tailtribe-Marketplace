@@ -24,6 +24,9 @@ export default function RegisterPage() {
     region: '',
     acceptTerms: false,
   })
+  // Anti-bot: honeypot value + timestamp of when the form was rendered.
+  const [website, setWebsite] = useState('')
+  const [formStartedAt] = useState(() => Date.now())
   const [error, setError] = useState('')
   const [errorDetail, setErrorDetail] = useState<string | null>(null)
   const [errorHint, setErrorHint] = useState<string | null>(null)
@@ -122,6 +125,8 @@ export default function RegisterPage() {
           ...formData,
           phone: phoneNormalized || '',
           role,
+          website,
+          formStartedAt,
         }),
       })
 
@@ -232,6 +237,19 @@ export default function RegisterPage() {
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-4">
+              {/* Honeypot: onzichtbaar voor mensen, bots vullen dit wel in */}
+              <div aria-hidden="true" className="absolute -left-[9999px] top-auto h-px w-px overflow-hidden">
+                <label htmlFor="website">Website</label>
+                <input
+                  id="website"
+                  name="website"
+                  type="text"
+                  value={website}
+                  onChange={(e) => setWebsite(e.target.value)}
+                  tabIndex={-1}
+                  autoComplete="off"
+                />
+              </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 <div>
