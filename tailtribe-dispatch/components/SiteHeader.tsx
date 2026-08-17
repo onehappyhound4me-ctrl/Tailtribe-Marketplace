@@ -235,22 +235,14 @@ export function SiteHeader({ primaryCtaHref = '/boeken', primaryCtaLabel = 'Boek
                 />
               </svg>
             </a>
-            <div className="grid grid-cols-2 gap-2">
-              <a
-                href="tel:+32489295045"
-                className="rounded-xl border border-emerald-200 bg-white px-4 py-3 text-sm font-semibold text-gray-900 hover:bg-emerald-50 transition min-h-[44px] flex items-center justify-center"
-              >
-                Bel ons
-              </a>
-              <a
-                href="https://wa.me/32489295045?text=Hallo%20TailTribe%2C%20ik%20heb%20een%20vraag%20over%20jullie%20diensten."
-                target="_blank"
-                rel="noreferrer noopener"
-                className="rounded-xl bg-[#25D366] px-4 py-3 text-sm font-semibold text-white hover:bg-[#20bd5a] transition min-h-[44px] flex items-center justify-center"
-              >
-                WhatsApp
-              </a>
-            </div>
+            <a
+              href="https://wa.me/32489295045?text=Hallo%20TailTribe%2C%20ik%20heb%20een%20vraag%20over%20jullie%20diensten."
+              target="_blank"
+              rel="noreferrer noopener"
+              className="rounded-xl bg-[#25D366] px-4 py-3 text-sm font-semibold text-white hover:bg-[#20bd5a] transition min-h-[44px] flex items-center justify-center"
+            >
+              WhatsApp ons
+            </a>
           </div>
 
           <a

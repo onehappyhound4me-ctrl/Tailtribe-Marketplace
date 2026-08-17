@@ -132,11 +132,6 @@ export function SiteFooter() {
             <h4 className="font-semibold text-white mb-2">Contact & info</h4>
             <ul className="space-y-1 text-sm">
               <li>
-                <a href="tel:+32489295045" className="text-slate-300 hover:text-white">
-                  +32 489 29 50 45
-                </a>
-              </li>
-              <li>
                 <a
                   href="https://wa.me/32489295045?text=Hallo%20TailTribe%2C%20ik%20heb%20een%20vraag%20over%20jullie%20diensten."
                   target="_blank"

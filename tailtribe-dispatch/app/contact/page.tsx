@@ -23,22 +23,16 @@ export default function ContactPage() {
           </p>
           <div className="space-y-3 text-gray-800 text-sm sm:text-base">
             <div>
-              <span className="font-semibold">Telefoon:</span>{' '}
-              <a href="tel:+32489295045" className="text-emerald-700 hover:underline">
-                +32 489 29 50 45
-              </a>
-            </div>
-            <div>
               <span className="font-semibold">E-mail:</span>{' '}
               <a href="mailto:steven@tailtribe.be" className="text-emerald-700 hover:underline">
                 steven@tailtribe.be
               </a>
             </div>
             <div className="text-sm text-gray-600 pt-2">
-              We reageren doorgaans binnen 24 uur op werkdagen. Dringend of last
-              minute? Bel of stuur een WhatsApp-bericht, dan helpen we je sneller.
+              We reageren doorgaans binnen 24 uur op werkdagen. Dringend of last minute? Stuur een
+              WhatsApp-berichtje, dan helpen we je sneller.
             </div>
-            <div className="flex flex-col sm:flex-row gap-3 pt-2">
+            <div className="pt-2">
               <a
                 href="https://wa.me/32489295045?text=Hallo%20TailTribe%2C%20ik%20heb%20een%20vraag%20over%20jullie%20diensten."
                 target="_blank"
@@ -50,12 +44,6 @@ export default function ContactPage() {
                 </svg>
                 WhatsApp ons
               </a>
-              <a
-                href="tel:+32489295045"
-                className="inline-flex items-center justify-center gap-2 rounded-xl border border-emerald-300 bg-white px-5 py-3 font-semibold text-emerald-800 hover:bg-emerald-50 transition"
-              >
-                Bel +32 489 29 50 45
-              </a>
             </div>
           </div>
         </div>
@@ -65,6 +53,3 @@ export default function ContactPage() {
     </div>
   )
 }
-
-
-

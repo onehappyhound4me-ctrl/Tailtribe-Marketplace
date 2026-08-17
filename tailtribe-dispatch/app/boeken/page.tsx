@@ -285,17 +285,13 @@ export default function BookingPage() {
           {/* Direct contact fallback — catches visitors who abandon the form */}
           <p className="mb-6 text-center text-sm text-gray-600">
             Liever direct contact?{' '}
-            <a href="tel:+32489295045" className="font-semibold text-emerald-700 hover:underline">
-              Bel +32 489 29 50 45
-            </a>{' '}
-            of{' '}
             <a
               href="https://wa.me/32489295045?text=Hallo%20TailTribe%2C%20ik%20wil%20graag%20een%20aanvraag%20doen."
               target="_blank"
               rel="noopener noreferrer"
               className="font-semibold text-emerald-700 hover:underline"
             >
-              stuur een WhatsApp
+              Stuur ons een WhatsApp-berichtje
             </a>
             .
           </p>

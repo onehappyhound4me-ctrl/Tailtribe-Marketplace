@@ -65,7 +65,7 @@ const HOME_FAQS = [
   },
   {
     q: 'Hoe snel nemen jullie contact op?',
-    a: 'Na je aanvraag nemen we meestal dezelfde werkdag contact op. Dringend? Bel of WhatsApp ons op +32 489 29 50 45, dan helpen we je meteen.',
+    a: 'Na je aanvraag nemen we meestal dezelfde werkdag contact op. Dringend? Stuur ons een WhatsApp-berichtje, dan helpen we je meteen.',
   },
   {
     q: 'Is er online betaling?',
@@ -77,7 +77,7 @@ const HOME_FAQS = [
   },
   {
     q: 'Kan ik last-minute boeken?',
-    a: 'Vaak wel. Vermeld “spoed” in je aanvraag of bel ons rechtstreeks op +32 489 29 50 45, dan kijken we meteen wat vandaag nog haalbaar is.',
+    a: 'Vaak wel. Vermeld “spoed” in je aanvraag of stuur ons een WhatsApp-berichtje, dan kijken we meteen wat vandaag nog haalbaar is.',
   },
 ] as const
 
@@ -183,11 +183,7 @@ export default function HomePageClient() {
               </div>
 
               <p className="mt-4 text-sm text-white/85">
-                Liever even bellen of appen?{' '}
-                <a href="tel:+32489295045" className="font-semibold text-white underline decoration-white/40 underline-offset-2 hover:decoration-white">
-                  +32 489 29 50 45
-                </a>
-                {' · '}
+                Dringend?{' '}
                 <a
                   href="https://wa.me/32489295045?text=Hallo%20TailTribe%2C%20ik%20zoek%20hulp%20voor%20mijn%20huisdier."
                   target="_blank"
