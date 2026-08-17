@@ -11,7 +11,7 @@ import { getServiceMarketingCover } from '@/lib/home-photography'
 import { routes } from '@/lib/routes'
 import { getPublicAppUrl } from '@/lib/env'
 import { absoluteUrl, buildPageMetadata } from '@/lib/seo'
-import { GOOGLE_REVIEWS_URL, getServiceReviews } from '@/lib/reviews'
+import { ONE_HAPPY_HOUND, getServiceReviews } from '@/lib/reviews'
 type Props = {
   params: { slug: string }
 }
@@ -497,10 +497,13 @@ export default function DienstDetailPage({ params }: Props) {
             <div className="overflow-hidden rounded-3xl border border-slate-200/80 bg-white shadow-sm">
               <div className="border-b border-slate-100 bg-gradient-to-r from-slate-50 via-white to-emerald-50/60 px-6 py-6 md:px-8">
                 <p className="text-sm font-semibold uppercase tracking-[0.14em] text-emerald-800">Ervaringen</p>
-                <h2 className="mt-2 text-2xl md:text-3xl font-semibold text-gray-900">Hoe baasjes TailTribe ervaren</h2>
+                <h2 className="mt-2 text-2xl md:text-3xl font-semibold text-gray-900">
+                  Google-reviews van {ONE_HAPPY_HOUND.name}
+                </h2>
                 <p className="mt-3 max-w-2xl text-base leading-8 text-gray-700">
-                  Voor veel klanten draait de keuze vooral om vertrouwen, duidelijke communicatie en een aanpak die
-                  professioneel aanvoelt van aanvraag tot opvolging.
+                  Deze reviews gaan over de groepsuitlaat van onze partner {ONE_HAPPY_HOUND.name} — als
+                  vertrouwensbewijs voor het team achter TailTribe. Voor andere diensten volgen we freelancers
+                  persoonlijk op; platformreviews bouwen we apart op.
                 </p>
               </div>
               <div className="grid gap-0 md:grid-cols-3">
@@ -530,17 +533,15 @@ export default function DienstDetailPage({ params }: Props) {
                 ))}
               </div>
               <div className="border-t border-slate-100 bg-slate-50/60 px-6 py-4 text-center md:px-8">
-                <a
-                  href={GOOGLE_REVIEWS_URL}
-                  target="_blank"
-                  rel="noopener noreferrer"
+                <Link
+                  href="/google-reviews"
                   className="inline-flex items-center gap-1.5 text-sm font-medium text-emerald-800 underline decoration-emerald-800/30 underline-offset-4 transition hover:text-emerald-900 hover:decoration-emerald-800"
                 >
-                  Meer reviews op Google
+                  Alle Google-reviews van One Happy Hound
                   <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
                   </svg>
-                </a>
+                </Link>
               </div>
             </div>
             <div className="bg-white rounded-2xl shadow-sm border border-black/5 p-5 sm:p-6 md:p-8">

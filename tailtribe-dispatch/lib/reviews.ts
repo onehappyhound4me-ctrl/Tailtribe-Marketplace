@@ -6,6 +6,13 @@ export type PublicReview = {
   serviceIds?: string[]
 }
 
+/** Partner voor groepsuitlaat — Google-reviews horen bij dit merk, niet bij TailTribe. */
+export const ONE_HAPPY_HOUND = {
+  name: 'One Happy Hound',
+  url: 'https://onehappyhound.be',
+  orgId: 'https://onehappyhound.be/#organization',
+} as const
+
 export const GOOGLE_MAPS_CID = process.env.NEXT_PUBLIC_GOOGLE_MAPS_CID || '3943987553262873468'
 export const GOOGLE_REVIEWS_URL = `https://maps.google.com/?cid=${GOOGLE_MAPS_CID}&hl=nl&gl=BE`
 
@@ -15,14 +22,14 @@ export const PUBLIC_REVIEWS: PublicReview[] = [
     rating: 5,
     quote:
       'Super professioneel en zorgzaam! Juno is dolgelukkig wanneer ze mee kan. Ik ben super blij en dankbaar voor deze oplossing.',
-    sourceLabel: 'Google review',
+    sourceLabel: 'Google · One Happy Hound',
     serviceIds: ['DOG_WALKING', 'GROUP_DOG_WALKING'],
   },
   {
     name: 'Annika Vershaeve',
     rating: 5,
     quote: 'Super dienst! Helpt enorm met mijn actieve Weimaraner en maakte hem echt sociaal.',
-    sourceLabel: 'Google review',
+    sourceLabel: 'Google · One Happy Hound',
     serviceIds: ['GROUP_DOG_WALKING', 'DOG_WALKING'],
   },
   {
@@ -30,7 +37,7 @@ export const PUBLIC_REVIEWS: PublicReview[] = [
     rating: 5,
     quote:
       'Steven belde vrijwel meteen terug en kon snel langskomen. Hij gaf heel goede tips; onze hond is veel stabieler. Ook nadien bereikbaar voor raad!',
-    sourceLabel: 'Google review',
+    sourceLabel: 'Google · One Happy Hound',
     serviceIds: ['DOG_TRAINING', 'PET_SITTING'],
   },
 ]
@@ -55,7 +62,7 @@ function parseGoogleBusinessReviewCount(): number | undefined {
   return Number.isFinite(n) && n > 0 ? n : undefined
 }
 
-/** Gemiddelde en optioneel aantal reviews (UI: homepage, sterren). */
+/** Gemiddelde en optioneel aantal Google-reviews van One Happy Hound (UI). */
 export function getPublicReviewsDisplayRating(): { ratingValue: number; reviewCount: number | undefined } {
   return {
     ratingValue: parseGoogleBusinessRating(),
@@ -63,11 +70,27 @@ export function getPublicReviewsDisplayRating(): { ratingValue: number; reviewCo
   }
 }
 
-/**
- * AggregateRating voor JSON-LD — verplicht wanneer Organization/LocalBusiness meerdere `review`-items heeft.
- * Prefer env (echte Google Business stats); anders fallback op de gecureerde PUBLIC_REVIEWS.
- */
-function getPublicReviewsAggregateRatingForSchema(): {
+function formatNlRating(rating: number): string {
+  return rating.toLocaleString('nl-BE', { minimumFractionDigits: 0, maximumFractionDigits: 1 })
+}
+
+/** Eerlijke UI-tekst: reviews zijn van OHH, niet van TailTribe. */
+export function formatOneHappyHoundGoogleReviewsLine(options?: { compact?: boolean }): string {
+  const { ratingValue, reviewCount } = getPublicReviewsDisplayRating()
+  const ratingLabel = formatNlRating(ratingValue)
+
+  if (options?.compact) {
+    return `${ratingLabel}/5 · ${ONE_HAPPY_HOUND.name} op Google`
+  }
+
+  if (reviewCount != null) {
+    return `${ratingLabel}/5 · ${reviewCount} Google-reviews · ${ONE_HAPPY_HOUND.name}`
+  }
+
+  return `${ratingLabel}/5 op Google · ${ONE_HAPPY_HOUND.name}`
+}
+
+function getOneHappyHoundAggregateRatingForSchema(): {
   '@type': 'AggregateRating'
   ratingValue: number
   reviewCount: number
@@ -104,12 +127,19 @@ function getPublicReviewsAggregateRatingForSchema(): {
   }
 }
 
-export function getOrganizationReviewSchema() {
-  const aggregateRating = getPublicReviewsAggregateRatingForSchema()
+/** Reviews + aggregateRating voor JSON-LD — altijd gekoppeld aan One Happy Hound. */
+export function getOneHappyHoundReviewSchema() {
+  const aggregateRating = getOneHappyHoundAggregateRatingForSchema()
   return {
     aggregateRating,
     review: PUBLIC_REVIEWS.map((review) => ({
       '@type': 'Review',
+      itemReviewed: {
+        '@type': 'LocalBusiness',
+        '@id': ONE_HAPPY_HOUND.orgId,
+        name: ONE_HAPPY_HOUND.name,
+        url: ONE_HAPPY_HOUND.url,
+      },
       reviewRating: {
         '@type': 'Rating',
         ratingValue: review.rating,
@@ -126,4 +156,25 @@ export function getOrganizationReviewSchema() {
       },
     })),
   }
+}
+
+/** Aparte LocalBusiness-node voor @graph — partner van TailTribe. */
+export function getOneHappyHoundOrganizationSchema() {
+  return {
+    '@type': 'LocalBusiness',
+    '@id': ONE_HAPPY_HOUND.orgId,
+    name: ONE_HAPPY_HOUND.name,
+    url: ONE_HAPPY_HOUND.url,
+    description:
+      'Groepshondenuitlaat en avontuurlijke daguitstappen voor honden in Vlaanderen. Partner van TailTribe.',
+    serviceType: 'Hondenuitlaatservice',
+    areaServed: { '@type': 'State', name: 'Vlaanderen', addressCountry: 'BE' },
+    sameAs: [GOOGLE_REVIEWS_URL],
+    ...getOneHappyHoundReviewSchema(),
+  }
+}
+
+/** @deprecated Gebruik getOneHappyHoundReviewSchema — reviews horen niet op TailTribe Organization. */
+export function getOrganizationReviewSchema() {
+  return getOneHappyHoundReviewSchema()
 }

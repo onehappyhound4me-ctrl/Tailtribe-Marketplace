@@ -7,7 +7,7 @@ import { SiteHeader } from '@/components/SiteHeader'
 import { SiteFooter } from '@/components/SiteFooter'
 import { DISPATCH_SERVICES } from '@/lib/services'
 import { routes } from '@/lib/routes'
-import { getPublicReviewsDisplayRating, GOOGLE_REVIEWS_URL, PUBLIC_REVIEWS } from '@/lib/reviews'
+import { formatOneHappyHoundGoogleReviewsLine, ONE_HAPPY_HOUND, PUBLIC_REVIEWS, getPublicReviewsDisplayRating } from '@/lib/reviews'
 import { HOME_FEATURED_CARE, HOME_HERO, HOME_HOW_IMAGE, HOME_MID_BANNER } from '@/lib/home-photography'
 
 const STAR_PATH =
@@ -87,12 +87,8 @@ function formatNlRating(rating: number) {
 
 export default function HomePageClient() {
   const { data: session } = useSession()
-  const { ratingValue, reviewCount } = getPublicReviewsDisplayRating()
-  const ratingLabel = formatNlRating(ratingValue)
-  const googleReviewLine =
-    reviewCount != null
-      ? `${ratingLabel}/5 · ${reviewCount} reviews op Google`
-      : `${ratingLabel}/5 gemiddeld op Google`
+  const { ratingValue } = getPublicReviewsDisplayRating()
+  const googleReviewLine = formatOneHappyHoundGoogleReviewsLine()
 
   const bookingHref =
     session?.user?.role === 'OWNER' ? '/dashboard/owner/new-booking' : '/boeken'
@@ -154,15 +150,13 @@ export default function HomePageClient() {
                 door heel België.
               </p>
 
-              <a
-                href={GOOGLE_REVIEWS_URL}
-                target="_blank"
-                rel="noopener noreferrer"
+              <Link
+                href="/google-reviews"
                 className="mt-6 inline-flex flex-wrap items-center gap-3 rounded-2xl border border-white/15 bg-white/10 px-4 py-3 backdrop-blur-md transition duration-200 hover:border-white/25 hover:bg-white/15"
               >
                 <StarRow value={ratingValue} />
                 <span className="text-sm font-medium text-white">{googleReviewLine}</span>
-              </a>
+              </Link>
 
               <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
                 <Link
@@ -247,9 +241,7 @@ export default function HomePageClient() {
             <div className="mt-5 flex flex-wrap items-center justify-center gap-2 text-sm text-slate-600">
               <StarRow value={ratingValue} />
               <span className="font-medium text-slate-800">
-                {reviewCount != null
-                  ? `${ratingLabel}/5 gemiddeld op Google (${reviewCount} reviews)`
-                  : `${ratingLabel}/5 gemiddeld op Google`}
+                {formatOneHappyHoundGoogleReviewsLine()}
               </span>
             </div>
           </div>
@@ -483,24 +475,31 @@ export default function HomePageClient() {
           <div className="mx-auto mb-14 max-w-3xl text-center">
             <p className="text-xs font-semibold uppercase tracking-[0.16em] text-emerald-800">Ervaringen</p>
             <h2 className="mt-3 font-heading text-3xl font-bold text-slate-900 sm:text-4xl md:text-5xl">
-              Wat baasjes waarderen
+              Vertrouwen via One Happy Hound
             </h2>
             <p className="mx-auto mt-4 max-w-2xl text-base leading-relaxed text-slate-600">
-              Reviews van onze hondenuitlaatservice:{' '}
-              <span className="font-semibold text-slate-800">One Happy Hound</span>.
-            </p>
-            <p className="mx-auto mt-5">
+              Ons team achter{' '}
               <a
-                href={GOOGLE_REVIEWS_URL}
+                href={ONE_HAPPY_HOUND.url}
                 target="_blank"
                 rel="noopener noreferrer"
+                className="font-semibold text-emerald-800 underline decoration-emerald-800/30 underline-offset-2 hover:text-emerald-900"
+              >
+                One Happy Hound
+              </a>{' '}
+              heeft jarenlange ervaring met groepsuitlaat. De Google-reviews hieronder gaan over die dienst — niet
+              over individuele TailTribe-bookings.
+            </p>
+            <p className="mx-auto mt-5">
+              <Link
+                href="/google-reviews"
                 className="inline-flex items-center gap-1.5 text-sm font-semibold text-emerald-800 underline decoration-emerald-800/30 underline-offset-4 transition hover:text-emerald-900"
               >
-                Alle reviews op Google
+                Alle Google-reviews van One Happy Hound
                 <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
                 </svg>
-              </a>
+              </Link>
             </p>
           </div>
 

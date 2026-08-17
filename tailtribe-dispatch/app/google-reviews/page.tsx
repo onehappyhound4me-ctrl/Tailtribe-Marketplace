@@ -3,20 +3,25 @@ import Link from 'next/link'
 import { SiteHeader } from '@/components/SiteHeader'
 import { SiteFooter } from '@/components/SiteFooter'
 import { getPublicAppUrl } from '@/lib/env'
-import { GOOGLE_REVIEWS_URL, PUBLIC_REVIEWS } from '@/lib/reviews'
+import {
+  GOOGLE_REVIEWS_URL,
+  ONE_HAPPY_HOUND,
+  PUBLIC_REVIEWS,
+  getOneHappyHoundOrganizationSchema,
+} from '@/lib/reviews'
 
 const baseUrl = getPublicAppUrl()
 const canonicalUrl = new URL('/google-reviews', baseUrl).toString()
 
 export const metadata: Metadata = {
-  title: 'Reviews — hondenuitlaatservice One Happy Hound',
+  title: 'Google-reviews One Happy Hound',
   description:
-    'Reviews van onze hondenuitlaatservice One Happy Hound. Lees ervaringen van baasjes en bekijk alle Google-reviews.',
+    'Google-reviews van One Happy Hound, partner voor groepshondenuitlaat. Lees ervaringen van baasjes — TailTribe deelt deze reviews als vertrouwensbewijs van ons uitlaatteam.',
   alternates: { canonical: canonicalUrl },
   openGraph: {
-    title: 'Reviews — hondenuitlaatservice One Happy Hound',
+    title: 'Google-reviews One Happy Hound',
     description:
-      'Reviews van onze hondenuitlaatservice One Happy Hound. Lees ervaringen van baasjes en bekijk alle Google-reviews.',
+      'Google-reviews van One Happy Hound, partner voor groepshondenuitlaat bij TailTribe.',
     url: canonicalUrl,
     siteName: 'TailTribe',
     locale: 'nl_BE',
@@ -25,12 +30,24 @@ export const metadata: Metadata = {
 }
 
 export default function GoogleReviewsPage() {
+  const ohhSchema = getOneHappyHoundOrganizationSchema()
   const reviewsJsonLd = {
     '@context': 'https://schema.org',
-    '@type': 'WebPage',
-    name: 'Reviews van onze hondenuitlaatservice One Happy Hound',
-    url: canonicalUrl,
-    mainEntity: { '@id': `${baseUrl}/#organization` },
+    '@graph': [
+      {
+        '@type': 'WebPage',
+        name: 'Google-reviews One Happy Hound',
+        url: canonicalUrl,
+        description:
+          'Overzicht van Google-reviews voor One Happy Hound, partner voor groepshondenuitlaat van TailTribe.',
+        isPartOf: { '@id': `${baseUrl}/#website` },
+        about: { '@id': ONE_HAPPY_HOUND.orgId },
+      },
+      {
+        ...ohhSchema,
+        parentOrganization: { '@id': `${baseUrl}/#organization` },
+      },
+    ],
   }
 
   return (
@@ -40,25 +57,34 @@ export default function GoogleReviewsPage() {
       <main className="px-4 py-14">
         <div className="mx-auto w-full max-w-5xl space-y-8">
           <div className="rounded-3xl border border-emerald-100 bg-white shadow-sm p-6 sm:p-8 md:p-10 text-center">
-            <p className="text-sm font-semibold uppercase tracking-[0.14em] text-emerald-800">Reviews</p>
+            <p className="text-sm font-semibold uppercase tracking-[0.14em] text-emerald-800">Google-reviews</p>
             <h1 className="mt-3 text-3xl sm:text-4xl font-bold text-gray-900">
-              Reviews van onze hondenuitlaatservice: One Happy Hound
+              Reviews van {ONE_HAPPY_HOUND.name}
             </h1>
             <p className="mt-4 mx-auto max-w-2xl text-base leading-8 text-gray-700">
-              De Google-reviews onder TailTribe gaan over de groepsuitlaat van onze partner{' '}
-              <strong>One Happy Hound</strong>. Hieronder enkele ervaringen — alle reviews vind je op Google.
+              Deze Google-reviews gaan over de groepsuitlaat van onze partner{' '}
+              <strong>{ONE_HAPPY_HOUND.name}</strong> — niet over individuele boekingen via TailTribe. TailTribe
+              deelt ze als vertrouwensbewijs: hetzelfde team met jarenlange praktijkervaring.
             </p>
-            <div className="mt-8">
+            <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
               <a
                 href={GOOGLE_REVIEWS_URL}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-green-600 to-blue-600 text-white px-6 py-3 text-sm font-semibold shadow-md hover:from-green-700 hover:to-blue-700 transition min-h-[44px]"
               >
-                Bekijk reviews op Google
+                Bekijk alle reviews op Google
                 <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
                 </svg>
+              </a>
+              <a
+                href={ONE_HAPPY_HOUND.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center justify-center gap-2 rounded-xl border border-emerald-200 bg-white px-6 py-3 text-sm font-semibold text-emerald-900 shadow-sm hover:bg-emerald-50 transition min-h-[44px]"
+              >
+                Naar onehappyhound.be
               </a>
             </div>
           </div>
@@ -88,11 +114,11 @@ export default function GoogleReviewsPage() {
           </section>
 
           <div className="rounded-2xl border border-emerald-100 bg-white p-6 shadow-sm sm:p-8">
-            <h2 className="text-2xl font-semibold text-gray-900">Waarom deze reviews belangrijk zijn</h2>
+            <h2 className="text-2xl font-semibold text-gray-900">Waarom TailTribe deze reviews toont</h2>
             <p className="mt-4 max-w-3xl text-base leading-8 text-gray-700">
-              Wie zoekt naar een hondenuitlaatservice wil weten of de honden goed begeleid worden. Deze reviews gaan
-              over de groepsuitlaat van <strong>One Happy Hound</strong> — en geven extra zekerheid naast onze
-              dienstpagina&apos;s.
+              TailTribe is een platform voor dierenverzorging via freelancers. {ONE_HAPPY_HOUND.name} is onze partner
+              voor groepsuitlaat — met hetzelfde team en dezelfde standaard. De Google-score op deze pagina is van{' '}
+              {ONE_HAPPY_HOUND.name}, niet van het TailTribe-platform zelf.
             </p>
             <div className="mt-6 flex flex-col gap-3 sm:flex-row">
               <Link href="/diensten" className="btn-secondary-compact">

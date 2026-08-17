@@ -11,7 +11,7 @@ import { AnalyticsPageView } from '@/components/AnalyticsPageView'
 import { AnalyticsDebugBadge } from '@/components/AnalyticsDebugBadge'
 import { AnalyticsEventCapture } from '@/components/AnalyticsEventCapture'
 import { getPublicAppUrl } from '@/lib/env'
-import { getOrganizationReviewSchema } from '@/lib/reviews'
+import { getOneHappyHoundOrganizationSchema } from '@/lib/reviews'
 
 // Self-hosted fonts via next/font: no render-blocking Google Fonts CSS and
 // no layout shift when the webfont swaps in (adjustFontFallback).
@@ -29,7 +29,7 @@ const sora = Sora({
 const appUrl = getPublicAppUrl()
 const ogImageUrl = `${appUrl}/assets/hero-marketplace.jpg`
 const orgLogoUrl = `${appUrl}/tailtribe_logo_masked_1751977129022.png`
-const organizationReviews = getOrganizationReviewSchema()
+const oneHappyHoundOrganization = getOneHappyHoundOrganizationSchema()
 
 // Paste the token from Google Search Console (HTML tag method) into the
 // GOOGLE_SITE_VERIFICATION env var. The meta tag only renders when it is set.
@@ -122,7 +122,11 @@ export default function RootLayout({
                     areaServed: { '@type': 'Country', name: 'België' },
                     slogan:
                       'Persoonlijke matching met gescreende dierenverzorgers in België — geen anonieme marktplaats.',
-                    sameAs: ['https://www.instagram.com/tailtribe_/'],
+                    sameAs: [
+                      'https://www.instagram.com/tailtribe_/',
+                      'https://onehappyhound.be',
+                    ],
+                    subOrganization: { '@id': oneHappyHoundOrganization['@id'] },
                     contactPoint: [
                       {
                         '@type': 'ContactPoint',
@@ -131,7 +135,10 @@ export default function RootLayout({
                         availableLanguage: ['nl', 'en'],
                       },
                     ],
-                    ...organizationReviews,
+                  },
+                  {
+                    ...oneHappyHoundOrganization,
+                    parentOrganization: { '@id': `${appUrl}/#organization` },
                   },
                   {
                     '@type': 'WebSite',

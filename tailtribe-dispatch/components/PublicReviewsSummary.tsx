@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { GOOGLE_REVIEWS_URL, getPublicReviewsDisplayRating } from '@/lib/reviews'
+import { formatOneHappyHoundGoogleReviewsLine, getPublicReviewsDisplayRating } from '@/lib/reviews'
 
 const STAR_PATH =
   'M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z'
@@ -37,18 +37,12 @@ type Props = {
 }
 
 export function PublicReviewsSummary({ className = '', align = 'center' }: Props) {
-  const { ratingValue, reviewCount } = getPublicReviewsDisplayRating()
-  const ratingLabel = ratingValue.toLocaleString('nl-BE', { minimumFractionDigits: 0, maximumFractionDigits: 1 })
-  const line =
-    reviewCount != null
-      ? `${ratingLabel}/5 · ${reviewCount} reviews op Google`
-      : `${ratingLabel}/5 gemiddeld op Google`
+  const { ratingValue } = getPublicReviewsDisplayRating()
+  const line = formatOneHappyHoundGoogleReviewsLine({ compact: true })
 
   return (
     <Link
-      href={GOOGLE_REVIEWS_URL}
-      target="_blank"
-      rel="noopener noreferrer"
+      href="/google-reviews"
       className={[
         'inline-flex flex-wrap items-center gap-2 rounded-2xl border border-emerald-200/80 bg-white/90 px-4 py-2.5 text-sm font-medium text-slate-700 shadow-sm transition hover:border-emerald-300 hover:bg-emerald-50/50 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2',
         align === 'center' ? 'justify-center' : 'justify-start',

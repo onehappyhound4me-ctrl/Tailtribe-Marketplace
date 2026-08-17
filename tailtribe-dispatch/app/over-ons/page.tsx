@@ -44,8 +44,11 @@ export default function OverOnsPage() {
               <h1 className="text-2xl sm:text-3xl md:text-[2.6rem] lg:text-[2.8rem] font-bold text-transparent bg-clip-text bg-gradient-to-r from-emerald-700 to-blue-700 leading-tight sm:leading-snug">
                 Gebouwd op echte ervaring
               </h1>
-              <div className="pt-2">
+              <div className="pt-2 space-y-2">
                 <PublicReviewsSummary align="start" />
+                <p className="text-sm text-emerald-800/90">
+                  Google-score van onze uitlaatpartner One Happy Hound — gedeeld als vertrouwensbewijs voor het team.
+                </p>
               </div>
               <p>
                 TailTribe is ontstaan uit jaren praktijkervaring in de dagelijkse zorg voor huisdieren. We weten uit de sector zelf
