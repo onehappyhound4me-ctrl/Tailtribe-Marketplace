@@ -1,6 +1,9 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { PROVINCES, getPopularProvinces } from '@/data/be-geo'
+import { ONE_HAPPY_HOUND } from '@/lib/reviews'
+
+const ONE_HAPPY_HOUND_REFERRAL = `${ONE_HAPPY_HOUND.url}/?utm_source=tailtribe&utm_medium=referral&utm_campaign=footer`
 
 export function SiteFooter() {
   const year = new Date().getFullYear()
@@ -77,6 +80,16 @@ export function SiteFooter() {
                   </Link>
                 </li>
               ))}
+              <li>
+                <a
+                  href={ONE_HAPPY_HOUND_REFERRAL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-slate-300 hover:text-white"
+                >
+                  Groepsdaguitstappen (One Happy Hound)
+                </a>
+              </li>
               <li className="pt-1">
                 <Link href="/diensten" className="text-emerald-300 hover:text-white font-medium">
                   Alle diensten →
@@ -193,6 +206,18 @@ export function SiteFooter() {
             </Link>
           </div>
           <p className="text-center">&copy; {year} TailTribe. Alle rechten voorbehouden.</p>
+          <p className="mt-2 text-center text-xs text-slate-400">
+            Groepshondenuitlaat via partner{' '}
+            <a
+              href={ONE_HAPPY_HOUND_REFERRAL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-slate-300 underline-offset-2 hover:text-white hover:underline"
+            >
+              One Happy Hound
+            </a>
+            .
+          </p>
         </div>
       </div>
     </footer>
